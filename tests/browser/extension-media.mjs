@@ -2,11 +2,15 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import {pathToFileURL} from 'node:url';
 import {applications,password,server} from '../helpers/extension-media.mjs';
 if(!process.env.PLAYWRIGHT_MODULE)throw new Error('Set PLAYWRIGHT_MODULE to the authorized local installation.');
 const {chromium}=await import(pathToFileURL(process.env.PLAYWRIGHT_MODULE));
-const evidence=process.env.DBLESS_CMS_MEDIA_EVIDENCE||'/tmp/dbless-extension-media-browser';fs.mkdirSync(evidence,{recursive:true});
+// Each run owns a private unpredictable directory; the optional setting selects only its parent.
+const evidenceParent=process.env.DBLESS_CMS_MEDIA_EVIDENCE||os.tmpdir();fs.mkdirSync(evidenceParent,{recursive:true});
+const evidence=fs.mkdtempSync(path.join(evidenceParent,'dbless-extension-media-browser-'));
+console.log('Browser evidence: '+evidence);
 const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',args:['--no-sandbox']}),results=[];
 try{
   for(const application of applications){

@@ -1445,8 +1445,8 @@
     },
     {
       "path": "tests/browser/extension-media.mjs",
-      "bytes": 7141,
-      "sha256": "3e52a030476da569d1e9534ef57befea7d2452fb738e49d27dad231a7af14456"
+      "bytes": 7387,
+      "sha256": "1b9471953daba71fea623ef705b002dbd5350dba7a381df5eb6a6b97e99bd60c"
     },
     {
       "path": "tests/extension-media.test.mjs",
