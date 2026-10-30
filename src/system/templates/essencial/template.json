@@ -24,16 +24,19 @@
     "showcase": "showcase.php",
     "slide-blocks": "slide-blocks.php",
     "menu-examples": "menu-examples.php",
-    "home-extras": "home-extras.php"
+    "home-extras": "home-extras.php",
+    "blog": "blog.php",
+    "blog-preview": "blog-preview.php"
   },
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": "dbless-cms",
   "contract": "schema.json",
   "assets": {
     "styles": [
       "css/style.css",
       "css/menu.css",
-      "css/slides.css"
+      "css/slides.css",
+      "css/blog.css"
     ],
     "scripts": [
       "js/theme.js",

@@ -12,11 +12,11 @@ e amplie-o com templates e plugins adequados aos seus projetos.
 
 ## Uma base prática para seu próximo site
 
-- **Dispense o provisionamento de banco de dados.** Páginas, menus, slides e configurações
+- **Dispense o provisionamento de banco de dados.** Páginas, artigos, menus, slides e configurações
   ficam em arquivos JSON estruturados. Simplifique a hospedagem e facilite a inspeção e a
   transferência do conteúdo.
 - **Ofereça um ambiente próprio para editores.** Gerencie páginas, rascunhos, revisões,
-  lixeira, menus, mídia e slides em um painel responsivo, independente do tema público.
+  lixeira, menus, mídia, artigos e slides em um painel responsivo, independente do tema público.
 - **Controle a apresentação.** Templates recebem conteúdo validado e controlam seu HTML,
   CSS e JavaScript. Adicione seu design sem adotar um framework de frontend.
 - **Amplie conforme a necessidade.** Plugins declaram rotas, navegação, dicionários e
@@ -32,19 +32,20 @@ Node.js 22 é uma ferramenta de desenvolvimento/exportação, sem dependência n
 
 ## Explore um exemplo completo
 
-A distribuição inclui o template **Essencial** e quatro plugins prontos para uso:
+A distribuição inclui o template **Essencial** e cinco plugins prontos para uso:
 
 | Plugin | O que oferece ao seu projeto |
 | --- | --- |
+| Blog | Artigos, agendamento, autores, tópicos, SEO, RSS e comentários moderados |
 | Pages | Páginas estruturadas, rascunhos, publicação, histórico e lixeira |
 | Menu | Navegação hierárquica associada aos locais declarados pelo template |
 | Slides | Banners, carrosséis, testemunhos, produtos e conteúdo rotativo |
 | Files Manager | Uploads públicos/privados, pastas, visualização e exclusão recuperável |
 
-O site de exemplo conecta páginas, menus e slides para permitir aprendizado a partir
+O site de exemplo conecta páginas, artigos de blog, menus e slides para permitir aprendizado a partir
 de um site funcional. Suas três imagens originais estão incluídas sob Apache-2.0.
 O painel oferece inglês e português brasileiro; o conteúdo editorial de exemplo está
-em português brasileiro e pode ser editado independentemente do idioma do painel.
+em português brasileiro, com exemplos de blog em inglês, e pode ser editado independentemente do idioma do painel.
 
 ## Comece agora
 
@@ -60,7 +61,7 @@ cp .env.example .env
 
 Defina o administrador de desenvolvimento no `.env`: escolha um usuário e uma senha
 exclusiva de pelo menos 16 caracteres em `DBLESS_CMS_ADMIN_USER` e `DBLESS_CMS_ADMIN_PASSWORD`.
-Esses nomes de variáveis de compatibilidade são intencionais. Nenhuma senha funcional é fornecida.
+Esses são os nomes canônicos das variáveis de desenvolvimento. Nenhuma senha funcional é fornecida.
 
 ```bash
 npm run dev
@@ -71,6 +72,12 @@ O conteúdo inicial é instalado uma única vez; o conteúdo existente é preser
 O desenvolvimento executa diretamente de `src/`. Para produção, siga a seção de publicação
 do [guia de templates](docs/templates.md#10-deploy-a-site-with-your-template): são necessários HTTPS,
 configuração privada com hash de senha e exportação explícita. Pacotes de produção ignoram `.env`.
+
+## Publique um blog sob seu controle
+
+O [Blog](docs/plugins.md#12-run-the-bundled-blog) incluído oferece artigos estruturados,
+capas visuais, agendamento, arquivos pesquisáveis e RSS. Ative a discussão moderada quando
+o projeto precisar. Mantenha artigos em JSON portátil e deixe o template controlar a leitura.
 
 ## Adapte ao seu projeto
 

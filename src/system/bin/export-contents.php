@@ -53,5 +53,10 @@ $slideDirectory=$target.'/system/storage/contents/slides';
 if(!mkdir($slideDirectory,0770,true)&&!is_dir($slideDirectory))throw new RuntimeException('Destino de slides indisponível.');
 $slideBytes=\DBLESSCMS\SlidesStore::encode(\DBLESSCMS\SlidesStore::validate($slides));
 if(file_put_contents($slideDirectory.'/slides.json',$slideBytes)!==strlen($slideBytes))throw new RuntimeException('Exportação de slides incompleta.');
+if (isset($registry->all()['blog'])) {
+  require_once $config->root.'/plugins/blog/Plugin.php';
+  require_once $config->root.'/plugins/blog/Export.php';
+  \DBLESSCMS\BlogExport::run($store,$target);
+}
 \DBLESSCMS\SiteFavicon::export($store,$target);
 echo count($pages)." páginas sanitizadas.\n";

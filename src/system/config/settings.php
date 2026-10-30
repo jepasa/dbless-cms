@@ -2,7 +2,7 @@
 /** Configuração operacional DBLESS-CMS; conteúdo editorial reside em storage/contents/site.json. */
 declare(strict_types=1);
 return [
-  'version' => '2.0.0',
+  'version' => '2.1.0',
   'environment' => getenv('DBLESS_CMS_ENV') ?: 'development',
   'contents' => getenv('DBLESS_CMS_CONTENTS_ROOT') ?: dirname(__DIR__) . '/storage/contents',
   'storage' => getenv('DBLESS_CMS_STORAGE_ROOT') ?: dirname(__DIR__) . '/storage',

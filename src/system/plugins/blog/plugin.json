@@ -1,0 +1,173 @@
+{
+  "id": "blog",
+  "name": "Blog",
+  "description": "Articles, editorial authors, categories, tags, scheduled publication and moderated discussion.",
+  "version": "1.0.0",
+  "api": 1,
+  "cmsMajor": 2,
+  "entry": "Plugin.php",
+  "class": "DBLESSCMS\\BlogPlugin",
+  "assets": {
+    "css": "css/blog.css",
+    "js": "js/blog.js",
+    "icon": "blog.svg"
+  },
+  "defaults": {
+    "publication": {
+      "title": "Journal",
+      "description": "Ideas, practical guides and stories worth sharing.",
+      "pageSize": 9,
+      "feedLimit": 20,
+      "readingSpeed": 200
+    },
+    "discussion": {
+      "enabled": false,
+      "maxLength": 2000
+    }
+  },
+  "router": "Router.php",
+  "routes": {
+    "overview": {
+      "title": "blog.overview",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private",
+      "description": "blog.help"
+    },
+    "editor": {
+      "title": "blog.editor",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "taxonomies": {
+      "title": "blog.taxonomies",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "comments": {
+      "title": "blog.comments",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "history": {
+      "title": "blog.history",
+      "file": "pages/workspace.php",
+      "requiresEnabled": false,
+      "visibility": "private"
+    },
+    "settings": {
+      "title": "blog.settings",
+      "file": "pages/workspace.php",
+      "requiresEnabled": false,
+      "visibility": "private"
+    },
+    "trash": {
+      "title": "blog.trash",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "preview": {
+      "title": "blog.preview",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "list": {
+      "title": "blog.list",
+      "file": "pages/public.php",
+      "requiresEnabled": true,
+      "visibility": "public",
+      "methods": [
+        "GET"
+      ]
+    },
+    "article": {
+      "title": "blog.article",
+      "file": "pages/public.php",
+      "requiresEnabled": true,
+      "visibility": "public",
+      "methods": [
+        "GET"
+      ]
+    },
+    "feed": {
+      "title": "blog.feed",
+      "file": "pages/public.php",
+      "requiresEnabled": true,
+      "visibility": "public",
+      "methods": [
+        "GET"
+      ]
+    },
+    "sitemap": {
+      "title": "blog.sitemap",
+      "file": "pages/public.php",
+      "requiresEnabled": true,
+      "visibility": "public",
+      "methods": [
+        "GET"
+      ]
+    },
+    "comment": {
+      "title": "blog.comment",
+      "file": "pages/public.php",
+      "requiresEnabled": true,
+      "visibility": "public",
+      "methods": [
+        "POST"
+      ],
+      "maxBodyBytes": 16384
+    }
+  },
+  "navigation": {
+    "label": "blog.name",
+    "items": [
+      {
+        "label": "blog.overview",
+        "route": "overview"
+      },
+      {
+        "label": "blog.new",
+        "route": "editor"
+      },
+      {
+        "label": "blog.taxonomies",
+        "route": "taxonomies"
+      },
+      {
+        "label": "blog.comments",
+        "route": "comments"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "blog.history",
+        "route": "history"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "blog.settings",
+        "route": "settings"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "blog.trash",
+        "route": "trash"
+      }
+    ]
+  },
+  "configuration": "settings",
+  "publicSettings": [
+    "publication",
+    "discussion"
+  ]
+}

@@ -22,8 +22,8 @@ try{
       await page.goto(sandbox.base+'/cms-admin/');await page.getByLabel('Username',{exact:true}).fill('editor');await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Sign in',exact:true}).click();
       assert.match(await page.locator('link[rel="icon"]').getAttribute('href'),/\/cms-admin\/assets\/favicon\.ico$/);
       await page.waitForSelector('[data-plugin-menu="slides"]');
-      const icons=page.locator('.sidebar .plugin-icon');assert.equal(await icons.count(),4);
-      const urls=await icons.evaluateAll(nodes=>nodes.map(node=>node.src));assert.equal(new Set(urls).size,4);
+      const icons=page.locator('.sidebar .plugin-icon');assert.equal(await icons.count(),5);
+      const urls=await icons.evaluateAll(nodes=>nodes.map(node=>node.src));assert.equal(new Set(urls).size,5);
       assert.ok(urls.some(url=>url.endsWith('/plugins/slides/slides.svg')));assert.ok(urls.some(url=>url.endsWith('/plugins/files-manager/files-manager.svg')));
       await page.screenshot({path:path.join(evidence,'sidebar-desktop.png')});
       await page.locator('[data-plugin-menu="slides"] > summary').click();await page.locator('[data-plugin-menu="files-manager"] > summary').click();
@@ -57,7 +57,7 @@ try{
       const publicPage=await context.newPage();await publicPage.goto(sandbox.base+'/');assert.equal(await publicPage.locator('link[rel="icon"]').getAttribute('href'),sandbox.base+'/media/brand.ico');
       const iconResponse=await context.request.get(sandbox.base+'/media/brand.ico');assert.equal(iconResponse.status(),200);await publicPage.close();
       assert.equal(await page.locator('svg').count(),0);assert.deepEqual(errors,[]);assert.doesNotMatch(sandbox.logs(),/PHP (?:Warning|Fatal|Parse)/);
-      results.push({application,status:'passed',icons:urls,thumbnails:dimensions,checks:['actual sign-in and dropdown clicks','four distinct addressed SVGs','desktop/mobile 16:9 previews','manifest filename override','ICO upload via chooser and global favicon saved/read in public header','independent hardcoded admin favicon','no horizontal overflow, inline SVG, external requests or runtime errors']});
+      results.push({application,status:'passed',icons:urls,thumbnails:dimensions,checks:['actual sign-in and dropdown clicks','five distinct addressed SVGs','desktop/mobile 16:9 previews','manifest filename override','ICO upload via chooser and global favicon saved/read in public header','independent hardcoded admin favicon','no horizontal overflow, inline SVG, external requests or runtime errors']});
     }catch(error){await page.screenshot({path:path.join(evidence,'failure.png'),fullPage:true});throw error;}finally{await context.close();await sandbox.close();}
   }
 }finally{await browser.close();fs.writeFileSync(path.join(evidence,'results.json'),JSON.stringify(results,null,2)+'\n');}

@@ -15,6 +15,7 @@ import { minify as minifyHtml } from 'html-minifier-terser';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const source = path.join(root, 'src');
+const version=JSON.parse(await fs.readFile(path.join(root,'package.json'),'utf8')).version;
 const args = process.argv.slice(2);
 if (args.length && (args.length !== 2 || args[0] !== '--out')) throw new Error('Uso: npm run export:production -- [--out /tmp/dbless-cms-...]');
 const target = path.resolve(args[1] || path.join(root, 'build'));
@@ -91,11 +92,11 @@ try {
   await fs.copyFile(path.join(root, 'THIRD_PARTY.md'), path.join(staging, 'THIRD_PARTY.md'));
   try { await fs.copyFile(path.join(root, 'NOTICE'), path.join(staging, 'NOTICE')); }
   catch (error) { if (error.code !== 'ENOENT') throw error; }
-  await fs.writeFile(path.join(staging, 'export-manifest.json'), JSON.stringify({ name: 'dbless-cms', version: '2.0.0', files: await inventory(staging) }, null, 2) + '\n');
+  await fs.writeFile(path.join(staging, 'export-manifest.json'), JSON.stringify({ name: 'dbless-cms', version, files: await inventory(staging) }, null, 2) + '\n');
   try { await fs.access(target); previous = target + '.previous-' + Date.now(); await fs.rename(target, previous); }
   catch (error) { if (error.code !== 'ENOENT') throw error; }
   try { await fs.rename(staging, target); }
   catch (error) { if (previous) await fs.rename(previous, target); throw error; }
   if (previous) await fs.rm(previous, { recursive: true });
-  console.log(`dbless-cms 2.0.0: pacote de produção exportado para ${target}.`);
+  console.log(`dbless-cms ${version}: pacote de produção exportado para ${target}.`);
 } finally { await fs.rm(staging, { recursive: true, force: true }); }

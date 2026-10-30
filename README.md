@@ -12,10 +12,10 @@ and extend it with templates and plugins that fit your projects.
 
 ## A practical foundation for your next website
 
-- **Skip database provisioning.** Pages, menus, slides and settings live in structured
+- **Skip database provisioning.** Pages, articles, menus, slides and settings live in structured
   JSON files. Keep hosting straightforward and content easy to inspect and move.
 - **Give editors a dedicated workspace.** Manage pages, drafts, revisions, trash,
-  menus, media and slides in a responsive admin interface independent of the public theme.
+  menus, media, articles and slides in a responsive admin interface independent of the public theme.
 - **Own the presentation.** Templates receive validated content and control their
   HTML, CSS and JavaScript. Add your design without adopting a frontend framework.
 - **Extend only what you need.** Plugins declare their routes, navigation, dictionaries
@@ -31,19 +31,20 @@ projects where a file-based CMS fits the job. PHP 8.2+ powers the application; N
 
 ## Explore a complete example
 
-The distribution includes the **Essencial** template and four ready-to-use plugins:
+The distribution includes the **Essencial** template and five ready-to-use plugins:
 
 | Plugin | What it brings to your project |
 | --- | --- |
+| Blog | Articles, scheduled publication, authors, topics, SEO, RSS and moderated comments |
 | Pages | Structured pages, drafts, publishing, history and trash |
 | Menu | Hierarchical navigation assigned to locations declared by your template |
 | Slides | Banners, carousels, testimonials, product displays and rotating content |
 | Files Manager | Public/private uploads, folders, previews and recoverable deletion |
 
-The example site connects pages, menus and slides so you can learn by changing a
+The example site connects pages, blog articles, menus and slides so you can learn by changing a
 working site. Its three original example images are included under Apache-2.0.
 The admin supports English and Brazilian Portuguese; sample editorial content is
-Brazilian Portuguese and can be edited independently of the admin language.
+Brazilian Portuguese, with English blog examples, and can be edited independently of the admin language.
 
 ## Get started
 
@@ -59,7 +60,7 @@ cp .env.example .env
 
 Set your development administrator in `.env`: choose a username and a unique password
 of at least 16 characters using `DBLESS_CMS_ADMIN_USER` and `DBLESS_CMS_ADMIN_PASSWORD`.
-These compatibility variable names are intentional. No working password is supplied.
+These are the canonical development variable names. No working password is supplied.
 
 ```bash
 npm run dev
@@ -71,6 +72,13 @@ Development runs directly from `src/`. For production, follow the deployment sec
 of the [template guide](docs/templates.md#10-deploy-a-site-with-your-template): HTTPS,
 private hash-based configuration and an explicit export are required. `.env` is
 ignored by production packages.
+
+## Publish a journal that belongs to you
+
+The bundled [Blog](docs/plugins.md#12-run-the-bundled-blog) brings an editorial workflow
+to your website: structured articles, visual covers, scheduled publishing, searchable
+archives and RSS. Enable moderated discussion when your project needs it. Keep articles
+in portable JSON and let your template own the reading experience.
 
 ## Make it yours
 

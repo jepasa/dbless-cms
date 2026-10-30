@@ -250,3 +250,118 @@ and final bytes are checked; MIME validation and PHP/HTML/SVG rejection remain a
 DIB/BMP-frame ICO is not supported. ICO files can be previewed and selected as the
 global site favicon by their path relative to public_html, regardless of the public
 root configured for Images. Private storage never supplies a public favicon.
+
+
+## 12. Run the bundled Blog
+
+The Blog plugin (`blog`, API 1, version 1.0.0) is included with DBLESS-CMS 2.1.0.
+New installations include generic example articles and editorial profiles. Existing
+installations keep their content; install the plugin code and addressed public assets,
+then enable it in the plugin catalog. The optional CLI equivalent is:
+
+```bash
+php src/system/plugins/blog/install.php --enable
+```
+
+This command merges only Blog activation/defaults under the installation's lifecycle
+and content locks. It never installs examples over existing content, changes credentials
+or enables other plugins. An existing installation can start with an empty blog.
+
+### Write and publish
+
+Open **Blog → New article**. Set a descriptive title and URL slug, summary, author,
+category/tag references and optional cover with meaningful alternative text. Create
+editorial profiles and topics under **Categories, tags and authors**. Author profiles
+are bylines, not administrator accounts. Categories support up to five levels without
+cycles; an entry cannot be removed while any article or child category references it.
+
+Build the body using paragraph, h2/h3 heading, quotation, local image/caption, ordered
+or unordered list, link and code blocks. The Images selector reuses the authenticated
+public library and its configured upload root. Private files never become image choices.
+Images may also be entered as paths relative to `public_html`; UTF-8 names and spaces
+accepted by Images are preserved and URL-encoded when rendered. External media is not
+fetched. Code is displayed as escaped literal text; raw HTML, scripts and embeds are
+not article markup. The editor supports keyboard reordering and preserves entered
+values after network, validation or revision errors.
+
+Save as a draft, or select Published. An empty publication date publishes immediately;
+a future **UTC** time schedules publication. Visibility is calculated on each request,
+so no cron task is necessary. The server clock must be correct. Saved previews require
+an authenticated session and return `noindex`; they are never public token links.
+Duplicating an article produces a new draft. Soft deletion reserves its slug for recovery.
+Changing a slug keeps up to ten previous slugs and redirects visible aliases with 301.
+
+### Read and discover
+
+The public surface uses the existing plugin front controller:
+
+| Route | Purpose |
+| --- | --- |
+| `/plugins/blog/list` | Search, category/tag/author filters and bounded pagination |
+| `/plugins/blog/article?slug=designing-with-clarity` | Article, topic links, author profile, contents index and related reading |
+| `/plugins/blog/feed` | RSS 2.0 with stable article IDs and canonical URLs |
+| `/plugins/blog/sitemap` | XML sitemap for the blog archive and visible indexable articles |
+| `/plugins/blog/comment` | Protected comment POST only |
+
+List parameters are `q`, `category`, `tag`, `author` and `page`. Category archives include
+child categories; search is literal Unicode matching, not arbitrary regular expressions.
+The newest articles are ordered deterministically, with featured articles first on the
+unfiltered archive. Reading time uses the configured words-per-minute rate.
+
+The public projection excludes drafts, future schedules and trashed articles. Feed and
+sitemap also exclude articles marked noindex. Saved previews and searches emit noindex.
+Article layouts include canonical, Open Graph article timestamps, Twitter metadata and
+semantic BlogPosting microdata. Canonical URLs use Global Settings; no external request
+is needed. Add the Blog sitemap URL to the hosting site's discovery configuration when
+deploying; this plugin does not rewrite unrelated robots files or page sitemaps.
+
+### Configure only functional preferences
+
+**Blog → Settings** uses the same Fields/JSON editor as Global Settings. It controls
+blog title/description, articles per page (1–50), RSS limit (1–100), reading speed (80–500
+words/minute), moderated comments and maximum comment bytes (100–4000). Activation stays
+in the main plugin catalog. **History** is a separate dropdown route above Settings;
+it contains editorial, moderation and plugin-option recovery, all revision checked.
+
+### Moderate discussion
+
+Comments are **off by default**. When enabled, readers submit a name, plain-text message
+and consent to their eventual publication. No email address or commenter IP is stored
+inside the comment document. The CMS rate limiter maintains its separate private state.
+Every comment starts pending; only approved comments on currently visible articles are
+rendered. Administrators can approve, return to moderation, mark spam, move to trash
+and restore to pending. Removing an article hides its comments without deleting them.
+
+The form uses the core session/CSRF/origin/body controls, a separate quota of five
+submissions per ten minutes, a honeypot and duplicate detection. These controls do not
+promise complete spam prevention. There is no mail notification or third-party moderation
+service. Review comments and privacy obligations appropriate to the actual installation;
+comments and their histories are retained until deliberately managed, not silently purged.
+
+### Storage, export and scale
+
+`<contents-root>/blog/catalog.json` stores articles/categories/tags/authors;
+`<contents-root>/blog/comments.json` is separate. Both are private, UTF-8, indented JSON
+with schema version 1, closed typed fields and SHA-256 revisions. Writes use the CMS
+transaction, secure same-directory temporary files, fsync/rename, a revision-only audit
+and up to twenty private backups per document in `<storage-root>/blog-history/`.
+
+The catalog is limited to 500 articles, 100 categories, 200 tags, 50 authors and 4 MiB;
+an article has at most 100 blocks and 64 KiB of block JSON. Comments are limited to
+1000 entries/4 MiB. Limits fail explicitly; they are not an unlimited-scale promise.
+Queries run in memory. A materially larger workload needs a separately designed storage
+adapter or retention strategy, rather than raising limits without measurement.
+
+Production export keeps the validated non-trashed editorial catalog **private**, including
+drafts/schedules for continued editing. Only the public projection is readable through
+public routes. It copies explicitly referenced regular raster images with extension,
+MIME and dimension checks; it rejects traversal, symlinks and forbidden payloads. It does
+not copy arbitrary uploads, comments, histories, sessions, credentials or installed state.
+Backups/upgrades must preserve existing private content and uploaded media as documented
+in the template deployment guide. A first-install export must not overwrite an existing
+site's editorial repository.
+
+Portable verification is in `tests/blog.test.mjs` and `tests/browser/blog.mjs`. Run
+`npm run verify`; the browser test accepts `PLAYWRIGHT_MODULE` pointing to an authorized
+local Playwright installation and creates private unpredictable evidence directories.
+All fixtures contain synthetic data; never run editor/upload tests on a live site.

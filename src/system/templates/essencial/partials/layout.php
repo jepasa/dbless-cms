@@ -13,7 +13,7 @@ $appearance=$templateSettings['appearance'];
 $palette=$appearance['palette']; $mode=$appearance['mode'];
 $direction=$appearance['direction']==='auto'?$publicLocale['direction']:$appearance['direction'];
 $classes='palette-'.$palette.($appearance['wide']?' content-wide':'').' mode-'.$mode.' font-'.$appearance['fontSize'].' align-'.$appearance['textAlign'];
-$canonical=rtrim($settings['canonical'],'/').($currentPage==='home'?'/':'/'.$currentPage);
+$canonical=$contentMetadata['canonical']??rtrim($settings['canonical'],'/').($currentPage==='home'?'/':'/'.$currentPage);
 $themeColors=['forest'=>'#16614b','ocean'=>'#2155a3','violet'=>'#6942a6','amber'=>'#87521a','graphite'=>'#384456'];
 ?>
 <!doctype html>
@@ -26,14 +26,20 @@ $themeColors=['forest'=>'#16614b','ocean'=>'#2155a3','violet'=>'#6942a6','amber'
   <title><?= e($page['meta']['title']) ?></title>
   <meta name="description" content="<?= e($page['meta']['description']) ?>">
   <meta name="theme-color" content="<?= e($themeColors[$palette]) ?>">
+  <meta name="robots" content="<?= e($contentMetadata['robots']??'index, follow') ?>">
   <link rel="canonical" href="<?= e($canonical) ?>">
   <meta property="og:locale" content="<?= e($publicLocale['og']) ?>">
   <meta property="og:title" content="<?= e($page['meta']['title']) ?>">
   <meta property="og:description" content="<?= e($page['meta']['description']) ?>">
   <meta property="og:url" content="<?= e($canonical) ?>">
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="<?= e($contentMetadata['type']??'website') ?>">
   <meta property="og:site_name" content="<?= e($siteContent['brand']['name']) ?>">
   <?php if (!empty($page['meta']['image'])): ?><meta property="og:image" content="<?= e($mediaUrl($page['meta']['image'])) ?>"><meta property="og:image:alt" content="<?= e($page['meta']['imageAlt']??$page['meta']['title']) ?>"><?php endif; ?>
+  <?php if (isset($contentMetadata)): ?>
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="<?= e($contentMetadata['feed']) ?>">
+  <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="<?= e($page['meta']['title']) ?>"><meta name="twitter:description" content="<?= e($page['meta']['description']) ?>">
+  <?php if ($contentMetadata['publishedAt']!==''): ?><meta property="article:published_time" content="<?= e($contentMetadata['publishedAt']) ?>"><meta property="article:modified_time" content="<?= e($contentMetadata['updatedAt']) ?>"><?php endif; ?>
+  <?php endif; ?>
   <?php foreach ($manifest['assets']['styles'] as $stylesheet): ?><link rel="stylesheet" href="<?= e($store->templates->asset($id,$stylesheet,$base_url)) ?>"><?php endforeach; ?>
 </head>
 <body class="<?= e($classes) ?>" data-page="<?= e($currentPage) ?>">
