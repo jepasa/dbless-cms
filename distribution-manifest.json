@@ -64,6 +64,11 @@
       "sha256": "d6419d7a4a868a305b279afa17e6ece9fc058ecbafb30591e06e5df377f4d4bd"
     },
     {
+      "path": "docs/images/essencial-preview.png",
+      "bytes": 705812,
+      "sha256": "f3b90d946638823133ebecb2717c320fab3430a7fed8c202d2c4ce89b1baf65d"
+    },
+    {
       "path": "docs/plugins.md",
       "bytes": 12328,
       "sha256": "46d3712f59d39b3656332aaab6dc5fc3bb527898774426f87989dc7c841328b8"
@@ -125,8 +130,8 @@
     },
     {
       "path": "LEIAME.md",
-      "bytes": 5263,
-      "sha256": "1bfa70aecf3e83b014b80cfaef6d653cf92e64d57c5611c292b1e381055f74e9"
+      "bytes": 5210,
+      "sha256": "be40c11bea5804a90615f091c5c88f17e666df0925e03eb13da7838e474c3d44"
     },
     {
       "path": "LICENSE",
@@ -150,8 +155,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 4833,
-      "sha256": "968cfa3e8962e5b8ee1ee214eed90e10c06552a7f29ac606d0fedf970eb5cfab"
+      "bytes": 4778,
+      "sha256": "8d5719caf66a7fccef13415a3cb4733e97d678b945358ad4de1f66ac834ef8e6"
     },
     {
       "path": "scripts/build.mjs",
@@ -1390,8 +1395,8 @@
     },
     {
       "path": "tests/runtime.test.mjs",
-      "bytes": 9368,
-      "sha256": "752307c8b88d9a25aafadaec8acd6a6de8a6fcb1d57fbb3804ee6ce086cda903"
+      "bytes": 9377,
+      "sha256": "5d3b7a59dc4f7331ef4868dc1f035eb4934a1d3f352ba9bd8af66b5cc6005f48"
     },
     {
       "path": "tests/semgrep/http-input.php",
