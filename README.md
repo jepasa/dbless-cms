@@ -6,7 +6,7 @@ Build polished websites with a focused PHP CMS, human-readable JSON content, and
 responsive administration panel. Start with a complete example site, make it your own,
 and extend it with templates and plugins that fit your projects.
 
-![Essencial: original imagery included with dbless-cms](src/public_html/templates/essencial/images/examples/studio.png)
+![Essencial template preview](docs/images/essencial-preview.png)
 
 [Get started](#get-started) · [Build a template](docs/templates.md) · [Build a plugin](docs/plugins.md) · [Leia em português](LEIAME.md)
 

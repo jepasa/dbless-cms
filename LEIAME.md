@@ -6,7 +6,7 @@ Crie sites bem apresentados com um CMS PHP focado, conteúdo JSON legível e um 
 administrativo responsivo. Comece com um site de exemplo completo, adapte-o à sua marca
 e amplie-o com templates e plugins adequados aos seus projetos.
 
-![Essencial: imagens originais incluídas no dbless-cms](src/public_html/templates/essencial/images/examples/studio.png)
+![Prévia do template Essencial](docs/images/essencial-preview.png)
 
 [Comece agora](#comece-agora) · [Crie um template](docs/templates.md) · [Crie um plugin](docs/plugins.md) · [Read in English](README.md)
 
