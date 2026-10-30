@@ -125,8 +125,8 @@
     },
     {
       "path": "LEIAME.md",
-      "bytes": 5260,
-      "sha256": "ea947cb09da357fc9a10c6004e9454f380dd6a08494403c3ccd8bec5910e2aef"
+      "bytes": 5263,
+      "sha256": "1bfa70aecf3e83b014b80cfaef6d653cf92e64d57c5611c292b1e381055f74e9"
     },
     {
       "path": "LICENSE",
@@ -150,8 +150,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 4830,
-      "sha256": "af5815a0214e3babdcbab9cd435c9329f05a534727e58c2bf65af590d3bc86fa"
+      "bytes": 4833,
+      "sha256": "968cfa3e8962e5b8ee1ee214eed90e10c06552a7f29ac606d0fedf970eb5cfab"
     },
     {
       "path": "scripts/build.mjs",

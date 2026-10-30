@@ -68,7 +68,7 @@ npm run dev
 Open **http://127.0.0.1:8080/** and **http://127.0.0.1:8080/cms-admin/**.
 The initial example content is installed once; existing content is preserved.
 Development runs directly from `src/`. For production, follow the deployment section
-of the [template guide](docs/templates.md#deploy-a-site-with-your-template): HTTPS,
+of the [template guide](docs/templates.md#10-deploy-a-site-with-your-template): HTTPS,
 private hash-based configuration and an explicit export are required. `.env` is
 ignored by production packages.
 

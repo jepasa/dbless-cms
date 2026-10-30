@@ -69,7 +69,7 @@ npm run dev
 Acesse **http://127.0.0.1:8080/** e **http://127.0.0.1:8080/cms-admin/**.
 O conteúdo inicial é instalado uma única vez; o conteúdo existente é preservado.
 O desenvolvimento executa diretamente de `src/`. Para produção, siga a seção de publicação
-do [guia de templates](docs/templates.md#deploy-a-site-with-your-template): são necessários HTTPS,
+do [guia de templates](docs/templates.md#10-deploy-a-site-with-your-template): são necessários HTTPS,
 configuração privada com hash de senha e exportação explícita. Pacotes de produção ignoram `.env`.
 
 ## Adapte ao seu projeto
