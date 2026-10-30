@@ -14,8 +14,8 @@ function client(base){
   let cookie='';
   return async (route,options={})=>{const response=await fetch(base+route,{...options,redirect:'manual',headers:{...(cookie?{Cookie:cookie}:{}),...options.headers}});for(const header of response.headers.getSetCookie())if(header.startsWith('DBLESSCMSSESSID='))cookie=header.split(';')[0];return response;};
 }
-/** Extract and unescape a hidden input; takes HTML/name, returns value or fails the test when a required control is missing. */
-function field(html,name){const match=html.match(new RegExp('name="'+name+'"[^>]*value="([^"]*)"'));assert.ok(match,name);return match[1].replaceAll('&amp;','&').replaceAll('&quot;','"');}
+/** Extract a required opaque CSRF/revision hex input; takes HTML/name, returns its raw 64-character value without entity decoding, or fails the assertion. */
+function field(html,name){const match=html.match(new RegExp('name="'+name+'"[^>]*value="([^"]*)"'));assert.ok(match,name);assert.match(match[1],/^[a-f0-9]{64}$/);return match[1];}
 /** Authenticate normally using the login form; takes request callback, returns its session CSRF and asserts the redirect. */
 async function login(request){const html=await (await request('/cms-admin/')).text();const response=await request('/cms-admin/',{method:'POST',body:new URLSearchParams({action:'login',csrf_token:field(html,'csrf_token'),username:'editor',password})});assert.equal(response.status,303);return field(await (await request('/cms-admin/?view=plugin-panel&plugin=blog&route=editor')).text(),'csrf_token');}
 
@@ -78,7 +78,11 @@ for(const application of applications){
     try{
       for(const template of ['essencial','jepasaDotCom']){
         const partial=path.join(context.app,'system/templates',template,'partials/blog.php');
-        if(fs.existsSync(partial))fs.writeFileSync(partial,"<?php /** Synthetic projection observer: print only validated opaque IDs to verify least-data delivery. */ echo DBLESSCMS\\e(implode(',',array_keys($blogModel['catalog']['articles'])));");
+        let descriptor;
+        try{descriptor=fs.openSync(partial,fs.constants.O_WRONLY|fs.constants.O_TRUNC|fs.constants.O_NOFOLLOW);}
+        catch(error){if(error.code==='ENOENT'&&template==='jepasaDotCom')continue;throw error;}
+        try{fs.writeFileSync(descriptor,"<?php /** Synthetic projection observer: print only validated opaque IDs to verify least-data delivery. */ echo DBLESSCMS\\e(implode(',',array_keys($blogModel['catalog']['articles'])));");}
+        finally{fs.closeSync(descriptor);}
       }
       const output=inspect(context,boot+"$c=$b->read()['data'];$o=(new DBLESSCMS\\Plugins($s))->state('blog')['settings'];$html=DBLESSCMS\\BlogView::document($s,'http://localhost',['kind'=>'article','article'=>$c['articles']['designing-with-clarity'],'catalog'=>$c,'preview'=>false],$o);echo json_encode([str_contains($html,'a-draft-to-make-your-own'),str_contains($html,'a-scheduled-example'),str_contains($html,'a-restorable-example'),str_contains($html,'content-without-a-database')]);");
       assert.deepEqual(output,[false,false,false,true]);

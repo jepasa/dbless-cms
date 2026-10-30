@@ -1550,8 +1550,8 @@
     },
     {
       "path": "tests/blog.test.mjs",
-      "bytes": 23199,
-      "sha256": "ad71ad4c9e6a7de77b70cefc13a8c29147ed09b674073997a80167fa84957eea"
+      "bytes": 23478,
+      "sha256": "bdfcc79092ee8ebe601d023034605101fcbc754eb348e437e3ab77626b3e0632"
     },
     {
       "path": "tests/browser/blog.mjs",
