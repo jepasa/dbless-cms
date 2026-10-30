@@ -50,8 +50,8 @@
     },
     {
       "path": ".github/workflows/php-security.yml",
-      "bytes": 2396,
-      "sha256": "19726a6fd196c458c8531f7cc568e209a7042a4028820addda7b724f4d30679c"
+      "bytes": 2620,
+      "sha256": "28452483cefff40ebf2959a970b3de2b8a3961db62a167a1e1c68d064e010cd0"
     },
     {
       "path": ".github/workflows/quality.yml",

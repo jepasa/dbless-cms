@@ -23,19 +23,20 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
+      # Explicit file targets include negative fixtures normally ignored by Semgrep; Git config stays in writable tmpfs.
       - name: Test PHP security rules
         run: |
           docker run --rm --user "$(id -u):$(id -g)" --network none --cap-drop ALL --security-opt no-new-privileges \
             --read-only --tmpfs /tmp:rw,nosuid,size=256m \
-            -e SEMGREP_SETTINGS_FILE=/tmp/semgrep-settings.yml -e SEMGREP_LOG_FILE=/tmp/semgrep.log -e XDG_CACHE_HOME=/tmp/cache \
+            -e GIT_CONFIG_GLOBAL=/tmp/semgrep-gitconfig -e SEMGREP_SETTINGS_FILE=/tmp/semgrep-settings.yml -e SEMGREP_LOG_FILE=/tmp/semgrep.log -e XDG_CACHE_HOME=/tmp/cache \
             -v "$PWD:/src:ro" -v "$RUNNER_TEMP:/reports" -w /src --entrypoint semgrep \
             semgrep/semgrep@sha256:fb59331f2772da4a9960692ae31961cd58a7c666c014125e9202c96bdfdc38cc \
-            scan --strict --config .github/semgrep.yml --metrics off --disable-version-check --json --output /reports/rules-test.json tests/semgrep
+            scan --strict --config .github/semgrep.yml --metrics off --disable-version-check --json --output /reports/rules-test.json tests/semgrep/http-input.php
       - run: node scripts/check-security-fixtures.mjs "$RUNNER_TEMP/rules-test.json"
       - name: Scan PHP without external network access
         run: |
           docker run --rm --user "$(id -u):$(id -g)" --network none --cap-drop ALL --security-opt no-new-privileges \
-            --read-only -e SEMGREP_SETTINGS_FILE=/tmp/semgrep-settings.yml -e SEMGREP_LOG_FILE=/tmp/semgrep.log -e XDG_CACHE_HOME=/tmp/cache --tmpfs /tmp:rw,nosuid,size=256m \
+            --read-only -e GIT_CONFIG_GLOBAL=/tmp/semgrep-gitconfig -e SEMGREP_SETTINGS_FILE=/tmp/semgrep-settings.yml -e SEMGREP_LOG_FILE=/tmp/semgrep.log -e XDG_CACHE_HOME=/tmp/cache --tmpfs /tmp:rw,nosuid,size=256m \
             -v "$PWD:/src:ro" -v "$RUNNER_TEMP:/reports" -w /src \
             --entrypoint semgrep \
             semgrep/semgrep@sha256:fb59331f2772da4a9960692ae31961cd58a7c666c014125e9202c96bdfdc38cc \
