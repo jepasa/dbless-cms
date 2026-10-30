@@ -1,7 +1,7 @@
 <?php
 /** Descobre templates privados e seus recursos públicos por manifesto, validando contratos e contenção de caminhos. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class Templates {
   public const DEFAULT_ID = 'essencial';
   private array $rejected = [];
@@ -38,7 +38,7 @@ final class Templates {
     return $data;
   }
 
-  /** Valida manifesto v2, scripts privados, contrato e recursos públicos obrigatórios; recebe ID, retorna manifesto ou 422. */
+  /** Valida manifesto v2, scripts/contratos/assets e thumbnail PNG 16:9 declarado; recebe ID, retorna manifesto ou 422 sem escrita. */
   public function get(string $id): array {
     if (!self::identifier($id)) throw new HttpError(422,'Identificador de template inválido.','error.template_id');
     $manifest=$this->json($id,'template.json');
@@ -75,6 +75,14 @@ final class Templates {
       if (!is_string($file) || !preg_match('/^[A-Za-z][A-Za-z0-9_-]*$/D',(string)$key) || !preg_match('/\.(?:png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf)$/Di',$file)) throw new HttpError(422,'Recursos obrigatórios do template inválidos.','error.template_assets');
       $this->publicPath($id,$file);
     }
+    $thumbnail=$assets['files']['thumbnail']??null;
+    if (!is_string($thumbnail) || !str_ends_with($thumbnail,'.png')) throw new HttpError(422,'Thumbnail PNG obrigatório.','error.template_assets');
+    try { ExtensionMedia::thumbnail($this->publicPath($id,$thumbnail)); }
+    catch (\RuntimeException) { throw new HttpError(422,'Thumbnail deve ser PNG válido em 16:9.','error.template_assets'); }
+    $favicon=$assets['files']['favicon']??null;
+    if (!is_string($favicon) || !str_ends_with($favicon,'.ico')) throw new HttpError(422,'Favicon ICO obrigatório.','error.template_assets');
+    try {ExtensionMedia::ico($this->publicPath($id,$favicon));}
+    catch (\RuntimeException) {throw new HttpError(422,'Favicon ICO inválido.','error.template_assets');}
     if (isset($manifest['configuration'])) {
       $language=$this->language($id,'pt-br');
       if (isset($manifest['configuration'])) {

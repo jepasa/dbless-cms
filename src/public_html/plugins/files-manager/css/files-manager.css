@@ -1,4 +1,4 @@
-/** File Manager: geometria específica confinada a .fm; cores, campos, botões e tipografia pertencem ao painel CMS2JSON. */
+/** File Manager: geometria específica confinada a .fm; cores, campos, botões e tipografia pertencem ao painel DBLESS-CMS. */
 .plugin-standalone { padding: 24px; }
 .fm { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: clip; }
 .fm-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-bottom: 1px solid var(--line); }

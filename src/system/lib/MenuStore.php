@@ -1,7 +1,7 @@
 <?php
 /** Conteúdo privado de menus: contrato fechado, revisão, lock, escrita atômica, histórico e exclusão lógica. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class MenuStore {
   /** Recebe store compartilhado; não lê nem grava documentos até a operação solicitada. */
   public function __construct(private readonly JsonStore $store) {}

@@ -1,7 +1,7 @@
 <?php
 /** Opções declarativas de extensões: contrato limitado, formulário tipado e leitura de POST sem código/HTML arbitrário. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class OptionFields {
   /** Valida schema traduzível de objetos/string/boolean/integer; recebe contrato/dicionário/profundidade e lança 422 sem executar scripts. */
   public static function contract(array $schema,Language $language,int $depth=0): void {

@@ -242,6 +242,10 @@
         "siteLocale": {
           "type": "string",
           "maxLength": 64
+        },
+        "favicon": {
+          "type": "string",
+          "maxLength": 240
         }
       }
     },

@@ -1,4 +1,4 @@
-/** Editor estruturado CMS2JSON: campos/JSON sincronizados, erros textuais e confirmação de remoção/restauração. */
+/** Editor estruturado DBLESS-CMS: campos/JSON sincronizados, erros textuais e confirmação de remoção/restauração. */
 'use strict';
 const editor = document.querySelector('[data-document]');
 const fields = document.querySelector('[data-fields]');
@@ -14,6 +14,7 @@ const editorChoices = editor ? JSON.parse(editor.dataset.editorChoices || '{}') 
 const globalChoices = [
   {selector:'[data-admin-locale]', trail:['settings','adminLocale'], options:languages},
   {selector:'[data-site-locale]', trail:['settings','siteLocale'], options:null},
+  {selector:'[data-site-favicon]', trail:['settings','favicon'], options:null},
   {selector:'[data-site-template]', trail:['template'], options:templates},
 ];
 
@@ -29,7 +30,7 @@ function renderFields(value, parent, trail = []) {
     const path = [...trail, key];
     const contract = path.reduce((schema, segment) => schema?.properties?.[segment], editorSchema) || {};
     const fieldTitle = editorMessages[contract.title] || messages['field.' + key];
-    if ((key === 'adminLocale' && document.querySelector('[data-admin-locale]')) || (key === 'siteLocale' && document.querySelector('[data-site-locale]')) || (trail.length === 0 && key === 'template' && document.querySelector('[data-site-template]'))) continue;
+    if ((key === 'adminLocale' && document.querySelector('[data-admin-locale]')) || (key === 'siteLocale' && document.querySelector('[data-site-locale]')) || (key === 'favicon' && trail.join('.') === 'settings' && document.querySelector('[data-site-favicon]')) || (trail.length === 0 && key === 'template' && document.querySelector('[data-site-template]'))) continue;
     if (child !== null && typeof child === 'object') {
       const group = document.createElement('fieldset'); group.className = 'field-group';
       const legend = document.createElement('legend'); legend.textContent = fieldTitle || (/^\d+$/.test(key) ? translate('editor.item', {number: Number(key) + 1}) : key); group.append(legend);

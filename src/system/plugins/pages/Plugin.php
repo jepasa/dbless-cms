@@ -1,7 +1,7 @@
 <?php
 /** Plugin Pages: domínio editorial reutiliza JsonStore, com rotas próprias e adaptador dos endereços administrativos anteriores. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 require_once __DIR__.'/Router.php';
 final class PagesPlugin implements PluginInterface {
   /** Valida compatibilidade das opções legadas, sem aplicá-las; recebe settings/config; contrato inválido gera 422 sem escrita. */

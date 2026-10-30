@@ -3,7 +3,7 @@
 declare(strict_types=1);
 if (PHP_SAPI!=='cli') {http_response_code(404);exit;}
 require dirname(__DIR__).'/bootstrap.php';
-use CMS2JSON\{Config,Operations};
+use DBLESSCMS\{Config,Operations};
 /** Valida inteiro decimal de opção CLI; recebe valor/default, retorna inteiro ou falha sem coerção ambígua. */
 function operationInteger(?string $value,int $default): int {
   if ($value===null) return $default;

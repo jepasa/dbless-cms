@@ -287,6 +287,9 @@
     "field.blocks": "Content blocks",
     "field.location": "Component location",
     "field.demonstrateMenus": "Demonstrate menu formats",
-    "error.maintenance": "Service temporarily under maintenance. Please try again shortly."
+    "error.maintenance": "Service temporarily under maintenance. Please try again shortly.",
+    "global.favicon": "Site favicon — path and filename",
+    "global.favicon_help": "Path relative to the hosting public root, such as media/favicon.ico. Upload the ICO through Images using its configured public root. PNG-frame ICO; up to 1 MiB.",
+    "error.favicon": "Invalid or unavailable favicon. Select a valid ICO inside the public hosting root."
   }
 }

@@ -287,6 +287,9 @@
     "field.blocks": "Blocos de conteúdo",
     "field.location": "Localização do componente",
     "field.demonstrateMenus": "Demonstrar formatos de menu",
-    "error.maintenance": "Serviço temporariamente em manutenção. Tente novamente em instantes."
+    "error.maintenance": "Serviço temporariamente em manutenção. Tente novamente em instantes.",
+    "global.favicon": "Favicon do site — caminho e nome",
+    "global.favicon_help": "Caminho relativo à raiz pública da hospedagem, por exemplo media/favicon.ico. Envie o ICO pelo plugin Imagens na raiz pública configurada. ICO com quadros PNG; até 1 MiB.",
+    "error.favicon": "Favicon inválido ou indisponível. Informe um ICO válido dentro da raiz pública."
   }
 }

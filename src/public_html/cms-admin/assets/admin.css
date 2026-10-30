@@ -1,4 +1,4 @@
-/** CMS2JSON: moldura fixa, tokens e componentes obrigatórios do painel e plugins administrativos; sem dependência do site. */
+/** DBLESS-CMS: moldura fixa, tokens e componentes obrigatórios do painel e plugins administrativos; sem dependência do site. */
 :root {
   color-scheme: light;
   --ink: #1e293b;
@@ -237,6 +237,9 @@ textarea { resize: vertical; line-height: 1.6; }
 
 /* SVG externos preservam contraste sem incorporar markup vetorial ao documento. */
 .sidebar .admin-icon { filter: invert(.86) sepia(.08) saturate(1.5); }
+.extension-identity { display: flex; align-items: center; gap: 14px; }
+.template-thumbnail { display: block; width: 128px; max-width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid var(--line); border-radius: 8px; flex-shrink: 0; }
+@media (max-width: 480px) { .extension-identity { flex-wrap: wrap; } }
 .auth-submit .admin-icon { filter: brightness(0) invert(1); }
 .icon-button.is-active .admin-icon { filter: invert(.35) sepia(1) saturate(5) hue-rotate(190deg); }
 .icon-button.danger .admin-icon { filter: invert(.25) sepia(1) saturate(4) hue-rotate(320deg); }

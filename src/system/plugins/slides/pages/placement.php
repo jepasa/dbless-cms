@@ -1,8 +1,8 @@
 <?php
 /** Seleção de destino no editor Slides: manifesto ativo, marcadores/blocos de páginas e alertas, sem editar outra página. */
 declare(strict_types=1);
-use function CMS2JSON\e;
-$placement=\CMS2JSON\SlidePlacement::state($context,$data,$id);
+use function DBLESSCMS\e;
+$placement=\DBLESSCMS\SlidePlacement::state($context,$data,$id);
 $placementMode=($_GET['placement']??'template')==='page'?'page':'template';
 $placementPage=is_string($_GET['target']??null)&&isset($placement['pages'][$_GET['target']])?$_GET['target']:(string)(array_key_first($placement['pages'])??'');
 ?>

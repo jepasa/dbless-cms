@@ -1,7 +1,7 @@
 <?php
 /** Demonstração oficial Menu: quatro locais declarados, mesmos dados editoriais e renderização nativa acessível do Essencial. */
 declare(strict_types=1);
-use function CMS2JSON\e;
+use function DBLESSCMS\e;
 ?>
 <section class="menu-examples"><h2>Quatro formas de orientar a navegação.</h2><p>Os exemplos abaixo utilizam o mesmo conjunto de links em locais diferentes. Abra os grupos para explorar os submenus.</p><div class="menu-demo-grid">
 <?php foreach(['navbar'=>'Navbar','sidebar'=>'Sidebar','list'=>'Lista','dropdown'=>'Dropdown'] as $type=>$title): $menuData=$navigation->location('demo-'.$type);if($menuData===null)continue; ?>

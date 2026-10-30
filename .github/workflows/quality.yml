@@ -37,5 +37,5 @@ jobs:
       - run: npm run export:production
       - run: npm test
         env:
-          CMS2JSON_PACKAGE_ROOT: ${{ github.workspace }}/build
+          DBLESS_CMS_PACKAGE_ROOT: ${{ github.workspace }}/build
       - run: npm run security:audit

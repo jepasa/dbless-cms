@@ -67,7 +67,7 @@
       const button = document.querySelector(`[data-action="${action}"]`);
       const isTrash = ['restore','purge'].includes(action);
       button.hidden = isTrash !== trash;
-      button.disabled = busy || !item || (action === 'preview' && (item.directory || !/\.(jpe?g|png|gif|webp)$/i.test(item.name))) || (action === 'download' && item.directory);
+      button.disabled = busy || !item || (action === 'preview' && (item.directory || !/\.(jpe?g|png|gif|webp|ico)$/i.test(item.name))) || (action === 'download' && item.directory);
     }
     for (const row of items.children) {
       const active = row.dataset.id === (item?.id || item?.path);
@@ -113,14 +113,14 @@
       row.append(radio, name, element('small', entry.directory ? '—' : size(entry.size)), element('small', new Date(entry.modified || entry.deleted).toLocaleDateString(document.documentElement.lang)));
       if (!trash) {
         row.draggable = true;
-        row.addEventListener('dragstart', event => { event.dataTransfer.setData('application/x-cms2json-file', JSON.stringify({scope, path, target: entry.name})); event.dataTransfer.effectAllowed = 'move'; });
+        row.addEventListener('dragstart', event => { event.dataTransfer.setData('application/x-dbless-cms-file', JSON.stringify({scope, path, target: entry.name})); event.dataTransfer.effectAllowed = 'move'; });
         if (entry.directory) {
-          row.addEventListener('dragover', event => { if (event.dataTransfer.types.includes('application/x-cms2json-file')) { event.preventDefault(); row.classList.add('fm-dragover'); } });
+          row.addEventListener('dragover', event => { if (event.dataTransfer.types.includes('application/x-dbless-cms-file')) { event.preventDefault(); row.classList.add('fm-dragover'); } });
           row.addEventListener('dragleave', () => row.classList.remove('fm-dragover'));
           row.addEventListener('drop', event => {
             event.preventDefault(); event.stopPropagation(); row.classList.remove('fm-dragover');
             try {
-              const data = JSON.parse(event.dataTransfer.getData('application/x-cms2json-file'));
+              const data = JSON.parse(event.dataTransfer.getData('application/x-dbless-cms-file'));
               if (data.scope === scope && data.path === path && typeof data.target === 'string') mutate('move', {target: data.target, destination: entry.path});
             } catch { notify(t('error.path'), true); }
           });

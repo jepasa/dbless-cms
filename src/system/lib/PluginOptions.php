@@ -1,7 +1,7 @@
 <?php
 /** Opções administrativas: leitura JSON limitada e fragmento reutilizável do editor global, sem rotas de negócio próprias. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class PluginOptions {
   /** Lê documento de opções; recebe POST/fallback legado, retorna objeto tipado; JSON inválido/excessivo gera 422 sem escrita. */
   public static function input(array $post,array $fallback): array {

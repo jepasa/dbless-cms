@@ -1,7 +1,7 @@
 <?php
 /** Descoberta/validação de dicionários JSON privados e tradução administrativa por chaves estáveis. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class Language {
   private array $catalogs = [];
   private array $invalid = [];
@@ -27,7 +27,7 @@ final class Language {
         $this->catalogs[$catalog['locale']] = $catalog;
       } catch (\RuntimeException $error) {
         $this->invalid[] = basename($file);
-        error_log('CMS2JSON language ' . basename($file) . ': ' . $error->getMessage());
+        error_log('DBLESS-CMS language ' . basename($file) . ': ' . $error->getMessage());
       }
     }
     ksort($this->catalogs);

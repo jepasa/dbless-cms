@@ -70,6 +70,7 @@ src/system/plugins/hello/
   pages/overview.php
   pages/welcome.php
 src/public_html/plugins/hello/
+  hello.svg
   css/hello.css
   js/hello.js
 ```
@@ -103,13 +104,27 @@ a limited public settings allowlist. Copying only the manifest is not sufficient
 ## 4. Manifest/API contract
 
 Use API `1` and `cmsMajor: 2`. Required identity includes `id`, `name`, `version`,
-`entry: "Plugin.php"` and a namespaced class such as `CMS2JSON\\HelloPlugin`.
+`entry: "Plugin.php"` and a namespaced class such as `DBLESSCMS\\HelloPlugin`.
 The directory and ID must agree; IDs are lowercase letters/digits/hyphens, beginning
-with a letter. `CMS2JSON` remains the compatibility PHP namespace.
+with a letter. Use `DBLESSCMS` as the PHP namespace and `DBLESS_CMS_*` for environment variables.
 
 `assets.css` must point to `css/<name>.css`; `assets.js` to `js/<name>.js` inside the
 matching public tree. Both files must exist even when JavaScript behavior is unnecessary.
 Production resolves exported minified files automatically.
+
+`assets.icon` is required and identifies a static SVG relative to the plugin's own
+public directory. The default naming convention is `<plugin-id>.svg`, for example
+`"icon": "slides.svg"`. A different filename, such as `"icon": "branding/slider.svg"`,
+is resolved from the manifest; the core never guesses a global icon by the plugin's
+translated label. IDs remain stable even when labels say Images or Sliders.
+The sidebar and plugin catalog use addressed `<img>` URLs, never embedded SVG.
+Missing icons, external/absolute paths, traversal, symbolic links and active SVG
+markup make the package invalid. Use static geometry and retain its license.
+The old `navigation.icon` global alias is deprecated and does not override `assets.icon`.
+
+When upgrading an existing custom plugin, install its SVG and updated manifest together.
+The API remains 1; extensions must comply with this media requirement to be discovered.
+
 
 `defaults` must validate against the local `settings.schema.json`. Use bounded types,
 required fields and `additionalProperties: false`. Settings fields must provide valid
@@ -118,7 +133,7 @@ stored settings; reading defaults must not silently rewrite user data.
 
 ## 5. Implement the plugin interface
 
-`Plugin.php` implements `CMS2JSON\PluginInterface`:
+`Plugin.php` implements `DBLESSCMS\PluginInterface`:
 
 | Method | Responsibility |
 | --- | --- |
@@ -178,12 +193,12 @@ If a plugin has no useful settings, declare `configuration: false` and omit that
 item. For an actual settings screen, `configuration` is the ID of a declared private
 route with `requiresEnabled: false`. The route should use the same field groups, help,
 revision checks and save bar as Global Settings. Refer to the bundled Files Manager
-settings implementation and `CMS2JSON\PluginOptions`; do not invent an activation field.
+settings implementation and `DBLESSCMS\PluginOptions`; do not invent an activation field.
 Old settings schemas remain subject to type/enum/translation validation.
 
 ## 9. Public plugin routes
 
-Implement `CMS2JSON\PublicPluginInterface` and its
+Implement `DBLESSCMS\PublicPluginInterface` and its
 `publicPage(PublicPluginContext $context): string` method. Register only the routes that
 are intentionally public with `visibility: "public"`, `requiresEnabled: true` and allowed
 `methods` (`GET` and/or `POST`). Page files stay private. A public POST may also declare a
@@ -226,3 +241,12 @@ source. Declare correct semantic compatibility, keep licenses/notices and exclud
 configuration, content, uploads, sessions, history and private development material from
 a shared extension package. The public site receives only validated, published data;
 plugin code must never transform JSON strings into executable templates or PHP.
+
+## Managed ICO uploads
+
+Images accepts ICO files containing PNG frames, up to 1 MiB, in addition to the
+previous upload formats. Container offsets, frame bounds, PNG framing/CRCs, dimensions
+and final bytes are checked; MIME validation and PHP/HTML/SVG rejection remain active.
+DIB/BMP-frame ICO is not supported. ICO files can be previewed and selected as the
+global site favicon by their path relative to public_html, regardless of the public
+root configured for Images. Private storage never supplies a public favicon.

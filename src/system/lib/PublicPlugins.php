@@ -1,7 +1,7 @@
 <?php
 /** Front controller público de plugins: escopo explícito, ativação, métodos, CSRF/cota e contexto sem credenciais. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class PublicPlugins {
   /** Executa somente rota pública declarada; escreve corpo/status; falhas controladas são escapadas e falhas internas recebem ID opaco; compartilha trava operacional até o término. */
   public static function run(): void {
@@ -38,7 +38,7 @@ final class PublicPlugins {
       http_response_code($failure->status);
       echo e($language!==null&&$language->has($failure->messageKey)?$language->error($failure):$failure->getMessage());
     } catch (\Throwable $failure) {
-      $id=bin2hex(random_bytes(6)); error_log('CMS2JSON public-plugin '.$id.' '.$failure::class.' '.basename($failure->getFile()).':'.$failure->getLine());
+      $id=bin2hex(random_bytes(6)); error_log('DBLESS-CMS public-plugin '.$id.' '.$failure::class.' '.basename($failure->getFile()).':'.$failure->getLine());
       http_response_code(500); echo 'Falha interna. Referência '.e($id);
     } finally {Lifecycle::leave($operation);}
   }

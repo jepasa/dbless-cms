@@ -3,11 +3,11 @@
 declare(strict_types=1);
 if (PHP_SAPI!=='cli') {http_response_code(404);exit;}
 require_once dirname(__DIR__).'/bootstrap.php';
-$config=new \CMS2JSON\Config();$target=$config->data['contents'];$source=$config->root.'/resources/contents';
+$config=new \DBLESSCMS\Config();$target=$config->data['contents'];$source=$config->root.'/resources/contents';
 if (is_link($target)) throw new RuntimeException('Destino de conteúdo inseguro.');
 if (is_file($target.'/site.json')) {echo "Conteúdo existente preservado.\n";exit;}
 if (is_dir($target)) throw new RuntimeException('Conteúdo parcial existente; revisar antes da inicialização.');
-\CMS2JSON\Security::directory(dirname($target));
+\DBLESSCMS\Security::directory(dirname($target));
 $temporary=dirname($target).'/.contents-'.bin2hex(random_bytes(8));
 if (!mkdir($temporary,0700)) throw new RuntimeException('Inicialização indisponível.');
 try {

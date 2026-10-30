@@ -1,7 +1,7 @@
 <?php
 /** Plugin Menu API 1: operações privadas de conteúdo, associações, lixeira e recuperação, sem HTML público próprio. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 require_once __DIR__.'/Router.php';
 require_once __DIR__.'/Placement.php';
 final class MenuPlugin implements PluginInterface {

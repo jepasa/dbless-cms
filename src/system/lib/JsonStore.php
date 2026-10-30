@@ -1,7 +1,7 @@
 <?php
 /** Documentos JSON privados, sanitização, revisão otimista, backups e exclusão recuperável sob lock global. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class JsonStore {
   public readonly Templates $templates;
   private array $incompatible = [];
@@ -36,6 +36,7 @@ final class JsonStore {
       $schema=json_decode((string)file_get_contents($this->config->root.'/config/schemas/site.schema.json'),true,64,JSON_THROW_ON_ERROR);
       Schema::validate($data,$schema);
       if (($data['schema_version']??null)!==1) throw new HttpError(422,'Versão de conteúdo incompatível.','error.version');
+      if (isset($data['settings']['favicon'])) SiteFavicon::reference($data['settings']['favicon']);
       if (!is_string($data['settings']['canonical']) || !filter_var($data['settings']['canonical'],FILTER_VALIDATE_URL) || !in_array(parse_url($data['settings']['canonical'],PHP_URL_SCHEME),['https','http'],true)) throw new HttpError(422,'URL canônica precisa ser absoluta.','error.canonical');
       $publicLocale=SiteLocale::resolve($data['settings']);
       if (isset($data['settings']['siteLocale'])) $data['settings']['siteLocale']=$publicLocale['tag'];
@@ -106,7 +107,7 @@ final class JsonStore {
 
   /** Publica bytes por rename no mesmo diretório; recebe caminho/bytes; sem retorno e sem fallback em falha. */
   private function atomic(string $file,string $bytes): void {
-    $temporary=tempnam(dirname($file),'.cms2json-');
+    $temporary=tempnam(dirname($file),'.dbless-cms-');
     if ($temporary===false) throw new HttpError(503,'Gravação indisponível.','error.write');
     try {
       $stream=fopen($temporary,'wb'); if ($stream===false) throw new HttpError(503,'Gravação indisponível.','error.write');
@@ -157,7 +158,10 @@ final class JsonStore {
       return;
     }
     if ($key==='site') {
-      $this->language($data); $this->templates->get($data['template']); $this->pages($data['template']); $this->pages(Templates::DEFAULT_ID); return;
+      $this->language($data); $this->templates->get($data['template']); $this->pages($data['template']); $this->pages(Templates::DEFAULT_ID);
+      // A removed upload must not prevent unrelated saves or the protected template fallback.
+      if (isset($data['settings']['favicon']) && ($this->read('site')['data']['settings']['favicon']??null)!==$data['settings']['favicon']) SiteFavicon::path($this,$data['settings']['favicon']);
+      return;
     }
     $this->document($key,self::encode($data),Templates::DEFAULT_ID);
   }

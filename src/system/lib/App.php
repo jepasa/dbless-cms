@@ -1,7 +1,7 @@
 <?php
 /** Front controllers público e administrativo; resolução de conteúdo e renderização por template registrado. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class App {
   /** Executa requisição; recebe indicador administrativo, escreve resposta; erros esperados preservam status e inesperados usam ID sem dados privados; reserva trava compartilhada até concluir a requisição. */
   public static function run(bool $admin=false): void {
@@ -27,7 +27,7 @@ final class App {
       echo self::render($store,$key,false,null,$base);
     } catch (HttpError $error) { http_response_code($error->status); echo $admin ? Admin::error($language?->error($error)??$error->getMessage(),$language) : e($error->getMessage()); }
     catch (\Throwable $error) {
-      $id=bin2hex(random_bytes(6)); error_log('CMS2JSON '.$id.' '.$error::class.' '.basename($error->getFile()).':'.$error->getLine());
+      $id=bin2hex(random_bytes(6)); error_log('DBLESS-CMS '.$id.' '.$error::class.' '.basename($error->getFile()).':'.$error->getLine());
       http_response_code(500); echo $admin ? Admin::error($language?->text('error.internal',['id'=>$id])??'Falha interna. Referência '.$id,$language) : 'Falha interna. Referência '.e($id);
     } finally {Lifecycle::leave($operation);}
   }

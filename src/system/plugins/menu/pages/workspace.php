@@ -1,8 +1,8 @@
 <?php
 /** Interface administrativa Menu: catálogo, editor, associações, histórico e lixeira no tema fixo do CMS. */
 declare(strict_types=1);
-use CMS2JSON\{MenuStore,Navigation,Icons,Security,HttpError};
-use function CMS2JSON\{e,asset};
+use DBLESSCMS\{MenuStore,Navigation,Icons,Security,HttpError};
+use function DBLESSCMS\{e,asset};
 /** Traduz controles administrativos; recebe chave/parâmetros e retorna texto sem escape, sem efeitos. */
 $t=static fn(string $key,array $parameters=[]): string=>$context->language->text('menu.'.$key,$parameters);
 /** Resolve página privada do plugin; recebe rota/ID e retorna URL local escapável, sem escrita. */
@@ -40,7 +40,7 @@ foreach ($data['assignments'] as $binding) {
 <section class="panel"><div class="section-heading"><h2><?= e($t('items')) ?></h2><button type="button" class="button-secondary" data-add-item><?= e($t('add')) ?></button></div><div data-menu-items></div><noscript><?= e($t('requiresJS')) ?></noscript></section>
 <div class="savebar"><a class="text-link" href="<?= e($url('overview')) ?>"><?= e($t('overview')) ?></a><button type="submit" class="button-primary"><?= e($t('save')) ?></button></div></form>
 <?php elseif ($route==='history'): ?>
-<?php $historyEnabled=(new \CMS2JSON\Plugins($context->store))->state('menu')['enabled']; ?>
+<?php $historyEnabled=(new \DBLESSCMS\Plugins($context->store))->state('menu')['enabled']; ?>
 <?php if (!$historyEnabled): ?><p class="notice" role="status"><?= e($t('historyInactive')) ?></p><?php endif; ?>
 <section class="panel"><h2><?= e($t('contentHistory')) ?></h2><?php $history=$repository->history();if ($history===[]): ?><p class="empty-state"><?= e($t('noHistory')) ?></p><?php endif; ?>
 <?php foreach ($history as $backup): ?><form class="history-row" method="post" action="<?= e($context->url('history-restore')) ?>" data-menu-form data-confirm="<?= e($t('confirmHistory')) ?>"><span><?= e(substr($backup,0,15)) ?></span><input type="hidden" name="revision" value="<?= e($revision) ?>"><input type="hidden" name="backup" value="<?= e($backup) ?>"><input type="hidden" name="csrf_token" value="<?= e($csrf) ?>"><button class="button-secondary" type="submit" <?= !$historyEnabled?'disabled':'' ?>><?= e($t('restoreHistory')) ?></button></form><?php endforeach; ?></section>

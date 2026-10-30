@@ -40,7 +40,7 @@
       "js/slides.js"
     ],
     "files": {
-      "favicon": "images/favicon.svg",
+      "favicon": "favicon.ico",
       "appleTouch": "images/apple-touch-icon.png",
       "brandSymbol": "images/brand-symbol.svg",
       "iconArrowRight": "icons/arrow-right.svg",
@@ -86,7 +86,8 @@
       "iconTwitterX": "icons/twitter-x.svg",
       "iconWhatsapp": "icons/whatsapp.svg",
       "iconX": "icons/x.svg",
-      "iconYoutube": "icons/youtube.svg"
+      "iconYoutube": "icons/youtube.svg",
+      "thumbnail": "essencial.png"
     }
   },
   "configuration": {

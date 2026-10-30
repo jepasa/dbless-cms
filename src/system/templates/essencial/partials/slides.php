@@ -1,7 +1,7 @@
 <?php
 /** Componente público Essencial: HTML acessível de dados Slides, com controles progressivos e identidade do tema. */
 declare(strict_types=1);
-use function CMS2JSON\e;
+use function DBLESSCMS\e;
 $slideInstance=($slideInstance??0)+1;
 $componentId='slides-'.$slideData['location'].'-'.$slideInstance;
 ?>

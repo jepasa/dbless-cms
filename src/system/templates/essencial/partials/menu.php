@@ -1,7 +1,7 @@
 <?php
 /** Árvore pública do template: dados resolvidos pelo núcleo, submenu nativo acessível e saída contextual escapada. */
 declare(strict_types=1);
-use function CMS2JSON\e;
+use function DBLESSCMS\e;
 /** Renderiza ramo limitado já validado; recebe itens e escreve HTML, sem ler/gravar conteúdo ou executar callbacks externos. */
 $renderMenu=static function(array $items) use (&$renderMenu,$currentPage): void {
   foreach ($items as $item) {

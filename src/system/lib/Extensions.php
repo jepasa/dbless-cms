@@ -1,12 +1,12 @@
 <?php
 /** Gerenciamento de extensões: catálogo sem execução, ativação exclusiva, opções tipadas e desinstalação recuperável. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class Extensions {
   /** Recebe persistência privada; sem leitura de credenciais ou efeitos de escrita. */
   public function __construct(private readonly JsonStore $store) {}
 
-  /** Lista instalados válidos e rejeitados; recebe tipo/locale e retorna linhas traduzidas sem executar código de extensão. */
+  /** Lista extensões e suas mídias declaradas; recebe tipo/locale, retorna linhas de catálogo sem executar código ou escrever conteúdo. */
   public function catalog(string $kind,string $locale): array {
     $rows=[];
     if ($kind==='plugins') {
@@ -20,6 +20,7 @@ final class Extensions {
       $labels=$registry->labels($id,$locale);
       $enabled=$kind==='plugins'?$registry->state($id)['enabled']:$active===$id;
       $rows[$id]=['id'=>$id,'name'=>$labels['name'],'description'=>$labels['description'],'version'=>$manifest['version'],'status'=>isset($incompatible[$id])?'incompatible':($enabled?'active':'inactive'),'enabled'=>$enabled,'configuration'=>$manifest['configuration']??null,'protected'=>$kind==='templates'&&$id===Templates::DEFAULT_ID];
+      $rows[$id]['media']=$kind==='templates'?'templates/'.$id.'/'.$manifest['assets']['files']['thumbnail']:'plugins/'.$id.'/'.$manifest['assets']['icon'];
     }
     foreach ($invalid as $id=>$reason) $rows[$id]=['id'=>$id,'name'=>$id,'description'=>'','version'=>'','status'=>'invalid','enabled'=>false,'configuration'=>null,'protected'=>$kind==='templates'&&$id===Templates::DEFAULT_ID];
     ksort($rows); return $rows;

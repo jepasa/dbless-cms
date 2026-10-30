@@ -1,7 +1,7 @@
 <?php
 /** Contato central: tipos/limites, CSRF/origem, cota atômica e resposta verdadeira de transporte. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class Contact {
   /** Processa POST sintético ou real; recebe config/store/base; escreve texto, sem persistir PII; erros HTTP são explícitos. */
   public static function handle(Config $config,JsonStore $store,string $base): void {

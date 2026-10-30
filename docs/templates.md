@@ -46,6 +46,7 @@ src/system/templates/studio/
   pages/404.php
   forms/contact.php
 src/public_html/templates/studio/
+  studio.png
   css/style.css
   js/theme.js
   images/
@@ -72,6 +73,12 @@ In `studio/template.json`, change `id` to `studio`, set a distinct `name`, `desc
 use letters, digits and hyphens, beginning with a letter. Keep the copied content schema
 until the new design supports every existing page's data.
 
+Capture a genuine 16:9 PNG preview of the template (recommended 1280×720), save it
+as `src/public_html/templates/studio/studio.png`, and set
+`assets.files.thumbnail` to `"studio.png"`. When copying Essencial, update both
+the preview and this manifest field so the new template presents its own design.
+
+
 Open Templates and confirm Studio is available. Activate it, review every example page,
 then customize its own CSS and PHP. All manifest entries must point to existing regular
 files inside the matching tree. Symlinks, traversal and arbitrary paths are rejected.
@@ -86,6 +93,7 @@ The following fields are central:
 | --- | --- |
 | `id`, `name`, `description`, `version`, `author` | Literal package identity |
 | `contract` | Private content schema file, normally `schema.json` |
+| `assets.files.thumbnail` | Required PNG preview relative to this template's public directory, conventionally `<template-id>.png`; custom filenames are resolved from this field |
 | `pages` | Page-model key → file under `pages/`; `home` and `404` are required |
 | `partials` | Partial key → file under `partials/`; layout/header/footer are required |
 | `forms` | Form key → private file under `forms/` |
@@ -108,14 +116,14 @@ working example. Resolve registered scripts and assets through the CMS:
 ```php
 <?php
 /** Example layout fragment: escape editorial text and resolve a local template asset. */
-use function CMS2JSON\e;
+use function DBLESSCMS\e;
 ?>
 <h2><?= e($page['meta']['title']) ?></h2>
 <img src="<?= e($store->templates->asset($id,$manifest['assets']['files']['brandSymbol'],$base_url)) ?>"
      alt="" width="32" height="32">
 ```
 
-`CMS2JSON` is the compatibility PHP namespace, not the public project name. Escape text
+`DBLESSCMS` is the PHP namespace; the product name is DBLESS-CMS. Escape text
 and attributes with `e()`. Use validated URLs, never raw HTML from JSON, dynamic PHP
 includes or untrusted CSS. Respect `lang` and `dir` from `$publicLocale`; do not couple
 the public locale to the admin dictionary.
@@ -243,3 +251,36 @@ Keep private external backups and validate a restore before relying on them.
 - Verify escaping with synthetic markup, and ensure no credentials/state enter your package.
 - Keep a no-JavaScript fallback for essential navigation and published content.
 - Preserve applicable licenses and notices for code, fonts, SVGs and images.
+
+## Template preview contract
+
+Every template ships a real PNG preview at an exact 16:9 aspect ratio. The manifest
+field `assets.files.thumbnail` takes precedence over naming conventions: a value
+like `"preview/home-wide.png"` is permitted inside the same template's public tree.
+The admin Templates catalog displays that preview beside the package identity.
+Only regular, confined files are accepted; corrupt PNG chunks/CRCs, trailing bytes,
+missing files and other proportions reject the template. Previews are limited to
+4 MiB and 4096×2304; 1280×720 is recommended. Keep the subject generic for public
+packages and do not capture credentials, private content or the admin interface.
+Existing templates must receive the PNG and updated manifest together during upgrade.
+
+## Site and admin favicons
+
+Ship `favicon.ico` in each template's public directory and declare it as
+`assets.files.favicon`. It provides the default for older site documents and a fallback
+if a user-managed icon is removed.
+
+Global settings → Site favicon stores `settings.favicon`: a **path and filename relative
+to the hosting public root**, such as `media/favicon.ico`, `images/brand.ico` or
+`favicon.ico`. It is not relative to the active template or a fixed uploads directory.
+Upload the ICO through Images in its configured public root, then enter its resulting
+public-relative path. Private files, external URLs, traversal and symbolic links are rejected.
+Saving a new or changed reference requires an existing valid ICO. An unchanged
+reference to a subsequently removed upload does not block other saves or template fallback. The supported ICO format contains PNG frames
+(16/32/48/64/256 px, up to 1 MiB); legacy DIB/BMP-frame ICO files are rejected.
+Templates must use `DBLESSCMS\SiteFavicon::url($store, $base_url)` for their icon link.
+An existing setting survives template changes; the admin favicon never follows it.
+Production export copies only the referenced favicon, not its surrounding uploads.
+
+The admin has a fixed addressed favicon at `cms-admin/assets/favicon.ico`, declared
+in the admin document header for both login and authenticated screens.

@@ -14,3 +14,5 @@ example images are licensed under Apache-2.0. See LICENSE and NOTICE.
   `src/public_html/templates/essencial/images/examples/provenance.json`. These assets
   are offered under Apache-2.0 with the distribution; no third-party photographs
   or proprietary template assets are included.
+
+Plugin identity icons are original static SVG geometry supplied under Apache-2.0. The Essencial package preview is a real 1280×720 capture using public demonstration resources, under the same license.

@@ -1,7 +1,7 @@
 <?php
 /** Contexto público de plugin sem Config/JsonStore/credenciais; somente campos explicitamente publicáveis. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class PublicPluginContext {
   /** Armazena identidade/rota/origem/idioma/dados públicos/CSRF/método já validados; não realiza I/O. */
   public function __construct(public readonly string $id,public readonly string $route,public readonly string $base,public readonly Language $language,public readonly array $settings,public readonly string $csrfToken,public readonly string $method) {}

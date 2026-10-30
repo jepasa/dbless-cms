@@ -1,8 +1,8 @@
 <?php
 /** Fragmento de opções: editor global, ajuda do plugin, revisão/CSRF e link para a rota própria de histórico. */
 declare(strict_types=1);
-use CMS2JSON\{Security,JsonStore};
-use function CMS2JSON\e;
+use DBLESSCMS\{Security,JsonStore};
+use function DBLESSCMS\e;
 /** Traduz controles comuns do editor; recebe chave/parâmetros, retorna texto sem efeitos. */
 $label=static fn(string $key,array $parameters=[]): string=>$ui->text($key,$parameters);
 $settings=$context->settings;

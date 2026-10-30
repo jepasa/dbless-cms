@@ -1,7 +1,7 @@
 <?php
 /** Contrato público de navegação: localizações estáticas e resolução de itens privados sem executar o plugin. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class Navigation {
   public const TYPES=['navbar','sidebar','list','dropdown'];
   private ?array $document=null;
