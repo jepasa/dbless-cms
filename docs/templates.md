@@ -284,3 +284,45 @@ Production export copies only the referenced favicon, not its surrounding upload
 
 The admin has a fixed addressed favicon at `cms-admin/assets/favicon.ico`, declared
 in the admin document header for both login and authenticated screens.
+
+
+## Blog integration
+
+Blog provides published data independently of the template. Register an optional
+`partials.blog` entry in `template.json`, for example `"blog": "blog.php"`. The private
+partial receives `$blogModel`, `$blogSettings` and the standard layout context. A custom
+view may render the validated data directly; the bundled implementation delegates to
+`$store->config->root . '/plugins/blog/pages/public.php'` and owns its surrounding layout
+and stylesheet. Both bundled template integrations use addressed raster media and
+escaped typed blocks. Without a custom partial, the plugin uses its private default
+fragment with local fallback reading CSS.
+
+For correct metadata, consume the optional `$contentMetadata` supplied by Blog:
+`canonical`, `robots`, `type`, `publishedAt`, `updatedAt` and `feed`. Escape every value
+in its HTML attribute. Keep the existing page defaults when this variable is absent.
+Articles use type `article`; previews and searches request noindex. The article fragment
+contains BlogPosting microdata, so executable inline scripts are unnecessary.
+
+Use the plugin URL builder for subdirectory-safe links:
+
+```php
+<?php
+/** Trusted template integration: obtain read-only published article examples only when Blog is enabled. */
+$registry = new \DBLESSCMS\Plugins($store);
+if (isset($registry->all()['blog']) && $registry->state('blog')['enabled']) {
+  $registry->instance('blog');
+  $latest = \DBLESSCMS\BlogView::latest($store, 3);
+  $archiveUrl = \DBLESSCMS\BlogView::url($base_url);
+  // Escape editorial values and URLs when rendering your own HTML composition.
+}
+```
+
+Do not render the raw private catalog as public JSON or load preview content without an
+authenticated private route. Article slugs are query parameters on a declared plugin
+route; template page slugs remain a separate namespace. Essencial demonstrates public
+cards, full articles, category/tag/byline archives, search, feeds, reading time and
+related content. New installations also include private draft, schedule and trash
+examples for the administration panel. The [plugin guide](plugins.md#12-run-the-bundled-blog)
+describes authoring, moderation and storage limits.
+
+Public Blog template models contain only currently visible articles, including the catalog projection used for related reading. Drafts, future schedules and trash are removed before the public template executes; only authenticated saved-preview context may contain a draft.

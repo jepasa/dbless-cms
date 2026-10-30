@@ -21,6 +21,22 @@
     "slides": {
       "enabled": true,
       "settings": {}
+    },
+    "blog": {
+      "enabled": true,
+      "settings": {
+        "publication": {
+          "title": "Journal",
+          "description": "Ideas, practical guides and stories worth sharing.",
+          "pageSize": 9,
+          "feedLimit": 20,
+          "readingSpeed": 200
+        },
+        "discussion": {
+          "enabled": false,
+          "maxLength": 2000
+        }
+      }
     }
   }
 }

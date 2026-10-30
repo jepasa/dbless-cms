@@ -37,7 +37,7 @@ export async function server(application=applications[0]){
     socket.listen(0,'127.0.0.1');await once(socket,'listening');const port=socket.address().port;await new Promise(resolve=>socket.close(resolve));
     const base=`http://127.0.0.1:${port}`,siteFile=path.join(context.contents,'site.json'),site=JSON.parse(fs.readFileSync(siteFile));site.settings.canonical=base;site.settings.adminLocale='en-us';fs.writeFileSync(siteFile,JSON.stringify(site));
     fs.mkdirSync(path.join(context.temporary,'scripts'));fs.copyFileSync(path.join(root,'scripts/dev-router.php'),path.join(context.temporary,'scripts/dev-router.php'));
-    processHandle=spawn('php',['-d','disable_functions=mail','-d',`session.save_path=${context.temporary}`,'-S',`127.0.0.1:${port}`,'-t',path.join(context.app,'public_html'),path.join(context.temporary,'scripts/dev-router.php')],{env:context.env});
+    processHandle=spawn('php',['-d','disable_functions=mail','-d','upload_max_filesize=12M','-d','post_max_size=13M','-d',`session.save_path=${context.temporary}`,'-S',`127.0.0.1:${port}`,'-t',path.join(context.app,'public_html'),path.join(context.temporary,'scripts/dev-router.php')],{env:context.env});
     let logs='';processHandle.stderr.on('data',data=>{logs+=data;});processHandle.stdout.on('data',data=>{logs+=data;});
     /** Stop this server and delete only its fixture; no arguments/return value, preserves logs in closure and propagates cleanup errors. */
     async function close(){if(processHandle.exitCode===null){const done=once(processHandle,'exit');processHandle.kill();await done;}context.close();}

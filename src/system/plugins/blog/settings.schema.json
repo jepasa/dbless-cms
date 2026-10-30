@@ -1,0 +1,75 @@
+{
+  "type": "object",
+  "required": [
+    "publication",
+    "discussion"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "publication": {
+      "type": "object",
+      "title": "blog.publication",
+      "required": [
+        "title",
+        "description",
+        "pageSize",
+        "feedLimit",
+        "readingSpeed"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "title": "blog.siteTitle",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "description": {
+          "type": "string",
+          "title": "blog.siteDescription",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "pageSize": {
+          "type": "integer",
+          "title": "blog.pageSize",
+          "minimum": 1,
+          "maximum": 50
+        },
+        "feedLimit": {
+          "type": "integer",
+          "title": "blog.feedLimit",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "readingSpeed": {
+          "type": "integer",
+          "title": "blog.readingSpeed",
+          "minimum": 80,
+          "maximum": 500
+        }
+      }
+    },
+    "discussion": {
+      "type": "object",
+      "title": "blog.discussion",
+      "required": [
+        "enabled",
+        "maxLength"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "blog.commentsEnabled"
+        },
+        "maxLength": {
+          "type": "integer",
+          "title": "blog.commentMaxLength",
+          "minimum": 100,
+          "maximum": 4000
+        }
+      }
+    }
+  }
+}

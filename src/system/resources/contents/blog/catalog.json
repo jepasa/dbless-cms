@@ -1,0 +1,330 @@
+{
+  "schema_version": 1,
+  "articles": {
+    "designing-with-clarity": {
+      "id": "designing-with-clarity",
+      "slug": "designing-with-clarity",
+      "aliases": [],
+      "title": "Designing with clarity",
+      "excerpt": "A practical example of readable content, thoughtful images and a repeatable publishing workflow.",
+      "cover": "templates/essencial/images/examples/studio.png",
+      "coverAlt": "Original abstract illustration in a calm editorial palette.",
+      "author": "editorial-team",
+      "categories": [
+        "ideas"
+      ],
+      "tags": [
+        "design",
+        "accessibility"
+      ],
+      "status": "published",
+      "publishedAt": "2026-01-20T12:00:00Z",
+      "createdAt": "2026-01-01T12:00:00Z",
+      "updatedAt": "2026-01-20T12:00:00Z",
+      "deletedAt": "",
+      "featured": true,
+      "noindex": false,
+      "seoTitle": "",
+      "seoDescription": "",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A useful website begins with a clear purpose. This sample article demonstrates a complete editorial structure that can be adapted to a real project."
+        },
+        {
+          "type": "heading",
+          "text": "Start with the reader",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "text": "Write down the question your audience needs answered. Use a short introduction, meaningful headings and examples that make the next step clear."
+        },
+        {
+          "type": "quote",
+          "text": "Clarity is a practical design decision: every element should help someone understand or act."
+        },
+        {
+          "type": "image",
+          "src": "templates/essencial/images/examples/process.png",
+          "alt": "Original abstract workspace illustration with a coordinated green and neutral palette.",
+          "caption": "Original demonstration artwork, distributed with the public project under Apache-2.0."
+        },
+        {
+          "type": "heading",
+          "text": "A repeatable checklist",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Use a descriptive title and a concise summary.",
+            "Add useful alternative text to meaningful images.",
+            "Check links and preview the saved article on a small screen."
+          ],
+          "ordered": true
+        },
+        {
+          "type": "heading",
+          "text": "Structured content, simple delivery",
+          "level": 3
+        },
+        {
+          "type": "code",
+          "text": "const example = \"<sample>\";\nconsole.log(example);"
+        },
+        {
+          "type": "paragraph",
+          "text": "Code is displayed as literal text, never executed. This blog stores structured content in private JSON and lets the active template compose the public view."
+        },
+        {
+          "type": "link",
+          "text": "Explore the public blog archive",
+          "url": "/plugins/blog/list"
+        }
+      ]
+    },
+    "content-without-a-database": {
+      "id": "content-without-a-database",
+      "slug": "content-without-a-database",
+      "aliases": [],
+      "title": "Content without a database",
+      "excerpt": "Discover how structured files can support a focused editorial workflow with portable content.",
+      "cover": "templates/essencial/images/examples/process.png",
+      "coverAlt": "Original abstract illustration in a calm editorial palette.",
+      "author": "studio-notes",
+      "categories": [
+        "guides",
+        "publishing"
+      ],
+      "tags": [
+        "content"
+      ],
+      "status": "published",
+      "publishedAt": "2026-01-18T10:00:00Z",
+      "createdAt": "2026-01-01T12:00:00Z",
+      "updatedAt": "2026-01-20T12:00:00Z",
+      "deletedAt": "",
+      "featured": false,
+      "noindex": false,
+      "seoTitle": "",
+      "seoDescription": "",
+      "blocks": [
+        {
+          "type": "heading",
+          "text": "Keep content separate",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "text": "Store editorial information independently from presentation. This makes it easier to adapt a theme while preserving articles, categories and author profiles."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Use reviewed content contracts.",
+            "Keep backups private.",
+            "Publish only the intended content."
+          ],
+          "ordered": false
+        }
+      ]
+    },
+    "a-practical-publishing-checklist": {
+      "id": "a-practical-publishing-checklist",
+      "slug": "a-practical-publishing-checklist",
+      "aliases": [],
+      "title": "A practical publishing checklist",
+      "excerpt": "Review an example article from first draft to publication, including previews and metadata.",
+      "cover": "templates/essencial/images/examples/product.png",
+      "coverAlt": "Original abstract illustration in a calm editorial palette.",
+      "author": "editorial-team",
+      "categories": [
+        "publishing"
+      ],
+      "tags": [
+        "content",
+        "accessibility"
+      ],
+      "status": "published",
+      "publishedAt": "2026-01-15T10:00:00Z",
+      "createdAt": "2026-01-01T12:00:00Z",
+      "updatedAt": "2026-01-20T12:00:00Z",
+      "deletedAt": "",
+      "featured": false,
+      "noindex": false,
+      "seoTitle": "",
+      "seoDescription": "",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Begin with a draft, review the summary and verify the cover image. The saved preview remains available only to an authenticated administrator."
+        },
+        {
+          "type": "heading",
+          "text": "Before publishing",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Confirm the author and categories.",
+            "Review the UTC publication time.",
+            "Read the public page after publishing."
+          ],
+          "ordered": true
+        }
+      ]
+    },
+    "a-draft-to-make-your-own": {
+      "id": "a-draft-to-make-your-own",
+      "slug": "a-draft-to-make-your-own",
+      "aliases": [],
+      "title": "A draft to make your own",
+      "excerpt": "This private example is ready to be edited before it is published.",
+      "cover": "",
+      "coverAlt": "",
+      "author": "editorial-team",
+      "categories": [
+        "guides"
+      ],
+      "tags": [
+        "content"
+      ],
+      "status": "draft",
+      "publishedAt": "",
+      "createdAt": "2026-01-01T12:00:00Z",
+      "updatedAt": "2026-01-20T12:00:00Z",
+      "deletedAt": "",
+      "featured": false,
+      "noindex": false,
+      "seoTitle": "",
+      "seoDescription": "",
+      "blocks": []
+    },
+    "a-scheduled-example": {
+      "id": "a-scheduled-example",
+      "slug": "a-scheduled-example",
+      "aliases": [],
+      "title": "A scheduled example",
+      "excerpt": "This article demonstrates scheduling and remains private until its UTC publication time.",
+      "cover": "",
+      "coverAlt": "",
+      "author": "editorial-team",
+      "categories": [
+        "publishing"
+      ],
+      "tags": [
+        "content"
+      ],
+      "status": "published",
+      "publishedAt": "2099-01-01T12:00:00Z",
+      "createdAt": "2026-01-01T12:00:00Z",
+      "updatedAt": "2026-01-20T12:00:00Z",
+      "deletedAt": "",
+      "featured": false,
+      "noindex": false,
+      "seoTitle": "",
+      "seoDescription": "",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "This is a future publication example. Change its UTC date in the article editor to test scheduled release."
+        }
+      ]
+    },
+    "a-restorable-example": {
+      "id": "a-restorable-example",
+      "slug": "a-restorable-example",
+      "aliases": [],
+      "title": "A restorable example",
+      "excerpt": "This example starts in the trash and can be restored from the administration panel.",
+      "cover": "",
+      "coverAlt": "",
+      "author": "editorial-team",
+      "categories": [
+        "guides"
+      ],
+      "tags": [],
+      "status": "published",
+      "publishedAt": "2026-01-01T12:00:00Z",
+      "createdAt": "2026-01-01T12:00:00Z",
+      "updatedAt": "2026-01-20T12:00:00Z",
+      "deletedAt": "2026-01-20T12:00:00Z",
+      "featured": false,
+      "noindex": false,
+      "seoTitle": "",
+      "seoDescription": "",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Soft deletion preserves an article and its identifiers for deliberate recovery."
+        }
+      ]
+    }
+  },
+  "categories": {
+    "guides": {
+      "id": "guides",
+      "name": "Guides",
+      "description": "Practical steps for useful websites.",
+      "parent": "",
+      "deleted": false
+    },
+    "publishing": {
+      "id": "publishing",
+      "name": "Publishing",
+      "description": "Reliable editorial workflows.",
+      "parent": "guides",
+      "deleted": false
+    },
+    "ideas": {
+      "id": "ideas",
+      "name": "Ideas",
+      "description": "Notes on design and communication.",
+      "parent": "",
+      "deleted": false
+    }
+  },
+  "tags": {
+    "design": {
+      "id": "design",
+      "name": "Design",
+      "description": "",
+      "parent": "",
+      "deleted": false
+    },
+    "content": {
+      "id": "content",
+      "name": "Content",
+      "description": "",
+      "parent": "",
+      "deleted": false
+    },
+    "accessibility": {
+      "id": "accessibility",
+      "name": "Accessibility",
+      "description": "",
+      "parent": "",
+      "deleted": false
+    }
+  },
+  "authors": {
+    "editorial-team": {
+      "id": "editorial-team",
+      "name": "Editorial Team",
+      "bio": "A fictional editorial team sharing practical examples for this demonstration.",
+      "image": "templates/essencial/images/examples/studio.png",
+      "url": "",
+      "deleted": false
+    },
+    "studio-notes": {
+      "id": "studio-notes",
+      "name": "Studio Notes",
+      "bio": "An example author profile for testing multiple editorial bylines.",
+      "image": "",
+      "url": "",
+      "deleted": false
+    }
+  }
+}
