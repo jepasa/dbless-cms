@@ -29,7 +29,7 @@
     "fm.modified": "Modificado",
     "fm.empty": "Nenhum arquivo nesta pasta.",
     "fm.drop": "Arraste arquivos para esta área ou use Enviar arquivos.",
-    "fm.help": "JPG, PNG, GIF, WebP, PDF e TXT · até 10 MiB por arquivo.",
+    "fm.help": "JPG, PNG, GIF, WebP, PDF e TXT · até 10 MiB por arquivo. ICO (PNG) · 1 MiB.",
     "fm.privateHelp": "Arquivos privados são acessíveis apenas pela sessão do painel.",
     "fm.publicHelp": "Arquivos públicos ficam disponíveis no site.",
     "fm.cancel": "Cancelar",

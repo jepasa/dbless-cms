@@ -1,7 +1,7 @@
 <?php
 /** Localização de menus no editor: manifesto ativo, revisão do site e vínculos preservados quando o template muda. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class MenuPlacement {
   /** Consulta contexto de posicionamento; recebe contexto/documento/ID e retorna manifesto, locais, seleção e alertas sem escrever. */
   public static function state(PluginContext $context,array $data,string $id): array {

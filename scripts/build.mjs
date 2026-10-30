@@ -16,13 +16,13 @@ import { minify as minifyHtml } from 'html-minifier-terser';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const source = path.join(root, 'src');
 const args = process.argv.slice(2);
-if (args.length && (args.length !== 2 || args[0] !== '--out')) throw new Error('Uso: npm run export:production -- [--out /tmp/cms2json-...]');
+if (args.length && (args.length !== 2 || args[0] !== '--out')) throw new Error('Uso: npm run export:production -- [--out /tmp/dbless-cms-...]');
 const target = path.resolve(args[1] || path.join(root, 'build'));
-if (target !== path.join(root, 'build') && !(target.startsWith(os.tmpdir() + path.sep) && path.basename(target).startsWith('cms2json-'))) throw new Error('Destino permitido: build/ ou diretório /tmp/cms2json-*.');
+if (target !== path.join(root, 'build') && !(target.startsWith(os.tmpdir() + path.sep) && path.basename(target).startsWith('dbless-cms-'))) throw new Error('Destino permitido: build/ ou diretório /tmp/dbless-cms-*.');
 try { if ((await fs.lstat(target)).isSymbolicLink()) throw new Error('Destino não pode ser symlink.'); }
 catch (error) { if (error.code !== 'ENOENT') throw error; }
 await fs.mkdir(path.dirname(target), { recursive: true });
-const staging = await fs.mkdtemp(path.join(path.dirname(target), '.cms2json-stage-'));
+const staging = await fs.mkdtemp(path.join(path.dirname(target), '.dbless-cms-stage-'));
 
 /** Executa PHP local; recebe argumentos, retorna stdout; erros/status não zero abortam a exportação. */
 function php(args) {

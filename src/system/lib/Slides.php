@@ -1,7 +1,7 @@
 <?php
 /** Resolução pública Slides: contratos estáticos e dados publicados, sem executar plugins nem produzir HTML. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class Slides {
   private ?array $document=null;
   private bool $loaded=false;

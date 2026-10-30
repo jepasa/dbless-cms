@@ -1,7 +1,7 @@
 <?php
 /** Coordenação operacional: requisições compartilham trava; operações CLI exclusivas preservam snapshots e manutenção. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class Lifecycle {
   /** Rejeita caminhos relativos, segmentos especiais e links ancestrais; recebe absoluto e retorna caminho normalizado ou RuntimeException. */
   public static function path(string $path): string {

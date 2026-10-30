@@ -29,7 +29,7 @@
     "fm.modified": "Modified",
     "fm.empty": "No files in this folder.",
     "fm.drop": "Drop files here or use Upload files.",
-    "fm.help": "JPG, PNG, GIF, WebP, PDF and TXT · up to 10 MiB per file.",
+    "fm.help": "JPG, PNG, GIF, WebP, PDF and TXT · up to 10 MiB per file. ICO (PNG) · 1 MiB.",
     "fm.privateHelp": "Private files are accessible only through the admin session.",
     "fm.publicHelp": "Public files are available on the website.",
     "fm.cancel": "Cancel",

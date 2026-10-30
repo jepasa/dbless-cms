@@ -1,9 +1,9 @@
 <?php
 /** Armazenamento do gerenciador: contenção, MIME, cotas, revisão, lock e lixeira privada recuperável. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class ManagedFiles {
-  private const TYPES=['jpg'=>['image/jpeg'],'jpeg'=>['image/jpeg'],'png'=>['image/png'],'gif'=>['image/gif'],'webp'=>['image/webp'],'pdf'=>['application/pdf'],'txt'=>['text/plain']];
+  private const TYPES=['jpg'=>['image/jpeg'],'jpeg'=>['image/jpeg'],'png'=>['image/png'],'gif'=>['image/gif'],'webp'=>['image/webp'],'ico'=>['image/vnd.microsoft.icon','image/x-icon'],'pdf'=>['application/pdf'],'txt'=>['text/plain']];
   private string $anchor;
   private string $root;
   private string $state;
@@ -116,14 +116,16 @@ final class ManagedFiles {
     if (!$end) self::fail('type');
     return $scan;
   }
-  /** Valida MIME/extensão/conteúdo limitado; recebe arquivo/nome, retorna MIME ou 422; nunca executa dados. */
+  /** Valida MIME/extensão/conteúdo e ICO com quadros PNG; recebe arquivo/nome, retorna MIME ou 422; não executa dados e mantém rejeições de PHP/HTML/SVG. */
   private function mime(string $file,string $name): string {
     $extension=strtolower(pathinfo($name,PATHINFO_EXTENSION));
     if (!isset(self::TYPES[$extension])) self::fail('type');
     $size=filesize($file); if ($size===false || $size===0 || $size>10485760) self::fail('size',413);
     $mime=(new \finfo(FILEINFO_MIME_TYPE))->file($file);
     if (!in_array($mime,self::TYPES[$extension],true)) self::fail('type');
-    if (str_starts_with($mime,'image/')) {
+    if ($extension==='ico') {
+      try {ExtensionMedia::ico($file);} catch (\RuntimeException) {self::fail('type');}
+    } elseif (str_starts_with($mime,'image/')) {
       $image=@getimagesize($file);
       if ($image===false || $image[0]*$image[1]>40000000 || ($image['mime']??'')!==$mime) self::fail('type');
     }

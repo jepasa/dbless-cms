@@ -5,11 +5,12 @@
   "api": 1,
   "cmsMajor": 2,
   "entry": "Plugin.php",
-  "class": "CMS2JSON\\FilesManager",
+  "class": "DBLESSCMS\\FilesManager",
   "launcher": "files",
   "assets": {
     "css": "css/files-manager.css",
-    "js": "js/files-manager.js"
+    "js": "js/files-manager.js",
+    "icon": "files-manager.svg"
   },
   "defaults": {
     "uploads": {

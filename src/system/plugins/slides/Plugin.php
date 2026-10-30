@@ -1,7 +1,7 @@
 <?php
 /** Plugin Slides API 1: coleções, associações, publicação, lixeira e histórico sob segurança central do painel. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 require_once __DIR__.'/Router.php';
 require_once __DIR__.'/Placement.php';
 final class SlidesPlugin implements PluginInterface {

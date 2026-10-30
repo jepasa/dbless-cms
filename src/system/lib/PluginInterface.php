@@ -1,7 +1,7 @@
 <?php
 /** Contrato API 1 de extensões locais confiáveis; autenticação e CSRF pertencem ao núcleo. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 interface PluginInterface {
   /** Valida configurações sem gravar; recebe dados/config; lança HttpError em contrato inválido. */
   public function validateSettings(array $settings, Config $config): void;

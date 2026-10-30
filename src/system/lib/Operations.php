@@ -1,14 +1,14 @@
 <?php
 /** Ferramentas PHP CLI de produção: diagnóstico, manutenção, retenção, snapshots privados e atualização em destino novo. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class Operations {
   private readonly string $installation;
   private readonly string $privateConfig;
   /** Recebe configuração local, resolve raízes e recusa links; não imprime nem altera dados. */
   public function __construct(private readonly Config $config) {
     $this->installation=Lifecycle::path(dirname($config->root));
-    $this->privateConfig=Lifecycle::path(getenv('CMS2JSON_APP_CONFIG')?:$config->root.'/config/app.json');
+    $this->privateConfig=Lifecycle::path(getenv('DBLESS_CMS_APP_CONFIG')?:$config->root.'/config/app.json');
     Lifecycle::path($config->data['contents']);Lifecycle::path($config->data['storage']);
   }
   /** Testa contenção por limite de segmento; recebe caminhos absolutos e retorna bool sem efeitos. */
@@ -23,7 +23,7 @@ final class Operations {
   }
   /** Grava arquivo novo ou substituição atômica privada; recebe caminho/bytes; falha sem substituir em escrita incompleta. */
   private static function write(string $file,string $bytes): void {
-    Lifecycle::path($file);$temporary=tempnam(dirname($file),'.cms2json-ops-');
+    Lifecycle::path($file);$temporary=tempnam(dirname($file),'.dbless-cms-ops-');
     if ($temporary===false) throw new \RuntimeException('Área temporária indisponível.');
     try {
       $stream=fopen($temporary,'wb');if ($stream===false) throw new \RuntimeException('Falha de gravação operacional.');
@@ -32,12 +32,12 @@ final class Operations {
       if (!chmod($temporary,0600) || !rename($temporary,$file)) throw new \RuntimeException('Publicação operacional indisponível.');
     } finally {if (is_file($temporary)) unlink($temporary);}
   }
-  /** Confere núcleo de inventários dbless-cms ou CMS2JSON legado; permite novos dicionários e extensões, mas rejeita núcleo extra/ausente/alterado; sem escrita. */
+  /** Confere núcleo de inventários DBLESS-CMS em caixa alta ou baixa; permite novos dicionários e extensões, mas rejeita núcleo extra/ausente/alterado; sem escrita. */
   private function coreIntegrity(): bool {
     $file=$this->installation.'/export-manifest.json';
     if (!is_file($file)) return false;
     $manifest=json_decode(self::read($file),true,32,JSON_THROW_ON_ERROR);$expected=[];$actual=[];
-    if (!in_array($manifest['name']??null,['dbless-cms','CMS2JSON'],true)||!is_array($manifest['files']??null)) return false;
+    if (!in_array($manifest['name']??null,['dbless-cms','DBLESS-CMS'],true)||!is_array($manifest['files']??null)) return false;
     foreach ($manifest['files'] as $entry) {
       $relative=$entry['path']??'';
       if (!is_string($relative)||!preg_match('~^(?:system/(?:lib/|admin/|bin/|languages/|config/(?:schemas/|settings\.php$|production\.php$)|bootstrap\.php$|core\.php$)|public_html/(?:cms-admin/|index\.php$|plugins/index\.php$|\.htaccess$))~D',$relative)) continue;
@@ -188,7 +188,7 @@ final class Operations {
   }
   /** Publica árvore nova com staging privado; recebe destino e produtor, retorna caminho; falha preserva origem e destino anterior. */
   private function publish(string $destination,callable $producer): array {
-    $stage=dirname($destination).'/.cms2json-ops-'.bin2hex(random_bytes(12));
+    $stage=dirname($destination).'/.dbless-cms-ops-'.bin2hex(random_bytes(12));
     if (!mkdir($stage,0700)) throw new \RuntimeException('Staging operacional indisponível.');
     try {
       $producer($stage);
@@ -237,10 +237,10 @@ final class Operations {
       }
     }));
   }
-  /** Verifica pacote dbless-cms ou CMS2JSON legado, nomes relativos e ausência de entradas extras; recebe raiz e retorna mapa de arquivos íntegros ou falha. */
+  /** Verifica pacote DBLESS-CMS em caixa alta ou baixa, nomes relativos e ausência de entradas extras; recebe raiz e retorna mapa de arquivos íntegros ou falha. */
   public static function verifyPackage(string $source): array {
     Lifecycle::path($source);$manifest=json_decode(self::read($source.'/export-manifest.json'),true,32,JSON_THROW_ON_ERROR);$expected=[];
-    if (!in_array($manifest['name']??null,['dbless-cms','CMS2JSON'],true)||!is_string($manifest['version']??null)||!preg_match('/^2\\.\\d+\\.\\d+$/D',$manifest['version'])||!is_array($manifest['files']??null)) throw new \RuntimeException('Manifesto de pacote inválido.');
+    if (!in_array($manifest['name']??null,['dbless-cms','DBLESS-CMS'],true)||!is_string($manifest['version']??null)||!preg_match('/^2\\.\\d+\\.\\d+$/D',$manifest['version'])||!is_array($manifest['files']??null)) throw new \RuntimeException('Manifesto de pacote inválido.');
     foreach ($manifest['files'] as $entry) {
       $path=$entry['path']??null;
       if (!is_string($path)||$path===''||str_starts_with($path,'/')||str_contains($path,'\\')||preg_match('~(?:^|/)\.{1,2}(?:/|$)~',$path)||str_contains($path,"\0")||isset($expected[$path])||!is_int($entry['bytes']??null)||!is_string($entry['sha256']??null)||!preg_match('/^[a-f0-9]{64}$/D',$entry['sha256'])) throw new \RuntimeException('Entrada de pacote inválida.');

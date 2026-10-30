@@ -54,6 +54,7 @@
       "address": ""
     },
     "adminLocale": "en-us",
-    "siteLocale": "pt-BR"
+    "siteLocale": "pt-BR",
+    "favicon": "templates/essencial/favicon.ico"
   }
 }

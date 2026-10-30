@@ -1,8 +1,8 @@
 <?php
 /** Histórico individual de configurações: revisão compartilhada, CSRF e restauração sem alterar ativação ou outras extensões. */
 declare(strict_types=1);
-use CMS2JSON\Security;
-use function CMS2JSON\e;
+use DBLESSCMS\Security;
+use function DBLESSCMS\e;
 $history=$context->store->history('plugins');
 ?>
 <section class="panel" id="plugin-options-history"><h2><?= e($ui->text('catalog.plugin_settings')) ?></h2>

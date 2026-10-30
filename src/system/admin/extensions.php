@@ -1,8 +1,9 @@
 <?php
 /** Tabela administrativa de extensões: metadados traduzidos, diagnóstico e ações por ícones com sessão/CSRF/revisão. */
 declare(strict_types=1);
-use function CMS2JSON\e;
-use CMS2JSON\Icons;
+use function DBLESSCMS\e;
+use function DBLESSCMS\asset;
+use DBLESSCMS\Icons;
 ?>
 <section class="panel extension-panel">
 <div class="table-scroll"><table class="extension-table"><caption class="sr-only"><?= e($labels[$view]) ?></caption>
@@ -16,7 +17,7 @@ use CMS2JSON\Icons;
   $canConfigure=$healthy && $row['configuration']!==false && ($view==='plugins' || $row['configuration']!==null);
 ?>
 <tr data-extension-id="<?= e($row['id']) ?>">
-<td data-label="<?= e($t('catalog.name')) ?>"><strong><?= e($row['name']) ?></strong><small class="extension-id"><?= e($row['id'].($row['version']!==''?' · v'.$row['version']:'')) ?></small><?php if ($row['protected']): ?><span class="count-pill"><?= e($t('catalog.default')) ?></span><?php endif; ?></td>
+<td data-label="<?= e($t('catalog.name')) ?>"><div class="extension-identity"><?php if (isset($row['media'])): ?><img class="<?= $view==='templates'?'template-thumbnail':'admin-icon plugin-icon' ?>" src="<?= e(asset($row['media'],$base)) ?>" width="<?= $view==='templates'?'160':'24' ?>" height="<?= $view==='templates'?'90':'24' ?>" alt="" loading="lazy" decoding="async"><?php endif; ?><div><strong><?= e($row['name']) ?></strong><small class="extension-id"><?= e($row['id'].($row['version']!==''?' · v'.$row['version']:'')) ?></small><?php if ($row['protected']): ?><span class="count-pill"><?= e($t('catalog.default')) ?></span><?php endif; ?></div></div></td>
 <td data-label="<?= e($t('catalog.description')) ?>"><?= e($row['description']!==''?$row['description']:$t($healthy?'catalog.no_description':'catalog.unavailable')) ?></td>
 <td data-label="<?= e($t('catalog.status')) ?>"><span class="status <?= $row['status']==='active'?'published':($healthy?'inactive':'draft') ?>"><?= e($t('catalog.'.$row['status'])) ?></span></td>
 <td data-label="<?= e($t('catalog.actions')) ?>"><div class="row-actions">

@@ -1,7 +1,7 @@
 <?php
 /** Roteador privado do File Manager; o plugin despacha suas páginas declaradas sem rotas de negócio no núcleo. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class FilesManagerRouter {
   /** Renderiza rota própria autorizada no contexto; recebe contexto e retorna fragmento integrado ou documento compatível conforme contexto; falha sem resolver caminhos externos. */
   public static function render(PluginContext $context): string {

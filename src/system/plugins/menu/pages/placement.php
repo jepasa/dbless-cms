@@ -1,8 +1,8 @@
 <?php
 /** Campos de localização no editor Menu: somente manifesto ativo, formatos permitidos e alerta de vínculos preservados. */
 declare(strict_types=1);
-use function CMS2JSON\e;
-$placement=\CMS2JSON\MenuPlacement::state($context,$data,$id);
+use function DBLESSCMS\e;
+$placement=\DBLESSCMS\MenuPlacement::state($context,$data,$id);
 ?>
 <section class="panel" data-menu-placement><h2><?= e($t('placementTitle')) ?></h2><p class="muted"><?= e($placement['name'].' · '.$placement['template']) ?></p><p><?= e($t('placementHelp')) ?></p>
 <input type="hidden" name="placement_editor" value="1"><input type="hidden" name="placement_template" value="<?= e($placement['template']) ?>"><input type="hidden" name="site_revision" value="<?= e($placement['revision']) ?>">

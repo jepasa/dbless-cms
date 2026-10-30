@@ -1,7 +1,7 @@
 <?php
 /** Validação de contratos estruturados e sanitização de texto/URLs; JSON não executa HTML ou PHP. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class Schema {
   /** Valida subconjunto explícito de JSON Schema; recebe valor/contrato/caminho; lança 422 em divergência. */
   public static function validate(mixed $value, array $schema, string $path = 'documento'): void {

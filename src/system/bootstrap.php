@@ -1,7 +1,7 @@
 <?php
-/** Inicialização privada CMS2JSON: autoload, escape e resolução de assets por ambiente. */
+/** Inicialização privada DBLESS-CMS: autoload, escape e resolução de assets por ambiente. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 
 /** Carrega exclusivamente classes locais; recebe nome e não retorna; arquivos ausentes seguem o autoloader. */
 spl_autoload_register(static function (string $class): void {

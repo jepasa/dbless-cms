@@ -58,7 +58,7 @@ cp .env.example .env
 ```
 
 Set your development administrator in `.env`: choose a username and a unique password
-of at least 16 characters using `CMS2JSON_ADMIN_USER` and `CMS2JSON_ADMIN_PASSWORD`.
+of at least 16 characters using `DBLESS_CMS_ADMIN_USER` and `DBLESS_CMS_ADMIN_PASSWORD`.
 These compatibility variable names are intentional. No working password is supplied.
 
 ```bash

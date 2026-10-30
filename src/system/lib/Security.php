@@ -1,7 +1,7 @@
 <?php
 /** Sessão, CSRF e limites atômicos com estado privado; sem registro de dados pessoais. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class Security {
   /** Cria diretório privado; recebe caminho, retorna nada; falha fechada em erro/symlink. */
   public static function directory(string $path): void {
@@ -14,7 +14,7 @@ final class Security {
     $path = $config->data['storage'] . '/sessions';
     self::directory($path);
     session_save_path($path);
-    session_name('CMS2JSONSESSID');
+    session_name('DBLESSCMSSESSID');
     ini_set('session.use_strict_mode', '1');
     session_set_cookie_params(['lifetime'=>0,'path'=>'/','secure'=>!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off','httponly'=>true,'samesite'=>'Strict']);
     if (!session_start()) throw new HttpError(503,'Sessão indisponível.','error.session');

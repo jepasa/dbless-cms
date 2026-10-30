@@ -1,4 +1,4 @@
 <?php
-/** Adaptador do formulário Essencial ao contrato seguro e compartilhado do CMS2JSON. */
+/** Adaptador do formulário Essencial ao contrato seguro e compartilhado do DBLESS-CMS. */
 declare(strict_types=1);
-\CMS2JSON\Contact::handle($config,$store,$base);
+\DBLESSCMS\Contact::handle($config,$store,$base);

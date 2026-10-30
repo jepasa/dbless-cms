@@ -1,7 +1,7 @@
 <?php
 /** Complete optional plugin example: schema validation and independent private/public routing, with no persistent state. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 require_once __DIR__.'/Router.php';
 final class HelloPlugin implements PluginInterface, PublicPluginInterface {
   /** Validate settings against the local schema; receives settings/config, returns nothing and throws on invalid data or unreadable schema. */

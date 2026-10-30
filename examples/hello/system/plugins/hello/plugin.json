@@ -6,11 +6,12 @@
   "api": 1,
   "cmsMajor": 2,
   "entry": "Plugin.php",
-  "class": "CMS2JSON\\HelloPlugin",
+  "class": "DBLESSCMS\\HelloPlugin",
   "router": "Router.php",
   "assets": {
     "css": "css/hello.css",
-    "js": "js/hello.js"
+    "js": "js/hello.js",
+    "icon": "hello.svg"
   },
   "defaults": {
     "message": "Hello from dbless-cms."

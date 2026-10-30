@@ -1,7 +1,7 @@
 <?php
 /** Roteador Pages: catálogo, editor, histórico e prévia com serviços privados e nenhuma rota de negócio na moldura. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class PagesRouter {
   /** Prepara dados da rota autorizada e renderiza HTML; recebe contexto, propaga erros seguros e não grava conteúdo. */
   public static function render(PluginContext $context): string {

@@ -1,7 +1,7 @@
 <?php
 /** Roteador do plugin Slides: somente página privada declarada, com contexto e serviços compartilhados. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class SlidesRouter {
   /** Renderiza página permitida; recebe contexto, retorna fragmento/documento e propaga falhas sem expor caminhos. */
   public static function render(PluginContext $context): string {

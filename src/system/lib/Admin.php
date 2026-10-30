@@ -1,7 +1,7 @@
 <?php
 /** Painel dbless-cms independente dos templates públicos: autenticação, conteúdo, histórico e seleção de tema. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class Admin {
   /** Recebe serviços, base pública e idioma selecionado; armazena contexto sem escrita externa. */
   public function __construct(private readonly Config $config,private readonly JsonStore $store,private readonly string $base,private readonly Language $language) {}
@@ -69,12 +69,13 @@ final class Admin {
       case 'save':
         if (in_array($key,['plugins','templates'],true)) throw new HttpError(422,'Use as configurações de plugins.','error.plugin');
         $raw=$this->input('document',524288);
-        if ($key==='site' && (isset($_POST['admin_locale']) || isset($_POST['site_template']) || isset($_POST['site_locale']))) {
+        if ($key==='site' && (isset($_POST['admin_locale']) || isset($_POST['site_template']) || isset($_POST['site_locale']) || isset($_POST['site_favicon']))) {
           try { $data=json_decode($raw,true,32,JSON_THROW_ON_ERROR); }
           catch (\JsonException) { throw new HttpError(422,'JSON inválido.','error.json'); }
           if (!is_array($data) || !is_array($data['settings']??null)) throw new HttpError(422,'Documento precisa ser um objeto JSON.','error.document_object');
           if (isset($_POST['admin_locale'])) $data['settings']['adminLocale']=$this->input('admin_locale',64);
           if (isset($_POST['site_locale'])) $data['settings']['siteLocale']=$this->input('site_locale',64);
+          if (isset($_POST['site_favicon'])) $data['settings']['favicon']=$this->input('site_favicon',240);
           if (isset($_POST['site_template'])) $data['template']=$this->input('site_template',64);
           $raw=JsonStore::encode($data);
         }
@@ -181,6 +182,8 @@ final class Admin {
     $siteLocaleChoice=$site!==null?SiteLocale::resolve($site['data']['settings'])['tag']:'pt-BR';
     if ($error!==null && $view==='site' && is_string($_POST['site_locale']??null)) $siteLocaleChoice=$_POST['site_locale'];
     $templateChoice=$site['data']['template']??'';
+    $faviconChoice=$site['data']['settings']['favicon']??('templates/'.$templateChoice.'/favicon.ico');
+    if ($error!==null && $view==='site' && is_string($_POST['site_favicon']??null)) $faviconChoice=$_POST['site_favicon'];
     if ($error!==null && $view==='site' && is_string($_POST['site_template']??null) && isset($templates[$_POST['site_template']])) $templateChoice=$_POST['site_template'];
     $configured=$this->config->configured();
     if (!$configured) http_response_code(503);

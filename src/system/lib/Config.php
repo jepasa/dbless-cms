@@ -1,7 +1,7 @@
 <?php
 /** Configuração privada: .env somente em desenvolvimento; produção usa config/app.json. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class Config {
   public readonly array $data;
   public readonly array $credentials;
@@ -11,23 +11,23 @@ final class Config {
   /** Carrega configuração e valida credenciais/caminhos; retorna instância; falhas são explícitas e sem segredos. */
   public function __construct() {
     $this->root = dirname(__DIR__);
-    $this->production = is_file($this->root . '/config/production.php') || getenv('CMS2JSON_ENV') === 'production';
+    $this->production = is_file($this->root . '/config/production.php') || getenv('DBLESS_CMS_ENV') === 'production';
     $env = [];
     $dotenv = dirname($this->root, 2) . '/.env';
-    if (!$this->production && getenv('CMS2JSON_IGNORE_DOTENV') !== '1' && is_file($dotenv)) {
+    if (!$this->production && getenv('DBLESS_CMS_IGNORE_DOTENV') !== '1' && is_file($dotenv)) {
       $lines = file($dotenv, FILE_IGNORE_NEW_LINES);
       if ($lines === false) throw new \RuntimeException('Não foi possível ler a configuração local.');
       foreach ($lines as $line) {
         $line = trim($line);
         if ($line === '' || str_starts_with($line, '#')) continue;
-        if (!preg_match('/^(CMS2JSON_[A-Z_]+)=(.*)$/', $line, $match)) throw new \RuntimeException('Configuração local inválida.');
+        if (!preg_match('/^(DBLESS_CMS_[A-Z_]+)=(.*)$/', $line, $match)) throw new \RuntimeException('Configuração local inválida.');
         $value=$match[2];
         if (strlen($value)>=2 && in_array($value[0],['"',"'"],true) && substr($value,-1)===$value[0]) $value=substr($value,1,-1);
         $env[$match[1]]=$value;
       }
     }
     $data = require $this->root . '/config/settings.php';
-    foreach (['contents' => 'CMS2JSON_CONTENTS_ROOT', 'storage' => 'CMS2JSON_STORAGE_ROOT'] as $key => $variable) {
+    foreach (['contents' => 'DBLESS_CMS_CONTENTS_ROOT', 'storage' => 'DBLESS_CMS_STORAGE_ROOT'] as $key => $variable) {
       $data[$key] = getenv($variable) ?: ($env[$variable] ?? $data[$key]);
       $path = $data[$key];
       if (!is_string($path) || !str_starts_with($path, '/') || str_contains($path, "\0")) throw new \RuntimeException('Diretório privado inválido.');
@@ -35,10 +35,10 @@ final class Config {
       if (str_starts_with(rtrim($path, '/') . '/', $public . '/')) throw new \RuntimeException('Dados privados não podem ficar na raiz pública.');
     }
     $data['contact_enabled'] = !$this->production
-      ? (getenv('CMS2JSON_CONTACT_ENABLED') ?: ($env['CMS2JSON_CONTACT_ENABLED'] ?? '0')) === '1'
+      ? (getenv('DBLESS_CMS_CONTACT_ENABLED') ?: ($env['DBLESS_CMS_CONTACT_ENABLED'] ?? '0')) === '1'
       : false;
     $credentials = ['enabled' => true, 'username' => '', 'password_hash' => ''];
-    $private = getenv('CMS2JSON_APP_CONFIG') ?: $this->root . '/config/app.json';
+    $private = getenv('DBLESS_CMS_APP_CONFIG') ?: $this->root . '/config/app.json';
     if (is_file($private)) {
       if (is_link($private)) throw new \RuntimeException('Configuração privada inválida.');
       $app = json_decode((string)file_get_contents($private), true, 32, JSON_THROW_ON_ERROR);
@@ -47,7 +47,7 @@ final class Config {
       $data['contact_enabled'] = ($app['contact_enabled'] ?? false) === true;
     }
     if (!$this->production) {
-      foreach (['username'=>'CMS2JSON_ADMIN_USER','password_hash'=>'CMS2JSON_ADMIN_PASSWORD_HASH','password_plaintext'=>'CMS2JSON_ADMIN_PASSWORD'] as $key=>$variable) {
+      foreach (['username'=>'DBLESS_CMS_ADMIN_USER','password_hash'=>'DBLESS_CMS_ADMIN_PASSWORD_HASH','password_plaintext'=>'DBLESS_CMS_ADMIN_PASSWORD'] as $key=>$variable) {
         $value = getenv($variable);
         if ($value === false) $value = $env[$variable] ?? '';
         if ($value !== '') $credentials[$key] = $value;

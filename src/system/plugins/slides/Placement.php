@@ -1,7 +1,7 @@
 <?php
 /** Posicionamento Slides no editor: chaves do manifesto ativo ou referências existentes em páginas, com revisão do site. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class SlidePlacement {
   /** Consulta manifesto, páginas/referências e vínculos do conjunto; recebe contexto/documento/ID, retorna estado sem modificar conteúdo. */
   public static function state(PluginContext $context,array $data,string $id): array {

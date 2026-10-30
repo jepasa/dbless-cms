@@ -1,7 +1,7 @@
 <?php
 /** Independent plugin router: fixed private/public maps and buffered page fragments, without arbitrary path input. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class HelloRouter {
   /** Render one fixed local script; receives a context/file, returns HTML, performs no writes and propagates rendering errors. */
   private static function page(PluginContext|PublicPluginContext $context,string $file): string {

@@ -1,8 +1,8 @@
 <?php
 /** Páginas administrativas do plugin Pages: conteúdo, edição, criação, lixeira e histórico, sem moldura própria. */
 declare(strict_types=1);
-use CMS2JSON\Security;
-use function CMS2JSON\e;
+use DBLESSCMS\Security;
+use function DBLESSCMS\e;
 /** Traduz texto administrativo do plugin; recebe chave/parâmetros e retorna texto para escape. */
 $t=static fn(string $key,array $parameters=[]): string=>$context->language->text($key,$parameters);
 /** Resolve rota própria privada; recebe rota/chave e retorna URL local sem escrita. */
@@ -18,7 +18,7 @@ $csrf=Security::token();
 <?php if ($removed===[]): ?><p class="empty-state"><?= e($t('pages.trash_empty')) ?></p><?php endif; ?>
 <?php foreach ($removed as $slug): ?><div class="history-row"><span><?= e($slug) ?></span><a class="button-secondary" href="<?= e($link('history',(string)$slug)) ?>"><?= e($t('pages.recover')) ?></a></div><?php endforeach; ?></section>
 <?php elseif ($route==='editor'): ?>
-<?php $slideManifest=$context->store->templates->get($context->store->read('site')['data']['template']);$slideLocations=\CMS2JSON\Slides::locations($slideManifest);if(!in_array($key,['404','site'],true)&&$slideLocations!==[]): ?>
+<?php $slideManifest=$context->store->templates->get($context->store->read('site')['data']['template']);$slideLocations=\DBLESSCMS\Slides::locations($slideManifest);if(!in_array($key,['404','site'],true)&&$slideLocations!==[]): ?>
 <section class="panel" data-page-slides><div class="field-grid"><label><?= e($t('pages.slidesLocation')) ?><select data-page-slide-location><?php foreach($slideLocations as $slideKey=>$slideLocation): ?><option value="<?= e($slideKey) ?>"><?= e($slideLocation['description'].' · '.$slideKey) ?></option><?php endforeach; ?></select></label><label><?= e($t('pages.slidesMethod')) ?><select data-page-slide-method><option value="block"><?= e($t('pages.slidesBlock')) ?></option><option value="marker"><?= e($t('pages.slidesMarker')) ?></option></select></label></div><p class="muted"><?= e($t('pages.slidesHelp')) ?></p><button type="button" class="button-secondary" data-insert-page-slide><?= e($t('pages.slidesInsert')) ?></button></section>
 <?php endif; ?>
 <div class="editor-toolbar"><div class="tabs" aria-label="<?= e($t('editor.mode')) ?>"><button type="button" data-mode="fields" aria-pressed="true"><?= e($t('editor.fields')) ?></button><button type="button" data-mode="json" aria-pressed="false"><?= e($t('editor.json')) ?></button></div><div><a class="text-link" href="<?= e($link('history',$key)) ?>"><?= e($t('nav.history')) ?></a><?php if ($key!=='site'): ?> · <a class="text-link" href="<?= e($link('preview',$key)) ?>" target="_blank" rel="noopener"><?= e($t('editor.preview')) ?> ↗</a><?php endif; ?></div></div>

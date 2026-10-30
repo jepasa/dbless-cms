@@ -1,7 +1,7 @@
 <?php
 /** Contexto explícito de plugin: serviços privados e tradução própria sem expor credenciais no cliente. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class PluginContext {
   /** Armazena serviços, configuração validada e modo de layout integrado; sem escrita; falhas são propagadas pelo chamador. */
   public function __construct(public readonly Config $config, public readonly JsonStore $store, public readonly array $manifest, public readonly array $settings, public readonly string $revision, public readonly string $base, public readonly Language $language, public readonly string $route='', public readonly bool $integrated=false) {}

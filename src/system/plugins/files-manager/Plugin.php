@@ -1,7 +1,7 @@
 <?php
 /** Adaptador Files Manager API 1: interface própria e serviço privado, sem endpoints públicos independentes. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 require_once __DIR__.'/Files.php';
 require_once __DIR__.'/Router.php';
 final class FilesManager implements PluginInterface {

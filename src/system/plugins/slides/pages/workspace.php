@@ -1,8 +1,8 @@
 <?php
 /** Painel Slides integrado: catálogo, editor acessível, mídia pública, associações, publicação e recuperação. */
 declare(strict_types=1);
-use CMS2JSON\{SlidesStore,Slides,Plugins,Icons,Security,HttpError};
-use function CMS2JSON\{e,asset};
+use DBLESSCMS\{SlidesStore,Slides,Plugins,Icons,Security,HttpError};
+use function DBLESSCMS\{e,asset};
 /** Traduz controles administrativos; recebe chave/parâmetros e retorna texto simples sem efeitos. */
 $t=static fn(string $key,array $parameters=[]): string=>$context->language->text('slides.'.$key,$parameters);
 /** Resolve rota privada; recebe rota/ID e retorna URL local sem escrita. */
@@ -40,7 +40,7 @@ foreach($data['collections'] as $set)if(!$set['deleted'])foreach($set['items'] a
 <div class="savebar"><a class="text-link" href="<?= e($url('overview')) ?>"><?= e($t('overview')) ?></a><button type="submit" class="button-primary"><?= e($t('save')) ?></button></div></form>
 <dialog data-slide-media aria-labelledby="slides-media-title"><div class="section-heading"><h2 id="slides-media-title"><?= e($t('mediaTitle')) ?></h2><button type="button" class="button-secondary" data-media-close><?= e($t('close')) ?></button></div><p><?= e($t('mediaHelp')) ?></p><div class="slides-media-toolbar"><button type="button" class="button-secondary" data-media-back><?= e($t('back')) ?></button><button type="button" class="button-secondary" data-media-refresh><?= e($t('refresh')) ?></button><span data-media-path></span><a class="text-link" href="<?= e($context->base.'/cms-admin/?view=plugin-panel&plugin=files-manager&route=overview') ?>" target="_blank" rel="noopener"><?= e($t('manageMedia')) ?></a></div><p role="status" data-media-status></p><div data-media-list></div></dialog>
 <?php elseif ($route==='history'): ?>
-<?php $historyEnabled=(new \CMS2JSON\Plugins($context->store))->state('slides')['enabled']; ?>
+<?php $historyEnabled=(new \DBLESSCMS\Plugins($context->store))->state('slides')['enabled']; ?>
 <?php if (!$historyEnabled): ?><p class="notice" role="status"><?= e($t('historyInactive')) ?></p><?php endif; ?>
 <section class="panel"><h2><?= e($t('contentHistory')) ?></h2><?php if($repository->history()===[]): ?><p class="empty-state"><?= e($t('noHistory')) ?></p><?php endif; ?><?php foreach($repository->history() as $backup): ?><form class="history-row" method="post" action="<?= e($context->url('history-restore')) ?>" data-slides-form data-confirm="<?= e($t('confirmHistory')) ?>"><span><?= e(substr($backup,0,15)) ?></span><input type="hidden" name="revision" value="<?= e($revision) ?>"><input type="hidden" name="csrf_token" value="<?= e($csrf) ?>"><input type="hidden" name="backup" value="<?= e($backup) ?>"><button class="button-secondary" type="submit" <?= !$historyEnabled?'disabled':'' ?>><?= e($t('restoreHistory')) ?></button></form><?php endforeach; ?></section>
 <?php endif; ?></div>

@@ -8,7 +8,7 @@ import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 const root=fileURLToPath(new URL('../',import.meta.url));
-const trees=[['source',path.join(root,'src')],...(process.env.CMS2JSON_PACKAGE_ROOT?[['production',process.env.CMS2JSON_PACKAGE_ROOT]]:[])];
+const trees=[['source',path.join(root,'src')],...(process.env.DBLESS_CMS_PACKAGE_ROOT?[['production',process.env.DBLESS_CMS_PACKAGE_ROOT]]:[])];
 /** Create a private sandbox from versioned examples; receives application root and returns paths/env, never reads existing runtime content or credentials. */
 function fixture(application) {
   const temporary=fs.mkdtempSync(path.join(os.tmpdir(),'dbless-test-')),copy=path.join(temporary,'app');
@@ -17,7 +17,7 @@ function fixture(application) {
   fs.cpSync(seeds,path.join(temporary,'contents'),{recursive:true});
   const config=path.join(temporary,'app.json'),hash=spawnSync('php',['-r',"echo password_hash('Synthetic-Dbless-Password-2026',PASSWORD_ARGON2ID,['memory_cost'=>8192,'time_cost'=>1]);"],{encoding:'utf8'});assert.equal(hash.status,0,hash.stderr);
   fs.writeFileSync(config,JSON.stringify({schema_version:1,environment:'production',editor:{enabled:true,username:'editor',password_hash:hash.stdout},contact_enabled:false}));
-  const env={...process.env,CMS2JSON_IGNORE_DOTENV:'1',CMS2JSON_APP_CONFIG:config,CMS2JSON_CONTENTS_ROOT:path.join(temporary,'contents'),CMS2JSON_STORAGE_ROOT:path.join(temporary,'storage')};
+  const env={...process.env,DBLESS_CMS_IGNORE_DOTENV:'1',DBLESS_CMS_APP_CONFIG:config,DBLESS_CMS_CONTENTS_ROOT:path.join(temporary,'contents'),DBLESS_CMS_STORAGE_ROOT:path.join(temporary,'storage')};
   return {temporary,application:copy,env};
 }
 /** Invoke isolated PHP with warnings visible and mail blocked; receives sandbox/code, returns stdout or assertion failure, and never invokes a shell. */
@@ -33,14 +33,14 @@ for(const [tree,application] of trees){
       assert.deepEqual(fs.readdirSync(path.join(context.application,'system/templates')),['essencial']);
       const site=JSON.parse(fs.readFileSync(path.join(context.temporary,'contents/site.json')));assert.equal(site.template,'essencial');
       for(const file of fs.readdirSync(path.join(context.temporary,'contents/pages'))){const data=JSON.parse(fs.readFileSync(path.join(context.temporary,'contents/pages',file)));for(const reference of media(data))assert.ok(fs.existsSync(path.join(context.application,'public_html',reference)),reference);const response=request(context,{query:{page:data.slug}});assert.equal(response.status,data.slug==='404'?404:200,response.body);assert.doesNotMatch(response.body,/jepasaDotCom|<svg\b|cdn\.jsdelivr|fonts\.googleapis/);}
-      const output=php(context,"require $argv[1].'/system/bootstrap.php';$s=new CMS2JSON\\JsonStore(new CMS2JSON\\Config());$p=new CMS2JSON\\Plugins($s);foreach((new CMS2JSON\\MenuStore($s))->read()['data']['assignments'] as $b)CMS2JSON\\Navigation::binding($s,(new CMS2JSON\\MenuStore($s))->read()['data'],$b);$slides=(new CMS2JSON\\SlidesStore($s))->read()['data'];foreach($slides['assignments'] as $b)CMS2JSON\\Slides::binding($s,$slides,$b);echo json_encode([array_keys($s->compatibleTemplates()),array_keys($p->all()),$p->invalid()]);");
+      const output=php(context,"require $argv[1].'/system/bootstrap.php';$s=new DBLESSCMS\\JsonStore(new DBLESSCMS\\Config());$p=new DBLESSCMS\\Plugins($s);foreach((new DBLESSCMS\\MenuStore($s))->read()['data']['assignments'] as $b)DBLESSCMS\\Navigation::binding($s,(new DBLESSCMS\\MenuStore($s))->read()['data'],$b);$slides=(new DBLESSCMS\\SlidesStore($s))->read()['data'];foreach($slides['assignments'] as $b)DBLESSCMS\\Slides::binding($s,$slides,$b);echo json_encode([array_keys($s->compatibleTemplates()),array_keys($p->all()),$p->invalid()]);");
       const [templates,plugins,invalid]=JSON.parse(output);assert.deepEqual(templates,['essencial']);assert.deepEqual(plugins,['files-manager','menu','pages','slides']);assert.deepEqual(invalid,[]);
       for(const file of ['site.json','slides/slides.json'])for(const reference of media(JSON.parse(fs.readFileSync(path.join(context.temporary,'contents',file)))))assert.ok(fs.existsSync(path.join(context.application,'public_html',reference)),reference);
     }finally{fs.rmSync(context.temporary,{recursive:true,force:true});}
   });
   test(`${tree}: admin uses dbless-cms identity and rejects forged CSRF before login`,()=>{
     const context=fixture(application);
-    try{const login=request(context,{admin:true});assert.equal(login.status,200);assert.match(login.body,/<title>[^<]*dbless-cms<\/title>/);const denied=request(context,{admin:true,method:'POST',session:login.session,post:{action:'login',csrf_token:'forged',username:'editor',password:'Synthetic-Dbless-Password-2026'}});assert.equal(denied.status,403);const token=login.body.match(/name="csrf_token"[^>]*value="([^"]+)"/)[1];const signed=request(context,{admin:true,method:'POST',session:login.session,post:{action:'login',csrf_token:token,username:'editor',password:'Synthetic-Dbless-Password-2026'}});assert.equal(signed.status,303);const panel=request(context,{admin:true,session:signed.session});assert.equal(panel.status,200);assert.match(panel.body,/dbless-cms<small>/);assert.doesNotMatch(panel.body,/>CMS2JSON</);}finally{fs.rmSync(context.temporary,{recursive:true,force:true});}
+    try{const login=request(context,{admin:true});assert.equal(login.status,200);assert.match(login.body,/<title>[^<]*dbless-cms<\/title>/);const denied=request(context,{admin:true,method:'POST',session:login.session,post:{action:'login',csrf_token:'forged',username:'editor',password:'Synthetic-Dbless-Password-2026'}});assert.equal(denied.status,403);const token=login.body.match(/name="csrf_token"[^>]*value="([^"]+)"/)[1];const signed=request(context,{admin:true,method:'POST',session:login.session,post:{action:'login',csrf_token:token,username:'editor',password:'Synthetic-Dbless-Password-2026'}});assert.equal(signed.status,303);const panel=request(context,{admin:true,session:signed.session});assert.equal(panel.status,200);assert.match(panel.body,/dbless-cms<small>/);assert.doesNotMatch(panel.body,new RegExp('>'+['CMS','2JSON'].join('')+'<'));}finally{fs.rmSync(context.temporary,{recursive:true,force:true});}
   });
 }
 test('distribution identity, notices, documentation and image hashes are coherent',()=>{
@@ -55,7 +55,7 @@ test('Hello developer example installs, separates routes and exposes only its pu
   try{
     for(const surface of ['system','public_html'])fs.cpSync(path.join(root,'examples/hello',surface,'plugins/hello'),path.join(context.application,surface,'plugins/hello'),{recursive:true});
     const file=path.join(context.temporary,'contents/plugins.json'),data=JSON.parse(fs.readFileSync(file));data.plugins.hello={enabled:true,settings:{message:'Hello example'}};fs.writeFileSync(file,JSON.stringify(data));
-    const output=JSON.parse(php(context,"require $argv[1].'/system/bootstrap.php';$s=new CMS2JSON\\JsonStore(new CMS2JSON\\Config());$p=new CMS2JSON\\Plugins($s);$c=$p->publicContext('hello','https://example.test','en-us','welcome','GET','token');$out=[$p->invalid(),array_keys(get_object_vars($c)),$p->instance('hello')->publicPage($c)];try{$p->route('hello','overview','public');$out[]=200;}catch(CMS2JSON\\HttpError $e){$out[]=$e->status;}echo json_encode($out);"));
+    const output=JSON.parse(php(context,"require $argv[1].'/system/bootstrap.php';$s=new DBLESSCMS\\JsonStore(new DBLESSCMS\\Config());$p=new DBLESSCMS\\Plugins($s);$c=$p->publicContext('hello','https://example.test','en-us','welcome','GET','token');$out=[$p->invalid(),array_keys(get_object_vars($c)),$p->instance('hello')->publicPage($c)];try{$p->route('hello','overview','public');$out[]=200;}catch(DBLESSCMS\\HttpError $e){$out[]=$e->status;}echo json_encode($out);"));
     assert.deepEqual(output[0],[]);assert.ok(!output[1].includes('config')&&!output[1].includes('store'));assert.match(output[2],/Hello example/);assert.equal(output[3],404);
   }finally{fs.rmSync(context.temporary,{recursive:true,force:true});}
 });

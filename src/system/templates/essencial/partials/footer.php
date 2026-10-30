@@ -1,7 +1,7 @@
 <?php
 /** Rodapé Essencial: identidade, navegação gerenciada e contatos opcionais; dados editoriais escapados, sem dependências externas. */
 declare(strict_types=1);
-use function CMS2JSON\e;
+use function DBLESSCMS\e;
 $menuData=$navigation->location('footer-links');
 $contact=$settings['contact'];
 $hasContact=$contact['email']!==''||$contact['phone']!==''||$contact['address']!==''||$siteContent['brand']['socials']!==[];

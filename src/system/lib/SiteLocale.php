@@ -1,7 +1,7 @@
 <?php
 /** Idioma público independente do painel: tags limitadas, direção, metadados. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class SiteLocale {
   /** Resolve preferência explícita ou OG legado; recebe settings e retorna tag/direção/OG, sem escrita; tag inválida gera 422. */
   public static function resolve(array $settings): array {

@@ -1,7 +1,7 @@
 <?php
 /** Registro de plugins API 1: descoberta por metadados/rotas/navegação, ativação explícita e configuração revisionada. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class Plugins {
   private array $catalog = [];
   private array $rejected = [];
@@ -14,9 +14,14 @@ final class Plugins {
       try {
         if (!self::identifier($id) || is_link($directory)) throw new \RuntimeException('Diretório inválido.');
         $manifest=self::json($directory.'/plugin.json');
-        if (($manifest['id']??null)!==$id || ($manifest['api']??null)!==1 || ($manifest['cmsMajor']??null)!==2 || !is_string($manifest['version']??null) || !preg_match('/^\d+\.\d+\.\d+$/D',$manifest['version']) || !is_string($manifest['name']??null) || strlen($manifest['name'])>100 || strip_tags($manifest['name'])!==$manifest['name'] || ($manifest['entry']??null)!=='Plugin.php' || !is_string($manifest['class']??null) || !is_array($manifest['assets']??null) || !preg_match('/^CMS2JSON\\\\[A-Za-z]+$/D',$manifest['class']??'')) throw new \RuntimeException('Manifesto incompatível.');
+        if (($manifest['id']??null)!==$id || ($manifest['api']??null)!==1 || ($manifest['cmsMajor']??null)!==2 || !is_string($manifest['version']??null) || !preg_match('/^\d+\.\d+\.\d+$/D',$manifest['version']) || !is_string($manifest['name']??null) || strlen($manifest['name'])>100 || strip_tags($manifest['name'])!==$manifest['name'] || ($manifest['entry']??null)!=='Plugin.php' || !is_string($manifest['class']??null) || !is_array($manifest['assets']??null) || !preg_match('/^DBLESSCMS\\\\[A-Za-z]+$/D',$manifest['class']??'')) throw new \RuntimeException('Manifesto incompatível.');
         if (isset($manifest['description'])&&(!is_string($manifest['description'])||strlen($manifest['description'])>1000||strip_tags($manifest['description'])!==$manifest['description']||preg_match('/[\x00-\x1F\x7F]/',$manifest['description']))) throw new \RuntimeException('Descrição inválida.');
         foreach (['Plugin.php','settings.schema.json','languages/pt-br.json'] as $file) $this->regular($directory,$file);
+        $public=dirname($store->config->root).'/public_html/plugins/'.$id;
+        $icon=$manifest['assets']['icon']??null;
+        if (!is_string($icon) || !preg_match('~^[A-Za-z0-9][A-Za-z0-9_-]*(?:/[A-Za-z0-9][A-Za-z0-9_-]*)*\.svg$~D',$icon)) throw new \RuntimeException('Ícone do plugin inválido.');
+        $this->regular($public,$icon);
+        ExtensionMedia::icon($public.'/'.$icon);
         foreach (['css','js'] as $type) {
           $asset=$manifest['assets'][$type]??'';
           if (!is_string($asset) || !preg_match('~^'.$type.'/[a-z0-9-]+\.'.$type.'$~D',$asset)) throw new \RuntimeException('Asset inválido.');
@@ -83,7 +88,7 @@ final class Plugins {
     }
     if ($separator) throw new \RuntimeException('Separador final inválido.');
   }
-  /** Monta menus somente a partir de manifests válidos e dicionários próprios; recebe locale e retorna dados sem executar plugins. */
+  /** Monta menus por manifesto/dicionário; recebe locale, retorna dados com ícone próprio, sem executar plugins ou resolver nomes globais legados. */
   public function navigation(string $locale): array {
     $menus=[];
     foreach ($this->catalog as $id=>$manifest) {
@@ -92,9 +97,13 @@ final class Plugins {
       $items=$menu['items']??[['label'=>$menu['label'],'route'=>$menu['route']]];
       foreach ($items as &$item) if (isset($item['label'])) $item['label']=$language->text($item['label']);
       unset($item);
-      $menus[$id]=['label'=>$language->text($menu['label']),'dropdown'=>isset($menu['items']),'icon'=>$menu['icon']??'image','items'=>$items];
+      $menus[$id]=['label'=>$language->text($menu['label']),'dropdown'=>isset($menu['items']),'icon'=>$manifest['assets']['icon'],'items'=>$items];
     }
     return $menus;
+  }
+  /** Resolve SVG declarado dentro do pacote público; recebe ID/base, retorna URL escapável ou 404 para plugin inválido, sem escrita. */
+  public function icon(string $id,string $base=''): string {
+    $manifest=$this->get($id);return asset('plugins/'.$id.'/'.$manifest['assets']['icon'],$base);
   }
   /** Resolve rota apenas no escopo solicitado; recebe plugin/ID/visibilidade, retorna metadados ou 404 sem executar código. */
   public function route(string $id,string $route='',string $visibility='private'): array {

@@ -1,8 +1,8 @@
 <?php
 /** Catálogo de páginas no padrão de extensões: tabela responsiva, ações acessíveis e remoção recuperável revisionada. */
 declare(strict_types=1);
-use function CMS2JSON\e;
-use CMS2JSON\Icons;
+use function DBLESSCMS\e;
+use DBLESSCMS\Icons;
 ?>
 <section class="panel extension-panel">
 <div class="table-scroll"><table class="extension-table"><caption class="sr-only"><?= e($t('nav.pages')) ?></caption>

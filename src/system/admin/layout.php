@@ -1,15 +1,16 @@
 <?php
 /** Moldura administrativa responsiva com copyright no sidebar; plugins fornecem fragmentos, login mínimo e saída escapada. */
 declare(strict_types=1);
-use function CMS2JSON\e;
-use function CMS2JSON\asset;
-use CMS2JSON\Icons;
+use function DBLESSCMS\e;
+use function DBLESSCMS\asset;
+use DBLESSCMS\Icons;
 /** Traduz chave e parâmetros do layout; retorna texto para escape contextual, sem efeitos externos. */
 $t = static fn(string $key, array $parameters = []): string => $language->text($key, $parameters);
 $labels=['site'=>$t('nav.site'),'templates'=>$t('nav.templates'),'history'=>$t('nav.history'),'login'=>$t('nav.login'),'plugins'=>$t('nav.plugins'),'plugin-settings'=>$t('catalog.plugin_settings'),'template-settings'=>$t('catalog.template_settings'),'plugin-panel'=>$panelLanguage?->text($panelRoute['title'])??$t('nav.plugins')];
 ?>
 <!doctype html><html lang="<?= e($language->locale()) ?>" dir="<?= e($language->direction()) ?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow"><title><?= e($labels[$view]) ?> · dbless-cms</title>
+<link rel="icon" type="image/x-icon" href="<?= e(asset('cms-admin/assets/favicon.ico',$base)) ?>">
 <link rel="stylesheet" href="<?= e(asset('cms-admin/assets/admin.css',$base)) ?>">
 <script src="<?= e(asset('cms-admin/assets/admin.js',$base)) ?>" defer></script>
 <?php if ($panelAssets!==null): ?>
@@ -27,10 +28,10 @@ $labels=['site'=>$t('nav.site'),'templates'=>$t('nav.templates'),'history'=>$t('
 <nav>
 <?php foreach ($pluginMenus as $menuId=>$menu): ?>
 <?php if ($menu['dropdown']): ?>
-<details class="sidebar-dropdown" data-plugin-menu="<?= e($menuId) ?>" <?= $view==='plugin-panel'&&$panelId===$menuId?'open':'' ?>><summary><?= Icons::svg($menu['icon'],$base) ?><?= e($menu['label']) ?><span class="dropdown-chevron" aria-hidden="true">⌄</span></summary><div class="sidebar-submenu">
+<details class="sidebar-dropdown" data-plugin-menu="<?= e($menuId) ?>" <?= $view==='plugin-panel'&&$panelId===$menuId?'open':'' ?>><summary><img class="admin-icon plugin-icon" src="<?= e($plugins->icon($menuId,$base)) ?>" width="24" height="24" alt="" aria-hidden="true"><?= e($menu['label']) ?><span class="dropdown-chevron" aria-hidden="true">⌄</span></summary><div class="sidebar-submenu">
 <?php endif; ?>
 <?php foreach ($menu['items'] as $item): if (isset($item['separator'])): ?><hr><?php else: ?>
-<a href="?view=plugin-panel&amp;plugin=<?= e($menuId) ?>&amp;route=<?= e($item['route']) ?>" <?= $view==='plugin-panel'&&$panelId===$menuId&&$panelRoute['id']===$item['route']?'aria-current="page"':'' ?>><?= e($item['label']) ?></a>
+<a href="?view=plugin-panel&amp;plugin=<?= e($menuId) ?>&amp;route=<?= e($item['route']) ?>" <?= $view==='plugin-panel'&&$panelId===$menuId&&$panelRoute['id']===$item['route']?'aria-current="page"':'' ?>><?php if (!$menu['dropdown']): ?><img class="admin-icon plugin-icon" src="<?= e($plugins->icon($menuId,$base)) ?>" width="24" height="24" alt="" aria-hidden="true"><?php endif; ?><?= e($item['label']) ?></a>
 <?php endif; endforeach; ?>
 <?php if ($menu['dropdown']): ?></div></details><?php endif; ?>
 <?php endforeach; ?></nav>
@@ -80,6 +81,8 @@ $labels=['site'=>$t('nav.site'),'templates'=>$t('nav.templates'),'history'=>$t('
   <label><?= e($t('global.site_language')) ?><input name="site_locale" data-site-locale value="<?= e($siteLocaleChoice) ?>" maxlength="64" pattern="[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*" list="site-locale-options" required></label>
   <datalist id="site-locale-options"><?php foreach (['pt-BR','pt-PT','en-US','en-GB','es','fr','de','ar','he','ja','zh-Hant-TW'] as $publicTag): ?><option value="<?= e($publicTag) ?>"></option><?php endforeach; ?></datalist>
   <p class="muted"><?= e($t('global.site_language_help')) ?></p>
+  <label><?= e($t('global.favicon')) ?><input name="site_favicon" data-site-favicon value="<?= e($faviconChoice) ?>" maxlength="240" required></label>
+  <p class="muted"><?= e($t('global.favicon_help')) ?></p>
   <label><?= e($t('global.language')) ?><select name="admin_locale" data-admin-locale>
   <?php foreach ($language->all() as $locale=>$catalog): ?><option value="<?= e($locale) ?>" <?= $localeChoice===$locale?'selected':'' ?>><?= e($catalog['name']) ?></option><?php endforeach; ?>
   </select></label>

@@ -59,7 +59,7 @@ cp .env.example .env
 ```
 
 Defina o administrador de desenvolvimento no `.env`: escolha um usuário e uma senha
-exclusiva de pelo menos 16 caracteres em `CMS2JSON_ADMIN_USER` e `CMS2JSON_ADMIN_PASSWORD`.
+exclusiva de pelo menos 16 caracteres em `DBLESS_CMS_ADMIN_USER` e `DBLESS_CMS_ADMIN_PASSWORD`.
 Esses nomes de variáveis de compatibilidade são intencionais. Nenhuma senha funcional é fornecida.
 
 ```bash

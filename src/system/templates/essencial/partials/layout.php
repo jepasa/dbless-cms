@@ -1,7 +1,7 @@
 <?php
 /** Essencial: documento público sem dependências remotas; idioma global, opções fechadas e conteúdo editorial escapado. */
 declare(strict_types=1);
-use function CMS2JSON\e;
+use function DBLESSCMS\e;
 /** Textos públicos literais do template; idioma global identifica metadados, sem selecionar dicionários. */
 $contactLabels=['email'=>'E-mail','phone'=>'Telefone','address'=>'Localização'];
 $contactMessages=['site.sending'=>'Enviando mensagem…','site.sent'=>'Mensagem aceita pelo serviço de envio.','site.unavailable'=>'O envio está indisponível no momento. Utilize os contatos informados ou tente novamente mais tarde.','site.failed'=>'Não foi possível enviar a mensagem. Verifique os campos e tente novamente.','site.session'=>'A sessão expirou. Atualize a página antes de enviar novamente.','site.network'=>'A conexão falhou. A mensagem foi mantida para uma nova tentativa.'];
@@ -21,7 +21,7 @@ $themeColors=['forest'=>'#16614b','ocean'=>'#2155a3','violet'=>'#6942a6','amber'
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/svg+xml" href="<?= e($store->templates->asset($id,$manifest['assets']['files']['favicon'],$base_url)) ?>">
+  <link rel="icon" type="image/x-icon" href="<?= e(\DBLESSCMS\SiteFavicon::url($store,$base_url)) ?>">
   <link rel="apple-touch-icon" href="<?= e($store->templates->asset($id,$manifest['assets']['files']['appleTouch'],$base_url)) ?>">
   <title><?= e($page['meta']['title']) ?></title>
   <meta name="description" content="<?= e($page['meta']['description']) ?>">

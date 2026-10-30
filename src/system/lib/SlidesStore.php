@@ -1,7 +1,7 @@
 <?php
 /** Coleções Slides privadas: contrato fechado, revisão, lock, publicação, histórico e lixeira lógica. */
 declare(strict_types=1);
-namespace CMS2JSON;
+namespace DBLESSCMS;
 final class SlidesStore {
   public const CONTENT_TYPES=['banner','product','testimonial','logo','notice'];
   /** Recebe serviço editorial compartilhado; não lê/grava até operação explícita. */
