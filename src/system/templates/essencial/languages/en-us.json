@@ -1,0 +1,33 @@
+{
+  "locale": "en-us",
+  "name": "English",
+  "direction": "ltr",
+  "messages": {
+    "options.appearance": "Appearance",
+    "options.palette": "Color palette",
+    "options.forest": "Forest",
+    "options.ocean": "Ocean",
+    "options.wide": "Wide content",
+    "options.violet": "Violet",
+    "options.amber": "Amber",
+    "options.graphite": "Graphite",
+    "options.mode": "Color mode",
+    "options.mode.light": "Light",
+    "options.mode.dark": "Dark",
+    "options.mode.system": "Automatic (device)",
+    "options.fontSize": "Font size",
+    "options.fontSize.small": "Small — 15 px",
+    "options.fontSize.medium": "Default — 16 px",
+    "options.fontSize.large": "Large — 18 px",
+    "options.fontSize.extra_large": "Extra large — 20 px",
+    "options.textAlign": "Text alignment",
+    "options.textAlign.start": "Start of reading direction",
+    "options.textAlign.center": "Centered",
+    "options.textAlign.end": "End of reading direction",
+    "options.textAlign.justify": "Justified",
+    "options.direction": "Reading direction",
+    "options.direction.auto": "Automatic from site language",
+    "options.direction.ltr": "Left to right (LTR)",
+    "options.direction.rtl": "Right to left (RTL)"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "required": [],
+  "additionalProperties": false,
+  "properties": {
+    "creation": {
+      "type": "object",
+      "title": "options.creation",
+      "required": [],
+      "additionalProperties": false,
+      "properties": {
+        "newTab": {
+          "type": "boolean",
+          "title": "options.newTab"
+        }
+      }
+    }
+  },
+  "$comment": "Contrato de leitura das preferências creation legadas; não possui tela, gravação própria ou efeito nos editores."
+}

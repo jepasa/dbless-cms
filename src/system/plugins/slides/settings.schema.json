@@ -1,0 +1,45 @@
+{
+  "type": "object",
+  "required": [],
+  "additionalProperties": false,
+  "properties": {
+    "creation": {
+      "type": "object",
+      "title": "options.creation",
+      "required": [],
+      "additionalProperties": false,
+      "properties": {
+        "contentType": {
+          "type": "string",
+          "title": "options.contentType",
+          "maxLength": 24,
+          "enum": [
+            "banner",
+            "product",
+            "testimonial",
+            "logo",
+            "notice"
+          ],
+          "enumLabels": {
+            "banner": "slides.banner",
+            "product": "slides.product",
+            "testimonial": "slides.testimonial",
+            "logo": "slides.logo",
+            "notice": "slides.notice"
+          }
+        },
+        "autoplay": {
+          "type": "boolean",
+          "title": "options.autoplay"
+        },
+        "interval": {
+          "type": "integer",
+          "title": "options.interval",
+          "minimum": 3000,
+          "maximum": 30000
+        }
+      }
+    }
+  },
+  "$comment": "Contrato de leitura das preferências creation legadas; não possui tela, gravação própria ou efeito nos editores."
+}

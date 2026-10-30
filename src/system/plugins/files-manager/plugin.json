@@ -1,0 +1,82 @@
+{
+  "id": "files-manager",
+  "name": "Gerenciador de arquivos",
+  "version": "1.0.0",
+  "api": 1,
+  "cmsMajor": 2,
+  "entry": "Plugin.php",
+  "class": "CMS2JSON\\FilesManager",
+  "launcher": "files",
+  "assets": {
+    "css": "css/files-manager.css",
+    "js": "js/files-manager.js"
+  },
+  "defaults": {
+    "uploads": {
+      "public": "media",
+      "private": "media"
+    }
+  },
+  "router": "Router.php",
+  "routes": {
+    "overview": {
+      "title": "fm.overview",
+      "description": "fm.overviewHelp",
+      "file": "pages/overview.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "settings": {
+      "title": "fm.settings",
+      "description": "fm.settingsHelp",
+      "file": "pages/settings.php",
+      "requiresEnabled": false,
+      "visibility": "private"
+    },
+    "trash": {
+      "title": "fm.trash",
+      "description": "fm.trashHelp",
+      "file": "pages/trash.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "history": {
+      "title": "fm.history",
+      "file": "pages/history.php",
+      "requiresEnabled": false,
+      "visibility": "private"
+    }
+  },
+  "navigation": {
+    "label": "fm.menu",
+    "items": [
+      {
+        "label": "fm.overview",
+        "route": "overview"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "fm.history",
+        "route": "history"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "fm.settings",
+        "route": "settings"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "fm.trash",
+        "route": "trash"
+      }
+    ]
+  },
+  "configuration": "settings",
+  "description": "Gerenciamento de arquivos públicos e privados, uploads e lixeira."
+}

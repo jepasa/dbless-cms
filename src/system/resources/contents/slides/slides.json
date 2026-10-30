@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "collections": {
+    "exemplo-banners": {
+      "id": "exemplo-banners",
+      "name": "Banners que contam uma história",
+      "contentType": "banner",
+      "status": "published",
+      "deleted": false,
+      "autoplay": false,
+      "interval": 6000,
+      "items": [
+        {
+          "id": "ideias",
+          "title": "Dê espaço à sua próxima ideia.",
+          "text": "Um banner pode destacar uma proposta, uma iniciativa ou o próximo passo da sua organização.",
+          "image": "templates/essencial/images/examples/studio.png",
+          "alt": "Dê espaço à sua próxima ideia.",
+          "href": "/exemplo-cms",
+          "label": "Conhecer o modelo",
+          "attribution": "",
+          "price": "",
+          "enabled": true
+        },
+        {
+          "id": "planejamento",
+          "title": "Do planejamento à criação.",
+          "text": "Imagens, títulos e links se combinam em uma apresentação editável.",
+          "image": "templates/essencial/images/examples/process.png",
+          "alt": "Do planejamento à criação.",
+          "href": "/service-details",
+          "label": "Explorar serviço de exemplo",
+          "attribution": "",
+          "price": "",
+          "enabled": true
+        },
+        {
+          "id": "conteudo",
+          "title": "Conteúdo em movimento.",
+          "text": "Organize chamadas e campanhas com clareza, sem depender de uma imagem com texto embutido.",
+          "image": "templates/essencial/images/examples/product.png",
+          "alt": "Conteúdo em movimento.",
+          "href": "/starter-page",
+          "label": "Ver modelo de página",
+          "attribution": "",
+          "price": "",
+          "enabled": true
+        }
+      ]
+    },
+    "exemplo-produtos": {
+      "id": "exemplo-produtos",
+      "name": "Uma vitrine de possibilidades",
+      "contentType": "product",
+      "status": "published",
+      "deleted": false,
+      "autoplay": false,
+      "interval": 6000,
+      "items": [
+        {
+          "id": "digital",
+          "title": "Experiência digital",
+          "text": "Cartão de produto demonstrativo, sem integração comercial.",
+          "image": "templates/essencial/images/examples/process.png",
+          "alt": "Experiência digital",
+          "href": "/portfolio-details",
+          "label": "Ver exemplo",
+          "attribution": "",
+          "price": "Informação ilustrativa",
+          "enabled": true
+        },
+        {
+          "id": "identidade",
+          "title": "Coleção de identidade",
+          "text": "Apresente materiais e diferenciais com texto acessível.",
+          "image": "templates/essencial/images/examples/process.png",
+          "alt": "Coleção de identidade",
+          "href": "/portfolio-details",
+          "label": "Ver exemplo",
+          "attribution": "",
+          "price": "",
+          "enabled": true
+        },
+        {
+          "id": "objeto",
+          "title": "Design de produto",
+          "text": "Uma composição original para explorar formas e materiais.",
+          "image": "templates/essencial/images/examples/product.png",
+          "alt": "Design de produto",
+          "href": "/portfolio-details",
+          "label": "Ver exemplo",
+          "attribution": "",
+          "price": "",
+          "enabled": true
+        },
+        {
+          "id": "editorial",
+          "title": "Projeto editorial",
+          "text": "Use uma vitrine para organizar projetos, itens ou coleções.",
+          "image": "templates/essencial/images/examples/product.png",
+          "alt": "Projeto editorial",
+          "href": "/portfolio-details",
+          "label": "Ver exemplo",
+          "attribution": "",
+          "price": "",
+          "enabled": true
+        }
+      ]
+    },
+    "exemplo-depoimentos": {
+      "id": "exemplo-depoimentos",
+      "name": "Vozes de exemplo",
+      "contentType": "testimonial",
+      "status": "published",
+      "deleted": false,
+      "autoplay": false,
+      "interval": 6000,
+      "items": [
+        {
+          "id": "voz-a",
+          "title": "Clareza em cada etapa",
+          "text": "Este é um depoimento ilustrativo para demonstrar apresentação e autoria. Não representa um cliente real.",
+          "image": "",
+          "alt": "",
+          "href": "",
+          "label": "",
+          "attribution": "Participante de exemplo A",
+          "price": "",
+          "enabled": true
+        },
+        {
+          "id": "voz-b",
+          "title": "Uma experiência bem organizada",
+          "text": "Substitua este texto somente por relatos cuja publicação tenha sido autorizada.",
+          "image": "",
+          "alt": "",
+          "href": "",
+          "label": "",
+          "attribution": "Participante de exemplo B",
+          "price": "",
+          "enabled": true
+        },
+        {
+          "id": "voz-c",
+          "title": "Ideias que se conectam",
+          "text": "O formato pode apresentar relatos, avaliações ou citações com contexto e identificação.",
+          "image": "",
+          "alt": "",
+          "href": "",
+          "label": "",
+          "attribution": "Participante de exemplo C",
+          "price": "",
+          "enabled": true
+        },
+        {
+          "id": "voz-d",
+          "title": "Espaço para novas perspectivas",
+          "text": "Todos os relatos deste conjunto são exemplos editoriais, sem avaliação comercial.",
+          "image": "",
+          "alt": "",
+          "href": "",
+          "label": "",
+          "attribution": "Participante de exemplo D",
+          "price": "",
+          "enabled": true
+        }
+      ]
+    },
+    "exemplo-avisos": {
+      "id": "exemplo-avisos",
+      "name": "Novidades e avisos",
+      "contentType": "notice",
+      "status": "published",
+      "deleted": false,
+      "autoplay": false,
+      "interval": 6000,
+      "items": [
+        {
+          "id": "bem-vindo",
+          "title": "Bem-vindo ao demonstrador.",
+          "text": "Explore os recursos e personalize os exemplos pelo painel.",
+          "image": "",
+          "alt": "",
+          "href": "/recursos",
+          "label": "Conhecer recursos",
+          "attribution": "",
+          "price": "",
+          "enabled": true
+        },
+        {
+          "id": "conteudo-demo",
+          "title": "Conteúdo demonstrativo.",
+          "text": "Marcas, produtos e depoimentos desta instalação são exemplos genéricos.",
+          "image": "",
+          "alt": "",
+          "href": "",
+          "label": "",
+          "attribution": "",
+          "price": "",
+          "enabled": true
+        }
+      ]
+    },
+    "exemplo-marcas": {
+      "id": "exemplo-marcas",
+      "name": "Marcas e parceiros de exemplo",
+      "contentType": "logo",
+      "status": "published",
+      "deleted": false,
+      "autoplay": false,
+      "interval": 6000,
+      "items": [
+        {
+          "id": "marca-1",
+          "title": "Marca de exemplo A",
+          "text": "Identificação ilustrativa, sem vínculo com organizações reais.",
+          "image": "",
+          "alt": "",
+          "href": "",
+          "label": "",
+          "attribution": "",
+          "price": "",
+          "enabled": true
+        },
+        {
+          "id": "marca-2",
+          "title": "Marca de exemplo B",
+          "text": "Identificação ilustrativa, sem vínculo com organizações reais.",
+          "image": "",
+          "alt": "",
+          "href": "",
+          "label": "",
+          "attribution": "",
+          "price": "",
+          "enabled": true
+        },
+        {
+          "id": "marca-3",
+          "title": "Marca de exemplo C",
+          "text": "Identificação ilustrativa, sem vínculo com organizações reais.",
+          "image": "",
+          "alt": "",
+          "href": "",
+          "label": "",
+          "attribution": "",
+          "price": "",
+          "enabled": true
+        },
+        {
+          "id": "marca-4",
+          "title": "Marca de exemplo D",
+          "text": "Identificação ilustrativa, sem vínculo com organizações reais.",
+          "image": "",
+          "alt": "",
+          "href": "",
+          "label": "",
+          "attribution": "",
+          "price": "",
+          "enabled": true
+        }
+      ]
+    }
+  },
+  "assignments": [
+    {
+      "template": "essencial",
+      "location": "home-hero",
+      "collection": "exemplo-banners"
+    },
+    {
+      "template": "essencial",
+      "location": "home-products",
+      "collection": "exemplo-produtos"
+    },
+    {
+      "template": "essencial",
+      "location": "home-testimonials",
+      "collection": "exemplo-depoimentos"
+    },
+    {
+      "template": "essencial",
+      "location": "home-announcements",
+      "collection": "exemplo-avisos"
+    },
+    {
+      "template": "essencial",
+      "location": "home-logos",
+      "collection": "exemplo-marcas"
+    },
+    {
+      "template": "essencial",
+      "location": "page-showcase",
+      "collection": "exemplo-banners"
+    }
+  ]
+}

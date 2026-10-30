@@ -1,0 +1,46 @@
+<?php
+/** Essencial: documento público sem dependências remotas; idioma global, opções fechadas e conteúdo editorial escapado. */
+declare(strict_types=1);
+use function CMS2JSON\e;
+/** Textos públicos literais do template; idioma global identifica metadados, sem selecionar dicionários. */
+$contactLabels=['email'=>'E-mail','phone'=>'Telefone','address'=>'Localização'];
+$contactMessages=['site.sending'=>'Enviando mensagem…','site.sent'=>'Mensagem aceita pelo serviço de envio.','site.unavailable'=>'O envio está indisponível no momento. Utilize os contatos informados ou tente novamente mais tarde.','site.failed'=>'Não foi possível enviar a mensagem. Verifique os campos e tente novamente.','site.session'=>'A sessão expirou. Atualize a página antes de enviar novamente.','site.network'=>'A conexão falhou. A mensagem foi mantida para uma nova tentativa.'];
+/** Resolve mídia validada relativa ou absoluta; recebe referência e retorna URL, sem ler/gravar arquivos. */
+$mediaUrl=static fn(string $reference): string => preg_match('~^https?://~i',$reference)?$reference:($reference===''?'':$base_url.'/'.ltrim($reference,'/'));
+/** Resolve destino editorial interno sem perder subdiretório; recebe referência, retorna URL sem mutações. */
+$pageUrl=static fn(string $reference): string => str_starts_with($reference,'/')?$base_url.$reference:$reference;
+$appearance=$templateSettings['appearance'];
+$palette=$appearance['palette']; $mode=$appearance['mode'];
+$direction=$appearance['direction']==='auto'?$publicLocale['direction']:$appearance['direction'];
+$classes='palette-'.$palette.($appearance['wide']?' content-wide':'').' mode-'.$mode.' font-'.$appearance['fontSize'].' align-'.$appearance['textAlign'];
+$canonical=rtrim($settings['canonical'],'/').($currentPage==='home'?'/':'/'.$currentPage);
+$themeColors=['forest'=>'#16614b','ocean'=>'#2155a3','violet'=>'#6942a6','amber'=>'#87521a','graphite'=>'#384456'];
+?>
+<!doctype html>
+<html lang="<?= e($publicLocale['tag']) ?>" dir="<?= e($direction) ?>">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="<?= e($store->templates->asset($id,$manifest['assets']['files']['favicon'],$base_url)) ?>">
+  <link rel="apple-touch-icon" href="<?= e($store->templates->asset($id,$manifest['assets']['files']['appleTouch'],$base_url)) ?>">
+  <title><?= e($page['meta']['title']) ?></title>
+  <meta name="description" content="<?= e($page['meta']['description']) ?>">
+  <meta name="theme-color" content="<?= e($themeColors[$palette]) ?>">
+  <link rel="canonical" href="<?= e($canonical) ?>">
+  <meta property="og:locale" content="<?= e($publicLocale['og']) ?>">
+  <meta property="og:title" content="<?= e($page['meta']['title']) ?>">
+  <meta property="og:description" content="<?= e($page['meta']['description']) ?>">
+  <meta property="og:url" content="<?= e($canonical) ?>">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="<?= e($siteContent['brand']['name']) ?>">
+  <?php if (!empty($page['meta']['image'])): ?><meta property="og:image" content="<?= e($mediaUrl($page['meta']['image'])) ?>"><meta property="og:image:alt" content="<?= e($page['meta']['imageAlt']??$page['meta']['title']) ?>"><?php endif; ?>
+  <?php foreach ($manifest['assets']['styles'] as $stylesheet): ?><link rel="stylesheet" href="<?= e($store->templates->asset($id,$stylesheet,$base_url)) ?>"><?php endforeach; ?>
+</head>
+<body class="<?= e($classes) ?>" data-page="<?= e($currentPage) ?>">
+<a class="skip-link" href="#main"><?= e('Pular para o conteúdo') ?></a>
+<?php require $store->templates->path($id,'partials',$manifest['partials']['header']); ?>
+<main id="main" tabindex="-1"><?php require $contentFile; ?></main>
+<?php require $store->templates->path($id,'partials',$manifest['partials']['footer']); ?>
+<?php foreach ($manifest['assets']['scripts'] as $script): ?><script src="<?= e($store->templates->asset($id,$script,$base_url)) ?>" defer></script><?php endforeach; ?>
+</body>
+</html>

@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "slug": "home",
+  "status": "published",
+  "page": "home",
+  "meta": {
+    "title": "Sua Marca | Ideias que ganham forma",
+    "description": "Conheça um modelo de site para apresentar serviços, projetos e a forma de trabalhar da sua organização.",
+    "keywords": "site demonstrativo, conteúdo de exemplo, dbless-cms",
+    "image": "templates/essencial/images/examples/studio.png",
+    "imageAlt": "Ambiente criativo com madeira, objetos e vegetação"
+  },
+  "content": {
+    "typed": [
+      "Estratégia",
+      "Design",
+      "Tecnologia"
+    ],
+    "intro": "Um espaço para apresentar suas ideias, conectar pessoas e transformar desafios em projetos. Explore este modelo e descubra como contar a história da sua marca.",
+    "about": {
+      "eyebrow": "Sobre",
+      "title": "Uma boa ideia merece uma apresentação à altura.",
+      "lead": "Este site demonstra como organizar a apresentação de uma equipe ou negócio. Substitua os exemplos pela sua história, seus diferenciais e pelas informações que seu público precisa conhecer.",
+      "points": [
+        "Apresente sua proposta de valor com clareza.",
+        "Mostre projetos com contexto, processo e resultados verificáveis.",
+        "Mantenha os canais de contato atualizados."
+      ]
+    },
+    "stats": [
+      {
+        "value": "01",
+        "label": "Entender o contexto"
+      },
+      {
+        "value": "02",
+        "label": "Planejar a solução"
+      },
+      {
+        "value": "03",
+        "label": "Criar em conjunto"
+      },
+      {
+        "value": "04",
+        "label": "Revisar e evoluir"
+      }
+    ],
+    "resume": [
+      {
+        "title": "Escutar e compreender",
+        "description": "Descreva como são identificadas as necessidades, os objetivos e as prioridades de cada projeto."
+      },
+      {
+        "title": "Planejar e desenvolver",
+        "description": "Explique as etapas de trabalho, a colaboração com o cliente e os critérios usados para tomar decisões."
+      },
+      {
+        "title": "Entregar e acompanhar",
+        "description": "Apresente como são realizadas a revisão, a entrega e a evolução contínua das soluções."
+      }
+    ],
+    "portfolio": [
+      {
+        "title": "Experiência digital",
+        "badge": "Interface",
+        "description": "Exemplo de apresentação de um produto digital: descreva o desafio, a experiência proposta e as decisões de interface.",
+        "href": "/portfolio-details",
+        "image": "templates/essencial/images/examples/process.png"
+      },
+      {
+        "title": "Identidade em cada detalhe",
+        "badge": "Identidade",
+        "description": "Uma composição conceitual para demonstrar como apresentar materiais, linguagem visual e aplicações de uma marca.",
+        "href": "/portfolio-details",
+        "image": "templates/essencial/images/examples/process.png"
+      },
+      {
+        "title": "Design de produto",
+        "badge": "Produto",
+        "description": "Use este espaço para explicar a relação entre forma, função e materiais em um projeto de produto.",
+        "href": "/portfolio-details",
+        "image": "templates/essencial/images/examples/product.png"
+      },
+      {
+        "title": "Conteúdo que conecta",
+        "badge": "Editorial",
+        "description": "Um exemplo de projeto editorial para apresentar organização da informação, ritmo visual e escolhas de acabamento.",
+        "href": "/portfolio-details",
+        "image": "templates/essencial/images/examples/product.png"
+      }
+    ],
+    "services": [
+      {
+        "title": "Estratégia e planejamento",
+        "description": "Organize objetivos, necessidades e prioridades antes de iniciar. Este bloco pode descrever seu serviço de consultoria.",
+        "icon": "bi-kanban",
+        "href": "/service-details"
+      },
+      {
+        "title": "Design e comunicação",
+        "description": "Apresente como sua equipe transforma ideias em experiências visuais claras, acessíveis e consistentes.",
+        "icon": "bi-palette",
+        "href": "/service-details"
+      },
+      {
+        "title": "Soluções digitais",
+        "description": "Descreva os serviços de criação e evolução de sites, produtos ou ferramentas adequados ao seu público.",
+        "icon": "bi-code-slash",
+        "href": "/service-details"
+      }
+    ],
+    "headings": {
+      "stats": {
+        "kicker": "Etapas de exemplo",
+        "title": "Do contexto à entrega.",
+        "description": "Uma sequência ilustrativa de trabalho, sem indicadores comerciais ou resultados fictícios."
+      },
+      "resume": {
+        "kicker": "Forma de trabalhar",
+        "title": "Clareza em cada etapa.",
+        "description": "Um processo de exemplo para mostrar como sua organização acompanha um projeto do início à evolução."
+      },
+      "portfolio": {
+        "kicker": "Projetos de exemplo",
+        "title": "Ideias, formas e possibilidades.",
+        "description": "Composições demonstrativas para explorar diferentes formatos de apresentação. Não representam trabalhos realizados para clientes."
+      },
+      "services": {
+        "kicker": "O que fazemos",
+        "title": "Soluções para cada desafio.",
+        "description": "Estes serviços são exemplos de conteúdo. Adapte os títulos e as descrições à sua atuação."
+      },
+      "contact": {
+        "kicker": "Vamos conversar",
+        "title": "Conte o que você tem em mente.",
+        "description": "Este é um site demonstrativo. O endereço contato@example.com é ilustrativo; configure seus próprios canais e o envio antes de publicar."
+      }
+    },
+    "hero_copy": {
+      "kicker": "Seu próximo capítulo começa aqui",
+      "prefix": "Soluções em"
+    },
+    "feature_alt": "Ambiente criativo com madeira, objetos e vegetação",
+    "contact_card_title": "Vamos conversar"
+  }
+}

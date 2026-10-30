@@ -1,0 +1,5 @@
+# Explicit review ownership for application code, security settings and dependency changes.
+* @jepasa
+/.github/ @jepasa
+/package*.json @jepasa
+/src/system/ @jepasa

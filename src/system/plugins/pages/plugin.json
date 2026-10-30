@@ -1,0 +1,83 @@
+{
+  "id": "pages",
+  "name": "Páginas",
+  "description": "Gerenciamento de páginas, rascunhos, publicação e histórico.",
+  "version": "1.0.0",
+  "api": 1,
+  "cmsMajor": 2,
+  "entry": "Plugin.php",
+  "class": "CMS2JSON\\PagesPlugin",
+  "assets": {
+    "css": "css/pages.css",
+    "js": "js/pages.js"
+  },
+  "defaults": {},
+  "router": "Router.php",
+  "routes": {
+    "overview": {
+      "title": "nav.pages",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "new": {
+      "title": "pages.new",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "editor": {
+      "title": "nav.edit",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "trash": {
+      "title": "pages.trash",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "history": {
+      "title": "nav.history",
+      "file": "pages/workspace.php",
+      "requiresEnabled": false,
+      "visibility": "private"
+    },
+    "preview": {
+      "title": "editor.preview",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    }
+  },
+  "navigation": {
+    "label": "nav.pages",
+    "items": [
+      {
+        "label": "pages.overview",
+        "route": "overview"
+      },
+      {
+        "label": "pages.new",
+        "route": "new"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "nav.history",
+        "route": "history"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "pages.trash",
+        "route": "trash"
+      }
+    ],
+    "icon": "pages"
+  },
+  "configuration": false
+}

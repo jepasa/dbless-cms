@@ -1,0 +1,33 @@
+{
+  "locale": "pt-br",
+  "name": "Português (Brasil)",
+  "direction": "ltr",
+  "messages": {
+    "options.appearance": "Aparência",
+    "options.palette": "Paleta de cores",
+    "options.forest": "Floresta",
+    "options.ocean": "Oceano",
+    "options.wide": "Conteúdo ampliado",
+    "options.violet": "Violeta",
+    "options.amber": "Âmbar",
+    "options.graphite": "Grafite",
+    "options.mode": "Modo de cor",
+    "options.mode.light": "Claro",
+    "options.mode.dark": "Escuro",
+    "options.mode.system": "Automático (dispositivo)",
+    "options.fontSize": "Tamanho da fonte",
+    "options.fontSize.small": "Pequeno — 15 px",
+    "options.fontSize.medium": "Padrão — 16 px",
+    "options.fontSize.large": "Grande — 18 px",
+    "options.fontSize.extra_large": "Muito grande — 20 px",
+    "options.textAlign": "Alinhamento do texto",
+    "options.textAlign.start": "Início da leitura",
+    "options.textAlign.center": "Centralizado",
+    "options.textAlign.end": "Fim da leitura",
+    "options.textAlign.justify": "Justificado",
+    "options.direction": "Direção da leitura",
+    "options.direction.auto": "Automática pelo idioma do site",
+    "options.direction.ltr": "Esquerda para direita (LTR)",
+    "options.direction.rtl": "Direita para esquerda (RTL)"
+  }
+}

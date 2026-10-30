@@ -1,0 +1,12 @@
+{
+  "locale": "pt-br",
+  "name": "Português brasileiro",
+  "direction": "ltr",
+  "messages": {
+    "hello.name": "Hello",
+    "hello.overview": "Visão Geral",
+    "hello.welcome": "Boas-vindas",
+    "hello.open": "Abrir a página pública",
+    "hello.message": "Mensagem"
+  }
+}

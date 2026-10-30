@@ -1,0 +1,35 @@
+<IfModule mod_rewrite.c>
+    # Habilita o mod_rewrite
+    RewriteEngine On
+    # Não expor arquivos ocultos/temporários, inclusive em diretórios de upload.
+    RewriteRule (^|/)\. - [F,L]
+
+    # Define a base URL (ajuste se necessário)
+    RewriteBase /
+
+    # Somente controladores centrais executam PHP; scripts internos de plugins nunca ficam na área pública.
+    RewriteRule ^(?!(?:index\.php|cms-admin/index\.php|plugins/index\.php)$).*\.(?:php[0-9]*|phtml|phar)(?:/|$) - [F,L,NC]
+
+    RewriteRule ^plugins/index\.php$ - [L]
+    # Canonicaliza a raiz do plugin preservando método/corpo e evita DirectorySlash divergente.
+    RewriteRule ^plugins/([a-z][a-z0-9-]{0,63})$ /plugins/$1/ [R=308,L]
+    # Raiz/rota pública do plugin; assets existentes continuam estáticos.
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^plugins/([a-z][a-z0-9-]{0,63})(?:/([a-z][a-z0-9-]{0,63}))?/?$ plugins/index.php?plugin=$1&route=$2 [L,QSA]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^plugins/ - [R=404,L]
+
+    # Evita loop: requisições já direcionadas ao index.php não são reescritas
+    RewriteRule ^index\.php$ - [L]
+
+    # Reescreve URLs amigáveis (/nome) para index.php?page=nome (interno, sem redirecionamento)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^([a-zA-Z0-9_-]+)/?$ index.php?page=$1 [L,QSA]
+</IfModule>
+
+# Também proteger downloads estáticos de interpretação por sniffing, quando mod_headers estiver disponível.
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+</IfModule>

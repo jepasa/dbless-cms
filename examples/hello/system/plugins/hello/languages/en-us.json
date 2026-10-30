@@ -1,0 +1,12 @@
+{
+  "locale": "en-us",
+  "name": "English",
+  "direction": "ltr",
+  "messages": {
+    "hello.name": "Hello",
+    "hello.overview": "Overview",
+    "hello.welcome": "Welcome",
+    "hello.open": "Open the public page",
+    "hello.message": "Message"
+  }
+}

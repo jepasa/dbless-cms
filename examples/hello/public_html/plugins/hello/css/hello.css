@@ -1,0 +1,4 @@
+/* The admin fragment inherits the fixed CMS identity; public styles remain scoped to this plugin. */
+.hello-plugin { padding: 1rem; }
+.hello-public { margin: 0; font: 1rem/1.6 system-ui,sans-serif; color: #17352b; background: #f5f8f6; }
+.hello-public main { max-inline-size: 40rem; margin: 4rem auto; padding: 1.5rem; overflow-wrap: anywhere; }

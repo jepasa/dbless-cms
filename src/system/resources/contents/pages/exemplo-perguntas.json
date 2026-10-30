@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "slug": "exemplo-perguntas",
+  "status": "published",
+  "page": "starter-page",
+  "meta": {
+    "title": "Perguntas frequentes",
+    "description": "Respostas para explorar os exemplos de navegação.",
+    "keywords": "site demonstrativo, conteúdo de exemplo, dbless-cms",
+    "image": "",
+    "imageAlt": ""
+  },
+  "content": {
+    "title": "Perguntas frequentes",
+    "lead": "Respostas para explorar os exemplos de navegação.",
+    "summary": "Respostas para explorar os exemplos de navegação.",
+    "eyebrow": "Demonstração",
+    "image": "",
+    "facts": [],
+    "sections": [
+      {
+        "title": "Perguntas frequentes",
+        "body": [
+          "Os menus e seus rótulos podem ser alterados no painel Menu.",
+          "Um mesmo conjunto pode ser associado ao cabeçalho e a outros templates compatíveis.",
+          "Itens removidos podem ser recuperados pela lixeira; revisões anteriores ficam no histórico."
+        ],
+        "list": []
+      }
+    ],
+    "related": [],
+    "cta": {
+      "eyebrow": "",
+      "title": "",
+      "description": ""
+    }
+  }
+}

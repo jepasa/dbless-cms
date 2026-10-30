@@ -1,0 +1,31 @@
+{
+  "generator": "image_gen built-in",
+  "created": "2026-10-30",
+  "license": "Apache-2.0",
+  "assets": [
+    {
+      "file": "studio.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: original hero photograph for Essencial, a generic professional website template distributed with dbless-cms. Primary request: a calm contemporary creative workspace with an oak table, a closed unbranded notebook, a small olive branch in a matte ceramic vase, and a softly lit textured plaster wall. Editorial architectural photography, believable natural materials and realistic imperfections. Wide landscape composition, subjects kept inside the central 60 percent so the photo crops well on mobile. Soft morning side light, restrained forest green, warm ivory and oak tones matching a professional green-and-neutral website. No people, no writing, no readable text, no logos, no watermarks, no interfaces, no famous designs. A new original composition; do not reproduce any existing image.",
+      "sha256": "67372503848dbc21bc9477318836e7042b86b31b67993240723154d214da125a",
+      "bytes": 2157203,
+      "width": 1672,
+      "height": 941
+    },
+    {
+      "file": "product.png",
+      "prompt": "Use case: product-mockup. Asset type: original product portfolio photograph for Essencial, the example template of dbless-cms. Primary request: a generic sculptural wireless speaker with rounded rectangular form, unbranded deep forest-green textile surface and a small brushed-aluminum control, arranged on a pale stone pedestal with a warm off-white studio background. Premium independent product photography, believable material detail, clean shadows, soft diffused light. Wide landscape composition with generous balanced margins for responsive cropping. Restrained forest green, warm gray and ivory palette. No brands, no text, no logos, no watermarks, no recognizable commercial product design. Create an entirely original design and composition.",
+      "sha256": "8e4c4e5a118305c222865f92d51b93ed46b4c1691052a1464f84c92972e54fd1",
+      "bytes": 2376972,
+      "width": 1672,
+      "height": 941
+    },
+    {
+      "file": "process.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: original design-process portfolio photograph for Essencial, a reusable website template in dbless-cms. Primary request: an overhead editorial still life on a light oak desk with blank cream paper sheets, abstract forest-green and muted terracotta color swatches, a simple graphite pencil, a plain closed sketchbook and a small leafy sprig. A thoughtful organized design process, realistic tactile paper and subtle natural imperfections. Wide landscape composition, center-weighted layout suitable for cards and banners. Soft daylight, calm professional mood, generous breathing room. No hands, no writing, no typography, no brand identities, no logos, no watermarks. New original composition rather than a replica of an existing image.",
+      "sha256": "c34d33a720188e9ed06d511310e65cbd7b1a77fc514ae55b77cf3c6fa98344d7",
+      "bytes": 2747847,
+      "width": 1672,
+      "height": 941
+    }
+  ]
+}

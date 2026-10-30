@@ -1,0 +1,17 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["uploads"],
+  "properties": {
+    "uploads": {
+      "type": "object",
+      "title": "setting.uploads",
+      "additionalProperties": false,
+      "required": ["public", "private"],
+      "properties": {
+        "public": {"type": "string", "title": "setting.public", "maxLength": 240},
+        "private": {"type": "string", "title": "setting.private", "maxLength": 240}
+      }
+    }
+  }
+}

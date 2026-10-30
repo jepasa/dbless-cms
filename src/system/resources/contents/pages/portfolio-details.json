@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "slug": "portfolio-details",
+  "status": "published",
+  "page": "portfolio-details",
+  "meta": {
+    "title": "Projeto de exemplo | Sua Marca",
+    "description": "Uma apresentação que conecta contexto, processo e solução.",
+    "keywords": "site demonstrativo, conteúdo de exemplo, dbless-cms",
+    "image": "templates/essencial/images/examples/product.png",
+    "imageAlt": "Projeto de exemplo"
+  },
+  "content": {
+    "title": "Projeto de exemplo",
+    "lead": "Uma apresentação que conecta contexto, processo e solução.",
+    "eyebrow": "Estudo demonstrativo",
+    "image": "templates/essencial/images/examples/product.png",
+    "summary": "Este projeto é conceitual e não representa um cliente ou uma entrega comercial. Utilize a estrutura como ponto de partida para documentar um trabalho autorizado.",
+    "facts": [
+      {
+        "label": "Categoria",
+        "value": "Design de produto"
+      },
+      {
+        "label": "Natureza",
+        "value": "Conceito demonstrativo"
+      },
+      {
+        "label": "Equipe",
+        "value": "Equipe de exemplo"
+      }
+    ],
+    "sections": [
+      {
+        "title": "O desafio",
+        "body": [
+          "Apresente o contexto do projeto e as necessidades que orientaram as decisões. Inclua apenas informações cuja divulgação tenha sido autorizada."
+        ]
+      },
+      {
+        "title": "Como a solução foi construída",
+        "body": [
+          "Descreva o processo, as alternativas avaliadas e o papel de cada entrega. Imagens originais podem complementar o relato sem substituir o contexto."
+        ],
+        "list": [
+          "Objetivos e critérios de sucesso.",
+          "Etapas de pesquisa, criação e revisão.",
+          "Aprendizados e próximos passos verificáveis."
+        ]
+      }
+    ],
+    "related": [
+      {
+        "label": "Página inicial",
+        "href": "/"
+      },
+      {
+        "label": "Serviço de exemplo",
+        "href": "/service-details"
+      },
+      {
+        "label": "Modelo de página",
+        "href": "/starter-page"
+      }
+    ],
+    "cta": {
+      "eyebrow": "Próximo passo",
+      "title": "Dê espaço à sua próxima ideia.",
+      "description": "Personalize este modelo com seus conteúdos e canais de atendimento."
+    }
+  }
+}

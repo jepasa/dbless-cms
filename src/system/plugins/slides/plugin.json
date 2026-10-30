@@ -1,0 +1,77 @@
+{
+  "id": "slides",
+  "name": "Slides",
+  "description": "Conjuntos de banners, carrosséis, depoimentos e faixas rotativas.",
+  "version": "1.0.0",
+  "api": 1,
+  "cmsMajor": 2,
+  "entry": "Plugin.php",
+  "class": "CMS2JSON\\SlidesPlugin",
+  "assets": {
+    "css": "css/slides.css",
+    "js": "js/slides.js"
+  },
+  "defaults": {},
+  "router": "Router.php",
+  "routes": {
+    "overview": {
+      "title": "slides.overview",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "editor": {
+      "title": "slides.editor",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "locations": {
+      "title": "slides.locations",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "trash": {
+      "title": "slides.trash",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "history": {
+      "title": "slides.history",
+      "file": "pages/workspace.php",
+      "requiresEnabled": false,
+      "visibility": "private"
+    }
+  },
+  "navigation": {
+    "label": "slides.name",
+    "items": [
+      {
+        "label": "slides.overview",
+        "route": "overview"
+      },
+      {
+        "label": "slides.new",
+        "route": "editor"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "slides.history",
+        "route": "history"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "slides.trash",
+        "route": "trash"
+      }
+    ],
+    "icon": "image"
+  },
+  "configuration": false
+}

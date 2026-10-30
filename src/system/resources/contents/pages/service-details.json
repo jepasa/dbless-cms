@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "slug": "service-details",
+  "status": "published",
+  "page": "service-details",
+  "meta": {
+    "title": "Serviço de exemplo | Sua Marca",
+    "description": "Do primeiro entendimento à entrega, com um processo claro.",
+    "keywords": "site demonstrativo, conteúdo de exemplo, dbless-cms",
+    "image": "templates/essencial/images/examples/process.png",
+    "imageAlt": "Serviço de exemplo"
+  },
+  "content": {
+    "title": "Serviço de exemplo",
+    "lead": "Do primeiro entendimento à entrega, com um processo claro.",
+    "eyebrow": "Como podemos ajudar",
+    "image": "templates/essencial/images/examples/process.png",
+    "summary": "Use esta página para explicar um serviço: para quem é indicado, o que inclui e quais etapas serão combinadas. As informações abaixo são demonstrativas.",
+    "facts": [
+      {
+        "label": "Tipo",
+        "value": "Solução sob medida"
+      },
+      {
+        "label": "Formato",
+        "value": "Definido conforme o projeto"
+      },
+      {
+        "label": "Conteúdo",
+        "value": "Exemplo para personalização"
+      }
+    ],
+    "sections": [
+      {
+        "title": "Um processo transparente",
+        "body": [
+          "Comece descrevendo como as necessidades são identificadas e o escopo é definido. Evite prometer prazos ou resultados que dependam de uma avaliação específica."
+        ]
+      },
+      {
+        "title": "O que pode fazer parte",
+        "list": [
+          "Conversa inicial e levantamento de necessidades.",
+          "Planejamento de atividades e entregas.",
+          "Desenvolvimento com etapas de revisão.",
+          "Orientações para continuidade e acompanhamento."
+        ]
+      }
+    ],
+    "related": [
+      {
+        "label": "Página inicial",
+        "href": "/"
+      },
+      {
+        "label": "Projeto de exemplo",
+        "href": "/portfolio-details"
+      },
+      {
+        "label": "Modelo de página",
+        "href": "/starter-page"
+      }
+    ],
+    "cta": {
+      "eyebrow": "Próximo passo",
+      "title": "Dê espaço à sua próxima ideia.",
+      "description": "Personalize este modelo com seus conteúdos e canais de atendimento."
+    }
+  }
+}

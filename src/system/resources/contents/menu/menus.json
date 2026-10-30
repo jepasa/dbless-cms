@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "menus": {
+    "demo-principal": {
+      "id": "demo-principal",
+      "name": "Navegação de exemplo",
+      "deleted": false,
+      "items": [
+        {
+          "id": "inicio",
+          "parent": "",
+          "label": "Início",
+          "kind": "page",
+          "page": "home",
+          "anchor": "",
+          "url": "",
+          "enabled": true,
+          "newTab": false
+        },
+        {
+          "id": "sobre",
+          "parent": "",
+          "label": "Sobre",
+          "kind": "anchor",
+          "page": "home",
+          "anchor": "about",
+          "url": "",
+          "enabled": true,
+          "newTab": false
+        },
+        {
+          "id": "conteudo",
+          "parent": "",
+          "label": "Conteúdo",
+          "kind": "group",
+          "page": "",
+          "anchor": "",
+          "url": "",
+          "enabled": true,
+          "newTab": false
+        },
+        {
+          "id": "conheca",
+          "parent": "conteudo",
+          "label": "Conheça o dbless-cms",
+          "kind": "page",
+          "page": "exemplo-cms",
+          "anchor": "",
+          "url": "",
+          "enabled": true,
+          "newTab": false
+        },
+        {
+          "id": "ajuda",
+          "parent": "conteudo",
+          "label": "Ajuda",
+          "kind": "group",
+          "page": "",
+          "anchor": "",
+          "url": "",
+          "enabled": true,
+          "newTab": false
+        },
+        {
+          "id": "perguntas",
+          "parent": "ajuda",
+          "label": "Perguntas frequentes",
+          "kind": "page",
+          "page": "exemplo-perguntas",
+          "anchor": "",
+          "url": "",
+          "enabled": true,
+          "newTab": false
+        },
+        {
+          "id": "contato",
+          "parent": "",
+          "label": "Contato",
+          "kind": "anchor",
+          "page": "home",
+          "anchor": "contact",
+          "url": "",
+          "enabled": true,
+          "newTab": false
+        },
+        {
+          "id": "recursos",
+          "parent": "",
+          "label": "Recursos",
+          "kind": "page",
+          "page": "recursos",
+          "anchor": "",
+          "url": "",
+          "enabled": true,
+          "newTab": false
+        }
+      ]
+    },
+    "demo-rodape": {
+      "id": "demo-rodape",
+      "name": "Rodapé de exemplo",
+      "deleted": false,
+      "items": [
+        {
+          "id": "conheca",
+          "parent": "",
+          "label": "Conheça o dbless-cms",
+          "kind": "page",
+          "page": "exemplo-cms",
+          "anchor": "",
+          "url": "",
+          "enabled": true,
+          "newTab": false
+        },
+        {
+          "id": "perguntas",
+          "parent": "",
+          "label": "Perguntas frequentes",
+          "kind": "page",
+          "page": "exemplo-perguntas",
+          "anchor": "",
+          "url": "",
+          "enabled": true,
+          "newTab": false
+        },
+        {
+          "id": "recursos",
+          "parent": "",
+          "label": "Recursos",
+          "kind": "page",
+          "page": "recursos",
+          "anchor": "",
+          "url": "",
+          "enabled": true,
+          "newTab": false
+        }
+      ]
+    }
+  },
+  "assignments": [
+    {
+      "template": "essencial",
+      "location": "header-primary",
+      "menu": "demo-principal",
+      "type": "navbar"
+    },
+    {
+      "template": "essencial",
+      "location": "footer-links",
+      "menu": "demo-rodape",
+      "type": "list"
+    },
+    {
+      "template": "essencial",
+      "location": "demo-navbar",
+      "menu": "demo-principal",
+      "type": "navbar"
+    },
+    {
+      "template": "essencial",
+      "location": "demo-sidebar",
+      "menu": "demo-principal",
+      "type": "sidebar"
+    },
+    {
+      "template": "essencial",
+      "location": "demo-list",
+      "menu": "demo-principal",
+      "type": "list"
+    },
+    {
+      "template": "essencial",
+      "location": "demo-dropdown",
+      "menu": "demo-principal",
+      "type": "dropdown"
+    }
+  ]
+}

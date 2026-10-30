@@ -1,0 +1,14 @@
+dbless-cms
+Copyright 2026 JEPASA
+
+The original dbless-cms code, the Essencial template, its example content, and the
+newly generated example images in Essencial/images/examples are offered under
+the Apache License, Version 2.0. See LICENSE and the image provenance manifest.
+
+The files-manager plugin was implemented for this CMS using an interface model
+provided by the project owner. The separate proprietary reference application
+and its license are not distributed with this project.
+
+Bootstrap Icons 1.11.3 SVGs retain their MIT license and upstream notices in each
+icons/LICENSE.txt. Their provenance.json records source and integrity information.
+Third-party licenses apply to their respective files independently of Apache-2.0.

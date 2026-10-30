@@ -1,0 +1,21 @@
+/* Menu administrativo: componentes compartilhados, árvore e formulários confinados ao plugin. */
+.menu-plugin [data-menu-placement] p { overflow-wrap: anywhere; }
+.menu-plugin { min-width: 0; }
+.menu-plugin .menu-item { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; margin: 18px 0; min-width: 0; }
+.menu-plugin .menu-item legend { font-weight: 600; max-width: 100%; overflow-wrap: anywhere; padding: 0 6px; }
+.menu-plugin .menu-item[data-depth="1"] { margin-inline-start: 18px; border-inline-start: 3px solid var(--accent); }
+.menu-plugin .menu-item[data-depth="2"], .menu-plugin .menu-item[data-depth="3"], .menu-plugin .menu-item[data-depth="4"] { margin-inline-start: 32px; border-inline-start: 4px solid var(--accent); }
+.menu-plugin .menu-item-toolbar { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 16px; }
+.menu-plugin .menu-item-toolbar button { font-size: .75rem; padding: 7px 10px; }
+.menu-plugin .menu-item-toolbar [draggable] { cursor: grab; }
+.menu-plugin .menu-location { padding: 22px 0; border-bottom: 1px solid var(--line); }
+.menu-plugin .menu-location:last-child { border-bottom: 0; }
+.menu-plugin .menu-location .field-grid { margin: 18px 0; }
+.menu-plugin .field-grid label { min-width: 0; }
+.menu-plugin input[type="checkbox"] { width: auto; }
+@media(max-width:560px) {
+  .menu-plugin .menu-item { padding: 12px; }
+  .menu-plugin .menu-item[data-depth] { margin-inline-start: 0; }
+  .menu-plugin .section-heading { flex-wrap: wrap; gap: 12px; }
+  .menu-plugin .field-grid { grid-template-columns: 1fr; }
+}

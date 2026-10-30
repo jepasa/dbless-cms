@@ -1,0 +1,25 @@
+/* Navegação pública Essencial: listas, navbar e submenus nativos seguindo as cores do tema. */
+.cms-menu { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .45rem; min-width: 0; }
+.cms-menu li { position: relative; min-width: 0; }
+.cms-menu a, .cms-menu summary { display: block; padding: .65em .75em; color: inherit; cursor: pointer; overflow-wrap: anywhere; }
+.cms-menu summary::after { content: "⌄"; margin-inline-start: .5em; }
+.cms-menu details[open] > summary::after { content: "⌃"; }
+.cms-menu a[aria-current="page"] { font-weight: 700; text-decoration: underline; text-underline-offset: .3em; }
+.cms-menu details > ul { list-style: none; padding: .45rem; margin: 0; min-width: 12rem; max-width: min(22rem,80vw); border: 1px solid var(--line); background: var(--surface); border-radius: .6rem; box-shadow: 0 14px 32px #0002; }
+.cms-menu.menu-navbar > li > details > ul { position: absolute; z-index: 30; inset-inline-end: 0; }
+.cms-menu .cms-menu, .cms-menu ul ul { margin-inline-start: .5rem; }
+.cms-menu.menu-list, .cms-menu.menu-sidebar, .cms-menu.menu-dropdown { flex-direction: column; }
+.cms-menu.menu-list details > ul, .cms-menu.menu-sidebar details > ul, .cms-menu.menu-dropdown details > ul { position: static; max-width: 100%; min-width: 0; }
+.mobile-menu .cms-menu { flex-direction: column; }
+.mobile-menu .cms-menu details > ul { position: static !important; min-width: 0; max-width: 100%; box-shadow: none; }
+@media(max-width:640px) { .cms-menu details > ul { min-width: 0; max-width: 100%; } }
+
+/* Catálogo oficial: exemplos isolados conservam o contrato do Menu e a identidade do tema. */
+.menu-demo-grid { display: grid; gap: 1.5em; }
+.menu-demo { min-inline-size: 0; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 1.3em; }
+.menu-demo h3 { font-size: 1em; }
+.menu-demo nav { font-size: .85em; }
+.menu-demo-sidebar nav { padding: .5em; background: var(--subtle); border-inline-start: 3px solid var(--accent); border-radius: .5em; }
+.menu-demo .cms-menu details > ul { position: static; min-width: 0; max-width: 100%; box-shadow: none; }
+.menu-demo .cms-menu.menu-navbar > li > details > ul { position: static; }
+.menu-demo .cms-menu a:hover { color: var(--accent); text-decoration: underline; }

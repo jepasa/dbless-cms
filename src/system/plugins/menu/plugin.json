@@ -1,0 +1,77 @@
+{
+  "id": "menu",
+  "name": "Menu",
+  "description": "Gestão de menus e submenus dos templates públicos.",
+  "version": "1.0.0",
+  "api": 1,
+  "cmsMajor": 2,
+  "entry": "Plugin.php",
+  "class": "CMS2JSON\\MenuPlugin",
+  "assets": {
+    "css": "css/menu.css",
+    "js": "js/menu.js"
+  },
+  "defaults": {},
+  "router": "Router.php",
+  "routes": {
+    "overview": {
+      "title": "menu.overview",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "editor": {
+      "title": "menu.editor",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "locations": {
+      "title": "menu.locations",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "trash": {
+      "title": "menu.trash",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "history": {
+      "title": "menu.history",
+      "file": "pages/workspace.php",
+      "requiresEnabled": false,
+      "visibility": "private"
+    }
+  },
+  "navigation": {
+    "label": "menu.name",
+    "items": [
+      {
+        "label": "menu.overview",
+        "route": "overview"
+      },
+      {
+        "label": "menu.new",
+        "route": "editor"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "menu.history",
+        "route": "history"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "menu.trash",
+        "route": "trash"
+      }
+    ],
+    "icon": "menu"
+  },
+  "configuration": false
+}

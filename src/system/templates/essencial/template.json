@@ -1,0 +1,195 @@
+{
+  "schema_version": 2,
+  "id": "essencial",
+  "name": "Essencial",
+  "description": "Tema responsivo com paletas, modo escuro, tipografia e orientação configuráveis.",
+  "pages": {
+    "home": "home.php",
+    "portfolio-details": "portfolio-details.php",
+    "service-details": "service-details.php",
+    "starter-page": "starter-page.php",
+    "404": "404.php"
+  },
+  "forms": {
+    "contact": "contact.php"
+  },
+  "partials": {
+    "layout": "layout.php",
+    "header": "header.php",
+    "footer": "footer.php",
+    "breadcrumbs": "breadcrumbs.php",
+    "page-detail": "page-detail.php",
+    "menu": "menu.php",
+    "slides": "slides.php",
+    "showcase": "showcase.php",
+    "slide-blocks": "slide-blocks.php",
+    "menu-examples": "menu-examples.php",
+    "home-extras": "home-extras.php"
+  },
+  "version": "2.0.0",
+  "author": "dbless-cms",
+  "contract": "schema.json",
+  "assets": {
+    "styles": [
+      "css/style.css",
+      "css/menu.css",
+      "css/slides.css"
+    ],
+    "scripts": [
+      "js/theme.js",
+      "js/slides.js"
+    ],
+    "files": {
+      "favicon": "images/favicon.svg",
+      "appleTouch": "images/apple-touch-icon.png",
+      "brandSymbol": "images/brand-symbol.svg",
+      "iconArrowRight": "icons/arrow-right.svg",
+      "iconArrowUpShort": "icons/arrow-up-short.svg",
+      "iconBoxArrowInRight": "icons/box-arrow-in-right.svg",
+      "iconBoxArrowRight": "icons/box-arrow-right.svg",
+      "iconBoxArrowUpRight": "icons/box-arrow-up-right.svg",
+      "iconBriefcase": "icons/briefcase.svg",
+      "iconChatDots": "icons/chat-dots.svg",
+      "iconCheckCircle": "icons/check-circle.svg",
+      "iconCheck2Circle": "icons/check2-circle.svg",
+      "iconClockHistory": "icons/clock-history.svg",
+      "iconCodeSlash": "icons/code-slash.svg",
+      "iconEnvelope": "icons/envelope.svg",
+      "iconEye": "icons/eye.svg",
+      "iconFacebook": "icons/facebook.svg",
+      "iconFileEarmarkText": "icons/file-earmark-text.svg",
+      "iconGear": "icons/gear.svg",
+      "iconGithub": "icons/github.svg",
+      "iconGlobe": "icons/globe.svg",
+      "iconGlobe2": "icons/globe2.svg",
+      "iconGrid": "icons/grid.svg",
+      "iconHddStack": "icons/hdd-stack.svg",
+      "iconHouse": "icons/house.svg",
+      "iconImage": "icons/image.svg",
+      "iconImages": "icons/images.svg",
+      "iconInstagram": "icons/instagram.svg",
+      "iconKanban": "icons/kanban.svg",
+      "iconLink45Deg": "icons/link-45deg.svg",
+      "iconLinkedin": "icons/linkedin.svg",
+      "iconList": "icons/list.svg",
+      "iconListUl": "icons/list-ul.svg",
+      "iconPalette": "icons/palette.svg",
+      "iconPencil": "icons/pencil.svg",
+      "iconPerson": "icons/person.svg",
+      "iconPersonCircle": "icons/person-circle.svg",
+      "iconPersonFill": "icons/person-fill.svg",
+      "iconShieldCheck": "icons/shield-check.svg",
+      "iconToggleOff": "icons/toggle-off.svg",
+      "iconToggleOn": "icons/toggle-on.svg",
+      "iconTrash": "icons/trash.svg",
+      "iconTwitter": "icons/twitter.svg",
+      "iconTwitterX": "icons/twitter-x.svg",
+      "iconWhatsapp": "icons/whatsapp.svg",
+      "iconX": "icons/x.svg",
+      "iconYoutube": "icons/youtube.svg"
+    }
+  },
+  "configuration": {
+    "schema": "settings.schema.json",
+    "defaults": {
+      "appearance": {
+        "palette": "forest",
+        "wide": false,
+        "mode": "light",
+        "fontSize": "medium",
+        "textAlign": "start",
+        "direction": "auto"
+      }
+    }
+  },
+  "menuLocations": {
+    "header-primary": {
+      "name": "Navegação principal",
+      "description": "Cabeçalho do site, com versão móvel.",
+      "types": [
+        "navbar",
+        "dropdown"
+      ],
+      "defaultType": "navbar",
+      "maxDepth": 3
+    },
+    "footer-links": {
+      "name": "Links do rodapé",
+      "description": "Navegação complementar no rodapé.",
+      "types": [
+        "list",
+        "dropdown"
+      ],
+      "defaultType": "list",
+      "maxDepth": 2
+    },
+    "demo-navbar": {
+      "name": "Navbar de demonstração",
+      "description": "Exemplo Navbar na página de recursos.",
+      "types": [
+        "navbar"
+      ],
+      "defaultType": "navbar",
+      "maxDepth": 3
+    },
+    "demo-sidebar": {
+      "name": "Sidebar de demonstração",
+      "description": "Exemplo Sidebar na página de recursos.",
+      "types": [
+        "sidebar"
+      ],
+      "defaultType": "sidebar",
+      "maxDepth": 3
+    },
+    "demo-list": {
+      "name": "Lista de demonstração",
+      "description": "Exemplo Lista na página de recursos.",
+      "types": [
+        "list"
+      ],
+      "defaultType": "list",
+      "maxDepth": 3
+    },
+    "demo-dropdown": {
+      "name": "Dropdown de demonstração",
+      "description": "Exemplo Dropdown na página de recursos.",
+      "types": [
+        "dropdown"
+      ],
+      "defaultType": "dropdown",
+      "maxDepth": 3
+    }
+  },
+  "slideLocations": {
+    "home-hero": {
+      "type": "slider",
+      "contentType": "banner",
+      "description": "Banners de demonstração"
+    },
+    "home-products": {
+      "type": "carousel",
+      "contentType": "product",
+      "description": "Produtos de demonstração"
+    },
+    "home-testimonials": {
+      "type": "carousel",
+      "contentType": "testimonial",
+      "description": "Depoimentos ilustrativos"
+    },
+    "home-announcements": {
+      "type": "rotator",
+      "contentType": "notice",
+      "description": "Faixa de avisos"
+    },
+    "home-logos": {
+      "type": "carousel",
+      "contentType": "logo",
+      "description": "Marcas de exemplo"
+    },
+    "page-showcase": {
+      "type": "slider",
+      "contentType": "banner",
+      "description": "Banner em páginas dinâmicas"
+    }
+  }
+}

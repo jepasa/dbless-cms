@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "slug": "starter-page",
+  "status": "published",
+  "page": "starter-page",
+  "meta": {
+    "title": "Uma página para sua história | Sua Marca",
+    "description": "Organize seu conteúdo com títulos claros e informações úteis.",
+    "keywords": "site demonstrativo, conteúdo de exemplo, dbless-cms",
+    "image": "templates/essencial/images/examples/studio.png",
+    "imageAlt": "Uma página para sua história"
+  },
+  "content": {
+    "title": "Uma página para sua história",
+    "lead": "Organize seu conteúdo com títulos claros e informações úteis.",
+    "summary": "Este modelo pode receber uma apresentação institucional, um guia ou uma iniciativa. Adapte cada seção ao objetivo da página.",
+    "eyebrow": "Modelo de conteúdo",
+    "image": "templates/essencial/images/examples/studio.png",
+    "facts": [],
+    "sections": [
+      {
+        "title": "Comece pelo que importa",
+        "body": [
+          "Apresente o assunto, explique por que ele é relevante e indique o próximo passo. Textos objetivos ajudam as pessoas a encontrar a informação de que precisam."
+        ],
+        "list": [
+          "Escolha um título que descreva o conteúdo.",
+          "Use imagens originais e descrições acessíveis.",
+          "Revise os links e as informações antes de publicar."
+        ]
+      }
+    ],
+    "related": [
+      {
+        "label": "Página inicial",
+        "href": "/"
+      },
+      {
+        "label": "Projeto de exemplo",
+        "href": "/portfolio-details"
+      },
+      {
+        "label": "Serviço de exemplo",
+        "href": "/service-details"
+      }
+    ],
+    "cta": {
+      "eyebrow": "Próximo passo",
+      "title": "Dê espaço à sua próxima ideia.",
+      "description": "Personalize este modelo com seus conteúdos e canais de atendimento."
+    }
+  }
+}

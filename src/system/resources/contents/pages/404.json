@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "slug": "404",
+  "status": "published",
+  "page": "404",
+  "meta": {
+    "title": "Página não encontrada | Sua Marca",
+    "description": "O endereço solicitado não está disponível. Continue pela página inicial ou pelos links de navegação.",
+    "keywords": "site demonstrativo, conteúdo de exemplo, dbless-cms",
+    "image": "templates/essencial/images/examples/studio.png",
+    "imageAlt": "Página não encontrada"
+  },
+  "content": {
+    "title": "Página não encontrada",
+    "lead": "O endereço solicitado não está disponível. Continue pela página inicial ou pelos links de navegação.",
+    "summary": "",
+    "eyebrow": "",
+    "image": "templates/essencial/images/examples/studio.png",
+    "facts": [],
+    "sections": [],
+    "related": [],
+    "cta": {
+      "eyebrow": "",
+      "title": "",
+      "description": ""
+    }
+  }
+}

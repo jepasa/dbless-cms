@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "slug": "exemplo-cms",
+  "status": "published",
+  "page": "starter-page",
+  "meta": {
+    "title": "Conheça o dbless-cms",
+    "description": "Conteúdo estruturado, páginas e menus editáveis pelo painel.",
+    "keywords": "site demonstrativo, conteúdo de exemplo, dbless-cms",
+    "image": "",
+    "imageAlt": ""
+  },
+  "content": {
+    "title": "Conheça o dbless-cms",
+    "lead": "Conteúdo estruturado, páginas e menus editáveis pelo painel.",
+    "summary": "Conteúdo estruturado, páginas e menus editáveis pelo painel.",
+    "eyebrow": "Demonstração",
+    "image": "",
+    "facts": [],
+    "sections": [
+      {
+        "title": "Conheça o dbless-cms",
+        "body": [
+          "Crie páginas como rascunho e publique após a revisão.",
+          "Organize menus hierárquicos e associe cada conjunto aos locais disponíveis no template.",
+          "A aparência pública permanece sob responsabilidade do template."
+        ],
+        "list": []
+      }
+    ],
+    "related": [],
+    "cta": {
+      "eyebrow": "",
+      "title": "",
+      "description": ""
+    }
+  }
+}

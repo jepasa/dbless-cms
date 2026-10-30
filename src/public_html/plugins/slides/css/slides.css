@@ -1,0 +1,22 @@
+/* Slides: componentes administrativos confinados ao tema fixo, com editor e seletor de mídia responsivos. */
+.slides-plugin { min-width: 0; }
+.slides-plugin [data-slides-placement] code, .slides-plugin [data-slides-placement] p { overflow-wrap: anywhere; }
+.slides-plugin .slide-item { min-width: 0; margin-block: 1.2rem; padding: 1.2rem; border: 1px solid var(--line); border-radius: .8rem; }
+.slides-plugin .slide-item-toolbar,.slides-plugin .slides-media-toolbar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-block-end: 1rem; }
+.slides-plugin .slide-item-toolbar button { padding: .45rem .7rem; }
+.slides-plugin .slide-item-toolbar [draggable] { cursor: grab; }
+.slides-plugin .slides-location { padding-block: 1.5rem; border-block-end: 1px solid var(--line); }
+.slides-plugin .slides-location label { max-width: 38rem; }
+.slides-plugin [data-slide-media] { width: min(760px,calc(100% - 2rem)); max-height: 85vh; overflow: auto; border: 1px solid var(--line); border-radius: 1rem; padding: 1.5rem; color: var(--ink); background: var(--surface); }
+.slides-plugin [data-slide-media]::backdrop { background: #0e172c88; }
+.slides-plugin [data-media-list] { display: grid; grid-template-columns: repeat(auto-fill,minmax(min(140px,100%),1fr)); gap: .75rem; }
+.slides-plugin [data-media-list] button { min-width: 0; display: grid; gap: .5rem; padding: .7rem; border: 1px solid var(--line); border-radius: .6rem; background: var(--surface); color: var(--ink); overflow-wrap: anywhere; text-align: start; }
+.slides-plugin [data-media-list] img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: .4rem; }
+
+.slides-plugin input[type="checkbox"] { width: auto; }
+.slides-plugin .slide-item legend { max-width: 100%; overflow-wrap: anywhere; font-weight: 600; }
+
+.slides-plugin .slides-checkbox { display: flex; flex-direction: row; align-items: center; align-self: end; gap: .7rem; min-height: 44px; }
+.slides-plugin .slides-checkbox input { margin: 0; flex-shrink: 0; }
+
+.slides-plugin .slides-checkbox input { order: -1; }

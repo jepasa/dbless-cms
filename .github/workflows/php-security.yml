@@ -1,0 +1,48 @@
+# Run local PHP taint rules with an immutable scanner image and upload SARIF; no source is sent to a scanning service.
+name: PHP security
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '43 4 * * 2'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  php-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Test PHP security rules
+        run: |
+          docker run --rm --user "$(id -u):$(id -g)" --network none --cap-drop ALL --security-opt no-new-privileges \
+            --read-only --tmpfs /tmp:rw,nosuid,size=256m \
+            -e SEMGREP_SETTINGS_FILE=/tmp/semgrep-settings.yml -e SEMGREP_LOG_FILE=/tmp/semgrep.log -e XDG_CACHE_HOME=/tmp/cache \
+            -v "$PWD:/src:ro" -v "$RUNNER_TEMP:/reports" -w /src --entrypoint semgrep \
+            semgrep/semgrep@sha256:fb59331f2772da4a9960692ae31961cd58a7c666c014125e9202c96bdfdc38cc \
+            scan --strict --config .github/semgrep.yml --metrics off --disable-version-check --json --output /reports/rules-test.json tests/semgrep
+      - run: node scripts/check-security-fixtures.mjs "$RUNNER_TEMP/rules-test.json"
+      - name: Scan PHP without external network access
+        run: |
+          docker run --rm --user "$(id -u):$(id -g)" --network none --cap-drop ALL --security-opt no-new-privileges \
+            --read-only -e SEMGREP_SETTINGS_FILE=/tmp/semgrep-settings.yml -e SEMGREP_LOG_FILE=/tmp/semgrep.log -e XDG_CACHE_HOME=/tmp/cache --tmpfs /tmp:rw,nosuid,size=256m \
+            -v "$PWD:/src:ro" -v "$RUNNER_TEMP:/reports" -w /src \
+            --entrypoint semgrep \
+            semgrep/semgrep@sha256:fb59331f2772da4a9960692ae31961cd58a7c666c014125e9202c96bdfdc38cc \
+            scan --strict --config .github/semgrep.yml --metrics off --disable-version-check \
+            --error --sarif --output /reports/php.sarif src examples
+      - uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370
+        if: ${{ always() }}
+        with:
+          sarif_file: ${{ runner.temp }}/php.sarif
+          category: php-semgrep

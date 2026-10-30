@@ -1,0 +1,107 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "appearance"
+  ],
+  "properties": {
+    "appearance": {
+      "type": "object",
+      "title": "options.appearance",
+      "additionalProperties": false,
+      "required": [
+        "palette",
+        "wide"
+      ],
+      "properties": {
+        "palette": {
+          "type": "string",
+          "title": "options.palette",
+          "maxLength": 20,
+          "enum": [
+            "forest",
+            "ocean",
+            "violet",
+            "amber",
+            "graphite"
+          ],
+          "enumLabels": {
+            "forest": "options.forest",
+            "ocean": "options.ocean",
+            "violet": "options.violet",
+            "amber": "options.amber",
+            "graphite": "options.graphite"
+          }
+        },
+        "wide": {
+          "type": "boolean",
+          "title": "options.wide"
+        },
+        "mode": {
+          "type": "string",
+          "title": "options.mode",
+          "maxLength": 20,
+          "enum": [
+            "light",
+            "dark",
+            "system"
+          ],
+          "enumLabels": {
+            "light": "options.mode.light",
+            "dark": "options.mode.dark",
+            "system": "options.mode.system"
+          }
+        },
+        "fontSize": {
+          "type": "string",
+          "title": "options.fontSize",
+          "maxLength": 20,
+          "enum": [
+            "small",
+            "medium",
+            "large",
+            "extra-large"
+          ],
+          "enumLabels": {
+            "small": "options.fontSize.small",
+            "medium": "options.fontSize.medium",
+            "large": "options.fontSize.large",
+            "extra-large": "options.fontSize.extra_large"
+          }
+        },
+        "textAlign": {
+          "type": "string",
+          "title": "options.textAlign",
+          "maxLength": 20,
+          "enum": [
+            "start",
+            "center",
+            "end",
+            "justify"
+          ],
+          "enumLabels": {
+            "start": "options.textAlign.start",
+            "center": "options.textAlign.center",
+            "end": "options.textAlign.end",
+            "justify": "options.textAlign.justify"
+          }
+        },
+        "direction": {
+          "type": "string",
+          "title": "options.direction",
+          "maxLength": 20,
+          "enum": [
+            "auto",
+            "ltr",
+            "rtl"
+          ],
+          "enumLabels": {
+            "auto": "options.direction.auto",
+            "ltr": "options.direction.ltr",
+            "rtl": "options.direction.rtl"
+          }
+        }
+      }
+    }
+  }
+}

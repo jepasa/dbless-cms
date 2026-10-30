@@ -1,0 +1,43 @@
+{
+  "id": "hello",
+  "name": "Hello",
+  "description": "A complete minimal example with private and public routes.",
+  "version": "1.0.0",
+  "api": 1,
+  "cmsMajor": 2,
+  "entry": "Plugin.php",
+  "class": "CMS2JSON\\HelloPlugin",
+  "router": "Router.php",
+  "assets": {
+    "css": "css/hello.css",
+    "js": "js/hello.js"
+  },
+  "defaults": {
+    "message": "Hello from dbless-cms."
+  },
+  "configuration": false,
+  "publicSettings": [
+    "message"
+  ],
+  "routes": {
+    "overview": {
+      "title": "hello.overview",
+      "file": "pages/overview.php",
+      "visibility": "private",
+      "requiresEnabled": true
+    },
+    "welcome": {
+      "title": "hello.welcome",
+      "file": "pages/welcome.php",
+      "visibility": "public",
+      "requiresEnabled": true,
+      "methods": [
+        "GET"
+      ]
+    }
+  },
+  "navigation": {
+    "label": "hello.name",
+    "route": "overview"
+  }
+}

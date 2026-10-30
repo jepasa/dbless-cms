@@ -1,0 +1,66 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "meta",
+    "page",
+    "schema_version",
+    "slug",
+    "status",
+    "content"
+  ],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "description",
+        "image",
+        "imageAlt",
+        "keywords",
+        "title"
+      ],
+      "properties": {
+        "description": {
+          "type": "string",
+          "maxLength": 12000
+        },
+        "image": {
+          "type": "string",
+          "maxLength": 12000
+        },
+        "imageAlt": {
+          "type": "string",
+          "maxLength": 12000
+        },
+        "keywords": {
+          "type": "string",
+          "maxLength": 12000
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 12000
+        }
+      }
+    },
+    "page": {
+      "type": "string",
+      "maxLength": 12000
+    },
+    "schema_version": {
+      "type": "integer",
+      "maxLength": 12000
+    },
+    "slug": {
+      "type": "string",
+      "maxLength": 12000
+    },
+    "status": {
+      "type": "string",
+      "maxLength": 12000
+    },
+    "content": {
+      "type": "object"
+    }
+  }
+}

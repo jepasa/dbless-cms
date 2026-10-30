@@ -1,0 +1,34 @@
+# Dependencies, generated production packages and local evidence.
+/node_modules/
+/build/
+/coverage/
+/test-results/
+*.log
+*.sarif
+# Credentials and local configuration.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+/src/system/config/app.json
+# Runtime content is initialized from versioned resources; never commit real data.
+/src/system/storage/*
+!/src/system/storage/.gitkeep
+!/src/system/storage/files/
+/src/system/storage/files/*
+!/src/system/storage/files/.gitkeep
+# Only known public code is tracked; custom uploads, including a blank upload root, stay private.
+/src/public_html/*
+!/src/public_html/index.php
+!/src/public_html/.htaccess
+!/src/public_html/cms-admin/
+!/src/public_html/templates/
+!/src/public_html/plugins/
+!/src/public_html/media/
+/src/public_html/media/*
+!/src/public_html/media/.gitkeep
+.DS_Store
+*.swp
+/.idea/
+/.vscode/

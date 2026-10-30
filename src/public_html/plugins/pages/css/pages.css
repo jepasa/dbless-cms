@@ -1,0 +1,4 @@
+/* Pages usa os componentes do painel; somente ajustes confinados à área do plugin. */
+.pages-plugin { min-width: 0; }
+.pages-plugin input[type="checkbox"] { width: auto; }
+.pages-plugin .history-row { flex-wrap: wrap; gap: 12px; }
