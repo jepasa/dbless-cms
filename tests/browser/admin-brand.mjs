@@ -23,6 +23,7 @@ try{
       const favicon=await page.locator('link[rel="icon"]').getAttribute('href');assert.match(favicon,/cms-admin\/assets\/favicon\.ico$/);
       const response=await context.request.get(favicon);assert.equal(response.status(),200);assert.equal((await response.body()).readUInt16LE(4),7);
       await page.getByLabel('Username',{exact:true}).fill('editor');await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Sign in',exact:true}).click();
+      assert.equal(await page.locator('.topbar .files-shortcut').count(),0);assert.equal(await page.locator('.topbar .site-shortcut').count(),1);assert.equal(await page.locator('.topbar [data-user-menu]').count(),1);
       const logo=page.locator('.brand-logo');await logo.evaluate(image=>image.decode());assert.equal(await logo.getAttribute('alt'),'DBLess-CMS');assert.match(await logo.getAttribute('src'),/brand\/dbless-cms-inverse\.svg$/);
       /** Measure the displayed signature against its parent; receives image and returns geometry without changing DOM. */
       const dimensions=await logo.evaluate(image=>{const a=image.getBoundingClientRect(),b=image.closest('.brand').getBoundingClientRect();return {width:a.width,height:a.height,fits:a.left>=b.left&&a.right<=b.right+1};});

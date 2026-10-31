@@ -4,6 +4,13 @@ This guide uses the complete Essencial template shipped in this repository. Publ
 presentation belongs to templates; the administration layout is fixed and independent.
 A template is trusted PHP code. Install only packages whose source you trust.
 
+Shared CMS core, bundled plugins and administrative layout changes are developed
+and tested upstream before entering this distribution. Consumer installations
+should update shared code from a validated distribution commit, record its
+version/inventory hash and verify the copied files. Keep proprietary templates,
+content, uploads and private configuration separate; do not patch the shared
+administrative layout directly inside a consumer installation.
+
 ## 1. Run the example site
 
 Follow [Get started](../README.md#get-started). `npm run dev` initializes the versioned

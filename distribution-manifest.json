@@ -75,13 +75,13 @@
     },
     {
       "path": "docs/plugins.md",
-      "bytes": 23763,
-      "sha256": "2c761327f1cad2e8133ddf78c32c38d1d1715d3b5c10573fb3353cef27a7ddea"
+      "bytes": 24312,
+      "sha256": "2cc2cc41647ea9b096cc400584f5ac4200710284358c1cb5f4085521395faf47"
     },
     {
       "path": "docs/templates.md",
-      "bytes": 21755,
-      "sha256": "2be8c0ff1a0ff57b33f960eb90e04073bb4933683eb655e5668defab7caac86a"
+      "bytes": 22210,
+      "sha256": "22c285dc61fe7ff9b6c23ce10f4ada51cc23269856f86ce2902f2875be061989"
     },
     {
       "path": "examples/hello/public_html/plugins/hello/css/hello.css",
@@ -910,8 +910,8 @@
     },
     {
       "path": "src/system/admin/layout.php",
-      "bytes": 11385,
-      "sha256": "1f42270fff1b1bf0ce0073bc82601464514f4732a18efa814dbf3784f2a3482a"
+      "bytes": 10991,
+      "sha256": "71db88f42a3a5360215b0cdad83c1db412a24415bdb67e76a3be4b88fbde7f6d"
     },
     {
       "path": "src/system/admin/plugin-options-history.php",
@@ -1675,8 +1675,8 @@
     },
     {
       "path": "tests/browser/admin-brand.mjs",
-      "bytes": 5779,
-      "sha256": "b53487b2f96511cf05f8b3c2763936d1748211dfa5a7c910c83c8ae28057a059"
+      "bytes": 5996,
+      "sha256": "cba8d3cd7e93fc301c9df9510165ccb69e8c242fd3f978af5ab201df33255b54"
     },
     {
       "path": "tests/browser/blog.mjs",
