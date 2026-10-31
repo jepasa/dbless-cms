@@ -13,7 +13,8 @@ final class SlidesPlugin implements PluginInterface,ContentProviderInterface,Con
 
   /** Project visible slides from a template-declared location; receive service/parameters/context, return public card data with safe media and no storage mutation. */
   public function content(string $service,array $parameters,ContentContext $context): array {
-    if($service!=='location')throw new HttpError(404,'Unknown service.','components.error');$data=(new Slides($context->store,$context->template))->location($parameters['key']);
+    if(!in_array($service,['location','data'],true))throw new HttpError(404,'Unknown service.','components.error');$data=(new Slides($context->store,$context->template))->location($parameters['key']);
+    if($service==='data'){if($data===null)return ['name'=>'','contentType'=>'','type'=>'','autoplay'=>false,'interval'=>3000,'items'=>[]];$items=[];foreach($data['items'] as $item){unset($item['enabled']);foreach(['image','href'] as $key)if($item[$key]!==''&&!preg_match('~^(?:https?://|mailto:|tel:|#)~i',$item[$key]))$item[$key]=$context->base.'/'.ltrim($item[$key],'/');$items[]=$item;}return ['name'=>$data['name'],'contentType'=>$data['contentType'],'type'=>$data['type'],'autoplay'=>$data['autoplay'],'interval'=>$data['interval'],'items'=>$items];}
     return ['items'=>array_map(static fn(array $item):array=>['title'=>$item['title'],'text'=>$item['text'],'href'=>$item['href'],'image'=>$item['image']],array_slice($data['items']??[],0,20))];
   }
   /** Valida somente opções legadas para compatibilidade, sem aplicá-las ou gravar; recebe settings/config e propaga 422. */

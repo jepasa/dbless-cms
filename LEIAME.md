@@ -51,7 +51,7 @@ em português brasileiro, com exemplos de blog em inglês, e pode ser editado in
 
 ## Comece agora
 
-Requer PHP 8.2+ com JSON, sessões, fileinfo, OpenSSL e Argon2id, além de Node.js 22 para
+Requer PHP 8.2+ com JSON, sessões, DOM (ext-dom), fileinfo, OpenSSL e Argon2id, além de Node.js 22 para
 os comandos de desenvolvimento.
 
 ```bash
@@ -113,3 +113,6 @@ Globais e limpo pelo Dashboard. Sem banco de dados, Redis ou serviço em segundo
 [Guia de integração de plugins, em inglês](docs/plugins.md#core-dashboard-indicators).
 
 Conheça o [fluxo da Homepage e dos componentes compartilhados](docs/components.md). Cada plugin também inclui sua apresentação e guia de uso em inglês, acessíveis pelo gerenciador de Plugins.
+
+
+Crie Homepages independentes, programe publicações e formate dados públicos de Blog, Pages, Menu, Slides e Widgets com HTML e loops Mustache. O mesmo editor está disponível em páginas e blocos do Blog. Explore o exemplo `/mustache-example` e os guias de desenvolvimento (em inglês).

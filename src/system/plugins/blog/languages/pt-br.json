@@ -144,6 +144,7 @@
     "blog.link": "Link",
     "blog.url": "URL",
     "blog.dashboard.published": "Artigos publicados",
-    "blog.dashboard.pending": "Comentários aguardando moderação"
+    "blog.dashboard.pending": "Comentários aguardando moderação",
+    "blog.markup": "HTML / Mustache"
   }
 }

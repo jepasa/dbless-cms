@@ -23,6 +23,14 @@
       "body": [
         "Use Trash for recoverable removal and History for catalog revisions. Saves verify revisions and template state to prevent silent overwrites."
       ]
+    },
+    {
+      "title": "Full public navigation data",
+      "body": [
+        "menu:tree(key: active-template location key) supplies name, type and items with label, href, slug, anchor, newTab and children. Up to five item levels are declared; submenu items use the same fields. Unpublished/private page targets are omitted. menu:location remains a compatible flat-card service.",
+        "Bind menu:tree with alias navigation. Write {{#navigation.items}}<li><a href=\"{{href}}\">{{label}}</a>{{#children}}<a href=\"{{href}}\">{{label}}</a>{{/children}}</li>{{/navigation.items}} inside your own nav/ul markup. Layout and behavior belong to your template and authored HTML. Missing location assignments return an empty items list."
+      ],
+      "code": "Bind menu:tree with alias navigation and an active-template location key.\n\n<nav aria-label=\"Example navigation\">\n  <ul>{{#navigation.items}}\n    <li><a href=\"{{href}}\">{{label}}</a>\n      <ul>{{#children}}<li><a href=\"{{href}}\">{{label}}</a></li>{{/children}}</ul>\n    </li>\n  {{/navigation.items}}</ul>\n</nav>"
     }
   ]
 }

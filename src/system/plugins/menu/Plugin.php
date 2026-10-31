@@ -13,7 +13,7 @@ final class MenuPlugin implements PluginInterface,ContentProviderInterface,Conte
 
   /** Flatten released menu links for the shared list component; receive service/parameters/context, return at most twenty public links, no writes or hidden-page disclosure. */
   public function content(string $service,array $parameters,ContentContext $context): array {
-    if($service!=='location')throw new HttpError(404,'Unknown service.','components.error');$menu=(new Navigation($context->store,$context->template,$context->base))->location($parameters['key']);$items=[];
+    if(!in_array($service,['location','tree'],true))throw new HttpError(404,'Unknown service.','components.error');$menu=(new Navigation($context->store,$context->template,$context->base))->location($parameters['key']);$items=[];if($service==='tree')return ['name'=>$menu['name']??'','type'=>$menu['type']??'','items'=>$menu['items']??[]];
     /** Walk a validated bounded public tree; receive nodes/depth, append safe links to this projection, no I/O or recursion beyond five levels. */
     $walk=static function(array $nodes,int $depth=0)use(&$walk,&$items):void{if($depth>5)return;foreach($nodes as $node){if(count($items)>=20)return;if($node['href']!=='')$items[]=['title'=>$node['label'],'text'=>'','href'=>$node['href'],'image'=>''];$walk($node['children'],$depth+1);}};
     $walk($menu['items']??[]);return ['items'=>$items];

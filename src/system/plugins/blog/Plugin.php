@@ -6,8 +6,24 @@ require_once __DIR__.'/Model.php';
 require_once __DIR__.'/Store.php';
 require_once __DIR__.'/Router.php';
 require_once __DIR__.'/View.php';
-final class BlogPlugin implements PluginInterface,PublicPluginInterface,DashboardProviderInterface,ContentProviderInterface,ContentOptionsInterface {
+final class BlogPlugin implements PluginInterface,PublicPluginInterface,DashboardProviderInterface,ContentProviderInterface,ContentOptionsInterface,ContentDocumentInterface {
 
+  /** List only released articles by immutable ID; receive context, return up to 100 plain source options without draft/comment data or writes. */
+  public function documents(ContentContext $context): array {$items=[];foreach(BlogModel::published((new BlogStore($context->store))->read()['data']) as $article){$items[]=['id'=>$article['id'],'name'=>$article['title']];if(count($items)>=100)break;}return $items;}
+  /** Render one released article body without header/footer/comments; receive stable ID/context, return safe projection or null, with no publication bypass or mutations. */
+  public function document(string $id,ContentContext $context): ?array {
+    $article=(new BlogStore($context->store))->read()['data']['articles'][$id]??null;if($article===null||!BlogModel::visible($article))return null;$html='<article class="section"><div class="container text-flow"><h1>'.e($article['title']).'</h1><p>'.e($article['excerpt']).'</p>';
+    foreach($article['blocks'] as $block){$type=$block['type'];
+      if($type==='markup')$html.=ContentMarkup::render(['html'=>$block['html'],'bindings'=>$block['bindings']],$context);
+      elseif($type==='paragraph')$html.='<p>'.e($block['text']).'</p>';
+      elseif($type==='heading')$html.='<h'.$block['level'].'>'.e($block['text']).'</h'.$block['level'].'>';
+      elseif($type==='code')$html.='<pre><code>'.e($block['text']).'</code></pre>';
+      elseif($type==='quote')$html.='<blockquote>'.e($block['text']).'</blockquote>';
+      elseif($type==='link')$html.='<p><a href="'.e($block['url']).'">'.e($block['text']).'</a></p>';
+      elseif($type==='image')$html.='<figure><img src="'.e(BlogView::media($context->base,$block['src'])).'" alt="'.e($block['alt']).'" loading="lazy"><figcaption>'.e($block['caption']).'</figcaption></figure>';
+      elseif($type==='list'){$tag=$block['ordered']?'ol':'ul';$html.='<'.$tag.'>';foreach($block['items'] as $item)$html.='<li>'.e($item).'</li>';$html.='</'.$tag.'>';}
+    }return ['name'=>$article['title'],'description'=>$article['excerpt'],'html'=>$html.'</div></article>'];
+  }
   /** List non-deleted editorial categories for the authenticated component picker; receive service/context, return bounded plain choices without mutations or article bodies. */
   public function contentOptions(string $service,ContentContext $context): array {
     $choices=[['value'=>'','label'=>'—']];foreach((new BlogStore($context->store))->read()['data']['categories'] as $entry)if(!$entry['deleted']&&count($choices)<100)$choices[]=['value'=>$entry['id'],'label'=>$entry['name']];return ['category'=>$choices];
@@ -15,10 +31,11 @@ final class BlogPlugin implements PluginInterface,PublicPluginInterface,Dashboar
 
   /** Project released articles only; receive registered service/typed parameters/context, return bounded public cards without writes, drafts, comments or credentials; propagate source errors. */
   public function content(string $service,array $parameters,ContentContext $context): array {
-    if($service!=='latest')throw new HttpError(404,'Unknown service.','components.error');
+    if(!in_array($service,['latest','posts'],true))throw new HttpError(404,'Unknown service.','components.error');
     $catalog=(new BlogStore($context->store))->read()['data'];$items=BlogModel::published($catalog);$category=$parameters['category'];
     if($category!==''){if(!BlogModel::identifier($category)||!isset($catalog['categories'][$category])||$catalog['categories'][$category]['deleted'])return ['items'=>[]];$items=array_filter($items,static fn(array $item):bool=>in_array($category,$item['categories'],true));}
     uasort($items,static fn(array $a,array $b):int=>strcmp($b['publishedAt'],$a['publishedAt'])?:strcmp($a['id'],$b['id']));
+    if($service==='posts'){$result=[];foreach(array_slice($items,0,$parameters['limit'],true) as $item){$categories=[];$tags=[];foreach($item['categories'] as $id)$categories[]=$catalog['categories'][$id]['name'];foreach($item['tags'] as $id)$tags[]=$catalog['tags'][$id]['name'];$result[]=['id'=>$item['id'],'title'=>$item['title'],'excerpt'=>$item['excerpt'],'href'=>BlogView::url($context->base,'article',['slug'=>$item['slug']]),'image'=>BlogView::media($context->base,$item['cover']),'publishedAt'=>$item['publishedAt'],'author'=>$catalog['authors'][$item['author']]['name'],'categories'=>$categories,'tags'=>$tags];}return ['items'=>$result];}
     return ['items'=>array_values(array_map(static fn(array $item):array=>['title'=>$item['title'],'text'=>$item['excerpt'],'href'=>BlogView::url($context->base,'article',['slug'=>$item['slug']]),'image'=>BlogView::media($context->base,$item['cover'])],array_slice($items,0,$parameters['limit'],true)))];
   }
   /** Supply actual published article and pending comment counts to the authenticated core dashboard; receive private context, return dictionary keys/integer values, no writes or comment bodies. */
@@ -53,15 +70,15 @@ final class BlogPlugin implements PluginInterface,PublicPluginInterface,Dashboar
     if (preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?$/D',$value)) $value.=(strlen($value)===16?':00':'').'Z';
     return BlogModel::date($value);
   }
-  /** Assemble a changed article while preserving immutable identity/history; takes catalog/id, returns article, raises contract/slug errors before mutation. */
-  private function article(array $data,string $id): array {
+  /** Assemble a changed article while preserving immutable identity/history; takes catalog/id/authorized context for binding validation, returns article, raises contract/slug errors before mutation. */
+  private function article(array $data,string $id,PluginContext $context): array {
     $existing=$id===''?null:($data['articles'][$id]??throw new HttpError(404,'Article unavailable.','blog.error.missing'));
     if ($existing!==null&&$existing['deletedAt']!=='') throw new HttpError(404,'Article unavailable.','blog.error.missing');
     $slug=$this->input('slug',64);BlogModel::expect(BlogModel::identifier($slug));
     $aliases=$existing['aliases']??[];
     if ($existing!==null&&$slug!==$existing['slug']) {$aliases=array_values(array_diff($aliases,[$slug]));$aliases[]=$existing['slug'];}
     try {$blocks=json_decode($this->input('blocks',65536,'[]'),true,16,JSON_THROW_ON_ERROR);}catch (\JsonException) {throw new HttpError(422,'Invalid blocks.','blog.error.contract');}
-    BlogModel::blocks($blocks);$now=gmdate('Y-m-d\TH:i:s\Z');$status=$this->input('status',20,'draft');
+    BlogModel::blocks($blocks);$components=new Components(new ContentContext($context->store,$context->store->read('site')['data']['template'],$context->base,'blog'));foreach($blocks as $block)if($block['type']==='markup')$components->validateBindings($block['bindings']);$now=gmdate('Y-m-d\TH:i:s\Z');$status=$this->input('status',20,'draft');
     $date=$this->publicationTime($this->input('publishedAt',30));if ($status==='published'&&$date==='') $date=$now;
     return ['id'=>$existing['id']??'post-'.bin2hex(random_bytes(8)),'slug'=>$slug,'aliases'=>$aliases,'title'=>$this->input('title'),'excerpt'=>$this->input('excerpt',1000),'cover'=>$this->input('cover',512),'coverAlt'=>$this->input('coverAlt',300),'author'=>$this->input('author',64),'categories'=>$this->list('categories'),'tags'=>$this->list('tags'),'status'=>$status,'publishedAt'=>$date,'createdAt'=>$existing['createdAt']??$now,'updatedAt'=>$now,'deletedAt'=>'','featured'=>$this->input('featured',1)==='1','noindex'=>$this->input('noindex',1)==='1','seoTitle'=>$this->input('seoTitle'),'seoDescription'=>$this->input('seoDescription',500),'blocks'=>$blocks];
   }
@@ -110,9 +127,9 @@ final class BlogPlugin implements PluginInterface,PublicPluginInterface,Dashboar
       });
       return ['revision'=>$result['revision'],'redirect'=>BlogRouter::url($context,'comments')];
     }
-    $id=$this->input('id',64);$result=(new BlogStore($context->store))->mutate($revision,function(array $data) use($operation,&$id): array {
+    $id=$this->input('id',64);$result=(new BlogStore($context->store))->mutate($revision,function(array $data) use($operation,&$id,$context): array {
       if (str_starts_with($operation,'taxonomy-')) return $this->taxonomy($data,$operation);
-      if ($operation==='save') {$article=$this->article($data,$id);$id=$article['id'];$data['articles'][$id]=$article;return $data;}
+      if ($operation==='save') {$article=$this->article($data,$id,$context);$id=$article['id'];$data['articles'][$id]=$article;return $data;}
       if (!isset($data['articles'][$id])) throw new HttpError(404,'Article unavailable.','blog.error.missing');
       if ($operation==='duplicate') {
         $article=$data['articles'][$id];$id='post-'.bin2hex(random_bytes(8));$article['id']=$id;

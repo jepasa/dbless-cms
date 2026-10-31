@@ -1,8 +1,8 @@
 {
   "id": "homepage",
   "name": "Homepage",
-  "description": "Compose and publish the homepage with private drafts, reusable components and revision history.",
-  "version": "1.0.0",
+  "description": "Manage exclusive scheduled homepages with safe HTML/Mustache or linked public plugin content.",
+  "version": "1.1.0",
   "api": 1,
   "cmsMajor": 2,
   "entry": "Plugin.php",
@@ -17,7 +17,7 @@
   "routes": {
     "overview": {
       "title": "homepage.overview",
-      "file": "pages/workspace.php",
+      "file": "pages/catalog.php",
       "requiresEnabled": true,
       "visibility": "private"
     },
@@ -29,13 +29,25 @@
     },
     "history": {
       "title": "homepage.history",
-      "file": "pages/workspace.php",
+      "file": "pages/catalog.php",
       "requiresEnabled": true,
       "visibility": "private"
     },
     "preview": {
       "title": "homepage.preview",
       "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "new": {
+      "title": "homepage.new",
+      "file": "pages/catalog.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "trash": {
+      "title": "homepage.trash",
+      "file": "pages/catalog.php",
       "requiresEnabled": true,
       "visibility": "private"
     }
@@ -48,8 +60,8 @@
         "route": "overview"
       },
       {
-        "label": "homepage.editor",
-        "route": "editor"
+        "label": "homepage.new",
+        "route": "new"
       },
       {
         "separator": true
@@ -57,6 +69,13 @@
       {
         "label": "homepage.history",
         "route": "history"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "homepage.trash",
+        "route": "trash"
       }
     ]
   },

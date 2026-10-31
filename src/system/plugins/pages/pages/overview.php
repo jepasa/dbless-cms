@@ -15,7 +15,7 @@ $homepageRegistry=new \DBLESSCMS\Plugins($context->store);$homepageEnabled=isset
 <td data-label="<?= e($t('catalog.status')) ?>"><span class="status <?= e($data['status']) ?>"><?= e($t('status.'.$data['status'])) ?></span></td>
 <td data-label="<?= e($t('catalog.actions')) ?>"><div class="row-actions">
 <?php foreach (['preview','history','edit'] as $action): $label=$t('pages.'.$action.'_action',['name'=>$name]); ?>
-<a class="icon-button" href="<?= e($action==='edit'&&$slug==='home'&&$homepageEnabled?$context->base.'/cms-admin/?view=plugin-panel&plugin=homepage&route=editor':$link($action==='edit'?'editor':$action,(string)$slug)) ?>" title="<?= e($label) ?>" aria-label="<?= e($label) ?>" <?= $action==='preview'?'target="_blank" rel="noopener"':'' ?>><?= Icons::svg($action,$context->base) ?></a>
+<a class="icon-button" href="<?= e($action==='edit'&&$slug==='home'&&$homepageEnabled?$context->base.'/cms-admin/?view=plugin-panel&plugin=homepage&route=overview':$link($action==='edit'?'editor':$action,(string)$slug)) ?>" title="<?= e($label) ?>" aria-label="<?= e($label) ?>" <?= $action==='preview'?'target="_blank" rel="noopener"':'' ?>><?= Icons::svg($action,$context->base) ?></a>
 <?php endforeach; ?>
 <form method="post" action="<?= e($context->url('remove')) ?>" data-pages-form data-confirm="<?= e($t('editor.confirm_remove')) ?>">
 <input type="hidden" name="action" value="remove"><input type="hidden" name="key" value="<?= e($slug) ?>"><input type="hidden" name="revision" value="<?= e($item['revision']) ?>"><input type="hidden" name="csrf_token" value="<?= e($csrf) ?>">

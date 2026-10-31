@@ -14,6 +14,8 @@ $labels=['plugin-about'=>$t('catalog.presentation'),'dashboard'=>$t('nav.dashboa
 <link rel="stylesheet" href="<?= e(asset('cms-admin/assets/admin.css',$base)) ?>">
 <script src="<?= e(asset('cms-admin/assets/admin.js',$base)) ?>" defer></script>
 <script src="<?= e(asset('cms-admin/assets/components.js',$base)) ?>" defer></script>
+<link rel="stylesheet" href="<?= e(asset('cms-admin/assets/markup.css',$base)) ?>">
+<script src="<?= e(asset('cms-admin/assets/markup.js',$base)) ?>" defer></script>
 <?php if ($panelAssets!==null): ?>
 <link rel="stylesheet" href="<?= e(asset('plugins/'.$panelId.'/'.$panelAssets['css'],$base)) ?>">
 <script src="<?= e(asset('plugins/'.$panelId.'/'.$panelAssets['js'],$base)) ?>" defer></script>

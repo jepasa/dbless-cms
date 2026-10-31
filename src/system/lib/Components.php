@@ -7,12 +7,13 @@ final class Components {
   private int $resolved=0;
   private array $warnings=[];
   private array $data=[];
+  private static ?\WeakMap $budgets=null;
   /** Receive read context; defer registry/provider loading and never persist component output. */
   public function __construct(private readonly ContentContext $context) {}
   /** Validate a closed bounded data schema using only the supported subset; receive schema/depth, throw 422 on unknown keywords/types or unsafe limits, no I/O. */
   public static function schema(array $schema,int $depth=0): void {
     $allowed=['type','properties','required','additionalProperties','items','maxItems','maxLength','minimum','maximum','enum','default'];
-    if($depth>8||array_diff(array_keys($schema),$allowed)!==[]||!in_array($schema['type']??null,['object','array','string','integer','boolean'],true))throw new HttpError(422,'Invalid component schema.','components.error');
+    if($depth>14||array_diff(array_keys($schema),$allowed)!==[]||!in_array($schema['type']??null,['object','array','string','integer','boolean'],true))throw new HttpError(422,'Invalid component schema.','components.error');
     if($schema['type']==='object'){
       if(($schema['additionalProperties']??null)!==false||!is_array($schema['properties']??null)||count($schema['properties'])>20||!is_array($schema['required']??[])||!array_is_list($schema['required']??[]))throw new HttpError(422,'Invalid component object.','components.error');
       foreach($schema['required']??[] as $key)if(!is_string($key)||!isset($schema['properties'][$key]))throw new HttpError(422,'Invalid required parameter.','components.error');
@@ -89,8 +90,8 @@ final class Components {
     return $result;
   }
   /** Enrich insertion metadata with optional provider choices only after authentication; no arguments, return bounded choices/diagnostics and isolate optional choice failures without writes. */
-  public function editorCatalog(): array {
-    if(!Security::authenticated($this->context->store->config))throw new HttpError(403,'Authentication required.','error.authentication');$catalog=$this->catalog();
+  public function editorCatalog(bool $raw=false): array {
+    if(!Security::authenticated($this->context->store->config))throw new HttpError(403,'Authentication required.','error.authentication');$catalog=$raw?$this->dataCatalog():$this->catalog();
     foreach($catalog as &$entry){
       try{
         $provider=$this->registry()->instance($entry['plugin']);if(!$provider instanceof ContentOptionsInterface)continue;$choices=$provider->contentOptions($entry['service'],$this->context);
@@ -139,6 +140,41 @@ final class Components {
     }
     return array_values(array_unique($warnings));
   }
+  /** Validate portable binding IDs, aliases and bounded scalar values without loading provider code; receive bindings, return nothing or 422, no I/O. */
+  public static function bindingShape(array $bindings): void {
+    if(!array_is_list($bindings)||count($bindings)>20)throw new HttpError(422,'Invalid data bindings.','markup.error');$aliases=[];
+    foreach($bindings as $binding){
+      if(!is_array($binding)||count($binding)!==4||array_diff(array_keys($binding),['plugin','service','alias','parameters'])!==[]||!is_string($binding['plugin']??null)||!Plugins::identifier($binding['plugin'])||!is_string($binding['service']??null)||!Plugins::identifier($binding['service'])||!is_string($binding['alias']??null)||strlen($binding['alias'])>100||!preg_match('/^[a-z][a-zA-Z0-9-]*(?:\.[a-z][a-zA-Z0-9-]*){0,2}$/D',$binding['alias'])||!is_array($binding['parameters']??null)||count($binding['parameters'])>10)throw new HttpError(422,'Invalid data binding.','markup.error');
+      foreach($aliases as $alias)if($alias===$binding['alias']||str_starts_with($alias,$binding['alias'].'.')||str_starts_with($binding['alias'],$alias.'.'))throw new HttpError(422,'Colliding data aliases.','markup.error');$aliases[]=$binding['alias'];
+      foreach($binding['parameters'] as $key=>$value)if(!is_string($key)||!preg_match('/^[a-z][a-zA-Z0-9]{0,47}$/D',$key)||$key==='layout'||(!is_string($value)&&!is_int($value)&&!is_bool($value))||(is_string($value)&&(strlen($value)>512||preg_match('//u',$value)!==1)))throw new HttpError(422,'Invalid binding parameter.','markup.error');
+    }
+  }
+  /** Discover active typed public services regardless of template layout support; return only manifest metadata without executing providers. */
+  public function dataCatalog(): array {
+    $result=[];foreach($this->registry()->all() as $id=>$manifest)if($this->registry()->state($id)['enabled'])foreach(self::definitions($manifest) as $service=>$definition)$result[$id.':'.$service]=['plugin'=>$id,'service'=>$service,'name'=>$manifest['name'],'description'=>$definition['description'],'parameters'=>$definition['parameters'],'result'=>$definition['result'],'formats'=>$definition['formats'],'context'=>$definition['context']];return $result;
+  }
+  /** Apply defaults and validate typed service parameters; receive native JSON values/definition, return normalized values or 422 without I/O. */
+  private static function nativeParameters(array $parameters,array $definition): array {
+    foreach($definition['parameters']['properties'] as $key=>$field)if(!array_key_exists($key,$parameters)&&array_key_exists('default',$field))$parameters[$key]=$field['default'];Schema::validate($parameters,$definition['parameters']);return $parameters;
+  }
+  /** Validate binding parameters against registered schemas even for disabled providers; receive bindings, return private diagnostics, never execute PHP or drop unknown references. */
+  public function validateBindings(array $bindings): array {
+    self::bindingShape($bindings);$warnings=[];foreach($bindings as $binding){$code=$binding['plugin'].':'.$binding['service'];$manifest=$this->registry()->all()[$binding['plugin']]??null;$definition=$manifest['contentServices'][$binding['service']]??null;
+      if($definition===null){$warnings[]=$code.' (unavailable)';continue;}self::nativeParameters($binding['parameters'],$definition);if(!$this->registry()->state($binding['plugin'])['enabled'])$warnings[]=$code.' (inactive)';
+    }return array_values(array_unique($warnings));
+  }
+  /** Obtain a bounded public service result independent of HTML partials; receive plugin/service/typed values, return validated JSON or null for an unavailable/failing provider; no writes/network calls. */
+  public function data(string $plugin,string $service,array $parameters): ?array {
+    $code=$plugin.':'.$service;$entry=$this->dataCatalog()[$code]??null;if($entry===null){$this->warnings[]=$code.' (unavailable)';return null;}$parameters=self::nativeParameters($parameters,$entry);$key=$code.':'.json_encode($parameters,JSON_THROW_ON_ERROR);
+    if(array_key_exists($key,$this->data))return $this->data[$key];
+    self::$budgets??=new \WeakMap();$used=self::$budgets[$this->context->store]??0;if($used>=20){$this->warnings[]='data limit';return null;}self::$budgets[$this->context->store]=$used+1;
+    try{$provider=$this->registry()->instance($plugin);if(!$provider instanceof ContentProviderInterface)throw new \UnexpectedValueException('Provider interface missing.');$value=$provider->content($service,$parameters,$this->context);if(strlen(json_encode($value,JSON_THROW_ON_ERROR))>131072)throw new \UnexpectedValueException('Provider data exceeds limit.');Schema::validate($value,$entry['result']);return $this->data[$key]=Schema::sanitize($value);}
+    catch(\Throwable $error){$this->warnings[]=$code.' (unavailable)';error_log('DBLESS-CMS component data '.$code.' '.$error::class);return $this->data[$key]=null;}
+  }
+  /** Build a namespace/alias JSON environment from explicit bindings; receive definitions, return public data only, never parse values as templates or mutate storage. */
+  public function environment(array $bindings): array {
+    self::bindingShape($bindings);$result=[];foreach($bindings as $binding){try{$value=$this->data($binding['plugin'],$binding['service'],$binding['parameters'])??[];}catch(HttpError $error){$this->warnings[]=$binding['plugin'].':'.$binding['service'].' (invalid parameters)';$value=[];}$cursor=&$result;$path=explode('.',$binding['alias']);$leaf=array_pop($path);foreach($path as $part){$cursor[$part]??=[];$cursor=&$cursor[$part];}$cursor[$leaf]=$value;unset($cursor);}return $result;
+  }
   /** Resolve one allowlisted read-only provider and render a trusted template partial; receive marker, return safe HTML/text or empty with warning; isolate optional provider errors in bounded logs. */
   public function render(string $text,bool $inline=false): string {
     $marker=self::parse($text);if($marker===null)return e($text);
@@ -154,6 +190,7 @@ final class Components {
         $provider=$this->registry()->instance($marker['plugin']);if(!$provider instanceof ContentProviderInterface)throw new \UnexpectedValueException('Provider interface missing.');
         $value=$provider->content($marker['service'],$parameters,$this->context);if(strlen(json_encode($value,JSON_THROW_ON_ERROR))>131072)throw new \UnexpectedValueException('Component output too large.');Schema::validate($value,$definition['result']);$this->data[$cacheKey]=Schema::sanitize($value);
       }
+      if(($this->data[$cacheKey]??null)===null)return '';
       $componentData=$this->data[$cacheKey];$componentParameters=$parameters;
       if($definition['context']==='text')return e($componentData['value']);
       if(($componentData['items']??null)===[])return '';

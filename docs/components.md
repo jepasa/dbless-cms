@@ -1,5 +1,8 @@
 # Homepage and shared content components
 
+Version 2.5 supports two distinct authoring contexts: existing colon markers use template-owned component partials; authored HTML in Homepage, Pages and Blog uses explicit raw-data bindings plus escaped Mustache variables/loops. The initial sections below document the compatible legacy marker contract. See “Authored HTML and raw public data” for the current data-authoring workflow.
+
+
 Homepage is a plugin. Component discovery, marker parsing and service dispatch are core services, shared with Pages. This is a bounded marker syntax inspired by Mustache, not a general-purpose Mustache engine. No dependency or runtime template execution is installed from content.
 
 ## Author content
@@ -79,3 +82,32 @@ Production exports include only published page/composition and live Widget recor
 ## Plugin-owned presentations
 
 Each bundled plugin declares `"presentation":"about.json"`. The private UTF-8 JSON document has `language:"en"`, `title`, `lead` and `sections` of `title`/`body` string arrays plus optional `code`. The manager's localized presentation action opens it inside the fixed admin layout, even when the plugin is inactive. The core reads/escapes the document without executing the plugin entrypoint. Third-party plugins may omit the declaration for API 1 compatibility; declare it to provide their own presentation. Public documentation and presentation examples contain no credentials or private site content.
+
+
+## Authored HTML and raw public data (2.5)
+
+PHP 8.2+ with **ext-dom** is required for authored HTML. Run the doctor before deployment. No browser editor CDN or additional runtime package is used.
+
+Homepage, Pages (optional root `markup`) and Blog (typed `markup` blocks) share `ContentMarkup`, `Mustache` and `Components`. Bindings are explicit JSON:
+
+```json
+{"html":"<section>{{#news.items}}<h2><a href=\"{{href}}\">{{title}}</a></h2>{{/news.items}}{{^news.items}}<p>No posts.</p>{{/news.items}}</section>","bindings":[{"plugin":"blog","service":"posts","alias":"news","parameters":{"limit":3,"category":""}}]}
+```
+
+Aliases identify service data, not arbitrary PHP methods. Discover supported schemas and native typed parameters from each enabled plugin manifest. Supported raw services: `blog:posts`, `pages:list`, `menu:tree`, `slides:data`, `widgets:records`; existing `blog:latest`, `menu:location`, `slides:location`, `widgets:set` and `widgets:value` remain compatible. See each plugin's English About presentation for its fields and examples. Private Images listings are deliberately not a public service.
+
+Variables are HTML-escaped. Sections iterate arrays or conditionally expose objects/true scalars; inverted sections handle empty/false/missing values. Dotted paths and `{{.}}` are supported. Zero is truthy. Returned strings are literal and never recursively parsed. Triple braces, partials, helpers, lambdas, dynamic includes and delimiter changes are rejected. Semantic HTML is allowlisted; scripts, events, inline CSS, forms, frames, SVG, PHP and unsafe URLs are rejected both before and after interpolation. Templates own CSS and trusted scripts. URL interpolation must resolve to a valid public URL.
+
+Limits: 128 KiB source, 1,024 tokens, eight section levels, 100 items per loop, 10,000 work units, 512 KiB output per fragment, 1 MiB accumulated output and 20 uncached provider fetches per request. A binding list has at most 20 distinct noncolliding aliases. Provider JSON is at most 128 KiB and must match its closed schema. Failed optional providers yield empty data and bounded diagnostics; malformed authored syntax is an explicit error. These are resource bounds, not a sandbox for locally installed PHP plugins.
+
+## Homepage publications
+
+The private catalog is `system/storage/contents/homepage/publications/catalog.json`. Draft and published snapshots are separate. Saving a draft never publishes it. UTC scheduling is resolved per request: newest due enabled snapshot wins; ID breaks equal timestamps. No cron or catalog write is performed on a public request. A valid prior publication, then the protected native homepage, provides fallback. A missing source never exposes unpublished content. Global settings provide homepage metadata. Local time entry is converted to UTC; nonexistent local times are rejected. For ambiguous clock transitions, use UTC to choose an exact instant; local entry otherwise follows the browser time-zone convention.
+
+`documentSource: {"api":1,"description":"Published document bodies."}` opts a plugin into `ContentDocumentInterface`. `documents()` lists stable published IDs privately; `document()` returns only `{name,description,html}` with validated body HTML. No arbitrary routes/functions execute from a reference. Pages and Blog implement it. The Pages common semantic adapter does not duplicate all template-specific extras. Cycles/depth are bounded. Disabling/uninstalling the Homepage administrative plugin preserves the core publication reader and existing published catalog.
+
+Export includes only published nondeleted records (including scheduled snapshots), replacing each exported draft with its published snapshot. Private drafts, history and trash never ship. Back up the private catalog before upgrades; no live content is migrated automatically. The original per-template 2.4 drafts remain accessible in History and old markers retain their parser.
+
+The local textarea editor adds line numbers and inert highlighting; Tab capture is opt-in and Escape releases it. Saved snippets are inserted manually. Public data is refreshed on the next uncached service resolution/request; this is not a background live-update subscription.
+
+The legacy section editor edits only the native `pages/home.json` fallback; a newer effective catalog publication retains precedence. Saving a legacy draft returns to its editor, where authenticated preview and explicit legacy publication remain available.

@@ -41,7 +41,8 @@
         const card=node('fieldset','','blog-block');card.dataset.blockIndex=String(index);card.append(node('legend',String(index+1)+' · '+t(block.type==='list'?'listBlock':block.type)));
         const toolbar=node('div','','blog-admin-toolbar');
         const up=button('up',()=>move(index,-1)),down=button('down',()=>move(index,1));up.disabled=index===0;down.disabled=index===blocks.length-1;toolbar.append(up,down,button('remove',()=>{blocks.splice(index,1);dirty=true;render(Math.min(index,blocks.length-1));}));card.append(toolbar);
-        if(block.type==='heading'){field(card,block,'level','input',[2,3]);field(card,block,'text');}
+        if(block.type==='markup'){const markup=window.DBLESSMarkup.create(card,{html:block.html,bindings:block.bindings},JSON.parse(editor.dataset.markupCatalog),JSON.parse(editor.dataset.markupLabels));markup.addEventListener('cms-markup-change',event=>{block.html=event.detail.html;block.bindings=event.detail.bindings;dirty=true;synchronize();});}
+        else if(block.type==='heading'){field(card,block,'level','input',[2,3]);field(card,block,'text');}
         else if(block.type==='image'){
           field(card,block,'src','input');field(card,block,'alt','input');field(card,block,'caption','input');
           const choose=button('chooseImage',()=>chooseImage(reference=>{block.src=reference;synchronize();render(index);},choose));card.append(choose);
@@ -57,7 +58,7 @@
     editor.querySelector('[data-add-block]').addEventListener('click',()=>{
       if(blocks.length>=100){failure(t('error.contract'));return;}
       const type=editor.querySelector('[data-block-type]').value;
-      blocks.push(type==='heading'?{type,text:'',level:2}:type==='image'?{type,src:'',alt:'',caption:''}:type==='list'?{type,items:[],ordered:false}:type==='link'?{type,text:'',url:''}:{type,text:''});dirty=true;render(blocks.length-1);
+      blocks.push(type==='markup'?{type,html:'<section>\n  <p>Content</p>\n</section>',bindings:[]}:type==='heading'?{type,text:'',level:2}:type==='image'?{type,src:'',alt:'',caption:''}:type==='list'?{type,items:[],ordered:false}:type==='link'?{type,text:'',url:''}:{type,text:''});dirty=true;render(blocks.length-1);
     });
     /** List public images through the existing Images API; takes relative path, rejects other origins, ignores stale completions, and keeps errors within the dialog. */
     async function media(path=''){

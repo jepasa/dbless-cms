@@ -67,7 +67,7 @@ final class Operations {
     $store=new JsonStore($this->config);$checks=[];
     $checks['production']=$this->config->production&&is_file($this->config->root.'/config/production.php');
     $checks['php']=PHP_VERSION_ID>=80200;
-    foreach (['fileinfo','json','session','openssl'] as $extension) $checks['extension_'.$extension]=extension_loaded($extension);
+    foreach (['fileinfo','json','session','openssl','dom'] as $extension) $checks['extension_'.$extension]=extension_loaded($extension);
     $checks['credentials']=is_bool($this->config->credentials['enabled']??true)&&$this->config->configured()&&password_get_info($this->config->credentials['password_hash']??'')['algoName']==='argon2id';
     $checks['private_config']=is_file($this->privateConfig)&&!self::inside($this->privateConfig,$this->installation.'/public_html')&&((fileperms($this->privateConfig)&0007)===0);
     foreach (['contents','storage'] as $key) {

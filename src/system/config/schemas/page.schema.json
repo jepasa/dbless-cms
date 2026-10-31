@@ -123,6 +123,51 @@
           }
         }
       }
+    },
+    "markup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "html",
+        "bindings"
+      ],
+      "properties": {
+        "html": {
+          "type": "string",
+          "maxLength": 131072
+        },
+        "bindings": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "plugin",
+              "service",
+              "alias",
+              "parameters"
+            ],
+            "properties": {
+              "plugin": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "service": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "alias": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "parameters": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

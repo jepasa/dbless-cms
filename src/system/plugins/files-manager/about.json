@@ -23,6 +23,13 @@
         "Removal uses soft-delete. Open Trash to restore files to their permitted origin when it is available.",
         "Review Uploads settings before moving a storage root. Configuration changes do not silently relocate existing files or grant access outside the permitted roots."
       ]
+    },
+    {
+      "title": "Public data boundaries",
+      "body": [
+        "Images does not register a public Mustache content service or document source. Private files, upload listings, paths and administrative controls must not be exposed through editorial bindings.",
+        "Choose a public image in the authorized image picker or use its validated public URL in an img element. Blog/Slides/Page data can include their already-public image URLs. File-management routes remain protected independently of the shared renderer."
+      ]
     }
   ]
 }

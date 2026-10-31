@@ -50,3 +50,25 @@
   }
   if(dialog&&form){mediaControls();new MutationObserver(mediaControls).observe(root.querySelector('[data-fields]'),{childList:true,subtree:true});dialog.querySelector('[data-homepage-media-close]').addEventListener('click',()=>dialog.close());dialog.querySelector('[data-homepage-media-back]').addEventListener('click',()=>void browse(mediaPath.split('/').slice(0,-1).join('/')));}
 })();
+
+/** Homepage publication tables/editor use the shared data/code controls; preserve entered source and display typed API failures without automatic reloads. */
+(() => {
+  'use strict';
+  const root=document.querySelector('[data-homepage-catalog]');if(!root)return;const status=root.querySelector('[data-catalog-status]'),editor=root.querySelector('[data-homepage-publication]');
+  if(editor){
+    const mode=editor.querySelector('[data-homepage-mode]'),plugin=editor.querySelector('[data-source-plugin]'),documentId=editor.querySelector('[data-source-id]'),sources=JSON.parse(editor.dataset.sources),saved=JSON.parse(editor.dataset.source),warning=editor.querySelector('[data-source-warning]'),local=editor.querySelector('[data-publication-local]'),utc=editor.querySelector('[data-publication-utc]'),timezone=editor.querySelector('[data-publication-timezone]');
+    /** Fill source IDs for one selected plugin, preserving an unavailable saved reference; no arguments/return or network calls. */
+    function sourceOptions(){documentId.replaceChildren();const items=sources[plugin.value]?.items||[];for(const item of items){const option=document.createElement('option');option.value=item.id;option.textContent=item.name;documentId.append(option);}if(plugin.value===saved.plugin&&saved.id&&!items.some(item=>item.id===saved.id)){const option=document.createElement('option');option.value=saved.id;option.textContent=saved.id;documentId.append(option);}if(plugin.value===saved.plugin)documentId.value=saved.id;warning.hidden=mode.value!=='source'||items.some(item=>item.id===documentId.value);}
+    /** Toggle mode-specific controls while preserving dormant source/code values; no arguments/return, never mutates published data. */
+    function fields(){editor.querySelector('[data-homepage-html]').hidden=mode.value!=='html';editor.querySelector('[data-homepage-source]').hidden=mode.value!=='source';editor.querySelector('[data-homepage-legacy]').hidden=mode.value!=='legacy';editor.querySelector('[data-markup-html]').required=mode.value==='html';plugin.required=mode.value==='source';documentId.required=mode.value==='source';warning.hidden=mode.value!=='source'||(sources[plugin.value]?.items||[]).some(item=>item.id===documentId.value);}
+    /** Convert explicit UTC/browser-local form input to UTC seconds; no arguments/return, reject invalid/nonexistent local times rather than silently adjust them. */
+    function publication(){local.setCustomValidity('');if(!local.value){utc.value='';return;}const value=new Date(local.value+(timezone.value==='UTC'?'Z':''));if(Number.isNaN(value.getTime())){local.setCustomValidity(root.dataset.dateError);return;}const comparable=timezone.value==='UTC'?value.toISOString().slice(0,19):new Date(value.getTime()-value.getTimezoneOffset()*60000).toISOString().slice(0,19);if(comparable!==local.value.padEnd(19,':00').slice(0,19)){local.setCustomValidity(root.dataset.dateError);return;}utc.value=value.toISOString().slice(0,19)+'Z';}
+    plugin.addEventListener('change',sourceOptions);documentId.addEventListener('change',fields);mode.addEventListener('change',fields);local.addEventListener('input',publication);timezone.addEventListener('change',()=>{if(utc.value){const value=new Date(utc.value);local.value=(timezone.value==='UTC'?value:new Date(value.getTime()-value.getTimezoneOffset()*60000)).toISOString().slice(0,19);}publication();});sourceOptions();fields();publication();
+    editor.addEventListener('submit',publication);
+  }
+  for(const form of root.querySelectorAll('[data-catalog-form]'))form.addEventListener('submit',async event=>{
+    if(event.defaultPrevented)return;event.preventDefault();if(form.dataset.submitting==='true')return;if(!form.reportValidity())return;const body=new FormData(form);if(event.submitter?.name)body.set(event.submitter.name,event.submitter.value);const buttons=[...form.querySelectorAll('button[type="submit"],button:not([type])')];form.dataset.submitting='true';for(const button of buttons)button.disabled=true;
+    try{const response=await fetch(form.action,{method:'POST',body,headers:{Accept:'application/json'},credentials:'same-origin'}),payload=await response.json();if(!response.ok)throw new Error(payload.message||payload.error||root.dataset.networkError);if(!payload.redirect)throw new Error(root.dataset.networkError);window.location.assign(payload.redirect);}
+    catch(error){status.textContent=error.message||root.dataset.networkError;status.hidden=false;status.scrollIntoView({block:'nearest'});form.dataset.submitting='false';for(const button of buttons)button.disabled=false;}
+  });
+})();

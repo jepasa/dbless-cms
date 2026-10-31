@@ -78,6 +78,15 @@
           "Produtos ou cartões de conteúdo.",
           "Depoimentos ilustrativos, marcas e faixas de avisos."
         ]
+      },
+      {
+        "title": "Dados públicos com Mustache",
+        "body": [
+          "A página mustache-example demonstra loops e dados brutos de Blog, Menu, Slides, Widgets e Pages. Edite seu HTML pelo painel Pages; o mesmo controle está disponível em Homepage e nos blocos HTML do Blog."
+        ],
+        "list": [
+          "Acesse /mustache-example para explorar o exemplo funcional."
+        ]
       }
     ],
     "related": [
@@ -92,6 +101,10 @@
       {
         "label": "Todos os exemplos da home",
         "href": "/#recursos"
+      },
+      {
+        "label": "Dados públicos com Mustache",
+        "href": "/mustache-example"
       }
     ],
     "cta": {

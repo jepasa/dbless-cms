@@ -24,6 +24,14 @@
         "Ordinary pages can be drafts or published. Homepage and 404 are protected published pages. Preview requires an authenticated session.",
         "Trash preserves removable pages in revision history. Restore only from a listed revision; concurrent edits are rejected rather than overwritten."
       ]
+    },
+    {
+      "title": "Shared HTML and public page data",
+      "body": [
+        "The optional HTML / Mustache panel in a page editor uses the same core renderer as Homepage. Enabling it replaces the structured body view while preserving the page metadata and original structured JSON. Disable it to return to that original structure. Bind multiple public services, then write semantic HTML and loops manually. pages:list(limit:1–12) supplies items with title, text, href and image, excluding reserved home/404 pages, drafts and deleted pages.",
+        "Pages is a document source for Homepage: choose a published page by slug. The source adapter supplies its common semantic content (title, summary, facts and sections) or its authored HTML; it does not duplicate the native template frame or all template-specific extras. Editing the source updates the next request. A missing source never exposes a draft."
+      ],
+      "code": "Bind widgets:value with alias notice and a reusable key.\n\n<section>\n  <h1>Your page</h1>\n  <p>{{notice.value}}</p>\n</section>"
     }
   ]
 }

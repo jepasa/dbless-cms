@@ -24,6 +24,14 @@
         "Move positional widgets, reusable records or sets to Trash instead of deleting them permanently. Restore them from Trash or restore the catalog from History.",
         "Trashed members are omitted publicly while their references remain recoverable. Exports include live content only. Values never execute HTML, PHP, JavaScript or nested component markers."
       ]
+    },
+    {
+      "title": "Raw reusable values and sets",
+      "body": [
+        "widgets:records(key: set key) returns ordered live items with key, value, description. widgets:value(key: reusable widget key) returns a single value. widgets:set remains compatible with template-owned card/list formats. Positional widget keys remain supported. Returned values are plain escaped text and are never reinterpreted as Mustache.",
+        "Bind widgets:records with alias highlights and write {{#highlights.items}}<section><h2>{{description}}</h2><p>{{value}}</p></section>{{/highlights.items}}. Bind widgets:value with alias notice and use {{notice.value}}. Reusable sets do not require template location keys; positional widgets still use locations declared by the active template."
+      ],
+      "code": "Bind widgets:records with alias highlights and a live set key.\n\n{{#highlights.items}}\n  <section><h2>{{description}}</h2><p>{{value}}</p></section>\n{{/highlights.items}}\n\nBind widgets:value with alias notice and use {{notice.value}}."
     }
   ]
 }
