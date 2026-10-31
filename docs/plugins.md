@@ -467,3 +467,45 @@ counters. Expired/obsolete entries are reclaimed on misses/eviction or purge.
 The entry byte quota excludes bounded metrics/lock metadata. On cache I/O failure
 or lock contention the request uses dynamic data; validation errors still propagate.
 This service does not configure OPcache, browser caching, a CDN or server headers.
+
+## Local security regression laboratory
+
+Extension authors can run `npm run pentest -- core` for synthetic password,
+session, CSRF and evidence checks. `npm run pentest -- full` also runs the available
+CMS contracts, real Chromium framing/repeated-write/XSS probes and three focused
+PHP Semgrep rules. Set `PLAYWRIGHT_MODULE` to an already installed local Playwright;
+Chromium defaults to `/usr/bin/google-chrome` (`CHROMIUM_EXECUTABLE` overrides it).
+Docker must already contain the Semgrep image pinned in `scripts/pentest.mjs`.
+No tool, image or dependency is downloaded by the laboratory. No target URL is
+accepted. All HTTP fixtures bind to loopback on ephemeral ports; mail is disabled.
+
+The CLI prints the location of private JSON/Markdown reports and sanitized logs.
+A missing tool, empty/incomplete test output, skipped test or deadline cannot pass.
+`release` additionally exports versioned examples and repeats package tests/browser;
+its TLS qualification requires the private deployment laboratory. A public checkout
+without those fixtures reports BLOCKED, rather than claiming release qualification.
+Keep evidence outside the public document root. Review `manual` and `limitations`.
+Run `npm run security:audit` separately when registry access is authorized.
+
+The catalog references OWASP ASVS 5.0.0, WSTG 4.2 and final NIST SP 800-63B-4;
+these selected tests do not certify full compliance or hosting security. Plugins
+are trusted local code and still require source review. Session CSRF tokens are
+reusable by design; revision checks prevent conflicting writes. Do not replace
+those checks with button disabling or a purported single-use CSRF policy.
+
+New passwords are provisioned through private `system/bin/hash-password.php` via
+STDIN using Argon2id, 16–200 Unicode code points and independent salts. The offline
+whole-value common-password list is a limited baseline, not a complete compromised
+password corpus. Existing credentials are not rewritten or silently normalized.
+Legacy bcrypt verification rejects inputs exceeding 72 bytes; affected operators
+must explicitly reprovision an Argon2id credential. Never transmit a password in
+CLI arguments, query strings, logs or public configuration.
+
+Official references: [OWASP Password Storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html),
+[OWASP CSRF](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html),
+[NIST authenticators](https://pages.nist.gov/800-63-4/sp800-63b/authenticators/).
+
+The source distribution bundles scanner rules and its non-executed positive-control
+fixture under `scripts/pentest/`. Consumer installations can copy the CLI directory
+with its inventory without installing CI workflows. These developer files must
+remain outside `public_html` and are excluded from the production runtime export.

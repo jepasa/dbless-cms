@@ -58,7 +58,7 @@ $labels=['dashboard'=>$t('nav.dashboard'),'site'=>$t('nav.site'),'templates'=>$t
 <?php if (!$configured): ?><div class="notice error" role="alert"><?= e($t('login.unconfigured')) ?></div><?php else: ?>
 <form method="post" class="stack"><input type="hidden" name="action" value="login"><input type="hidden" name="csrf_token" value="<?= e($csrf) ?>">
 <label><?= e($t('login.username')) ?><input name="username" autocomplete="username" maxlength="100" required autofocus></label>
-<label><?= e($t('login.password')) ?><input name="password" type="password" autocomplete="current-password" minlength="16" maxlength="200" required></label>
+<label><?= e($t('login.password')) ?><input name="password" type="password" autocomplete="current-password" maxlength="400" required></label>
 <button type="submit" class="button-primary auth-submit" aria-label="<?= e($t('login.submit')) ?>">
   <?= Icons::svg('login',$base) ?>
 </button></form>
