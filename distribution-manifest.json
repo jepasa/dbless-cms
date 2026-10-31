@@ -70,8 +70,8 @@
     },
     {
       "path": "docs/authoring-customizations.md",
-      "bytes": 6251,
-      "sha256": "40b791b60a95902372c1f9cf0df49bf20879e4293ea5c11b4d5e26d2ce05f6ea"
+      "bytes": 6681,
+      "sha256": "110fd6fa6da426e81623d3c6ee5e84b73abad279c42b346e0324aa8482a75034"
     },
     {
       "path": "docs/components.md",
@@ -2050,8 +2050,8 @@
     },
     {
       "path": "tests/browser/authoring-customizations.mjs",
-      "bytes": 11997,
-      "sha256": "4c9fd8e258a0006465f930f237e540accfb285d21a0690d0d6e9120a8b559aee"
+      "bytes": 13935,
+      "sha256": "9df6f16fc2c26b8c9028543bab5606c676ed7d8032fb07e2495fd5f80472054b"
     },
     {
       "path": "tests/browser/blog.mjs",
