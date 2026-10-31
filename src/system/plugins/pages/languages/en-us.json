@@ -77,6 +77,14 @@
     "options.creation": "New pages",
     "options.model": "Initial page model",
     "pages.contentHistory": "Page history",
-    "pages.historyInactive": "Content restoration requires the plugin to be active. Activate it in the Plugins overview."
+    "pages.historyInactive": "Content restoration requires the plugin to be active. Activate it in the Plugins overview.",
+    "pages.native": "Advanced native editor",
+    "pages.metadata": "Page metadata",
+    "pages.meta_title": "Title",
+    "pages.meta_description": "Description",
+    "pages.meta_keywords": "Keywords",
+    "pages.meta_image": "Featured image",
+    "pages.meta_imageAlt": "Image description",
+    "pages.composeCreate": "Create page"
   }
 }

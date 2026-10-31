@@ -32,6 +32,14 @@
         "Pages is a document source for Homepage: choose a published page by slug. The source adapter supplies its common semantic content (title, summary, facts and sections) or its authored HTML; it does not duplicate the native template frame or all template-specific extras. Editing the source updates the next request. A missing source never exposes a draft."
       ],
       "code": "Bind widgets:value with alias notice and a reusable key.\n\n<section>\n  <h1>Your page</h1>\n  <p>{{notice.value}}</p>\n</section>"
+    },
+    {
+      "title": "Author HTML with shared Mustache data",
+      "body": [
+        "Use the shared HTML/Mustache editor to write manual sections, choose plugin services, add typed bindings and insert the documented loops. Metadata is edited in separate fields and saved with the body. Public data is resolved at render time.",
+        "Pages keeps native content behind an optional markup override. Blog keeps existing typed blocks unless HTML mode is explicitly selected; only the selected mode is saved. A mode switch does not convert old blocks automatically. See docs/authoring-customizations.md for the complete workflow."
+      ],
+      "code": "<section>\n  {{#related.items}}<p>{{title}}</p>{{/related.items}}\n  {{^related.items}}<p>No items yet.</p>{{/related.items}}\n</section>"
     }
   ]
 }

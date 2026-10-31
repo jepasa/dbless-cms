@@ -67,3 +67,4 @@ if (isset($registry->all()['widgets'])) {
 echo count($pages)." páginas sanitizadas.\n";
 
 (new \DBLESSCMS\Homepages($store))->export($target);
+(new \DBLESSCMS\SiteCustomizations($store))->export($target);

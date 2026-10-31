@@ -197,13 +197,14 @@ final class JsonStore {
     $this->document($key,self::encode($data),Templates::DEFAULT_ID);
   }
 
-  /** Cria rascunho por modelo existente; recebe slug/modelo, retorna documento; rejeita reservados/colisões. */
-  public function create(string $key,string $model): array {
-    return $this->transaction(function() use($key,$model): array {
+  /** Create from an existing model plus optional closed authored fields; receive slug/model/metadata and markup overrides, return validated document; validate everything before one atomic write, reject reserved IDs/collisions. */
+  public function create(string $key,string $model,?array $authored=null): array {
+    return $this->transaction(function() use($key,$model,$authored): array {
       $file=$this->path($key);
       if (in_array($key,['site','plugins','templates','home','404'],true) || is_file($file)) throw new HttpError(409,'Identificador reservado ou já existente.','error.reserved');
       if (in_array($model,['site','plugins','templates','404'],true)) throw new HttpError(422,'Modelo de página inválido.','error.model');
       $data=$this->read($model)['data']; $data['slug']=$key; $data['status']='draft';
+      if($authored!==null){if(count($authored)!==3||array_diff(array_keys($authored),['meta','status','markup']))throw new HttpError(422,'Invalid authored page.','markup.error');$data=array_replace($data,$authored);}
       $data=$this->document($key,self::encode($data)); $this->validateMutation($key,$data); $this->atomic($file,self::encode($data));
       $this->audit('create',$key); return $this->read($key);
     });

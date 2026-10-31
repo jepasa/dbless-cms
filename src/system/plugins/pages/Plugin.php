@@ -44,16 +44,31 @@ final class PagesPlugin implements PluginInterface,ContentProviderInterface,Cont
     }
     return ['redirect'=>$context->base.'/cms-admin/?view=plugin-panel&plugin=pages&route='.$route.'&key='.rawurlencode($key),'notice'=>$notice];
   }
+  /** Parse one submitted authored page atomically; receive payload, return metadata/status/shared markup, raise 422 on JSON/type/binding contract errors without writes. */
+  private function authored(array $post): array {
+    try{$bindings=json_decode($this->input($post,'bindings',32768),true,16,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(422,'Invalid bindings.','markup.error');}if(!is_array($bindings))throw new HttpError(422,'Invalid bindings.','markup.error');
+    $meta=[];foreach(['title'=>200,'description'=>500,'keywords'=>2048,'image'=>2048,'imageAlt'=>2048] as $field=>$limit)$meta[$field]=$this->input($post,'meta_'.$field,$limit);
+    $authored=['meta'=>$meta,'status'=>$this->input($post,'page_status',20)];if($this->input($post,'markup_enabled',1)==='1')$authored['markup']=ContentMarkup::definition(['html'=>$this->input($post,'html',131072),'bindings'=>$bindings]);return $authored;
+  }
   /** Despacha API privada POST com rota compatível; recebe contexto/operação, retorna redirecionamento JSON ou HttpError sem escrita indevida. */
   public function api(PluginContext $context,string $operation): ?array {
     if (($_SERVER['REQUEST_METHOD']??'GET')!=='POST') throw new HttpError(405,'Método inválido.','error.method');
-    $routes=['markup-save'=>['editor'],'create'=>['new'],'save'=>['editor'],'remove'=>['overview','editor'],'restore'=>['history']];
+    $routes=['compose-create'=>['new'],'markup-save'=>['editor'],'create'=>['new'],'save'=>['editor'],'remove'=>['overview','editor'],'restore'=>['history']];
     if (!in_array($context->route,$routes[$operation]??[],true)) throw new HttpError(404,'Rota incompatível.','error.not_found');
+    if(!(new Plugins($context->store))->state('pages')['enabled'])throw new HttpError(404,'Unavailable page.','error.not_found');
+    if($operation==='compose-create'){
+      return $context->store->transaction(function()use($context):array{
+        if(!hash_equals($context->store->read('site')['revision'],$this->input($_POST,'site_revision')))throw new HttpError(409,'Template changed.','error.conflict');
+        $key=$this->input($_POST,'slug');$authored=$this->authored($_POST);$context->store->create($key,$this->input($_POST,'model'),$authored);
+        return ['redirect'=>$context->base.'/cms-admin/?view=plugin-panel&plugin=pages&route=editor&key='.rawurlencode($key)];
+      });
+    }
     if($operation==='markup-save'){
       if($context->route!=='editor'||!(new Plugins($context->store))->state('pages')['enabled'])throw new HttpError(404,'Unavailable page.','error.not_found');$key=$this->input($_POST,'key');if(in_array($key,['site','plugins','templates','home','404'],true))throw new HttpError(422,'Reserved page.','error.reserved');$current=$context->store->read($key);$document=$current['data'];
       return $context->store->transaction(function()use($context,$key,$document):array{
         if(!hash_equals($context->store->read('site')['revision'],$this->input($_POST,'site_revision')))throw new HttpError(409,'Template changed.','error.conflict');
-        if($this->input($_POST,'markup_enabled',1)==='1'){try{$bindings=json_decode($this->input($_POST,'bindings',32768),true,16,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(422,'Invalid bindings JSON.','markup.error');}if(!is_array($bindings))throw new HttpError(422,'Invalid bindings.','markup.error');$document['markup']=ContentMarkup::definition(['html'=>$this->input($_POST,'html',131072),'bindings'=>$bindings]);}else unset($document['markup']);
+        if($this->input($_POST,'compose',1)==='1'){$authored=$this->authored($_POST);$document=array_replace($document,$authored);if(!isset($authored['markup']))unset($document['markup']);}
+        elseif($this->input($_POST,'markup_enabled',1)==='1'){try{$bindings=json_decode($this->input($_POST,'bindings',32768),true,16,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(422,'Invalid bindings JSON.','markup.error');}if(!is_array($bindings))throw new HttpError(422,'Invalid bindings.','markup.error');$document['markup']=ContentMarkup::definition(['html'=>$this->input($_POST,'html',131072),'bindings'=>$bindings]);}else unset($document['markup']);
         $context->store->save($key,JsonStore::encode($document),$this->input($_POST,'revision'));return ['redirect'=>$context->base.'/cms-admin/?view=plugin-panel&plugin=pages&route=editor&key='.rawurlencode($key)];
       });
     }

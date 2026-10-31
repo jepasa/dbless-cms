@@ -396,6 +396,27 @@
     "markup.unavailableCore": "HTML authoring requires PHP ext-dom.",
     "markup.pageEnable": "Use HTML/Mustache content for this page",
     "markup.pageSave": "Save HTML/Mustache content",
-    "markup.native": "When unchecked, the page keeps its structured content."
+    "markup.native": "When unchecked, the page keeps its structured content.",
+    "custom.title": "Global customizations",
+    "custom.help": "Complementary CSS and JavaScript for all public templates. Original files remain preserved.",
+    "custom.enabled": "Enable in publication",
+    "custom.draft": "Save draft",
+    "custom.publish": "Publish",
+    "custom.preview": "Isolated preview of saved draft",
+    "custom.previewHelp": "Save the draft before previewing. Preview blocks admin access, connections, forms and navigation; features requiring these permissions may not work.",
+    "custom.trust": "Published JavaScript runs with public-site permissions. Publish trusted code only. Browser syntax analysis is advisory; export validates and minifies published code.",
+    "custom.history": "History — restore to draft",
+    "custom.restore": "Restore draft",
+    "custom.before": "Published",
+    "custom.after": "Draft",
+    "custom.diff": "Compare with publication",
+    "custom.same": "Unchanged",
+    "custom.changed": "Changed",
+    "custom.error": "Invalid or unavailable customization. Check the code and revision.",
+    "custom.syntax": "JavaScript syntax error",
+    "custom.captureTab": "Capture Tab for indentation (Escape releases)",
+    "custom.native": "Native content / existing blocks",
+    "custom.authoring": "HTML and Mustache data",
+    "custom.mode": "Content mode"
   }
 }

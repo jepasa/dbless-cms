@@ -77,7 +77,11 @@ final class BlogPlugin implements PluginInterface,PublicPluginInterface,Dashboar
     $slug=$this->input('slug',64);BlogModel::expect(BlogModel::identifier($slug));
     $aliases=$existing['aliases']??[];
     if ($existing!==null&&$slug!==$existing['slug']) {$aliases=array_values(array_diff($aliases,[$slug]));$aliases[]=$existing['slug'];}
-    try {$blocks=json_decode($this->input('blocks',65536,'[]'),true,16,JSON_THROW_ON_ERROR);}catch (\JsonException) {throw new HttpError(422,'Invalid blocks.','blog.error.contract');}
+    $mode=$this->input('content_mode',20,'blocks');if(!in_array($mode,['markup','blocks'],true))throw new HttpError(422,'Invalid content mode.','markup.error');
+    if($mode==='markup'){
+      try{$bindings=json_decode($this->input('bindings',32768,'[]'),true,16,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(422,'Invalid bindings.','markup.error');}if(!is_array($bindings))throw new HttpError(422,'Invalid bindings.','markup.error');
+      $definition=ContentMarkup::definition(['html'=>$this->input('html',60000),'bindings'=>$bindings]);$blocks=trim($definition['html'])===''?[]:[['type'=>'markup']+$definition];
+    }else {try {$blocks=json_decode($this->input('blocks',65536,'[]'),true,16,JSON_THROW_ON_ERROR);}catch (\JsonException) {throw new HttpError(422,'Invalid blocks.','blog.error.contract');}}
     BlogModel::blocks($blocks);$components=new Components(new ContentContext($context->store,$context->store->read('site')['data']['template'],$context->base,'blog'));foreach($blocks as $block)if($block['type']==='markup')$components->validateBindings($block['bindings']);$now=gmdate('Y-m-d\TH:i:s\Z');$status=$this->input('status',20,'draft');
     $date=$this->publicationTime($this->input('publishedAt',30));if ($status==='published'&&$date==='') $date=$now;
     return ['id'=>$existing['id']??'post-'.bin2hex(random_bytes(8)),'slug'=>$slug,'aliases'=>$aliases,'title'=>$this->input('title'),'excerpt'=>$this->input('excerpt',1000),'cover'=>$this->input('cover',512),'coverAlt'=>$this->input('coverAlt',300),'author'=>$this->input('author',64),'categories'=>$this->list('categories'),'tags'=>$this->list('tags'),'status'=>$status,'publishedAt'=>$date,'createdAt'=>$existing['createdAt']??$now,'updatedAt'=>$now,'deletedAt'=>'','featured'=>$this->input('featured',1)==='1','noindex'=>$this->input('noindex',1)==='1','seoTitle'=>$this->input('seoTitle'),'seoDescription'=>$this->input('seoDescription',500),'blocks'=>$blocks];

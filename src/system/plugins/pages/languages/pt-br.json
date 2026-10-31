@@ -77,6 +77,14 @@
     "options.creation": "Novas páginas",
     "options.model": "Modelo inicial",
     "pages.contentHistory": "Histórico de páginas",
-    "pages.historyInactive": "A restauração do conteúdo exige o plugin ativo. A ativação é feita na Visão Geral de Plugins."
+    "pages.historyInactive": "A restauração do conteúdo exige o plugin ativo. A ativação é feita na Visão Geral de Plugins.",
+    "pages.native": "Editor nativo avançado",
+    "pages.metadata": "Metadados da página",
+    "pages.meta_title": "Título",
+    "pages.meta_description": "Descrição",
+    "pages.meta_keywords": "Palavras-chave",
+    "pages.meta_image": "Imagem de destaque",
+    "pages.meta_imageAlt": "Descrição da imagem",
+    "pages.composeCreate": "Criar página"
   }
 }
