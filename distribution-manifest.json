@@ -1,6 +1,6 @@
 {
   "name": "dbless-cms",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "license": "Apache-2.0",
   "files": [
     {
@@ -75,8 +75,8 @@
     },
     {
       "path": "docs/plugins.md",
-      "bytes": 29681,
-      "sha256": "2cce3c3b3f93a2067b6e5b0902e61a153837cb42299023e241bf524e3490af1e"
+      "bytes": 30099,
+      "sha256": "b6751505c17c360c82718e66ab9ee49c691a0f936c5da33412bea642040e3711"
     },
     {
       "path": "docs/templates.md",
@@ -156,12 +156,12 @@
     {
       "path": "package-lock.json",
       "bytes": 9863,
-      "sha256": "70a4e0044b9f9dba954007ff5f9d74225cb6e7f7ae0068c2b99ed967e102544b"
+      "sha256": "58a72cb6bb8a70bced424fae043d8cc853dcc84abebbe7239d64c158aa3761a8"
     },
     {
       "path": "package.json",
       "bytes": 1031,
-      "sha256": "983408ed8f4dc650f0483cf2b2b2ce40f8e1ecb02d5d6e2ea6bd27f3f7a9afaa"
+      "sha256": "589b128ca5926dea8ae0af939e9f8c0479f3fd73eb55c57e0c14d38a4e90240a"
     },
     {
       "path": "README.md",
@@ -235,8 +235,8 @@
     },
     {
       "path": "src/public_html/cms-admin/assets/admin.css",
-      "bytes": 20607,
-      "sha256": "e07b44d50033bb33c712d7f16e02ea30f52f07d7f23da4baa4775034dc010016"
+      "bytes": 21044,
+      "sha256": "dc957c53191927ae5f7ca58664d42d5c82e9f402a6f54c4961c8675b3a5f7cd5"
     },
     {
       "path": "src/public_html/cms-admin/assets/admin.js",
@@ -930,8 +930,8 @@
     },
     {
       "path": "src/system/admin/dashboard.php",
-      "bytes": 2904,
-      "sha256": "fa9f79bbd28d0ca840af4440858f87068cfafebb24c88df7791c80f8cd1b23be"
+      "bytes": 3476,
+      "sha256": "77ad2bde21008cd05f95a20e8e9c5bf0869c82b7032ae2f33b9baea6c9c3394b"
     },
     {
       "path": "src/system/admin/extensions.php",
@@ -1016,7 +1016,7 @@
     {
       "path": "src/system/config/settings.php",
       "bytes": 479,
-      "sha256": "920276692d1ae38d172e21438c7ae4862ce29ebb77bcb0dc08e72fa6c7f410f4"
+      "sha256": "64829feceff35b84b380e4d296409007a6f5462ebdcc4a986ae56d44fd1a04a0"
     },
     {
       "path": "src/system/core.php",
@@ -1065,13 +1065,13 @@
     },
     {
       "path": "src/system/lib/Dashboard.php",
-      "bytes": 2159,
-      "sha256": "2dfa2f35dfba47689bf06e36f4032349b249d14ea542de9fe97196f558301fed"
+      "bytes": 2516,
+      "sha256": "c9caf2ffc0940f52e83a611da23bd8a3d80d5ab5741b7b26b22b9606b25fd2d1"
     },
     {
       "path": "src/system/lib/DashboardProviderInterface.php",
-      "bytes": 502,
-      "sha256": "9f1363cc06ab0c85bc2019cea35895107a806ed3a11a4fc4df5ad2bc2404e559"
+      "bytes": 559,
+      "sha256": "4597cac6e0bb22227ef56dc82847f6505701515ba15e75523899ef1e352b0816"
     },
     {
       "path": "src/system/lib/ExtensionMedia.php",
@@ -1740,8 +1740,8 @@
     },
     {
       "path": "tests/browser/cache-dashboard.mjs",
-      "bytes": 6967,
-      "sha256": "05c2246d709650e4637ac531feb4b5c896d79e36e239280080c93c684fc1982e"
+      "bytes": 8207,
+      "sha256": "7b945391bcc6d0679e49d846d53ab64059d2411d5355e1f7047adaafe6d9454b"
     },
     {
       "path": "tests/browser/extension-media.mjs",
@@ -1760,8 +1760,8 @@
     },
     {
       "path": "tests/cache-dashboard.test.mjs",
-      "bytes": 12549,
-      "sha256": "89f7938dd2d3a0a5fbe415b4ffb858633fe9d714999112830e8bfb2b6d7a5dfd"
+      "bytes": 15652,
+      "sha256": "ae0cc8252974bf843a80cbc24db72874b13575bfced9b8f107c868021cc8e984"
     },
     {
       "path": "tests/extension-media.test.mjs",

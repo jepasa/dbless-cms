@@ -444,6 +444,12 @@ public function dashboard(\DBLESSCMS\PluginContext $context): array {
 }
 ```
 
+All indicators from the same plugin are rendered inside one Dashboard card, grouped
+by the manifest plugin ID rather than its display name. Labels and measured values
+remain distinct within that card. Pages groups published pages and drafts; Blog
+groups published articles and pending comments. Disabled, empty or failed providers
+do not create empty cards or partial metrics. Providers return data, never card HTML.
+
 Declare the label in every plugin dictionary. Return at most eight records with
 `label` followed by a nonnegative integer `value`. No HTML, personal data, network
 calls or writes; no placeholder statistics. The core escapes labels/values and
