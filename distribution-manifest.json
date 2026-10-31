@@ -2065,8 +2065,8 @@
     },
     {
       "path": "tests/homepage-publications.test.mjs",
-      "bytes": 21100,
-      "sha256": "85e3d1cd1ac842eb0a085a2e4c9737ebb5ed12405d79ea19ad2315e3de7325ad"
+      "bytes": 22209,
+      "sha256": "a67388eea7f855b910b037ae3a0ee85eb8a44fcf0a16b6c80a47329a97714459"
     },
     {
       "path": "tests/identity.test.mjs",
