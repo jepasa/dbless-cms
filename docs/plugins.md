@@ -460,19 +460,49 @@ comments awaiting moderation; scheduled articles are counted only when released.
 `settings.cache` is optional and accepts `enabled` (false), `development` (false),
 `ttl` (300 seconds, 1–86400), `maxMiB` (16, 1–256) and `maxEntries` (500, 1–2000).
 Production detection remains operational configuration. Cache initially stays off;
-development requires both booleans. It stores only validated page data for anonymous
-public GET requests, checks current source/contract fingerprints, and never stores
-HTML, CSRF tokens, previews, editor sessions or private responses. Plugin models,
-publishing schedules and plugin/template activation remain dynamic. Keep
-`system/storage/cache/` private, writable by PHP and outside version control/backups
-of editorial content. Builds and new distributions never ship cache state.
+development requires both booleans. Since 2.5.1 it stores only the bounded structural
+JSON parse of page source, keyed by source bytes, contents-root identity and parse
+format. Every read, including hits, reapplies current sanitization, schemas,
+template contracts and plugin binding validation. No validation decision is
+persisted, so a new plugin contract cannot be bypassed by a warm page entry.
+Authored markup is private source data; rendered HTML, CSRF tokens, previews,
+editor sessions, private responses and provider results are never cached.
 
-Counters describe hits/misses in the current window (up to 24 hours), not traffic
-or measured time saved. With no collection the UI shows “No data”. Purging resets
-counters. Expired/obsolete entries are reclaimed on misses/eviction or purge.
-The entry byte quota excludes bounded metrics/lock metadata. On cache I/O failure
-or lock contention the request uses dynamic data; validation errors still propagate.
-This service does not configure OPcache, browser caching, a CDN or server headers.
+Publishing schedules, linked-document publication/withdrawal and plugin/template
+activation are resolved on every request. Optional provider failures do not return
+a stale successful result. Per-composition memoization is not a cross-request
+cache: build a fresh ContentContext/Components for each rendering. New providers
+need only the documented manifest/interfaces, with no cache registration, custom
+fingerprint or purge on save. Use JsonStore for CMS page documents and the shared
+ContentMarkup/Components/ContentDocuments paths for dynamic content. Do not store
+provider results, authorization, full HTML or selection decisions in Cache::remember.
+
+Keep `system/storage/cache/` private and writable by PHP; exclude it from editorial
+backups, source control and exports. Versioned/checksummed entries detect accidental
+corruption and regenerate on misses; the checksum is not authentication against a
+local plugin/code owner. JSON round trips preserve floating-point types. Existing
+older entries expire/evict normally; no content migration or required purge.
+
+Counters describe structural hits/misses in a rolling window (up to 24 hours),
+including hits later rejected by changed live rules; rejected producers are not stored. They are not
+traffic, validation-success counts or measured time saved. With no collection the
+UI shows “No data”. Purging resets counters. Quotas exclude bounded metrics/lock
+metadata. I/O failure or lock contention uses dynamic data; validation errors still
+propagate. Validation deliberately runs on hits; no performance gain is promised.
+
+Core/plugin HTML and error responses use `Cache-Control: no-store`, with no ETag,
+Last-Modified or conditional 304 path. This service does not configure OPcache,
+static assets, a CDN or reverse-proxy policy. Independently forcing HTML caching
+can break freshness/privacy and is outside this contract. A rendered-output cache
+would require a separately reviewed dependency, scheduling and privacy design.
+These rules constrain integration; trusted PHP plugins are not sandboxed and must
+not override response policy or retain request objects across requests.
+
+Portable regressions: `node --test tests/cache-rendering.test.mjs`; add
+`DBLESS_CMS_PACKAGE_ROOT` for an exported package. They exercise warm/cold changed
+contracts, numeric types, corrupted/obsolete records, exact scheduling boundaries,
+linked Pages withdrawal/recovery, all current public data providers, a newly
+installed synthetic provider, optional failures/recovery and no-store HTTP headers.
 
 ## Local security regression laboratory
 
@@ -522,3 +552,5 @@ See [Homepage and shared content components](components.md) for manifest service
 
 
 For shared raw-data Mustache, authored HTML, document-source contracts and Homepage publications, see [Components](components.md). PHP ext-dom is required for authored HTML. Plugin About presentations document each public schema in English.
+
+On a miss, the producer validates the source before it can be stored. Its fresh normalized result is returned directly. A hit reapplies all current rules to the original parsed source rather than to an already transformed result. Rejected new origins are not stored or counted as completed preparation misses.

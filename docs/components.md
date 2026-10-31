@@ -111,3 +111,14 @@ Export includes only published nondeleted records (including scheduled snapshots
 The local textarea editor adds line numbers and inert highlighting; Tab capture is opt-in and Escape releases it. Saved snippets are inserted manually. Public data is refreshed on the next uncached service resolution/request; this is not a background live-update subscription.
 
 The legacy section editor edits only the native `pages/home.json` fallback; a newer effective catalog publication retains precedence. Saving a legacy draft returns to its editor, where authenticated preview and explicit legacy publication remain available.
+
+## Cache and freshness
+
+A warm page cache stores only parsed source JSON. Current validation, Homepage
+selection, linked documents and public service results are resolved on every
+request; a 24-hour TTL does not delay scheduled publication. Providers do not
+register cache fingerprints or purge entries after mutations. Only composition-local
+memoization is used for repeated calls during one render. Never reuse a Components
+instance across requests. Optional failures yield empty data or the prior valid
+Homepage, with no stale successful response. HTML responses remain no-store.
+See the Cache contract in the plugin development guide for extension obligations.

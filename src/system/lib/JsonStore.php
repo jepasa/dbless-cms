@@ -7,7 +7,7 @@ final class JsonStore {
   private array $incompatible = [];
   private bool $locked = false;
   private ?Cache $cache = null;
-  /** Enable validated public page data caching for this request only; receive service, return nothing, no content writes or administrative caching. */
+  /** Enable structural public page JSON caching for this request only; receive service, return nothing, no content writes or administrative caching. */
   public function publicCache(Cache $cache): void {$this->cache=$cache;}
   /** Recebe configuração, inicializa registro; sem escrita; contratos inválidos falham no carregamento. */
   public function __construct(public readonly Config $config) { $this->templates=new Templates($config); }
@@ -20,12 +20,23 @@ final class JsonStore {
     return $file;
   }
 
-  /** Decodifica/valida/sanitiza documento; recebe chave/JSON/template opcional, retorna objeto; erros são 422. */
-  public function document(string $key,string $raw,?string $template=null): array {
+  /** Decode bounded source JSON only; receive bytes, return an object-shaped array or HTTP 413/422, without contracts, providers or I/O. */
+  private static function decode(string $raw): array {
     if (strlen($raw)>524288) throw new HttpError(413,'Documento excede 512 KiB.','error.document_size');
     try { $data=json_decode($raw,true,32,JSON_THROW_ON_ERROR); }
     catch (\JsonException) { throw new HttpError(422,'JSON inválido.','error.json'); }
     if (!is_array($data) || array_is_list($data)) throw new HttpError(422,'Documento precisa ser um objeto JSON.','error.document_object');
+    return $data;
+  }
+
+  /** Decode, sanitize and validate source against current rules; receive key/JSON/template, return validated document or propagate HTTP contract errors; no writes. */
+  public function document(string $key,string $raw,?string $template=null): array {
+    return $this->validate($key,self::decode($raw),$template);
+  }
+
+  /** Reapply all normalization and live contracts, including cache hits; receive key/decoded source/template, return validated data or HTTP error; never trust a cached validation decision. */
+  private function validate(string $key,array $data,?string $template): array {
+    if (array_is_list($data)) throw new HttpError(422,'Documento precisa ser um objeto JSON.','error.document_object');
     if ($key==='site') $data=GlobalSettings::upgrade($data);
     $authored=$data['markup']??null;unset($data['markup']);$data=Schema::sanitize($data);if($authored!==null){if(!is_array($authored))throw new HttpError(422,'Invalid markup.','markup.error');$data['markup']=ContentMarkup::definition($authored);}
     if ($key==='templates') {
@@ -74,11 +85,17 @@ final class JsonStore {
     $raw=file_get_contents($file);
     if ($raw===false) throw new HttpError(503,'Documento indisponível.','error.document_unavailable');
     $revision=hash('sha256',$raw);
+    if (strlen($raw)>524288) throw new HttpError(413,'Documento excede 512 KiB.','error.document_size');
     if ($this->cache!==null&&$this->cache->enabled()&&!in_array($key,['site','plugins','templates'],true)) {
-      $template??=$this->read('site')['data']['template'];
-      $contracts=$this->templates->schema($template);
-      $fingerprint=hash('sha256',json_encode([$contracts,$this->templates->get($template)],JSON_THROW_ON_ERROR).(string)file_get_contents($this->config->root.'/config/schemas/page.schema.json').(string)file_get_contents(__FILE__).(string)file_get_contents(__DIR__.'/Schema.php').(string)file_get_contents(__DIR__.'/Slides.php').(string)file_get_contents(__DIR__.'/Components.php').(string)file_get_contents(__DIR__.'/HomepageLayout.php').(string)file_get_contents(__DIR__.'/ContentMarkup.php').(string)file_get_contents(__DIR__.'/Mustache.php'));
-      $data=$this->cache->remember('page:'.$template.':'.$key.':'.$revision.':'.$fingerprint,fn(): array=>$this->document($key,$raw,$template));
+      // Cache only the structural JSON parse, never a validation decision or a resolved/rendered dependency.
+      // Namespace the storage origin and format so previous validated-document entries cannot be reused.
+      $origin=hash('sha256',rtrim($this->config->data['contents'],'/'));
+      $fresh=null;
+      $decoded=$this->cache->remember('page-json:1:'.$origin.':'.$key.':'.$revision,function() use($key,$raw,$template,&$fresh): array {
+        $source=self::decode($raw);$fresh=$this->validate($key,$source,$template);return $source;
+      });
+      // A producer already validated this request; hits must reapply every rule to the original source.
+      $data=$fresh??$this->validate($key,$decoded,$template);
     } else $data=$this->document($key,$raw,$template);
     return ['data'=>$data,'revision'=>$revision];
   }

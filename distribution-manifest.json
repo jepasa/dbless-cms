@@ -1,6 +1,6 @@
 {
   "name": "dbless-cms",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "license": "Apache-2.0",
   "files": [
     {
@@ -70,8 +70,8 @@
     },
     {
       "path": "docs/components.md",
-      "bytes": 12936,
-      "sha256": "18d6d19e451cad4462071f608852b6ac1956bc10da6f558d07bc38fac542c1a6"
+      "bytes": 13602,
+      "sha256": "771fd823aca596cb368414b076e3d22de93d578e0b73c1d81c9db6394da63863"
     },
     {
       "path": "docs/images/essencial-preview.png",
@@ -80,13 +80,13 @@
     },
     {
       "path": "docs/plugins.md",
-      "bytes": 30600,
-      "sha256": "66efdce57b723370e42ddd5c83b9523b72410ef1f3c192acdabe80def2be330e"
+      "bytes": 33021,
+      "sha256": "e3c53eab0b282dd38b3e203ce177cee8a6e4c6e225148b7e0281c64a30565373"
     },
     {
       "path": "docs/templates.md",
-      "bytes": 22711,
-      "sha256": "34340a14ced22b67f3759cb468cb79a3d5cfedf36d6cff3d6f53a507a3941bcf"
+      "bytes": 23223,
+      "sha256": "0dea480dbfdad4781ed78ce87dea45d10fb23cca2c8e8bb84130b6a0fbf50c20"
     },
     {
       "path": "examples/hello/public_html/plugins/hello/css/hello.css",
@@ -161,12 +161,12 @@
     {
       "path": "package-lock.json",
       "bytes": 9863,
-      "sha256": "3784383600f655a61b289c0cc3b6ee6130da2a31fdc3edfa6661b3bbd7d0a12e"
+      "sha256": "4ec26c27dae5c32e8bd383d4f750fa074f237efe955efd40450ca83824cf51df"
     },
     {
       "path": "package.json",
       "bytes": 1116,
-      "sha256": "3635c93a255b192cc75428cff3d4887163f6a70334146036eba5392b9b6643bb"
+      "sha256": "b0ba05fe77879f36558d81e067bdaca0276b576e83acf6b6015a93accfbbf669"
     },
     {
       "path": "README.md",
@@ -1076,7 +1076,7 @@
     {
       "path": "src/system/config/settings.php",
       "bytes": 479,
-      "sha256": "d6f47e5ad8b85f03ed627bc062bf3755a089a13c425c3e64ecd80f0730982259"
+      "sha256": "c697754ac30c99676ffaba1d4ded1e3b80612eda11e354af9a87e27af636f18f"
     },
     {
       "path": "src/system/core.php",
@@ -1105,8 +1105,8 @@
     },
     {
       "path": "src/system/lib/Cache.php",
-      "bytes": 10068,
-      "sha256": "0729bd0659e76012fe1ed1f591d6d292ba5e9e89126deb3c7b1be5e8dd6b9531"
+      "bytes": 10981,
+      "sha256": "ce081e4c7738b5d1f95df41f280e19b73464db57d05f76690383a041d59454bd"
     },
     {
       "path": "src/system/lib/CacheFailure.php",
@@ -1205,8 +1205,8 @@
     },
     {
       "path": "src/system/lib/JsonStore.php",
-      "bytes": 17864,
-      "sha256": "8b112ce211f66db8fb7878293353bcc6a96c4b9b469e19b6a826672261735a0d"
+      "bytes": 18617,
+      "sha256": "380a56a5f9fe53e129c1911be968ce63163a4d74e2adbdb05c043dc5d3de1e4c"
     },
     {
       "path": "src/system/lib/Language.php",
@@ -2020,8 +2020,8 @@
     },
     {
       "path": "tests/browser/homepage.mjs",
-      "bytes": 21432,
-      "sha256": "32eb276a6ef3321dd57122324a464757241505adaac7dd44ed7843eadcf4230d"
+      "bytes": 22015,
+      "sha256": "548a427d07b45ef75d779b559e08c2146d6b96dfd7de089c9842d587da35d0da"
     },
     {
       "path": "tests/browser/pentest.mjs",
@@ -2035,8 +2035,13 @@
     },
     {
       "path": "tests/cache-dashboard.test.mjs",
-      "bytes": 15652,
-      "sha256": "ae0cc8252974bf843a80cbc24db72874b13575bfced9b8f107c868021cc8e984"
+      "bytes": 15658,
+      "sha256": "476f7995c0b921ab13417a597b8cbafa746a299381f66cfb73f6bc187bcca461"
+    },
+    {
+      "path": "tests/cache-rendering.test.mjs",
+      "bytes": 16257,
+      "sha256": "c8e7dfadd0c65b365a1f737a8fb9a44f5c451e90ee2a67a14efbe3a8e22d100c"
     },
     {
       "path": "tests/components-homepage.test.mjs",
