@@ -18,3 +18,7 @@ example images are licensed under Apache-2.0. See LICENSE and NOTICE.
 Plugin identity icons are original static SVG geometry supplied under Apache-2.0. The Essencial package preview is a real 1280×720 capture using public demonstration resources, under the same license.
 
 The DBLess-CMS administrative symbol, geometric wordmark and derived favicon are original artwork licensed under Apache-2.0. Usage and palette are documented in `doc/identidade_visual/README.md`.
+
+## Terser browser parser
+
+The admin customization editor uses the locally vendored browser bundle from the pinned Terser development dependency (BSD-2-Clause). Source: https://github.com/terser/terser. License: src/public_html/cms-admin/assets/vendor/TERSER-LICENSE.txt. It parses administrator-authored JavaScript without executing it; no CDN or production Node dependency.

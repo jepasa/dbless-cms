@@ -396,6 +396,27 @@
     "markup.unavailableCore": "A edição HTML exige a extensão DOM do PHP.",
     "markup.pageEnable": "Utilizar conteúdo HTML/Mustache nesta página",
     "markup.pageSave": "Salvar conteúdo HTML/Mustache",
-    "markup.native": "Quando desmarcado, o conteúdo estruturado da página permanece em uso."
+    "markup.native": "Quando desmarcado, o conteúdo estruturado da página permanece em uso.",
+    "custom.title": "Personalizações globais",
+    "custom.help": "CSS e JavaScript complementares para todos os templates públicos. Os arquivos originais permanecem preservados.",
+    "custom.enabled": "Ativar na publicação",
+    "custom.draft": "Salvar rascunho",
+    "custom.publish": "Publicar",
+    "custom.preview": "Prévia isolada do rascunho salvo",
+    "custom.previewHelp": "Salve o rascunho antes de abrir a prévia. A prévia bloqueia acesso ao painel, conexões, formulários e navegação; recursos dependentes dessas permissões podem não funcionar.",
+    "custom.trust": "JavaScript publicado executa com as permissões do site público. Publique somente código confiável. A análise de sintaxe no navegador é auxiliar; a exportação valida e minifica o código publicado.",
+    "custom.history": "Histórico — restaurar para rascunho",
+    "custom.restore": "Restaurar rascunho",
+    "custom.before": "Publicado",
+    "custom.after": "Rascunho",
+    "custom.diff": "Comparar com a publicação",
+    "custom.same": "Sem alterações",
+    "custom.changed": "Alterado",
+    "custom.error": "Personalização inválida ou indisponível. Verifique o código e a revisão.",
+    "custom.syntax": "Erro de sintaxe JavaScript",
+    "custom.captureTab": "Usar Tab para indentar (Escape libera)",
+    "custom.native": "Conteúdo nativo / blocos existentes",
+    "custom.authoring": "HTML e dados Mustache",
+    "custom.mode": "Modo de conteúdo"
   }
 }

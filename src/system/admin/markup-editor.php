@@ -6,7 +6,7 @@ $markupDefinition??=['html'=>'','bindings'=>[]];$markupHtmlName??='html';$markup
 $coreMarkupLanguage=new \DBLESSCMS\Language();$coreMarkupLanguage->select($context->language->locale());
 /** Translate the shared authoring controls; receive key, return plain text without effects. */
 $mt=static fn(string $key):string=>$coreMarkupLanguage->text('markup.'.$key);
-$markupContext=new \DBLESSCMS\ContentContext($context->store,$context->store->read('site')['data']['template'],$context->base,'home');
+$markupContext=new \DBLESSCMS\ContentContext($context->store,$context->store->read('site')['data']['template'],$context->base,$markupPageKey??'home');
 $markupCatalog=(new \DBLESSCMS\Components($markupContext))->editorCatalog(true);
 $markupLabels=array_filter($coreMarkupLanguage->messages(),static fn(string $key):bool=>str_starts_with($key,'markup.'),ARRAY_FILTER_USE_KEY);
 ?>

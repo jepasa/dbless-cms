@@ -1,6 +1,11 @@
 /** Blog admin interactions: typed blocks, authenticated image selection, accessible reordering and CAS form submission with entered data preserved on failure. */
 (() => {
   'use strict';
+  const contentMode=document.querySelector('[data-content-mode]');
+  /** Toggle authored/legacy controls while preserving both unsaved representations; no arguments/return or persistence. */
+  function selectContentMode(){const authored=contentMode.value==='markup';for(const [selector,active] of [['[data-content-markup]',authored],['[data-content-blocks]',!authored]]){const panel=document.querySelector(selector);panel.hidden=!active;for(const input of panel.querySelectorAll('input,select,textarea,button'))input.disabled=!active;}}
+  if(contentMode){contentMode.addEventListener('change',selectContentMode);selectContentMode();}
+
   const root=document.querySelector('[data-blog-plugin]');if(!root)return;
   const messages=JSON.parse(root.dataset.messages),status=root.querySelector('[data-blog-status]'),editor=root.querySelector('[data-blog-editor]');
   let dirty=false;
@@ -10,6 +15,7 @@
   function failure(message){status.textContent=message;status.hidden=false;status.scrollIntoView({block:'nearest'});}
   /** Create an unattached safe text node; takes tag/text/class, returns DOM element with no parsed markup. */
   function node(tag,text='',className=''){const element=document.createElement(tag);element.textContent=text;if(className)element.className=className;return element;}
+  if(contentMode)selectContentMode();
   for(const form of root.querySelectorAll('[data-blog-form]')){
     form.addEventListener('input',()=>{dirty=true;});
     const title=form.querySelector('[data-blog-title]'),slug=form.querySelector('[data-blog-slug]');

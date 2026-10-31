@@ -430,3 +430,5 @@ persist composed HTML, resolved document bodies or provider results: schedules,
 publication withdrawal, widget/menu/slide updates and plugin status are live inputs.
 Public HTML must retain the core no-store policy. Static CSS/JS/image caching is
 separate; a template must not override response headers to cache HTML.
+
+Global CSS/JS complements and shared authoring are documented in [Authoring and customizations](authoring-customizations.md). Do not edit template assets through the panel. Complete public-plugin HTML also receives published complements.

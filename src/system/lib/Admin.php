@@ -29,6 +29,11 @@ final class Admin {
     }
     if (!Security::authenticated($this->config)) throw new HttpError(403,'Autenticação necessária.','error.authentication');
     Security::csrf($_POST['csrf_token']??null);
+    if (str_starts_with($action,'custom-')) {
+      $source=[];foreach(['css','js'] as $kind)$source[$kind]=['enabled'=>$this->input($kind.'_enabled',1)==='1','code'=>$this->input($kind.'_code',SiteCustomizations::LIMIT)];
+      (new SiteCustomizations($this->store))->change(substr($action,7),$source,$this->input('revision'),$this->input('site_revision'),$this->input('backup'));
+      $this->redirect('customizations');
+    }
     if ($action==='cache-clear') {
       $cache=new Cache($this->config,$this->store->read('site')['data']['settings']['cache']??[]);
       if (!$cache->clear()) throw new HttpError(503,'Cache unavailable.','cache.unavailable');
@@ -111,8 +116,12 @@ final class Admin {
     $authenticated=Security::authenticated($this->config);
     $view=$_GET['view']??'dashboard'; $key=$_GET['key']??'home';
     if (!is_string($view) || !is_string($key)) throw new HttpError(400,'Rota administrativa inválida.','error.admin_route');
-    if (!in_array($view,['dashboard','pages','page-new','page-trash','edit','site','templates','history','preview','login','plugins','plugin','plugin-panel','plugin-settings','template-settings','plugin-about'],true)) throw new HttpError(404,'Página não encontrada.','error.not_found');
+    if (!in_array($view,['customizations','customizations-preview','dashboard','pages','page-new','page-trash','edit','site','templates','history','preview','login','plugins','plugin','plugin-panel','plugin-settings','template-settings','plugin-about'],true)) throw new HttpError(404,'Página não encontrada.','error.not_found');
     if (!$authenticated) $view='login';
+    if($authenticated&&$view==='customizations-preview') {
+      $previewRevision=$_GET['revision']??'';if(!is_string($previewRevision))throw new HttpError(400,'Invalid preview revision.','custom.error');
+      return (new SiteCustomizations($this->store))->preview($this->base,$previewRevision);
+    }
     $plugins=$authenticated?new Plugins($this->store):null;
     $requestedPlugin=$_GET['plugin']??'';$requestedRoute=$_GET['route']??'';
     $aliases=['pages'=>'overview','page-new'=>'new','page-trash'=>'trash','edit'=>'editor'];

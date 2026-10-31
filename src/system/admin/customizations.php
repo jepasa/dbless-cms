@@ -1,0 +1,18 @@
+<?php
+/** Fixed core customization workspace: private source editors, explicit publication, inert diff, history and opaque sandbox preview. */
+declare(strict_types=1);
+use DBLESSCMS\SiteCustomizations;
+use function DBLESSCMS\e;
+$service=new SiteCustomizations($this->store);$custom=$service->read();$source=$custom['data']['draft'];$customRevision=$custom['revision'];
+if($error!==null&&is_string($_POST['revision']??null)){$customRevision=$_POST['revision'];foreach(['css','js'] as $kind)if(is_string($_POST[$kind.'_code']??null))$source[$kind]=['enabled'=>($_POST[$kind.'_enabled']??'')==='1','code'=>$_POST[$kind.'_code']];}
+$published=$custom['data']['published']['source']??SiteCustomizations::emptySource();
+?>
+<p class="muted"><?= e($t('custom.help')) ?></p><p class="notice"><?= e($t('custom.trust')) ?></p>
+<form method="post" class="stack" data-customizations data-syntax-label="<?= e($t('custom.syntax')) ?>" data-tab-label="<?= e($t('custom.captureTab')) ?>">
+<input type="hidden" name="csrf_token" value="<?= e($csrf) ?>"><input type="hidden" name="revision" value="<?= e($customRevision) ?>"><input type="hidden" name="site_revision" value="<?= e($site['revision']) ?>">
+<?php foreach(['css'=>'CSS','js'=>'JavaScript'] as $kind=>$name): ?><section class="panel markup-editor"><h2><?= e($name) ?></h2><label class="editor-checkbox"><input type="checkbox" name="<?= e($kind) ?>_enabled" value="1" <?= $source[$kind]['enabled']?'checked':'' ?>><?= e($t('custom.enabled')) ?></label><label><?= e($name) ?><textarea name="<?= e($kind) ?>_code" rows="16" maxlength="131072" spellcheck="false" data-code-language="<?= e($kind) ?>"><?= e($source[$kind]['code']) ?></textarea></label></section><?php endforeach; ?>
+<p class="notice error" role="alert" data-custom-syntax hidden></p><div class="savebar"><button class="button-secondary" type="submit" name="action" value="custom-save"><?= e($t('custom.draft')) ?></button><button class="button-primary" type="submit" name="action" value="custom-publish"><?= e($t('custom.publish')) ?></button></div>
+</form>
+<section class="panel"><h2><?= e($t('custom.preview')) ?></h2><p class="muted"><?= e($t('custom.previewHelp')) ?></p><button type="button" class="button-secondary" data-custom-preview="?view=customizations-preview&amp;revision=<?= e($custom['revision']) ?>"><?= e($t('custom.preview')) ?></button><div data-custom-preview-host></div></section>
+<details class="panel"><summary><?= e($t('custom.diff')) ?></summary><?php foreach(['css'=>'CSS','js'=>'JavaScript'] as $kind=>$name): ?><h3><?= e($name.' · '.$t($published[$kind]===$source[$kind]?'custom.same':'custom.changed')) ?></h3><div class="field-grid"><?php foreach(['before'=>$published,'after'=>$source] as $caption=>$version): ?><label><?= e($t('custom.'.$caption)) ?><textarea rows="10" readonly spellcheck="false"><?= e(($version[$kind]['enabled']?'/* enabled */':'/* disabled */')."\n".$version[$kind]['code']) ?></textarea></label><?php endforeach; ?></div><?php endforeach; ?></details>
+<section class="panel"><h2><?= e($t('custom.history')) ?></h2><?php foreach($service->history() as $backup): ?><form method="post" class="history-row"><span><?= e(substr($backup,0,15)) ?></span><input type="hidden" name="csrf_token" value="<?= e($csrf) ?>"><input type="hidden" name="revision" value="<?= e($custom['revision']) ?>"><input type="hidden" name="site_revision" value="<?= e($site['revision']) ?>"><input type="hidden" name="backup" value="<?= e($backup) ?>"><button type="submit" class="button-secondary" name="action" value="custom-restore"><?= e($t('custom.restore')) ?></button></form><?php endforeach; ?></section>

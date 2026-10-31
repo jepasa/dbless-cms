@@ -33,7 +33,7 @@ final class PublicPlugins {
       if (!$plugin instanceof PublicPluginInterface) throw new HttpError(503,'Contrato público de plugin indisponível.','error.plugin');
       // Reviewed HTML boundary: only a declared trusted plugin returns a complete public document.
       // nosemgrep: github.php-request-to-raw-output
-      echo $plugin->publicPage($context);
+      echo (new SiteCustomizations($store))->publicResponse($plugin->publicPage($context),$base);
     } catch (HttpError $failure) {
       http_response_code($failure->status);
       echo e($language!==null&&$language->has($failure->messageKey)?$language->error($failure):$failure->getMessage());

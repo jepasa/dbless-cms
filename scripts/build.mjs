@@ -3,6 +3,7 @@
  * Minifica código/ativos, sanitiza conteúdo via contrato PHP e preserva JSON/config legíveis.
  * Exclui segredos e storage. Publica staging completo; qualquer falha aborta sem substituir o pacote anterior.
  */
+import {customizations} from './lib/customizations.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -85,6 +86,7 @@ let previous;
 try {
   await exportDirectory(source);
   process.stdout.write(php([path.join(source, 'system/bin/export-contents.php'), staging]));
+  await customizations(staging);
   await fs.writeFile(path.join(staging, 'system/config/production.php'), '<?php\n/** Marcador gerado pelo exportador; impede uso de .env no pacote de produção. */\ndeclare(strict_types=1);\nreturn true;\n');
   await fs.mkdir(path.join(staging, 'system/storage/files'), { recursive: true });
   await fs.mkdir(path.join(staging, 'public_html/media'), { recursive: true });

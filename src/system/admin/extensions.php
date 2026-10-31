@@ -5,6 +5,7 @@ use function DBLESSCMS\e;
 use function DBLESSCMS\asset;
 use DBLESSCMS\Icons;
 ?>
+<?php if($view==='templates'): ?><div class="editor-toolbar"><a class="button-secondary" href="?view=customizations"><?= e($t('custom.title')) ?></a></div><?php endif; ?>
 <section class="panel extension-panel">
 <div class="table-scroll"><table class="extension-table"><caption class="sr-only"><?= e($labels[$view]) ?></caption>
 <thead><tr><?php foreach (['name','description','status','actions'] as $column): ?><th scope="col"><?= e($t('catalog.'.$column)) ?></th><?php endforeach; ?></tr></thead>

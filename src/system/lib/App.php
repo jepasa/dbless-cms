@@ -87,7 +87,9 @@ final class App {
     if($homepageHtml!==null)$contentFile=__DIR__.'/views/markup.php';
     if($homepageHtml===null&&!isset($page['markup'])&&$page['page']==='home'&&!isset($manifest['homepage'])&&($page['homepage']['sections']??[])!==[]){$nativeContentFile=$contentFile;$contentFile=__DIR__.'/views/homepage.php';}
     ob_start();
-    try { require $store->templates->path($id,'partials',$manifest['partials']['layout']); return (string)ob_get_clean(); }
+    try { require $store->templates->path($id,'partials',$manifest['partials']['layout']); $html=(string)ob_get_clean(); }
     catch (\Throwable $error) { ob_end_clean(); throw $error; }
+    return $preview?$html:(new SiteCustomizations($store))->decorate($html,$base_url);
+
   }
 }

@@ -31,6 +31,14 @@
         "Add an HTML / Mustache block to an article to reuse the core authoring control and public data bindings. Example with alias news: {{#news.items}}<article><a href=\"{{href}}\">{{title}}</a><p>{{excerpt}}</p></article>{{/news.items}}{{^news.items}}<p>No articles yet.</p>{{/news.items}}. Never add a service that recursively renders the same document. Blog is also a Homepage source for published article bodies; comments, moderation details, credentials and the site frame are excluded."
       ],
       "code": "Bind blog:posts with alias news, limit 3 and an optional category ID.\n\n{{#news.items}}\n  <article>\n    <h2><a href=\"{{href}}\">{{title}}</a></h2>\n    <p>{{excerpt}}</p>\n    {{#tags}}<span>{{.}}</span>{{/tags}}\n  </article>\n{{/news.items}}\n{{^news.items}}<p>No articles yet.</p>{{/news.items}}"
+    },
+    {
+      "title": "Author HTML with shared Mustache data",
+      "body": [
+        "Use the shared HTML/Mustache editor to write manual sections, choose plugin services, add typed bindings and insert the documented loops. Metadata is edited in separate fields and saved with the body. Public data is resolved at render time.",
+        "Pages keeps native content behind an optional markup override. Blog keeps existing typed blocks unless HTML mode is explicitly selected; only the selected mode is saved. A mode switch does not convert old blocks automatically. See docs/authoring-customizations.md for the complete workflow."
+      ],
+      "code": "<section>\n  {{#related.items}}<p>{{title}}</p>{{/related.items}}\n  {{^related.items}}<p>No items yet.</p>{{/related.items}}\n</section>"
     }
   ]
 }

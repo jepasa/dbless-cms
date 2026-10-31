@@ -554,3 +554,5 @@ See [Homepage and shared content components](components.md) for manifest service
 For shared raw-data Mustache, authored HTML, document-source contracts and Homepage publications, see [Components](components.md). PHP ext-dom is required for authored HTML. Plugin About presentations document each public schema in English.
 
 On a miss, the producer validates the source before it can be stored. Its fresh normalized result is returned directly. A hit reapplies all current rules to the original parsed source rather than to an already transformed result. Rejected new origins are not stored or counted as completed preparation misses.
+
+See [Shared authoring and global customizations](authoring-customizations.md) for typed Mustache bindings in Pages/Blog. The public front controller adds published global assets to complete HTML only; providers should return data or fragments without injecting global assets themselves.

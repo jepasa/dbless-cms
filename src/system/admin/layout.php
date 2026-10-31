@@ -6,7 +6,7 @@ use function DBLESSCMS\asset;
 use DBLESSCMS\Icons;
 /** Traduz chave e parâmetros do layout; retorna texto para escape contextual, sem efeitos externos. */
 $t = static fn(string $key, array $parameters = []): string => $language->text($key, $parameters);
-$labels=['plugin-about'=>$t('catalog.presentation'),'dashboard'=>$t('nav.dashboard'),'site'=>$t('nav.site'),'templates'=>$t('nav.templates'),'history'=>$t('nav.history'),'login'=>$t('nav.login'),'plugins'=>$t('nav.plugins'),'plugin-settings'=>$t('catalog.plugin_settings'),'template-settings'=>$t('catalog.template_settings'),'plugin-panel'=>$panelLanguage?->text($panelRoute['title'])??$t('nav.plugins')];
+$labels=['customizations'=>$t('custom.title'),'plugin-about'=>$t('catalog.presentation'),'dashboard'=>$t('nav.dashboard'),'site'=>$t('nav.site'),'templates'=>$t('nav.templates'),'history'=>$t('nav.history'),'login'=>$t('nav.login'),'plugins'=>$t('nav.plugins'),'plugin-settings'=>$t('catalog.plugin_settings'),'template-settings'=>$t('catalog.template_settings'),'plugin-panel'=>$panelLanguage?->text($panelRoute['title'])??$t('nav.plugins')];
 ?>
 <!doctype html><html lang="<?= e($language->locale()) ?>" dir="<?= e($language->direction()) ?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow"><title><?= e($labels[$view]) ?> · dbless-cms</title>
@@ -16,6 +16,7 @@ $labels=['plugin-about'=>$t('catalog.presentation'),'dashboard'=>$t('nav.dashboa
 <script src="<?= e(asset('cms-admin/assets/components.js',$base)) ?>" defer></script>
 <link rel="stylesheet" href="<?= e(asset('cms-admin/assets/markup.css',$base)) ?>">
 <script src="<?= e(asset('cms-admin/assets/markup.js',$base)) ?>" defer></script>
+<?php if($view==='customizations'): ?><script src="<?= e(asset('cms-admin/assets/vendor/terser.min.js',$base)) ?>" defer></script><script src="<?= e(asset('cms-admin/assets/customizations.js',$base)) ?>" defer></script><?php endif; ?>
 <?php if ($panelAssets!==null): ?>
 <link rel="stylesheet" href="<?= e(asset('plugins/'.$panelId.'/'.$panelAssets['css'],$base)) ?>">
 <script src="<?= e(asset('plugins/'.$panelId.'/'.$panelAssets['js'],$base)) ?>" defer></script>
@@ -79,6 +80,7 @@ $labels=['plugin-about'=>$t('catalog.presentation'),'dashboard'=>$t('nav.dashboa
 <div class="notice error" data-editor-error role="alert" hidden></div><section class="editor-panel global-editor"><div data-fields hidden></div><label data-json-label><?= e($t('editor.document')) ?><textarea class="json-editor" name="document" data-document data-global-groups="<?= e(json_encode(\DBLESSCMS\GlobalSettings::groups($this->store,$language),JSON_THROW_ON_ERROR)) ?>" data-global-defaults="<?= e(json_encode(['cache'=>\DBLESSCMS\Cache::DEFAULTS],JSON_THROW_ON_ERROR)) ?>" data-global-template="<?= e($templates[$templateChoice]['name']??$templateChoice) ?>" data-global-theme="<?= e(isset($templates[$templateChoice])?\DBLESSCMS\GlobalSettings::theme($this->store,$templateChoice):'') ?>" spellcheck="false" rows="28" required><?= e($document) ?></textarea></label></section>
 <div class="savebar"><span class="muted"><?= e($t('editor.revision', ['key'=>$key,'revision'=>substr($revision,0,10)])) ?></span><button class="button-primary" type="submit"><?= e($t('editor.save')) ?></button></div></form>
 <?php elseif (in_array($view,['plugins','templates'],true)): require __DIR__.'/extensions.php'; ?>
+<?php elseif ($view==='customizations'): require __DIR__.'/customizations.php'; ?>
 <?php elseif ($view==='template-settings'): require __DIR__.'/template-settings.php'; ?>
 <?php elseif ($view==='plugin-panel'): ?>
 <section class="admin-plugin plugin-content" data-admin-plugin="<?= e($panelId) ?>" aria-label="<?= e($labels[$view]) ?>"><?= $panelContent ?></section>
