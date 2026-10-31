@@ -75,8 +75,8 @@
     },
     {
       "path": "docs/plugins.md",
-      "bytes": 29351,
-      "sha256": "d7c5ccbc9fce85978059097c438ad44aba4545a991b37c7f6cc662b6ac308fcd"
+      "bytes": 29681,
+      "sha256": "2cce3c3b3f93a2067b6e5b0902e61a153837cb42299023e241bf524e3490af1e"
     },
     {
       "path": "docs/templates.md",
@@ -200,8 +200,8 @@
     },
     {
       "path": "scripts/pentest.mjs",
-      "bytes": 8409,
-      "sha256": "c9cead161403fd270246ac9e388d64a8e9aa2781dc480dfed87c78d1bb7248bc"
+      "bytes": 8672,
+      "sha256": "8a8ab40683802ad2d8b52d0ab6657e952ab552128c6a181f69a9223483e1b238"
     },
     {
       "path": "scripts/pentest/catalog.json",
@@ -212,6 +212,16 @@
       "path": "scripts/pentest/engine.mjs",
       "bytes": 5140,
       "sha256": "65d1089aa70208413a17148e3f8dcb11d760136db19795b98a0e7675ba3c904b"
+    },
+    {
+      "path": "scripts/pentest/http-input.php",
+      "bytes": 413,
+      "sha256": "9e4b76b9e897da9a60805228fd2823fcff8471fc2d2eca958eeb1fff5e5bd91c"
+    },
+    {
+      "path": "scripts/pentest/php.yml",
+      "bytes": 1730,
+      "sha256": "b1a41536e5483b0e307db89dbb7e290e17ec4c44e5a8a8e8e99d0555fcb234fc"
     },
     {
       "path": "SECURITY.md",

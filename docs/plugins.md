@@ -504,3 +504,8 @@ CLI arguments, query strings, logs or public configuration.
 Official references: [OWASP Password Storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html),
 [OWASP CSRF](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html),
 [NIST authenticators](https://pages.nist.gov/800-63-4/sp800-63b/authenticators/).
+
+The source distribution bundles scanner rules and its non-executed positive-control
+fixture under `scripts/pentest/`. Consumer installations can copy the CLI directory
+with its inventory without installing CI workflows. These developer files must
+remain outside `public_html` and are excluded from the production runtime export.
