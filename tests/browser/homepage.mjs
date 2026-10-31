@@ -1,10 +1,10 @@
-/** Real Chromium usage of Homepage, shared component insertion, reusable Widgets and plugin-owned presentations in synthetic source/export installations. */
+/** Real Chromium usage of Homepage, shared component insertion, reusable Widgets and plugin-owned presentations in synthetic source/export installations with the 24-hour structural page cache enabled. */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
-import {applications,server,password} from '../helpers/extension-media.mjs';
+import {applications,server,password,inspect} from '../helpers/extension-media.mjs';
 if(!process.env.PLAYWRIGHT_MODULE)throw new Error('Set PLAYWRIGHT_MODULE to the authorized local Playwright.');
 const {chromium}=await import(pathToFileURL(process.env.PLAYWRIGHT_MODULE)),evidence=fs.mkdtempSync(path.join(os.tmpdir(),'dbless-homepage-browser-')),results=[];
 console.log('Browser evidence: '+evidence);
@@ -19,6 +19,7 @@ try{
     await context.route('**/*',route=>{if(new URL(route.request().url()).origin===sandbox.base)return route.continue();errors.push('Unexpected external request');return route.abort();});
     context.on('page',tab=>{tab.on('pageerror',error=>errors.push(error.message));tab.on('console',message=>{if(message.type()==='error')errors.push(message.text());});});page.on('pageerror',error=>errors.push(error.message));page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});
     try{
+      const cacheSiteFile=path.join(sandbox.contents,'site.json'),cacheSite=JSON.parse(fs.readFileSync(cacheSiteFile));cacheSite.settings.cache={enabled:true,development:true,ttl:86400};fs.writeFileSync(cacheSiteFile,JSON.stringify(cacheSite));
       // Install a trusted synthetic provider into this isolated fixture to exercise automatic discovery and a required false boolean through the real picker.
       const syntheticId='synthetic-bool',syntheticPrivate=path.join(sandbox.app,'system/plugins',syntheticId),syntheticPublic=path.join(sandbox.app,'public_html/plugins',syntheticId);
       fs.cpSync(path.join(sandbox.app,'system/plugins/files-manager'),syntheticPrivate,{recursive:true});fs.cpSync(path.join(sandbox.app,'public_html/plugins/files-manager'),syntheticPublic,{recursive:true});
@@ -70,7 +71,8 @@ try{
         await home('editor',id);for(const width of [1440,390,320]){await page.setViewportSize({width,height:844});await noOverflow(page);await page.screenshot({path:path.join(directory,'homepage-editor-'+width+'.png'),fullPage:true});await publicPage.setViewportSize({width,height:844});await noOverflow(publicPage);}
       }finally{await publicContext.close();}
       await page.setViewportSize({width:1440,height:1000});await page.locator('[data-user-menu] summary').click();await page.locator('[data-user-menu]').getByRole('link',{name:'Settings',exact:true}).click();await page.getByLabel('Default administration language',{exact:true}).selectOption('pt-br');await page.getByRole('button',{name:'Save changes',exact:true}).click();await page.locator('.notice.success').waitFor();await home('editor',id);assert.ok(await page.getByRole('button',{name:'Salvar rascunho',exact:true}).isVisible());for(const width of [1440,390,320]){await page.setViewportSize({width,height:844});await noOverflow(page);await page.screenshot({path:path.join(directory,'homepage-editor-pt-br-'+width+'.png'),fullPage:true});}
-      assert.equal(await page.locator('svg').count(),0);assert.deepEqual(errors,[]);assert.doesNotMatch(sandbox.logs(),/PHP (?:Warning|Fatal|Parse)/);results.push({application,status:'passed',viewports:[1440,390,320],locales:['en-us','pt-br'],pluginPresentations:7,rawProviders:5,independentProviderRequiredFalseBoolean:true,reusableWidgetsCreated:2,orderedSet:true,privateDraft:true,authenticatedPreview:true,publication:true,scheduling:true,exclusiveActivation:true,trashRecovery:true,pageAndBlogEditors:true,globalMetadata:true,keyboardCompatibleControls:true,inlineSVG:false,errors});
+      const cacheMetrics=inspect(sandbox,"echo json_encode((new DBLESSCMS\\Cache($s->config,['enabled'=>true,'development'=>true,'ttl'=>86400]))->snapshot()['metrics']);");assert.ok(cacheMetrics.hits>0);assert.ok(cacheMetrics.misses>0);
+      assert.equal(await page.locator('svg').count(),0);assert.deepEqual(errors,[]);assert.doesNotMatch(sandbox.logs(),/PHP (?:Warning|Fatal|Parse)/);results.push({application,status:'passed',cacheEnabled:true,cacheTTL:86400,cacheMetrics,viewports:[1440,390,320],locales:['en-us','pt-br'],pluginPresentations:7,rawProviders:5,independentProviderRequiredFalseBoolean:true,reusableWidgetsCreated:2,orderedSet:true,privateDraft:true,authenticatedPreview:true,publication:true,scheduling:true,exclusiveActivation:true,trashRecovery:true,pageAndBlogEditors:true,globalMetadata:true,keyboardCompatibleControls:true,inlineSVG:false,errors});
     }catch(error){await page.screenshot({path:path.join(directory,'failure.png'),fullPage:true});throw error;}finally{await context.close();await sandbox.close();}
   }
 }finally{await browser.close();fs.writeFileSync(path.join(evidence,'results.json'),JSON.stringify(results,null,2)+'\n');}

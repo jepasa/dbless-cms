@@ -1,5 +1,5 @@
 <?php
-/** Private bounded JSON data cache; atomic writes, one nonblocking lock, observable counters and safe dynamic fallback. Never caches HTML, sessions or tokens. */
+/** Private bounded structural JSON cache; atomic writes, one nonblocking lock, observable counters and safe dynamic fallback. Never caches rendered HTML, sessions or tokens. */
 declare(strict_types=1);
 namespace DBLESSCMS;
 final class Cache {
@@ -45,7 +45,7 @@ final class Cache {
   }
   /** Atomically write a bounded JSON record under the held lock; receive safe path/array, return nothing, clean temporary files on any failure. */
   private function write(string $file,array $data): void {
-    $this->path($file);$bytes=json_encode($data,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR);
+    $this->path($file);$bytes=json_encode($data,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_PRESERVE_ZERO_FRACTION|JSON_THROW_ON_ERROR);
     $temporary=@tempnam($this->directory,'.cache-');if ($temporary===false) throw new CacheFailure('Cache write unavailable.');
     try {
       if (!@chmod($temporary,0600)||@file_put_contents($temporary,$bytes)!==strlen($bytes)||!@rename($temporary,$file)) throw new CacheFailure('Cache publication unavailable.');
@@ -74,19 +74,24 @@ final class Cache {
   private function remove(string $file): void {if (!@unlink($this->path($file))) throw new CacheFailure('Cache cleanup unavailable.');}
   /** Report once per instance without paths/content; no inputs/return, flags fallback availability for the dashboard. */
   private function failure(): void {if (!$this->failed) error_log('DBLESS-CMS cache unavailable; dynamic data used');$this->failed=true;}
-  /** Remember validated page data by source/contract fingerprint; receive opaque key/producer, return array. Producer errors propagate; cache I/O degrades to dynamic data and never hides content errors. */
+  /** Check a versioned entry for accidental corruption; receive envelope, return a deterministic digest or CacheFailure for unrepresentable JSON; this is not authentication against a local code owner. */
+  private static function digest(array $record): string {
+    try {return hash('sha256',json_encode([$record['version'],$record['expires'],$record['value']],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_PRESERVE_ZERO_FRACTION|JSON_THROW_ON_ERROR));}
+    catch (\JsonException) {throw new CacheFailure('Cache value is not representable as JSON.');}
+  }
+  /** Remember structural JSON by source/format identity; callers must revalidate live contracts on every result, including hits. Receive opaque key/producer, return array. Producer errors propagate; cache I/O degrades to dynamic data and never hides content errors. */
   public function remember(string $key,callable $producer): array {
     if (!$this->enabled()) return $producer();
     $stream=null;$value=null;
     try {
       $stream=$this->lock();$file=$this->directory.'/'.hash('sha256',$key.':'.json_encode($this->options,JSON_THROW_ON_ERROR)).'.json';$record=$this->read($file);
       $metrics=$this->counters();$now=time();
-      if ($record!==null&&is_int($record['expires']??null)&&$record['expires']>$now&&is_array($record['value']??null)) {
+      if ($record!==null&&($record['version']??null)===1&&is_int($record['expires']??null)&&$record['expires']>$now&&$record['expires']<=$now+$this->options['ttl']&&is_array($record['value']??null)&&is_string($record['digest']??null)&&hash_equals(self::digest($record),$record['digest'])) {
         $value=$record['value'];$metrics['hits']=min(1000000000,$metrics['hits']+1);
       } else {
         // Only the data producer may throw application/validation exceptions; those must reach the caller unchanged.
         $value=$producer();$metrics['misses']=min(1000000000,$metrics['misses']+1);
-        $new=['expires'=>$now+$this->options['ttl'],'value'=>$value];$bytes=strlen(json_encode($new,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR));
+        $new=['version'=>1,'expires'=>$now+$this->options['ttl'],'value'=>$value];$new['digest']=self::digest($new);$bytes=strlen(json_encode($new,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_PRESERVE_ZERO_FRACTION|JSON_THROW_ON_ERROR));
         $entries=$this->entries();
         foreach ($entries as $path=>$entry) {
           $item=$this->read($path);

@@ -15,7 +15,7 @@ for(const application of applications){
       assert.equal(result[0].status,'disabled');assert.equal(result[0].metrics,null);assert.equal(result[1],result[2]);assert.deepEqual(result.slice(3,-1),Array(7).fill(422));assert.equal(result.at(-1),true);assert.ok(!fs.existsSync(path.join(c.temporary,'storage/cache')));
     }finally{c.close();}
   });
-  test(`${application}: validated page cache hits, source edits and contract edits never return stale content`,()=>{
+  test(`${application}: structural page cache hits, source edits and live contract edits never return stale content`,()=>{
     const c=fixture(application);try{
       const result=inspect(c,setup+"$s->publicCache($c);$a=$s->read('home');$b=$s->read('home');$p=$s->config->data['contents'].'/pages/home.json';$d=json_decode(file_get_contents($p),true);$d['meta']['title']='Changed synthetic title';file_put_contents($p,DBLESSCMS\\JsonStore::encode($d));$v=$s->read('home');$d['status']='invalid';file_put_contents($p,DBLESSCMS\\JsonStore::encode($d));try{$s->read('home');$error=200;}catch(DBLESSCMS\\HttpError $e){$error=$e->status;}echo json_encode([$a===$b,$v['data']['meta']['title'],$v['revision']!==$a['revision'],$error,$c->snapshot()]);");
       assert.deepEqual(result.slice(0,4),[true,'Changed synthetic title',true,422]);assert.equal(result[4].metrics.hits,1);assert.equal(result[4].metrics.misses,2);

@@ -421,3 +421,12 @@ See [Homepage and shared content components](components.md) for manifest service
 
 
 For shared raw-data Mustache, authored HTML, document-source contracts and Homepage publications, see [Components](components.md). PHP ext-dom is required for authored HTML. Plugin About presentations document each public schema in English.
+
+## Dynamic rendering and cache
+
+Use the shared store/resolver for pages, Homepage and plugin data. The core caches
+only structural page JSON and reapplies current contracts on each read. Do not
+persist composed HTML, resolved document bodies or provider results: schedules,
+publication withdrawal, widget/menu/slide updates and plugin status are live inputs.
+Public HTML must retain the core no-store policy. Static CSS/JS/image caching is
+separate; a template must not override response headers to cache HTML.
