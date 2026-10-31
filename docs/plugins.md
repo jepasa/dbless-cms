@@ -4,6 +4,13 @@ Plugins are trusted PHP extensions with independent manifests, routing and admin
 dictionaries. They share the fixed admin design and the CMS security contracts.
 They are not isolated processes or safe containers for untrusted code.
 
+Shared CMS core, bundled plugins and administrative layout changes are developed
+and tested upstream before entering this distribution. Consumer installations
+should update shared code from a validated distribution commit, record its
+version/inventory hash and verify the copied files. Keep proprietary templates,
+content, uploads and private configuration separate; do not patch the shared
+administrative layout directly inside a consumer installation.
+
 ## 1. Use the bundled plugins
 
 Open the account dropdown → Plugins. The table lists discovered packages, descriptions,
@@ -13,7 +20,8 @@ functional configuration screen.
 
 The sidebar is built from each enabled plugin's manifest. Dropdown items open integrated
 pages, not nested iframes. Pages, Menu and Slides provide editor/history/trash workflows.
-Files Manager additionally provides upload-root settings. History is its own route.
+Files Manager additionally provides upload-root settings. Open it from its sidebar
+dropdown; the topbar contains the public-site link and account menu. History is its own route.
 Uninstalling archives private code and retains content/assets for recovery; take a backup
 before installing, removing or replacing any extension.
 
