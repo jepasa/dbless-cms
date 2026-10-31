@@ -2,11 +2,12 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import { pathToFileURL } from 'node:url';
 import {applications,server,inspect,password} from '../helpers/extension-media.mjs';
 if (!process.env.PLAYWRIGHT_MODULE) throw new Error('Defina PLAYWRIGHT_MODULE para a instalação local autorizada.');
 const {chromium}=await import(pathToFileURL(process.env.PLAYWRIGHT_MODULE));
-const evidence=process.env.DBLESS_CMS_PAGES_EVIDENCE||'/tmp/dbless-cms-pages-evidence';
+const evidence=process.env.DBLESS_CMS_PAGES_EVIDENCE||fs.mkdtempSync(path.join(os.tmpdir(),'dbless-cms-pages-evidence-'));
 fs.mkdirSync(evidence,{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE||'/usr/bin/google-chrome',args:['--no-sandbox']});
 const results=[];

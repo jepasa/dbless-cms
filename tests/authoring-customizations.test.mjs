@@ -52,6 +52,7 @@ for(const application of applications){
       const auth=await fetch(f.base+'/cms-admin/',{method:'POST',redirect:'manual',headers:{Cookie:cookie},body:new URLSearchParams({action:'login',csrf_token:csrf,username:'editor',password})});assert.equal(auth.status,303);const session=auth.headers.get('set-cookie')?.split(';')[0]||cookie;
       const denied=await fetch(f.base+'/cms-admin/?view=customizations',{method:'POST',headers:{Cookie:session},body:new URLSearchParams({action:'custom-publish'})});assert.equal(denied.status,403);
       const blog=await fetch(f.base+'/plugins/blog/list');assert.equal(blog.status,200);assert.match(await blog.text(),/data-site-customization/);
+      const hostile=await fetch(f.base+'/plugins/blog/list?locale='+encodeURIComponent('<script>window.pwned=1</script>'));assert.equal(hostile.status,200);const escaped=await hostile.text();assert.doesNotMatch(escaped,/<script>window\.pwned=1<\/script>/);assert.match(escaped,/data-site-customization/);const rejected=await fetch(f.base+'/plugins/blog/list?q='+encodeURIComponent('<img src=x onerror=alert(1)>'));assert.equal(rejected.status,422);assert.doesNotMatch(await rejected.text(),/<img src=x onerror=alert\(1\)>|data-site-customization/);
       const feed=await fetch(f.base+'/plugins/blog/feed');assert.match(feed.headers.get('content-type'),/xml/);assert.doesNotMatch(await feed.text(),/data-site-customization/);
     }finally{await f.close();}
   });

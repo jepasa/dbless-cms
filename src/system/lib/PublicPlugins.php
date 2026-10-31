@@ -31,9 +31,7 @@ final class PublicPlugins {
       $context=$registry->publicContext($id,$base,$locale,$page['id'],$method,Security::token());
       $plugin=$registry->instance($id);
       if (!$plugin instanceof PublicPluginInterface) throw new HttpError(503,'Contrato público de plugin indisponível.','error.plugin');
-      // Reviewed HTML boundary: only a declared trusted plugin returns a complete public document.
-      // nosemgrep: github.php-request-to-raw-output
-      echo (new SiteCustomizations($store))->publicResponse($plugin->publicPage($context),$base);
+      self::respond($plugin,$context,$store);
     } catch (HttpError $failure) {
       http_response_code($failure->status);
       echo e($language!==null&&$language->has($failure->messageKey)?$language->error($failure):$failure->getMessage());
@@ -41,6 +39,10 @@ final class PublicPlugins {
       $id=bin2hex(random_bytes(6)); error_log('DBLESS-CMS public-plugin '.$id.' '.$failure::class.' '.basename($failure->getFile()).':'.$failure->getLine());
       http_response_code(500); echo 'Falha interna. Referência '.e($id);
     } finally {Lifecycle::leave($operation);}
+  }
+  /** Emit a declared trusted plugin response through the public-document boundary; receive typed plugin, validated public context and store, write its owned view with optional global assets. Plugins escape editorial/request fields in their views; never pass raw route parameters as HTML. */
+  private static function respond(PublicPluginInterface $plugin,PublicPluginContext $context,JsonStore $store): void {
+    echo (new SiteCustomizations($store))->publicResponse($plugin->publicPage($context),$context->base);
   }
   /** Normaliza raiz com 308 e extrai IDs de REQUEST_URI; retorna par de IDs ou encerra redirect, rejeitando entradas inválidas com 400/404. */
   private static function destination(): array {

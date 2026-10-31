@@ -85,8 +85,8 @@
     },
     {
       "path": "docs/plugins.md",
-      "bytes": 33309,
-      "sha256": "e7b75013a62e95c7758874c5fe468a33f674caf54d405de969a0783053a124a2"
+      "bytes": 33893,
+      "sha256": "be9deefc2e9eee51bbe4462fd3182f819c71befae704751e5731602fb0956b25"
     },
     {
       "path": "docs/templates.md",
@@ -1315,8 +1315,8 @@
     },
     {
       "path": "src/system/lib/PublicPlugins.php",
-      "bytes": 4529,
-      "sha256": "68ab3794c458dd79d8f81fd6f8c6fdd472b11af1dfc807ecf515a582fca2590f"
+      "bytes": 4844,
+      "sha256": "da8cf932df6eafdcfcad403c93a5c9c0240969a5d4bd8599e99cd7f191533ad2"
     },
     {
       "path": "src/system/lib/Schema.php",
@@ -2035,8 +2035,8 @@
     },
     {
       "path": "tests/authoring-customizations.test.mjs",
-      "bytes": 15183,
-      "sha256": "d7af905bd766536dcd165a613c15e1ce3f4537d6223ee534b2fa703c1b74b5dd"
+      "bytes": 15732,
+      "sha256": "8e2a6890aef49c9bd573522349a9e038d6def08b9737f76d453d090879960767"
     },
     {
       "path": "tests/blog.test.mjs",
@@ -2075,8 +2075,8 @@
     },
     {
       "path": "tests/browser/pages.mjs",
-      "bytes": 9434,
-      "sha256": "b9d46dce79c98debc980f5db4d5ed67948182080ecedc7d48421e4c40b390c75"
+      "bytes": 9495,
+      "sha256": "a8dd91eb9fe49bbd34627fe41cb102091c1f95fa91b06f1529012f774b30a230"
     },
     {
       "path": "tests/browser/pentest.mjs",
