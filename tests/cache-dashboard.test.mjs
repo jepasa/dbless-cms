@@ -1,4 +1,4 @@
-/** Core cache/dashboard regressions in isolated source/export fixtures: configuration, freshness, quotas, expiry, failure isolation, auth and CSRF. */
+/** Core cache/dashboard regressions in isolated source/export fixtures: configuration, freshness, quotas, expiry, failure isolation, auth, CSRF and plugin-owned metric cards. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -61,12 +61,26 @@ for(const application of applications){
   });
   test(`${application}: plugin dashboard providers are optional, localized, bounded and isolated on failure`,()=>{
     const c=fixture(application);try{
-      let data=inspect(c,"echo json_encode(DBLESSCMS\\Dashboard::snapshot($s,'https://example.test','en-us'));");assert.equal(data.warnings.length,0);assert.equal(data.indicators.length,2);assert.equal(data.indicators[0].label,'Published articles');assert.ok(data.indicators[0].value>=1);
-      const registry=path.join(c.contents,'plugins.json'),saved=fs.readFileSync(registry),reg=JSON.parse(saved);reg.plugins.blog.enabled=false;fs.writeFileSync(registry,JSON.stringify(reg));assert.equal(inspect(c,"echo json_encode(DBLESSCMS\\Dashboard::snapshot($s,'https://example.test','en-us')['indicators']);").length,0);fs.writeFileSync(registry,saved);
+      let data=inspect(c,"echo json_encode(DBLESSCMS\\Dashboard::snapshot($s,'https://example.test','en-us'));");assert.equal(data.warnings.length,0);assert.equal(data.indicators.length,2);assert.equal(data.indicators[0].label,'Published articles');assert.ok(data.indicators[0].value>=1);assert.deepEqual(Object.keys(data.groups),['blog']);assert.deepEqual(data.groups.blog.items,data.indicators);
+      const registry=path.join(c.contents,'plugins.json'),saved=fs.readFileSync(registry),reg=JSON.parse(saved);reg.plugins.blog.enabled=false;fs.writeFileSync(registry,JSON.stringify(reg));assert.equal(inspect(c,"echo json_encode(DBLESSCMS\\Dashboard::snapshot($s,'https://example.test','en-us')['indicators']);").length,0);assert.deepEqual(Object.keys(inspect(c,"echo json_encode(DBLESSCMS\\Dashboard::snapshot($s,'https://example.test','en-us')['groups']);")),[]);fs.writeFileSync(registry,saved);
       const provider=path.join(c.app,'system/plugins/blog/Plugin.php'),code=fs.readFileSync(provider,'utf8');fs.writeFileSync(provider,code.replace("return [['label'=>'blog.dashboard.published','value'=>$published],['label'=>'blog.dashboard.pending','value'=>$pending]];","return array_fill(0,9,['label'=>'blog.dashboard.published','value'=>0]);"));assert.deepEqual(inspect(c,"ini_set('error_log',dirname($argv[1]).'/provider-errors.log');echo json_encode(DBLESSCMS\\Dashboard::snapshot($s,'https://example.test','en-us')['warnings']);"),['Blog']);fs.writeFileSync(provider,code);
 
       const file=path.join(c.contents,'blog/catalog.json');fs.writeFileSync(file,'invalid JSON');
-      data=inspect(c,"ini_set('error_log',dirname($argv[1]).'/provider-errors.log');echo json_encode(DBLESSCMS\\Dashboard::snapshot($s,'https://example.test','en-us'));");assert.equal(data.indicators.length,0);assert.deepEqual(data.warnings,['Blog']);assert.ok(data.published>0);assert.match(fs.readFileSync(path.join(c.temporary,'provider-errors.log'),'utf8'),/dashboard provider blog/);
+      data=inspect(c,"ini_set('error_log',dirname($argv[1]).'/provider-errors.log');echo json_encode(DBLESSCMS\\Dashboard::snapshot($s,'https://example.test','en-us'));");assert.equal(data.indicators.length,0);assert.deepEqual(Object.keys(data.groups),[]);assert.deepEqual(data.warnings,['Blog']);assert.ok(data.published>0);assert.match(fs.readFileSync(path.join(c.temporary,'provider-errors.log'),'utf8'),/dashboard provider blog/);
     }finally{c.close();}
   });
+  test(`${application}: each plugin owns one card with all metrics, including empty, malformed and coincident-name providers`,()=>{
+    const c=fixture(application);try{
+      const provider=path.join(c.app,'system/plugins/blog/Plugin.php'),code=fs.readFileSync(provider,'utf8'),original="return [['label'=>'blog.dashboard.published','value'=>$published],['label'=>'blog.dashboard.pending','value'=>$pending]];";
+      const manifest=path.join(c.app,'system/plugins/blog/plugin.json'),metadata=JSON.parse(fs.readFileSync(manifest));metadata.name='Páginas';fs.writeFileSync(manifest,JSON.stringify(metadata));
+      const login=request(c,{admin:true}),csrf=login.body.match(/name="csrf_token"[^>]*value="([^"]+)"/)[1],signed=request(c,{admin:true,session:login.session,method:'POST',post:{action:'login',username:'editor',password,csrf_token:csrf}});assert.equal(signed.status,303);
+      const html=request(c,{admin:true,session:signed.session}).body,cards=[...html.matchAll(/<section\b[^>]*data-dashboard-plugin="([^"]+)"[^>]*>([\s\S]*?)<\/section>/g)];assert.deepEqual(cards.map(card=>card[1]),['pages','blog']);
+      for(const card of cards){assert.equal([...card[2].matchAll(/<h2>/g)].length,1);assert.equal([...card[2].matchAll(/<dt>/g)].length,2);assert.equal([...card[2].matchAll(/<dd\b/g)].length,2);assert.match(card[2],/<dl class="dashboard-plugin-metrics">/);}
+      assert.match(cards[0][2],/Published pages|Páginas publicadas/);assert.match(cards[0][2],/Page drafts|Rascunhos de páginas/);assert.match(cards[1][2],/Published articles|Artigos publicados/);assert.match(cards[1][2],/Comments awaiting moderation|Comentários aguardando moderação/);
+      let snapshot=inspect(c,"echo json_encode(DBLESSCMS\\Dashboard::snapshot($s,'https://example.test','en-us'));");assert.equal(snapshot.groups.blog.plugin,'Páginas');assert.deepEqual(snapshot.groups.blog.items,snapshot.indicators);
+      fs.writeFileSync(provider,code.replace(original,'return [];'));snapshot=inspect(c,"echo json_encode(DBLESSCMS\\Dashboard::snapshot($s,'https://example.test','en-us'));");assert.deepEqual(Object.keys(snapshot.groups),[]);assert.deepEqual(snapshot.warnings,[]);assert.doesNotMatch(request(c,{admin:true,session:signed.session}).body,/data-dashboard-plugin="blog"/);
+      fs.writeFileSync(provider,code.replace(original,"return [['label'=>'blog.dashboard.published','value'=>1],['label'=>'blog.dashboard.pending','value'=>-1]];"));snapshot=inspect(c,"ini_set('error_log',dirname($argv[1]).'/provider-errors.log');echo json_encode(DBLESSCMS\\Dashboard::snapshot($s,'https://example.test','en-us'));");assert.deepEqual(snapshot.indicators,[]);assert.deepEqual(Object.keys(snapshot.groups),[]);assert.deepEqual(snapshot.warnings,['Páginas']);
+    }finally{c.close();}
+  });
+
 }
