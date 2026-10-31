@@ -1,5 +1,5 @@
 <?php
-/** Canonical global site data, version-one migration, public projections and three-card administrative field definitions. */
+/** Canonical global site data, version-one migration, public projections and four-card administrative field definitions. */
 declare(strict_types=1);
 namespace DBLESSCMS;
 final class GlobalSettings {
@@ -23,6 +23,7 @@ final class GlobalSettings {
   /** Validate canonical URLs, public-root media paths and required identity; receives data, throws 422 on unsafe/malformed values, no I/O. */
   public static function validate(array $data): void {
     $s=$data['settings'];
+    Cache::options($s['cache']??[]);
     if (trim($s['name'])==='') throw new HttpError(422,'Site name is required.','error.metadata');
     foreach (['baseUrl','canonical'] as $key) {
       $url=$s[$key];if ($key==='baseUrl'&&$url==='') continue;
@@ -54,7 +55,7 @@ final class GlobalSettings {
     foreach ($paths as $path) { $value=$options;foreach(explode('.',$path) as $key) $value=is_array($value)?($value[$key]??null):null;if(is_string($value)&&$value!=='')$parts[]=$value; }
     return implode(' / ',$parts);
   }
-  /** Build the exact three-card UI contract; receives store/catalog, returns labels, read-only identity and dictionary options; no content writes. */
+  /** Build the four-card UI contract; receives store/catalog, returns labels, read-only identity and dictionary options; no content writes. */
   public static function groups(JsonStore $store,Language $language): array {
     $site=$store->read('site')['data'];$id=$site['template'];
     return [
@@ -66,7 +67,9 @@ final class GlobalSettings {
         ['title'=>'global.group.metadata','fields'=>['author','keywords','type','image','imageAlt','imageType','imageWidth','imageHeight']]]],
       ['title'=>'global.card.contact','groups'=>[
         ['title'=>'global.group.address','fields'=>['contact.country','contact.state','contact.city']],
-        ['title'=>'global.group.communication','fields'=>['contact.phone','contact.email','contact.responsible']]]]
+        ['title'=>'global.group.communication','fields'=>['contact.phone','contact.email','contact.responsible']]]],
+      ['title'=>'global.card.cache','groups'=>[
+        ['title'=>'global.group.cache','fields'=>['cache.enabled','cache.development','cache.ttl','cache.maxMiB','cache.maxEntries']]]]
     ];
   }
   /** Export referenced public images only; receives store/new stage, rejects links, disguised executable data or missing media, writes no private state. */

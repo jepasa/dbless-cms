@@ -6,6 +6,9 @@ final class JsonStore {
   public readonly Templates $templates;
   private array $incompatible = [];
   private bool $locked = false;
+  private ?Cache $cache = null;
+  /** Enable validated public page data caching for this request only; receive service, return nothing, no content writes or administrative caching. */
+  public function publicCache(Cache $cache): void {$this->cache=$cache;}
   /** Recebe configuração, inicializa registro; sem escrita; contratos inválidos falham no carregamento. */
   public function __construct(public readonly Config $config) { $this->templates=new Templates($config); }
 
@@ -67,7 +70,14 @@ final class JsonStore {
     if (!is_file($file)) throw new HttpError(404,'Documento não encontrado.','error.document_missing');
     $raw=file_get_contents($file);
     if ($raw===false) throw new HttpError(503,'Documento indisponível.','error.document_unavailable');
-    return ['data'=>$this->document($key,$raw,$template),'revision'=>hash('sha256',$raw)];
+    $revision=hash('sha256',$raw);
+    if ($this->cache!==null&&$this->cache->enabled()&&!in_array($key,['site','plugins','templates'],true)) {
+      $template??=$this->read('site')['data']['template'];
+      $contracts=$this->templates->schema($template);
+      $fingerprint=hash('sha256',json_encode([$contracts,$this->templates->get($template)],JSON_THROW_ON_ERROR).(string)file_get_contents($this->config->root.'/config/schemas/page.schema.json').(string)file_get_contents(__FILE__).(string)file_get_contents(__DIR__.'/Schema.php').(string)file_get_contents(__DIR__.'/Slides.php'));
+      $data=$this->cache->remember('page:'.$template.':'.$key.':'.$revision.':'.$fingerprint,fn(): array=>$this->document($key,$raw,$template));
+    } else $data=$this->document($key,$raw,$template);
+    return ['data'=>$data,'revision'=>$revision];
   }
 
   /** Lista páginas validadas por slug; não escreve; falha em documento inválido em vez de ocultá-lo. */

@@ -25,10 +25,15 @@ final class Admin {
     if ($action==='login') {
       Security::limit($this->config,'login',5,900); Security::csrf($_POST['csrf_token']??null);
       if (!Security::login($this->config,$this->input('username'),$this->input('password',200))) throw new HttpError(401,'Usuário ou senha inválidos.','error.credentials');
-      $this->redirect('pages','','notice.login');
+      $this->redirect('dashboard','','notice.login');
     }
     if (!Security::authenticated($this->config)) throw new HttpError(403,'Autenticação necessária.','error.authentication');
     Security::csrf($_POST['csrf_token']??null);
+    if ($action==='cache-clear') {
+      $cache=new Cache($this->config,$this->store->read('site')['data']['settings']['cache']??[]);
+      if (!$cache->clear()) throw new HttpError(503,'Cache unavailable.','cache.unavailable');
+      $this->redirect('dashboard','','cache.cleared');
+    }
     if ($action==='logout') {
       $_SESSION=[]; session_regenerate_id(true); $this->redirect('login','','notice.logout');
     }
@@ -104,9 +109,9 @@ final class Admin {
       catch (HttpError $failure) { http_response_code($failure->status); $error=$this->translatePluginError($failure); }
     } elseif (($_SERVER['REQUEST_METHOD']??'GET')!=='GET') { header('Allow: GET, POST'); throw new HttpError(405,'Método não permitido.','error.method'); }
     $authenticated=Security::authenticated($this->config);
-    $view=$_GET['view']??'pages'; $key=$_GET['key']??'home';
+    $view=$_GET['view']??'dashboard'; $key=$_GET['key']??'home';
     if (!is_string($view) || !is_string($key)) throw new HttpError(400,'Rota administrativa inválida.','error.admin_route');
-    if (!in_array($view,['pages','page-new','page-trash','edit','site','templates','history','preview','login','plugins','plugin','plugin-panel','plugin-settings','template-settings'],true)) throw new HttpError(404,'Página não encontrada.','error.not_found');
+    if (!in_array($view,['dashboard','pages','page-new','page-trash','edit','site','templates','history','preview','login','plugins','plugin','plugin-panel','plugin-settings','template-settings'],true)) throw new HttpError(404,'Página não encontrada.','error.not_found');
     if (!$authenticated) $view='login';
     $plugins=$authenticated?new Plugins($this->store):null;
     $requestedPlugin=$_GET['plugin']??'';$requestedRoute=$_GET['route']??'';
@@ -168,7 +173,7 @@ final class Admin {
     $pages=$authenticated && $effectiveTemplate!==null?$this->store->pages($effectiveTemplate):[];
     $document=null; $revision='';
     if ($authenticated && $view==='site') {
-      $opened=$this->store->read($key,$effectiveTemplate); $document=JsonStore::encode($opened['data']); $revision=$opened['revision'];
+      $opened=$this->store->read($key,$effectiveTemplate); $editable=$opened['data'];$editable['settings']['cache']=Cache::options($editable['settings']['cache']??[]);$document=JsonStore::encode($editable); $revision=$opened['revision'];
       if ($error!==null && ($_POST['action']??'')==='save' && is_string($_POST['document']??null)) $document=$_POST['document'];
       if ($error!==null && is_string($_POST['revision']??null)) $revision=$_POST['revision'];
     }
@@ -189,6 +194,7 @@ final class Admin {
     $faviconChoice=$site['data']['settings']['favicon']??('templates/'.$templateChoice.'/favicon.ico');
     if ($error!==null && $view==='site' && is_string($_POST['site_favicon']??null)) $faviconChoice=$_POST['site_favicon'];
     if ($error!==null && $view==='site' && is_string($_POST['site_template']??null) && isset($templates[$_POST['site_template']])) $templateChoice=$_POST['site_template'];
+    $dashboard=$authenticated&&$view==='dashboard'?Dashboard::snapshot($this->store,$this->base,$language->locale()):null;
     $configured=$this->config->configured();
     if (!$configured) http_response_code(503);
     ob_start();

@@ -142,6 +142,8 @@
     "blog.error.consent": "Consent to publish the supplied name and comment is required.",
     "blog.error.duplicate": "This comment has already been submitted.",
     "blog.link": "Link",
-    "blog.url": "URL"
+    "blog.url": "URL",
+    "blog.dashboard.published": "Published articles",
+    "blog.dashboard.pending": "Comments awaiting moderation"
   }
 }

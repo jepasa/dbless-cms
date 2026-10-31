@@ -6,7 +6,15 @@ require_once __DIR__.'/Model.php';
 require_once __DIR__.'/Store.php';
 require_once __DIR__.'/Router.php';
 require_once __DIR__.'/View.php';
-final class BlogPlugin implements PluginInterface,PublicPluginInterface {
+final class BlogPlugin implements PluginInterface,PublicPluginInterface,DashboardProviderInterface {
+  /** Supply actual published article and pending comment counts to the authenticated core dashboard; receive private context, return dictionary keys/integer values, no writes or comment bodies. */
+  public function dashboard(PluginContext $context): array {
+    $catalog=(new BlogStore($context->store))->read()['data'];$comments=(new BlogStore($context->store,'comments'))->read()['data'];
+    $published=0;$pending=0;
+    foreach ($catalog['articles'] as $article) if (BlogModel::visible($article)) $published++;
+    foreach ($comments['comments'] as $comment) if ($comment['status']==='pending') $pending++;
+    return [['label'=>'blog.dashboard.published','value'=>$published],['label'=>'blog.dashboard.pending','value'=>$pending]];
+  }
   /** Validate functional settings without writing; takes configuration/config services and raises a schema error on invalid values. */
   public function validateSettings(array $settings,Config $config): void {
     Schema::validate($settings,json_decode((string)file_get_contents(__DIR__.'/settings.schema.json'),true,16,JSON_THROW_ON_ERROR));

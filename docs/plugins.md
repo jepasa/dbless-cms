@@ -426,3 +426,44 @@ A theme-capable template may declare `"themeFields":["appearance.palette",
 "appearance.mode"]` to identify the selected options shown in global settings.
 Paths refer to its validated configuration. Templates without this declaration
 display an empty theme field. Theme options remain in the template configuration.
+
+## Core Dashboard indicators
+
+Dashboard and Cache are core services, not plugins. The Dashboard is the default
+admin landing page and its link stays above plugin navigation. Cache has no
+standalone screen: the fourth Global Settings card configures it, while the
+Dashboard displays measured counters and offers an authenticated CSRF-protected purge.
+
+An active trusted plugin may implement `DBLESSCMS\DashboardProviderInterface` in
+addition to `PluginInterface`:
+
+```php
+/** Return actual, read-only administrative counts; receives private context, performs no writes, propagates source errors. */
+public function dashboard(\DBLESSCMS\PluginContext $context): array {
+  return [['label' => 'myplugin.dashboard.items', 'value' => $this->countItems($context)]];
+}
+```
+
+Declare the label in every plugin dictionary. Return at most eight records with
+`label` followed by a nonnegative integer `value`. No HTML, personal data, network
+calls or writes; no placeholder statistics. The core escapes labels/values and
+isolates provider failures with an unavailable warning. Providers are trusted PHP,
+not sandboxed or forcibly time-limited. Blog demonstrates published articles and
+comments awaiting moderation; scheduled articles are counted only when released.
+
+`settings.cache` is optional and accepts `enabled` (false), `development` (false),
+`ttl` (300 seconds, 1–86400), `maxMiB` (16, 1–256) and `maxEntries` (500, 1–2000).
+Production detection remains operational configuration. Cache initially stays off;
+development requires both booleans. It stores only validated page data for anonymous
+public GET requests, checks current source/contract fingerprints, and never stores
+HTML, CSRF tokens, previews, editor sessions or private responses. Plugin models,
+publishing schedules and plugin/template activation remain dynamic. Keep
+`system/storage/cache/` private, writable by PHP and outside version control/backups
+of editorial content. Builds and new distributions never ship cache state.
+
+Counters describe hits/misses in the current window (up to 24 hours), not traffic
+or measured time saved. With no collection the UI shows “No data”. Purging resets
+counters. Expired/obsolete entries are reclaimed on misses/eviction or purge.
+The entry byte quota excludes bounded metrics/lock metadata. On cache I/O failure
+or lock contention the request uses dynamic data; validation errors still propagate.
+This service does not configure OPcache, browser caching, a CDN or server headers.

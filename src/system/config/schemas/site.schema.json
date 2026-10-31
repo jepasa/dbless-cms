@@ -163,6 +163,33 @@
               "maxLength": 300
             }
           }
+        },
+        "cache": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "development": {
+              "type": "boolean"
+            },
+            "ttl": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 86400
+            },
+            "maxMiB": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 256
+            },
+            "maxEntries": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2000
+            }
+          }
         }
       }
     }

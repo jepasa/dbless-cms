@@ -202,10 +202,10 @@ final class Operations {
     foreach (['system','public_html'] as $part) self::copyTree($source.'/'.$part,$target.'/'.$part,static fn(string $file): bool=>!self::inside($file,$source.'/system/storage')&&$file!==$source.'/system/config/app.json');
     foreach (['LICENSE','NOTICE','THIRD_PARTY.md','export-manifest.json'] as $name) if (is_file($source.'/'.$name)) self::write($target.'/'.$name,self::read($source.'/'.$name));
   }
-  /** Copia estado durável e configuração para instalação nova; recebe destino, não reutiliza sessões/cotas/travas nem estado de manutenção. */
+  /** Copia estado durável e configuração para instalação nova; recebe destino, não reutiliza sessões/cotas/travas/cache nem estado de manutenção. */
   private function persistent(string $target): void {
     $storage=$this->config->data['storage'];$contents=$this->config->data['contents'];
-    self::copyTree($storage,$target.'/system/storage',static fn(string $file): bool=>!self::inside($file,$contents)&&!in_array(substr($file,strlen($storage)+1),['sessions','rate','operations.lock','contents.lock','maintenance.json','plugins/files-manager/files.lock'],true));
+    self::copyTree($storage,$target.'/system/storage',static fn(string $file): bool=>!self::inside($file,$contents)&&!in_array(substr($file,strlen($storage)+1),['sessions','rate','cache','operations.lock','contents.lock','maintenance.json','plugins/files-manager/files.lock'],true));
     self::copyTree($contents,$target.'/system/storage/contents');
     self::write($target.'/system/config/app.json',self::read($this->privateConfig));
   }
