@@ -258,3 +258,6 @@ textarea { resize: vertical; line-height: 1.6; }
 
 /* Keep the permanent core entry visible while expanded plugin navigation scrolls. */
 .sidebar .dashboard-link{position:sticky;top:0;z-index:2;background:#111e32}
+
+/* Shared component picker and plugin-owned English presentation remain inside the fixed admin identity. */
+.components-picker{min-width:0}.components-picker [data-component-marker]{font-family:ui-monospace,monospace}.plugin-presentation{max-width:68rem;line-height:1.7}.plugin-presentation section{margin-top:2rem}.plugin-presentation pre{max-width:100%;overflow:auto;padding:1rem;background:var(--paper);border-radius:var(--radius);white-space:pre-wrap;overflow-wrap:anywhere}.plugin-presentation p{overflow-wrap:anywhere}

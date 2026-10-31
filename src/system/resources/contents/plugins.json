@@ -41,6 +41,10 @@
     "widgets": {
       "enabled": true,
       "settings": {}
+    },
+    "homepage": {
+      "enabled": true,
+      "settings": {}
     }
   }
 }

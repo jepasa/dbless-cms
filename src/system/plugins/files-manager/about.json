@@ -1,0 +1,28 @@
+{
+  "language": "en",
+  "title": "Images and files",
+  "lead": "Browse, upload and organize public or private files without a database.",
+  "sections": [
+    {
+      "title": "Storage roots",
+      "body": [
+        "Open Images → Overview and choose Public or Private storage. Public paths are constrained to public_html; private paths are constrained to system/storage/files.",
+        "Settings → Uploads selects a relative directory within each root. A blank value means that root itself. Absolute paths, traversal and symbolic links are rejected."
+      ]
+    },
+    {
+      "title": "Upload and organize",
+      "body": [
+        "Choose the target folder, select a permitted file and upload it. Create subfolders to organize assets. Use the presented file address when inserting a public image into site content.",
+        "Public and private files use separate access rules. Private downloads require administration authentication. Validation checks file structure and content rather than trusting the extension alone."
+      ]
+    },
+    {
+      "title": "Trash and configuration",
+      "body": [
+        "Removal uses soft-delete. Open Trash to restore files to their permitted origin when it is available.",
+        "Review Uploads settings before moving a storage root. Configuration changes do not silently relocate existing files or grant access outside the permitted roots."
+      ]
+    }
+  ]
+}

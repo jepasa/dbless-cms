@@ -79,5 +79,6 @@
     ]
   },
   "configuration": "settings",
-  "description": "Gerenciamento de arquivos públicos e privados, uploads e lixeira."
+  "description": "Gerenciamento de arquivos públicos e privados, uploads e lixeira.",
+  "presentation": "about.json"
 }

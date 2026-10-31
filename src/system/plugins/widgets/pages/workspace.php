@@ -25,6 +25,7 @@ $issues=[];foreach($data['widgets'] as $record)if(!$record['deleted']&&($record[
 <?php if(!$record['deleted']): ?><a class="icon-button" href="<?= e($url('editor',$record['id'])) ?>" title="<?= e($t('edit')) ?>" aria-label="<?= e($t('edit')) ?>"><?= Icons::svg('edit',$context->base) ?></a><?php endif; ?>
 <form method="post" action="<?= e($context->url($record['deleted']?'recover':'trash')) ?>" data-widget-form <?= !$record['deleted']?'data-confirm="'.e($t('confirmDelete')).'"':'' ?>><input type="hidden" name="revision" value="<?= e($revision) ?>"><input type="hidden" name="csrf_token" value="<?= e($csrf) ?>"><input type="hidden" name="id" value="<?= e($record['id']) ?>"><button class="icon-button" type="submit" title="<?= e($t($record['deleted']?'recover':'delete')) ?>" aria-label="<?= e($t($record['deleted']?'recover':'delete')) ?>"><?= Icons::svg($record['deleted']?'history':'uninstall',$context->base) ?></button></form>
 </div></td></tr><?php endforeach; ?></tbody></table></div><?php if($rows===[]): ?><p class="empty-state"><?= e($t($route==='trash'?'emptyTrash':'empty')) ?></p><?php endif; ?></section>
+<?php if($route==='trash'):require __DIR__.'/library-trash.php';endif; ?>
 <?php elseif($route==='editor'): ?>
 <p class="muted"><?= e($t('help')) ?></p>
 <?php if($locations===[]): ?><p class="notice" role="status"><?= e($t('noLocations')) ?></p><?php endif; ?>

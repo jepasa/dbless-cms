@@ -6,7 +6,21 @@ require_once __DIR__.'/Model.php';
 require_once __DIR__.'/Store.php';
 require_once __DIR__.'/Router.php';
 require_once __DIR__.'/View.php';
-final class BlogPlugin implements PluginInterface,PublicPluginInterface,DashboardProviderInterface {
+final class BlogPlugin implements PluginInterface,PublicPluginInterface,DashboardProviderInterface,ContentProviderInterface,ContentOptionsInterface {
+
+  /** List non-deleted editorial categories for the authenticated component picker; receive service/context, return bounded plain choices without mutations or article bodies. */
+  public function contentOptions(string $service,ContentContext $context): array {
+    $choices=[['value'=>'','label'=>'—']];foreach((new BlogStore($context->store))->read()['data']['categories'] as $entry)if(!$entry['deleted']&&count($choices)<100)$choices[]=['value'=>$entry['id'],'label'=>$entry['name']];return ['category'=>$choices];
+  }
+
+  /** Project released articles only; receive registered service/typed parameters/context, return bounded public cards without writes, drafts, comments or credentials; propagate source errors. */
+  public function content(string $service,array $parameters,ContentContext $context): array {
+    if($service!=='latest')throw new HttpError(404,'Unknown service.','components.error');
+    $catalog=(new BlogStore($context->store))->read()['data'];$items=BlogModel::published($catalog);$category=$parameters['category'];
+    if($category!==''){if(!BlogModel::identifier($category)||!isset($catalog['categories'][$category])||$catalog['categories'][$category]['deleted'])return ['items'=>[]];$items=array_filter($items,static fn(array $item):bool=>in_array($category,$item['categories'],true));}
+    uasort($items,static fn(array $a,array $b):int=>strcmp($b['publishedAt'],$a['publishedAt'])?:strcmp($a['id'],$b['id']));
+    return ['items'=>array_values(array_map(static fn(array $item):array=>['title'=>$item['title'],'text'=>$item['excerpt'],'href'=>BlogView::url($context->base,'article',['slug'=>$item['slug']]),'image'=>BlogView::media($context->base,$item['cover'])],array_slice($items,0,$parameters['limit'],true)))];
+  }
   /** Supply actual published article and pending comment counts to the authenticated core dashboard; receive private context, return dictionary keys/integer values, no writes or comment bodies. */
   public function dashboard(PluginContext $context): array {
     $catalog=(new BlogStore($context->store))->read()['data'];$comments=(new BlogStore($context->store,'comments'))->read()['data'];

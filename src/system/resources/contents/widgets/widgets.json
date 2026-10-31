@@ -25,5 +25,42 @@
       "description": "Aviso do rodapé",
       "deleted": false
     }
+  },
+  "reusable": {
+    "example-message": {
+      "id": "example-message",
+      "key": "example-message",
+      "value": "Conteúdo estruturado, apresentação flexível.",
+      "description": "Uma fonte de conteúdo",
+      "deleted": false
+    },
+    "example-workflow": {
+      "id": "example-workflow",
+      "key": "example-workflow",
+      "value": "Edite, revise e publique com controle de versões.",
+      "description": "Fluxo editorial",
+      "deleted": false
+    },
+    "example-portability": {
+      "id": "example-portability",
+      "key": "example-portability",
+      "value": "Reutilize conjuntos sem posições fixas no template.",
+      "description": "Composição portátil",
+      "deleted": false
+    }
+  },
+  "sets": {
+    "example-highlights": {
+      "id": "example-highlights",
+      "key": "example-highlights",
+      "name": "Destaques do exemplo",
+      "description": "Conjunto genérico reutilizável na Homepage.",
+      "widgets": [
+        "example-message",
+        "example-workflow",
+        "example-portability"
+      ],
+      "deleted": false
+    }
   }
 }

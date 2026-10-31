@@ -30,7 +30,7 @@ for(const application of applications){
     try{
       const data=inspect(context,"$p=new DBLESSCMS\\Plugins($s);echo json_encode([$p->invalid(),$p->navigation('en-us'),$p->icon('slides','/nested'),(new DBLESSCMS\\Extensions($s))->catalog('templates','en-us')]);");
       assert.deepEqual(data[0],[]);assert.equal(data[1].slides.icon,'slides.svg');assert.equal(data[1]['files-manager'].icon,'files-manager.svg');assert.equal(data[2],'/nested/plugins/slides/slides.svg');
-      const hashes=new Set(['blog','files-manager','menu','pages','slides','widgets'].map(id=>createHash('sha256').update(fs.readFileSync(path.join(context.app,'public_html/plugins',id,id+'.svg'))).digest('hex')));assert.equal(hashes.size,6);
+      const hashes=new Set(['blog','files-manager','homepage','menu','pages','slides','widgets'].map(id=>createHash('sha256').update(fs.readFileSync(path.join(context.app,'public_html/plugins',id,id+'.svg'))).digest('hex')));assert.equal(hashes.size,7);
       for(const row of Object.values(data[3])){assert.notEqual(row.status,'invalid');assert.equal(row.media,`templates/${row.id}/${row.id}.png`);}
     }finally{context.close();}
   });

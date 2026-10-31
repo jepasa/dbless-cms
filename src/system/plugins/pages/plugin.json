@@ -79,5 +79,6 @@
       }
     ]
   },
-  "configuration": false
+  "configuration": false,
+  "presentation": "about.json"
 }

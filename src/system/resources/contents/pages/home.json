@@ -142,5 +142,40 @@
     },
     "feature_alt": "Ambiente criativo com madeira, objetos e vegetação",
     "contact_card_title": "Vamos conversar"
+  },
+  "homepage": {
+    "order": [
+      "hero",
+      "about",
+      "services",
+      "portfolio",
+      "resume",
+      "section-example-blog",
+      "section-example-widgets",
+      "contact",
+      "content",
+      "showcase"
+    ],
+    "hidden": [],
+    "sections": [
+      {
+        "key": "section-example-blog",
+        "title": "Publicações recentes",
+        "body": [
+          "Conteúdo editorial inserido pelo marcador compartilhado, com dados publicados do Blog.",
+          "{{blog:latest limit=\"3\" category=\"\" layout=\"cards\"}}"
+        ],
+        "visible": true
+      },
+      {
+        "key": "section-example-widgets",
+        "title": "Conteúdo que pode ser reutilizado",
+        "body": [
+          "{{widgets:set key=\"example-highlights\" layout=\"cards\"}}",
+          "Uma mensagem reutilizável: {{widgets:value key=\"example-message\" layout=\"text\"}}"
+        ],
+        "visible": true
+      }
+    ]
   }
 }

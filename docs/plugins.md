@@ -515,3 +515,7 @@ The source distribution bundles scanner rules and its non-executed positive-cont
 fixture under `scripts/pentest/`. Consumer installations can copy the CLI directory
 with its inventory without installing CI workflows. These developer files must
 remain outside `public_html` and are excluded from the production runtime export.
+
+## Homepage and shared components
+
+See [Homepage and shared content components](components.md) for manifest service declarations, provider interfaces, template presentations, reusable Widget sets, private drafts and plugin-owned English presentation pages.

@@ -2,3 +2,6 @@
 .widgets-plugin { min-width: 0; }
 .widgets-plugin td.widget-value { max-width: 32rem; overflow-wrap: anywhere; white-space: pre-wrap; }
 .widgets-plugin .widget-warning { color: var(--warning, #8c4d08); }
+
+/* Ordered reusable widget sets share the administrative spacing and controls. */
+.widgets-plugin .widget-members{padding:0;list-style:none;display:grid;gap:.75rem}.widgets-plugin .widget-members li{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}.widgets-plugin .widget-members span{flex:1;min-width:8rem;overflow-wrap:anywhere}.widgets-plugin pre{white-space:pre-wrap;overflow-wrap:anywhere}

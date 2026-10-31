@@ -357,6 +357,24 @@
     "cache.window": "Medições em janela de até 24 horas; limpar o cache reinicia os contadores.",
     "cache.confirm_clear": "Limpar o cache de dados e reiniciar suas métricas?",
     "cache.clear": "Limpar cache",
-    "cache.cleared": "Cache limpo e métricas reiniciadas."
+    "cache.cleared": "Cache limpo e métricas reiniciadas.",
+    "catalog.presentation": "Apresentação do plugin",
+    "catalog.about": "Conhecer {name}",
+    "components.error": "Marcador ou contrato de componente inválido. Confira o serviço registrado e seus parâmetros.",
+    "components.warning": "Referências de componentes indisponíveis: {items}",
+    "components.insert": "Inserir componente",
+    "components.plugin": "Plugin",
+    "components.service": "Serviço",
+    "components.layout": "Apresentação",
+    "components.parameters": "Parâmetros",
+    "components.add": "Inserir marcador",
+    "components.empty": "Não há serviços de componentes compatíveis disponíveis.",
+    "components.target": "O componente é inserido na seção em foco ou em uma nova seção de conteúdo.",
+    "components.limit": "Quantidade de itens",
+    "components.key": "Chave",
+    "components.category": "Categoria",
+    "components.marker": "Marcador do componente",
+    "components.invalid": "Preencha os parâmetros e selecione uma apresentação compatível.",
+    "components.noChoices": "Não há itens disponíveis. Crie o conteúdo referenciado primeiro."
   }
 }

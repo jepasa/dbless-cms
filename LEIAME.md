@@ -32,12 +32,13 @@ Node.js 22 é uma ferramenta de desenvolvimento/exportação, sem dependência n
 
 ## Explore um exemplo completo
 
-A distribuição inclui o template **Essencial** e seis plugins prontos para uso:
+A distribuição inclui o template **Essencial** e sete plugins prontos para uso:
 
 | Plugin | O que oferece ao seu projeto |
 | --- | --- |
 | Blog | Artigos, agendamento, autores, tópicos, SEO, RSS e comentários moderados |
-| Widgets | Textos e links seguros em posições declaradas pelo template |
+| Widgets | Valores posicionais, Widgets reutilizáveis e conjuntos ordenados inseridos por componentes |
+| Homepage | Composição por seções, componentes reutilizáveis e rascunhos privados antes da publicação |
 | Pages | Páginas estruturadas, rascunhos, publicação, histórico e lixeira |
 | Menu | Navegação hierárquica associada aos locais declarados pelo template |
 | Slides | Banners, carrosséis, testemunhos, produtos e conteúdo rotativo |
@@ -110,3 +111,5 @@ Ao abrir o painel, o Dashboard apresenta conteúdo, extensões ativas e métrica
 do cache. O cache privado de dados de páginas é opcional, configurado em Configurações
 Globais e limpo pelo Dashboard. Sem banco de dados, Redis ou serviço em segundo plano.
 [Guia de integração de plugins, em inglês](docs/plugins.md#core-dashboard-indicators).
+
+Conheça o [fluxo da Homepage e dos componentes compartilhados](docs/components.md). Cada plugin também inclui sua apresentação e guia de uso em inglês, acessíveis pelo gerenciador de Plugins.

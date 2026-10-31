@@ -26,7 +26,16 @@
     "menu-examples": "menu-examples.php",
     "home-extras": "home-extras.php",
     "blog": "blog.php",
-    "blog-preview": "blog-preview.php"
+    "blog-preview": "blog-preview.php",
+    "home-hero": "home-hero.php",
+    "home-about": "home-about.php",
+    "home-services": "home-services.php",
+    "home-portfolio": "home-portfolio.php",
+    "home-resume": "home-resume.php",
+    "home-contact": "home-contact.php",
+    "homepage-section": "homepage-section.php",
+    "component-cards": "component-cards.php",
+    "component-list": "component-list.php"
   },
   "version": "2.1.0",
   "author": "dbless-cms",
@@ -36,7 +45,8 @@
       "css/style.css",
       "css/menu.css",
       "css/slides.css",
-      "css/blog.css"
+      "css/blog.css",
+      "css/components.css"
     ],
     "scripts": [
       "js/theme.js",
@@ -211,5 +221,67 @@
   "themeFields": [
     "appearance.palette",
     "appearance.mode"
-  ]
+  ],
+  "homepage": {
+    "sections": {
+      "hero": {
+        "name": "Introduction",
+        "partial": "home-hero",
+        "required": true
+      },
+      "about": {
+        "name": "About",
+        "partial": "home-about",
+        "required": false
+      },
+      "services": {
+        "name": "Services",
+        "partial": "home-services",
+        "required": false
+      },
+      "portfolio": {
+        "name": "Portfolio",
+        "partial": "home-portfolio",
+        "required": false
+      },
+      "resume": {
+        "name": "Experience",
+        "partial": "home-resume",
+        "required": false
+      },
+      "contact": {
+        "name": "Contact",
+        "partial": "home-contact",
+        "required": false
+      },
+      "content": {
+        "name": "Additional page content",
+        "partial": "home-extras",
+        "required": false
+      },
+      "showcase": {
+        "name": "System examples",
+        "partial": "showcase",
+        "required": false
+      }
+    },
+    "sectionPartial": "homepage-section"
+  },
+  "componentLayouts": {
+    "blog:latest": {
+      "cards": "component-cards",
+      "list": "component-list"
+    },
+    "widgets:set": {
+      "list": "component-list",
+      "cards": "component-cards"
+    },
+    "slides:location": {
+      "cards": "component-cards",
+      "list": "component-list"
+    },
+    "menu:location": {
+      "list": "component-list"
+    }
+  }
 }

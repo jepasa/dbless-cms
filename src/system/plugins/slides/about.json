@@ -1,0 +1,29 @@
+{
+  "language": "en",
+  "title": "Slides",
+  "lead": "Maintain published collections for banners, carousels, products and testimonials while templates own the visual structure.",
+  "sections": [
+    {
+      "title": "Build a collection",
+      "body": [
+        "Create a collection and select its content type. Add images, titles, text and links, then arrange the items and enable only those ready for display.",
+        "The image picker browses the public Images upload area. Keep alternative text useful and avoid embedding text that should remain editable inside images."
+      ]
+    },
+    {
+      "title": "Assign and insert",
+      "body": [
+        "Choose a location discovered from the active template manifest and publish the collection. A location must accept the collection content type.",
+        "Use a typed page block, a legacy Slides marker or the shared component service. The modern service provides published item data to the chosen registered component format."
+      ],
+      "code": "{{slides:location key=\"home-hero\" layout=\"cards\"}}\n{{slides:home-hero}}"
+    },
+    {
+      "title": "Motion and recovery",
+      "body": [
+        "Autoplay starts disabled. When enabled, use a suitable interval and template controls that support pause, keyboard navigation and reduced motion.",
+        "History and Trash preserve recovery. Missing template locations produce administrative warnings without deleting assignments."
+      ]
+    }
+  ]
+}
