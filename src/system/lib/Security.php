@@ -60,11 +60,11 @@ final class Security {
     $_SESSION['last_seen'] = time(); return true;
   }
 
-  /** Valida usuário/senha, regenera sessão; retorna bool e não registra credenciais; falha de sessão é exceção. */
+  /** Recebe configuração/usuário/senha integral, verifica hash com limites seguros e regenera sessão; retorna bool, não registra segredos; falha de sessão lança 503. */
   public static function login(Config $config, string $user, string $password): bool {
     $credentials = $config->credentials;
     if (!$config->configured()) return false;
-    $valid = isset($credentials['password_plaintext']) ? hash_equals($credentials['password_plaintext'],$password) : password_verify($password,$credentials['password_hash']);
+    $valid = isset($credentials['password_plaintext']) ? hash_equals($credentials['password_plaintext'],$password) : Passwords::verify($password,$credentials['password_hash']);
     if (!$valid || !hash_equals($credentials['username'],$user)) return false;
     if (!session_regenerate_id(true)) throw new HttpError(503,'Sessão indisponível.','error.session');
     $_SESSION['auth'] = hash('sha256',json_encode($credentials,JSON_THROW_ON_ERROR)); $_SESSION['last_seen'] = time();

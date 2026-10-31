@@ -24,7 +24,7 @@ final class Admin {
     $action=$this->input('action');
     if ($action==='login') {
       Security::limit($this->config,'login',5,900); Security::csrf($_POST['csrf_token']??null);
-      if (!Security::login($this->config,$this->input('username'),$this->input('password',200))) throw new HttpError(401,'Usuário ou senha inválidos.','error.credentials');
+      if (!Security::login($this->config,$this->input('username'),$this->input('password',800))) throw new HttpError(401,'Usuário ou senha inválidos.','error.credentials');
       $this->redirect('dashboard','','notice.login');
     }
     if (!Security::authenticated($this->config)) throw new HttpError(403,'Autenticação necessária.','error.authentication');

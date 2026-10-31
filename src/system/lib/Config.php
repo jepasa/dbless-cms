@@ -8,7 +8,7 @@ final class Config {
   public readonly string $root;
   public readonly bool $production;
 
-  /** Carrega configuração e valida credenciais/caminhos; retorna instância; falhas são explícitas e sem segredos. */
+  /** Sem parâmetros, carrega configuração e valida caminhos/credenciais (comprimento Unicode no desenvolvimento); retorna instância sem gravações; erros explícitos não contêm segredos. */
   public function __construct() {
     $this->root = dirname(__DIR__);
     $this->production = is_file($this->root . '/config/production.php') || getenv('DBLESS_CMS_ENV') === 'production';
@@ -54,7 +54,7 @@ final class Config {
       }
     }
     if ($this->production && isset($credentials['password_plaintext'])) throw new \RuntimeException('Produção exige hash de senha.');
-    if (isset($credentials['password_plaintext']) && (!is_string($credentials['password_plaintext']) || strlen($credentials['password_plaintext']) < 16)) throw new \RuntimeException('Senha local deve conter pelo menos 16 caracteres.');
+    if (isset($credentials['password_plaintext']) && (!is_string($credentials['password_plaintext']) || Passwords::length($credentials['password_plaintext']) < 16 || Passwords::length($credentials['password_plaintext']) > 200)) throw new \RuntimeException('Senha local deve conter de 16 a 200 caracteres Unicode válidos, sem caracteres de controle.');
     if (!is_string($credentials['username'] ?? null) || ($credentials['username'] !== '' && !preg_match('/^[A-Za-z0-9_.@-]{3,100}$/', $credentials['username']))) throw new \RuntimeException('Usuário administrativo inválido.');
     $hash = $credentials['password_hash'] ?? '';
     if (!is_string($hash) || ($hash !== '' && password_get_info($hash)['algoName'] === 'unknown')) throw new \RuntimeException('Hash de senha inválido.');
