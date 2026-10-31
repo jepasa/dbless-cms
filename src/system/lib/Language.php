@@ -101,6 +101,6 @@ final class Language {
 
   /** Retorna subconjunto de mensagens do editor JS; sem parâmetros, sem credenciais ou conteúdo editorial. */
   public function clientMessages(): array {
-    return array_filter($this->catalogs[$this->selected]['messages'], static fn(string $key): bool => str_starts_with($key, 'field.') || str_starts_with($key, 'editor.') || str_starts_with($key, 'status.'), ARRAY_FILTER_USE_KEY);
+    return array_filter($this->catalogs[$this->selected]['messages'], static fn(string $key): bool => str_starts_with($key, 'global.') || str_starts_with($key, 'field.') || str_starts_with($key, 'editor.') || str_starts_with($key, 'status.'), ARRAY_FILTER_USE_KEY);
   }
 }

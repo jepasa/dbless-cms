@@ -195,5 +195,21 @@
       "contentType": "banner",
       "description": "Banner em páginas dinâmicas"
     }
-  }
+  },
+  "widgetLocations": {
+    "social-website": "Website profile link",
+    "social-contact": "Contact profile link",
+    "social-github": "GitHub profile",
+    "social-linkedin": "LinkedIn profile",
+    "social-instagram": "Instagram profile",
+    "social-facebook": "Facebook profile",
+    "social-youtube": "YouTube channel",
+    "social-whatsapp": "WhatsApp contact",
+    "footer-note": "Optional footer notice",
+    "contact-address": "Optional complete address"
+  },
+  "themeFields": [
+    "appearance.palette",
+    "appearance.mode"
+  ]
 }

@@ -23,6 +23,7 @@ final class JsonStore {
     try { $data=json_decode($raw,true,32,JSON_THROW_ON_ERROR); }
     catch (\JsonException) { throw new HttpError(422,'JSON inválido.','error.json'); }
     if (!is_array($data) || array_is_list($data)) throw new HttpError(422,'Documento precisa ser um objeto JSON.','error.document_object');
+    if ($key==='site') $data=GlobalSettings::upgrade($data);
     $data=Schema::sanitize($data);
     if ($key==='templates') {
       if (($data['schema_version']??null)!==1 || !is_array($data['templates']??null) || count($data)!==2 || count($data['templates'])>50) throw new HttpError(422,'Opções de templates inválidas.','error.extension_options');
@@ -35,8 +36,8 @@ final class JsonStore {
     } elseif ($key==='site') {
       $schema=json_decode((string)file_get_contents($this->config->root.'/config/schemas/site.schema.json'),true,64,JSON_THROW_ON_ERROR);
       Schema::validate($data,$schema);
-      if (($data['schema_version']??null)!==1) throw new HttpError(422,'Versão de conteúdo incompatível.','error.version');
-      if (isset($data['settings']['favicon'])) SiteFavicon::reference($data['settings']['favicon']);
+      if (($data['schema_version']??null)!==2) throw new HttpError(422,'Versão de conteúdo incompatível.','error.version');
+      GlobalSettings::validate($data);
       if (!is_string($data['settings']['canonical']) || !filter_var($data['settings']['canonical'],FILTER_VALIDATE_URL) || !in_array(parse_url($data['settings']['canonical'],PHP_URL_SCHEME),['https','http'],true)) throw new HttpError(422,'URL canônica precisa ser absoluta.','error.canonical');
       $publicLocale=SiteLocale::resolve($data['settings']);
       if (isset($data['settings']['siteLocale'])) $data['settings']['siteLocale']=$publicLocale['tag'];

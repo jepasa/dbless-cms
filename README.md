@@ -31,11 +31,12 @@ projects where a file-based CMS fits the job. PHP 8.2+ powers the application; N
 
 ## Explore a complete example
 
-The distribution includes the **Essencial** template and five ready-to-use plugins:
+The distribution includes the **Essencial** template and six ready-to-use plugins:
 
 | Plugin | What it brings to your project |
 | --- | --- |
 | Blog | Articles, scheduled publication, authors, topics, SEO, RSS and moderated comments |
+| Widgets | Reusable text and safe links at positions declared by the template |
 | Pages | Structured pages, drafts, publishing, history and trash |
 | Menu | Hierarchical navigation assigned to locations declared by your template |
 | Slides | Banners, carousels, testimonials, product displays and rotating content |
@@ -102,3 +103,5 @@ experience can help shape a more useful tool.
 **Apache-2.0**: use, modify and distribute dbless-cms, including in commercial projects,
 subject to the license terms. Keep the applicable notices. Third-party components retain
 their own licenses. See [LICENSE](LICENSE), [NOTICE](NOTICE) and [THIRD_PARTY.md](THIRD_PARTY.md).
+
+**Widgets** turns template-defined positions into reusable text and profile links. Update values in the admin panel, preserve them across template changes, and recover changes through history or trash. Global settings keep your identity and contact information consistent across the site.

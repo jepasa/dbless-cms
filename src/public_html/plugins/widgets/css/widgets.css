@@ -1,0 +1,4 @@
+/** Widgets layout uses the fixed administration tokens and components, with confined responsive value cells. */
+.widgets-plugin { min-width: 0; }
+.widgets-plugin td.widget-value { max-width: 32rem; overflow-wrap: anywhere; white-space: pre-wrap; }
+.widgets-plugin .widget-warning { color: var(--warning, #8c4d08); }

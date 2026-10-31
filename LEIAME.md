@@ -32,11 +32,12 @@ Node.js 22 é uma ferramenta de desenvolvimento/exportação, sem dependência n
 
 ## Explore um exemplo completo
 
-A distribuição inclui o template **Essencial** e cinco plugins prontos para uso:
+A distribuição inclui o template **Essencial** e seis plugins prontos para uso:
 
 | Plugin | O que oferece ao seu projeto |
 | --- | --- |
 | Blog | Artigos, agendamento, autores, tópicos, SEO, RSS e comentários moderados |
+| Widgets | Textos e links seguros em posições declaradas pelo template |
 | Pages | Páginas estruturadas, rascunhos, publicação, histórico e lixeira |
 | Menu | Navegação hierárquica associada aos locais declarados pelo template |
 | Slides | Banners, carrosséis, testemunhos, produtos e conteúdo rotativo |
@@ -101,3 +102,5 @@ reproduzível—sua experiência pode ajudar a construir uma ferramenta mais út
 **Apache-2.0**: utilize, modifique e distribua o dbless-cms, inclusive em projetos comerciais,
 respeitando os termos da licença. Preserve os avisos aplicáveis. Componentes de terceiros
 mantêm suas próprias licenças. Consulte [LICENSE](LICENSE), [NOTICE](NOTICE) e [THIRD_PARTY.md](THIRD_PARTY.md).
+
+**Widgets** transforma posições declaradas pelo template em textos e links reutilizáveis. Atualize os valores no painel e recupere alterações pelo histórico ou pela lixeira. As configurações globais mantêm a identidade e os contatos consistentes em todo o site.

@@ -25,6 +25,8 @@ $themeColors=['forest'=>'#16614b','ocean'=>'#2155a3','violet'=>'#6942a6','amber'
   <link rel="apple-touch-icon" href="<?= e($store->templates->asset($id,$manifest['assets']['files']['appleTouch'],$base_url)) ?>">
   <title><?= e($page['meta']['title']) ?></title>
   <meta name="description" content="<?= e($page['meta']['description']) ?>">
+  <meta name="author" content="<?= e($settings['author']) ?>">
+  <meta name="keywords" content="<?= e($settings['keywords']) ?>">
   <meta name="theme-color" content="<?= e($themeColors[$palette]) ?>">
   <meta name="robots" content="<?= e($contentMetadata['robots']??'index, follow') ?>">
   <link rel="canonical" href="<?= e($canonical) ?>">
@@ -32,9 +34,12 @@ $themeColors=['forest'=>'#16614b','ocean'=>'#2155a3','violet'=>'#6942a6','amber'
   <meta property="og:title" content="<?= e($page['meta']['title']) ?>">
   <meta property="og:description" content="<?= e($page['meta']['description']) ?>">
   <meta property="og:url" content="<?= e($canonical) ?>">
-  <meta property="og:type" content="<?= e($contentMetadata['type']??'website') ?>">
+  <meta property="og:type" content="<?= e($contentMetadata['type']??$settings['type']) ?>">
   <meta property="og:site_name" content="<?= e($siteContent['brand']['name']) ?>">
-  <?php if (!empty($page['meta']['image'])): ?><meta property="og:image" content="<?= e($mediaUrl($page['meta']['image'])) ?>"><meta property="og:image:alt" content="<?= e($page['meta']['imageAlt']??$page['meta']['title']) ?>"><?php endif; ?>
+  <?php $siteImage=$page['meta']['image']?:$settings['image'];$siteImageAlt=($page['meta']['image']??'')!==''?($page['meta']['imageAlt']??$page['meta']['title']):$settings['imageAlt'];if ($siteImage!==''): ?><meta property="og:image" content="<?= e($mediaUrl($siteImage)) ?>"><meta property="og:image:alt" content="<?= e($siteImageAlt) ?>"><?php endif; ?>
+  <?php if (($page['meta']['image']??'')===''&&$settings['image']!==''): ?>
+  <meta property="og:image:type" content="<?= e($settings['imageType']) ?>"><meta property="og:image:width" content="<?= e($settings['imageWidth']) ?>"><meta property="og:image:height" content="<?= e($settings['imageHeight']) ?>">
+  <?php endif; ?>
   <?php if (isset($contentMetadata)): ?>
   <link rel="alternate" type="application/rss+xml" title="RSS" href="<?= e($contentMetadata['feed']) ?>">
   <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="<?= e($page['meta']['title']) ?>"><meta name="twitter:description" content="<?= e($page['meta']['description']) ?>">

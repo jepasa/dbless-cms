@@ -91,6 +91,15 @@ final class Templates {
         $options=$this->json($id,$definition['schema']); OptionFields::contract($options,$language); Schema::validate($definition['defaults'],$options);
       }
     }
+    Widgets::locations($manifest);
+    if (isset($manifest['themeFields'])) {
+      if (!is_array($manifest['themeFields'])||!array_is_list($manifest['themeFields'])||count($manifest['themeFields'])>5||!isset($manifest['configuration'])) throw new HttpError(422,'Invalid theme fields.','error.manifest');
+      foreach ($manifest['themeFields'] as $field) {
+        if (!is_string($field)||!preg_match('/^[A-Za-z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*$/D',$field)) throw new HttpError(422,'Invalid theme field.','error.manifest');
+        $option=$options;foreach(explode('.',$field) as $key)$option=$option['properties'][$key]??[];
+        if(($option['type']??null)!=='string')throw new HttpError(422,'Theme field must identify a string option.','error.manifest');
+      }
+    }
     Navigation::locations($manifest);
     Slides::locations($manifest);
     return $manifest;

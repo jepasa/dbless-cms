@@ -1,0 +1,257 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "brand",
+    "media",
+    "schema_version",
+    "settings",
+    "template"
+  ],
+  "properties": {
+    "brand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "email",
+        "name",
+        "role",
+        "socials",
+        "tagline",
+        "website"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "maxLength": 12000
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 12000
+        },
+        "role": {
+          "type": "string",
+          "maxLength": 12000
+        },
+        "socials": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "href",
+              "icon",
+              "label"
+            ],
+            "properties": {
+              "href": {
+                "type": "string",
+                "maxLength": 12000
+              },
+              "icon": {
+                "type": "string",
+                "maxLength": 12000
+              },
+              "label": {
+                "type": "string",
+                "maxLength": 12000
+              }
+            }
+          }
+        },
+        "tagline": {
+          "type": "string",
+          "maxLength": 12000
+        },
+        "website": {
+          "type": "string",
+          "maxLength": 12000
+        }
+      }
+    },
+    "media": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "feature",
+        "hero",
+        "profile"
+      ],
+      "properties": {
+        "feature": {
+          "type": "string",
+          "maxLength": 12000
+        },
+        "hero": {
+          "type": "string",
+          "maxLength": 12000
+        },
+        "profile": {
+          "type": "string",
+          "maxLength": 12000
+        }
+      }
+    },
+    "schema_version": {
+      "type": "integer",
+      "maxLength": 12000
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseUrl",
+        "canonical",
+        "contact",
+        "og",
+        "pageDefaults",
+        "themeColor"
+      ],
+      "properties": {
+        "baseUrl": {
+          "type": "null",
+          "maxLength": 12000
+        },
+        "canonical": {
+          "type": "string",
+          "maxLength": 12000
+        },
+        "contact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "address",
+            "email",
+            "phone",
+            "whatsapp"
+          ],
+          "properties": {
+            "address": {
+              "type": "string",
+              "maxLength": 12000
+            },
+            "email": {
+              "type": "string",
+              "maxLength": 12000
+            },
+            "phone": {
+              "type": "string",
+              "maxLength": 12000
+            },
+            "whatsapp": {
+              "type": "string",
+              "maxLength": 12000
+            }
+          }
+        },
+        "og": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "author",
+            "image",
+            "imageAlt",
+            "imageHeight",
+            "imageType",
+            "imageWidth",
+            "locale",
+            "siteName",
+            "type"
+          ],
+          "properties": {
+            "author": {
+              "type": "string",
+              "maxLength": 12000
+            },
+            "image": {
+              "type": "string",
+              "maxLength": 12000
+            },
+            "imageAlt": {
+              "type": "string",
+              "maxLength": 12000
+            },
+            "imageHeight": {
+              "type": "string",
+              "maxLength": 12000
+            },
+            "imageType": {
+              "type": "string",
+              "maxLength": 12000
+            },
+            "imageWidth": {
+              "type": "string",
+              "maxLength": 12000
+            },
+            "locale": {
+              "type": "string",
+              "maxLength": 12000
+            },
+            "siteName": {
+              "type": "string",
+              "maxLength": 12000
+            },
+            "type": {
+              "type": "string",
+              "maxLength": 12000
+            }
+          }
+        },
+        "pageDefaults": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "author",
+            "bodyClass",
+            "description",
+            "keywords",
+            "title"
+          ],
+          "properties": {
+            "author": {
+              "type": "string",
+              "maxLength": 12000
+            },
+            "bodyClass": {
+              "type": "string",
+              "maxLength": 12000
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 12000
+            },
+            "keywords": {
+              "type": "string",
+              "maxLength": 12000
+            },
+            "title": {
+              "type": "string",
+              "maxLength": 12000
+            }
+          }
+        },
+        "themeColor": {
+          "type": "string",
+          "maxLength": 12000
+        },
+        "adminLocale": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "siteLocale": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "favicon": {
+          "type": "string",
+          "maxLength": 240
+        }
+      }
+    },
+    "template": {
+      "type": "string",
+      "maxLength": 12000
+    }
+  }
+}

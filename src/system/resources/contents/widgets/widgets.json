@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "widgets": {
+    "essencial-social-website": {
+      "id": "essencial-social-website",
+      "template": "essencial",
+      "key": "social-website",
+      "value": "/",
+      "description": "Conheça o site",
+      "deleted": false
+    },
+    "essencial-social-contact": {
+      "id": "essencial-social-contact",
+      "template": "essencial",
+      "key": "social-contact",
+      "value": "/#contact",
+      "description": "Fale com a equipe",
+      "deleted": false
+    },
+    "essencial-footer-note": {
+      "id": "essencial-footer-note",
+      "template": "essencial",
+      "key": "footer-note",
+      "value": "Conteúdo demonstrativo. Personalize este espaço com o plugin Widgets.",
+      "description": "Aviso do rodapé",
+      "deleted": false
+    }
+  }
+}

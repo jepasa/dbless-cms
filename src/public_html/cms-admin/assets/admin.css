@@ -243,3 +243,9 @@ textarea { resize: vertical; line-height: 1.6; }
 .auth-submit .admin-icon { filter: brightness(0) invert(1); }
 .icon-button.is-active .admin-icon { filter: invert(.35) sepia(1) saturate(5) hue-rotate(190deg); }
 .icon-button.danger .admin-icon { filter: invert(.25) sepia(1) saturate(4) hue-rotate(320deg); }
+
+/* Global settings: exactly three panels with canonical fieldsets, independent of plugin assets. */
+.global-editor [data-fields] { display: grid; gap: 1.25rem; }
+.global-card > h2 { margin-block: 0 1rem; }
+.global-card .field-group + .field-group { margin-block-start: 1.25rem; }
+.global-editor [data-json-label] { padding: 1.25rem; }

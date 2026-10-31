@@ -365,3 +365,56 @@ Portable verification is in `tests/blog.test.mjs` and `tests/browser/blog.mjs`. 
 `npm run verify`; the browser test accepts `PLAYWRIGHT_MODULE` pointing to an authorized
 local Playwright installation and creates private unpredictable evidence directories.
 All fixtures contain synthetic data; never run editor/upload tests on a live site.
+
+## Global settings and Widgets
+
+The global editor contains three cards: Global, Identity and Contact. `site.json`
+uses schema version 2 with a single `settings` map. Site name, slogan, description,
+base/canonical URLs, locale, identity images, author/keywords/Open Graph image data
+and contact country/state/city/phone/email/responsible person have one source of truth.
+Public image paths are relative to `public_html/`; do not include an origin or leading
+slash. The admin locale is discovered from installed JSON dictionaries. Template and
+selected theme are read-only here; manage them through the Templates catalog.
+
+Existing installations: back up the application, run
+`php src/system/bin/migrate-global-settings.php --check`, then `--apply`. The CLI
+uses maintenance/content locks, preserves the original site backup and imports old
+social links into the Widgets plugin without replacing existing values. Retry safely
+after interruption. Unknown legacy positions remain available for reassignment.
+
+Templates declare only static positions, for example:
+
+```json
+"widgetLocations": {
+  "footer-note": "Optional footer notice",
+  "social-website": "Website profile link"
+}
+```
+
+The private Widgets editor discovers keys from the active template. Each record
+has Key, Value and Description, with one non-deleted record per template/key.
+Values are literal UTF-8, not executable HTML or a general template engine. The
+repository is `system/storage/contents/widgets/widgets.json`, with optimistic
+revisions, soft-delete trash and twenty private history snapshots. Limits are 1000
+records, 512 KiB per document, 12000 bytes per value and 500 per description.
+Changing templates preserves values and warns about missing positions. Missing,
+deleted or disabled values return the caller's fallback without public errors.
+
+```php
+<?php $notice = $widgets->value('footer-note'); ?>
+<?php if ($notice !== ''): ?><p><?= \DBLESSCMS\e($notice) ?></p><?php endif; ?>
+<?php $href = $widgets->link('social-website'); ?>
+<?php if ($href !== ''): ?><a href="<?= \DBLESSCMS\e($href) ?>">Profile</a><?php endif; ?>
+```
+
+Always escape output contextually; `link()` additionally limits URL protocols and
+rejects credentials, traversal and executable destinations. Do not insert widget
+values into scripts, CSS or raw HTML. There is no public mutation endpoint.
+Essencial demonstrates profile links and a footer notice. Export omits widget trash,
+history and audit logs. Updates preserve existing installation state; examples are
+installed only for a new installation.
+
+A theme-capable template may declare `"themeFields":["appearance.palette",
+"appearance.mode"]` to identify the selected options shown in global settings.
+Paths refer to its validated configuration. Templates without this declaration
+display an empty theme field. Theme options remain in the template configuration.

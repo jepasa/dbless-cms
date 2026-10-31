@@ -75,6 +75,42 @@ function renderFields(value, parent, trail = []) {
   }
 }
 
+/** Render three settings cards from the server contract; takes current data/container, builds escaped controls and readonly template/theme values without changing JSON. */
+function renderGlobalFields(data, parent) {
+  for (const card of JSON.parse(editor.dataset.globalGroups)) {
+    const section=document.createElement('section');section.className='panel global-card';
+    const title=document.createElement('h2');title.textContent=translate(card.title);section.append(title);
+    for (const definition of card.groups) {
+      const group=document.createElement('fieldset');group.className='field-group';
+      const legend=document.createElement('legend');legend.textContent=translate(definition.title);group.append(legend);
+      const grid=document.createElement('div');grid.className='field-grid';group.append(grid);
+      for (const key of definition.fields) {
+        const label=document.createElement('label');label.textContent=translate('global.field.'+key.replace(/^@/,''));
+        const path=['settings',...key.split('.')];
+        const value=key==='@template'?editor.dataset.globalTemplate:key==='@theme'?editor.dataset.globalTheme:path.reduce((node,part)=>node?.[part],data);
+        let input;
+        if (key==='adminLocale'||key==='imageType') {
+          input=document.createElement('select');
+          const options=key==='adminLocale'?languages:Object.fromEntries(['','image/png','image/jpeg','image/webp','image/avif','image/gif','image/svg+xml','image/x-icon'].map(type=>[type,type||'—']));
+          for(const [id,text] of Object.entries(options)){const option=document.createElement('option');option.value=id;option.textContent=text;input.append(option);}
+        } else if(key==='description'){input=document.createElement('textarea');input.rows=4;label.className='wide';}
+        else {input=document.createElement('input');input.type=['imageWidth','imageHeight'].includes(key)?'number':key==='contact.email'?'email':'text';}
+        input.setAttribute('aria-label',translate('global.field.'+key.replace(/^@/,'')));
+        input.name=({adminLocale:'admin_locale',siteLocale:'site_locale',favicon:'site_favicon'})[key]||key;input.value=key==='adminLocale'&&!Object.hasOwn(languages,String(value))?language.dataset.locale:value??'';
+        if(key==='adminLocale')input.dataset.adminLocale='';if(key==='siteLocale')input.dataset.siteLocale='';if(key==='favicon')input.dataset.siteFavicon='';
+        if(key.startsWith('@')){input.readOnly=true;input.className='read-only';}
+        else {input.dataset.path=JSON.stringify(path);input.dataset.kind=typeof value;input.maxLength=key==='description'?2000:['baseUrl','canonical'].includes(key)?2048:key==='keywords'?1000:300;}
+        if(input.type==='number'){input.min=0;input.max=16384;input.step=1;}
+        if(['name','canonical','siteLocale'].includes(key))input.required=true;
+        if(key==='siteLocale')input.pattern='[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*';
+        label.append(input);grid.append(label);
+      }
+      section.append(group);
+    }
+    parent.append(section);
+  }
+}
+
 /** Serializa campos para JSON; sem parâmetros; preserva tipos e estrutura, lança erro se JSON base estiver inválido. */
 function synchronize() {
   const data = JSON.parse(editor.value);
@@ -91,7 +127,7 @@ function setMode(mode) {
   try {
     if (!fields.hidden) synchronize();
     if (mode === 'fields') {
-      const data = JSON.parse(editor.value); fields.replaceChildren(); renderFields(data, fields); fields.hidden = false; jsonLabel.hidden = true;
+      const data = JSON.parse(editor.value); fields.replaceChildren(); if(editor.dataset.globalGroups)renderGlobalFields(data,fields);else renderFields(data, fields); fields.hidden = false; jsonLabel.hidden = true;
     } else { fields.hidden = true; jsonLabel.hidden = false; }
     error.hidden = true;
     for (const tab of document.querySelectorAll('[data-mode]')) tab.setAttribute('aria-pressed', String(tab.dataset.mode === mode));
@@ -103,7 +139,7 @@ if (editor && fields) {
   for (const tab of document.querySelectorAll('[data-mode]')) tab.addEventListener('click', () => setMode(tab.dataset.mode));
   editor.closest('form').addEventListener('submit', (event) => {
     try { if (!fields.hidden) synchronize(); const data = JSON.parse(editor.value);
-      for (const choice of globalChoices) {
+      for (const choice of (editor?.dataset.globalGroups ? [] : globalChoices)) {
         const select = document.querySelector(choice.selector);
         if (select) {
           let target = data;
@@ -118,7 +154,7 @@ if (editor && fields) {
 }
 for (const form of document.querySelectorAll('[data-confirm]')) form.addEventListener('submit', (event) => { if (!form.matches('[data-settings-form]') && !window.confirm(form.dataset.confirm)) event.preventDefault(); });
 
-for (const choice of globalChoices) {
+for (const choice of (editor?.dataset.globalGroups ? [] : globalChoices)) {
   const select = document.querySelector(choice.selector);
   if (!editor || !select) continue;
   /** Sincroniza escolha global no JSON; preserva campos e sinaliza JSON inválido sem sobrescrevê-lo. */
