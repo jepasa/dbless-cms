@@ -29,9 +29,9 @@ h2 { font-size: 1.05rem; letter-spacing: -.015em; }
 small { font-size: .8rem; }
 .muted { color: var(--muted); line-height: 1.6; }
 .sidebar { position: fixed; inset: 0 auto 0 0; width: var(--sidebar-width); background: #111e32; color: #dce5f2; padding: 28px 16px 20px; display: flex; flex-direction: column; z-index: 30; overflow-y: auto; }
-.brand { display: flex; gap: 11px; align-items: center; font-size: 1.1rem; font-weight: 750; padding-inline: 10px; }
-.brand small { display: block; font-size: .58rem; letter-spacing: .14em; margin-top: 2px; font-weight: 500; color: #97a8c0; }
-.brand-mark { display: grid; place-items: center; background: var(--mint); width: 38px; height: 40px; border-radius: 10px; color: #112335; font-size: 1.35rem; }
+.brand { display: grid; gap: 6px; justify-items: start; padding-inline: 10px; }
+.brand-logo { display: block; width: 100%; max-width: 188px; height: auto; }
+.brand small { display: block; padding-inline-start: 52px; font-size: .58rem; letter-spacing: .14em; font-weight: 500; color: #97a8c0; }
 .nav-caption { margin: 35px 12px 12px; font-size: .64rem; font-weight: 650; letter-spacing: .13em; color: #91a2ba; }
 .sidebar nav { display: grid; gap: 5px; }
 .sidebar nav a, .sidebar-dropdown summary { display: flex; align-items: center; gap: 11px; padding: 11px 12px; color: #b9c8dc; border-radius: 8px; font-size: .9rem; }
@@ -237,6 +237,8 @@ textarea { resize: vertical; line-height: 1.6; }
 
 /* SVG externos preservam contraste sem incorporar markup vetorial ao documento. */
 .sidebar .admin-icon { filter: invert(.86) sepia(.08) saturate(1.5); }
+/* Cor exata da marca; preserva a transparência e o SVG indicado pelo manifesto. */
+.sidebar .plugin-icon { filter: url("brand/plugin-icon-color.svg#mint"); }
 .extension-identity { display: flex; align-items: center; gap: 14px; }
 .template-thumbnail { display: block; width: 128px; max-width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid var(--line); border-radius: 8px; flex-shrink: 0; }
 @media (max-width: 480px) { .extension-identity { flex-wrap: wrap; } }

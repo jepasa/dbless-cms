@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Original DBLess-CMS brand artwork: JSON brace, content-shaped D and custom geometric lettering. Copyright JEPASA. SPDX-License-Identifier: Apache-2.0. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="444" height="96" viewBox="0 0 444 96" role="img" aria-labelledby="title"><title id="title">DBLess-CMS</title>
+  <rect width="96" height="96" rx="24" fill="#78e4ca"/>
+  <path d="M37 21h-4c-6 0-9 3-9 9v7c0 7-3 11-9 11 6 0 9 4 9 11v7c0 6 3 9 9 9h4" fill="none" stroke="#112438" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M44 21h11c17 0 27 10 27 27S72 75 55 75H44z" fill="#112438"/>
+  <path d="M54 36h9m-9 12h14M54 60h9" fill="none" stroke="#78e4ca" stroke-width="5" stroke-linecap="round"/>
+  <g transform="translate(122 30)" fill="none" stroke="#f1f6fc" stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round">
+    <path transform="translate(0 0)" d="M0 0h10c20 0 20 32 0 32H0z"/>
+    <path transform="translate(33 0)" d="M0 0v32h11c16 0 16-16 0-16H0m0-16h10c15 0 15 16 0 16"/>
+    <path transform="translate(66 0)" d="M0 0v32h20"/>
+    <path transform="translate(96 0)" d="M0 21h21C21 5 0 5 0 21c0 14 15 16 21 8"/>
+    <path transform="translate(127 0)" d="M20 12C15 6 0 8 0 15c0 9 20 3 20 12 0 8-16 9-20 3"/>
+    <path transform="translate(157 0)" d="M20 12C15 6 0 8 0 15c0 9 20 3 20 12 0 8-16 9-20 3"/>
+    <path transform="translate(187 0)" d="M0 20h11"/>
+    <path transform="translate(212 0)" d="M22 4C16-3 0-1 0 16s16 19 22 12"/>
+    <path transform="translate(246 0)" d="M0 32V0l13 18L26 0v32"/>
+    <path transform="translate(285 0)" d="M22 4C14-4 0 0 0 9c0 10 22 3 22 15 0 11-15 12-22 5"/>
+  </g>
+</svg>

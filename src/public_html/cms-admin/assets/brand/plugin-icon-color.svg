@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Original DBLess-CMS sidebar tint: preserve source alpha and apply brand mint in sRGB. Copyright 2026 JEPASA. SPDX-License-Identifier: Apache-2.0 -->
+<svg xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="mint" color-interpolation-filters="sRGB">
+      <feFlood flood-color="#78E4CA"/>
+      <feComposite in2="SourceAlpha" operator="in"/>
+    </filter>
+  </defs>
+</svg>
