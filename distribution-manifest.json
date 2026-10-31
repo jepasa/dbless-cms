@@ -2005,8 +2005,8 @@
     },
     {
       "path": "tests/browser/blog.mjs",
-      "bytes": 15726,
-      "sha256": "1f15e321f80d076b8ae1977abc7f42d839b9d90dd8185861fe9f11b2e45e38af"
+      "bytes": 15866,
+      "sha256": "41e02f7388d0cabfc5250585036d493cbfb78d406ab0ba7459b21fcff14439c4"
     },
     {
       "path": "tests/browser/cache-dashboard.mjs",
