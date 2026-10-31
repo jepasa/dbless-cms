@@ -1,26 +1,26 @@
 {
   "language": "en",
   "title": "Homepage",
-  "lead": "Build your homepage with template sections, reusable components and a private review workflow.",
+  "lead": "Manage independent Homepage publications with scheduled selection, public document sources and shared raw-data Mustache.",
   "sections": [
     {
       "title": "Compose your homepage",
       "body": [
-        "Open Homepage → Edit Homepage. Use the section controls to arrange optional sections, change visibility and add content sections. Required sections remain visible. Existing template content and page metadata are editable in Fields or JSON mode.",
-        "Keep paragraph breaks between component markers and normal prose. A block marker occupies its own paragraph. Template manifests define native section partials; section order and values remain in the page."
+        "Open Homepage → Overview to see the publication table. New homepage creates a private draft; edit name, description, publication date and either authored HTML or a public document reference. Only one due publication is effective at a time.",
+        "The earlier 2.4 native section editor and working copies remain accessible through History → Legacy drafts. They use the separate legacy save/publish API and original pages/home.json fallback."
       ]
     },
     {
       "title": "Review and publish",
       "body": [
-        "Save draft stores a private per-template working copy without changing the public homepage. Preview saved draft opens the last saved copy in an authenticated, noindex tab. Return to Overview and publish after review.",
-        "Publication checks the saved draft, homepage and global-setting revisions under the shared lock. Conflicts preserve the public page. Start from published version explicitly archives a stale working copy. History can restore a previous published version."
+        "Save draft preserves the current published snapshot. Preview saved draft is authenticated/noindex. Publish / schedule copies the draft into a public snapshot. Homepage metadata is inherited from global settings.",
+        "All changes require session, CSRF, catalog revision and global-setting revision. History restores a validated catalog with CAS. Recovered trash entries remain inactive."
       ]
     },
     {
-      "title": "Insert reusable components",
+      "title": "Legacy template-owned components",
       "body": [
-        "Insert component discovers enabled plugin services, their typed parameters and supported template presentations. Choose a Blog query, a Widget set or a Slides/Menu location; the editor generates the marker.",
+        "In the legacy native editor only, Insert component discovers enabled services, typed parameters and template-owned presentations. Its colon markers remain compatible with earlier content. New HTML mode instead uses explicit data bindings and the variable/loop syntax documented below.",
         "Create reusable widgets and ordered sets in Widgets. Their keys do not need template positions. The template still controls every component format."
       ],
       "code": "{{blog:latest limit=\"3\" category=\"\" layout=\"cards\"}}\n{{widgets:set key=\"example-highlights\" layout=\"list\"}}"
@@ -31,6 +31,14 @@
         "The published source remains pages/home.json. Drafts live privately in contents/homepage and never enter production exports. Disabling Homepage keeps the published website available.",
         "Essencial demonstrates native section ordering and component layouts. A legacy template keeps its native homepage intact and may register a manifest adapter for finer controls. Missing references are preserved and reported in the editor."
       ]
+    },
+    {
+      "title": "Publication catalog and raw data",
+      "body": [
+        "Create named homepages in Overview / New homepage. Save draft never changes the published snapshot. Publish / schedule copies the saved content to a separate snapshot. Dates are exact UTC seconds; the editor also offers browser-local entry. At request time the newest due enabled snapshot wins, with immutable ID as a deterministic tie-breaker. Future snapshots do not replace the currently effective homepage early. Deactivation/removal returns to the next valid enabled publication. The protected legacy-home baseline preserves the native original homepage and cannot be removed. No cron or render-time writes are required.",
+        "HTML mode accepts semantic HTML, escaped variables, # sections/loops, ^ inverted sections and comments. Add multiple plugin/service bindings, give each a unique alias and insert snippets manually. Plugin results are plain JSON, never HTML or executable helpers. Source mode references a currently published Page or Blog article by stable ID; a missing/unpublished/disabled source falls back to the preceding valid homepage. Source body excludes its own site frame. Metadata always comes from global settings. Preview is authenticated and noindex. Trash recovery does not automatically activate content."
+      ],
+      "code": "Binding: {\"plugin\":\"blog\",\"service\":\"posts\",\"alias\":\"news\",\"parameters\":{\"limit\":3,\"category\":\"\"}}\n\n<section>\n  <h1>Latest articles</h1>\n  {{#news.items}}\n    <article><h2><a href=\"{{href}}\">{{title}}</a></h2><p>{{excerpt}}</p></article>\n  {{/news.items}}\n  {{^news.items}}<p>No articles yet.</p>{{/news.items}}\n</section>"
     }
   ]
 }

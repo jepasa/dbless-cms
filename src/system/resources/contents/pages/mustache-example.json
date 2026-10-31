@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "slug": "mustache-example",
+  "status": "published",
+  "page": "starter-page",
+  "meta": {
+    "title": "Live public data | DBLESS-CMS",
+    "description": "An editable example of shared plugin data and safe Mustache loops.",
+    "keywords": "dbless-cms, recursos, plugins, demonstração",
+    "image": "templates/essencial/images/examples/studio.png",
+    "imageAlt": "Recursos e possibilidades de conteúdo"
+  },
+  "content": {
+    "title": "Live public data",
+    "lead": "Um percurso pelos recursos disponíveis para organizar e publicar seu conteúdo.",
+    "summary": "O Essencial apresenta exemplos funcionais dos plugins da instalação. Os conteúdos são demonstrativos e podem ser adaptados pelo painel.",
+    "eyebrow": "Essencial · Demonstração oficial",
+    "image": "templates/essencial/images/examples/studio.png",
+    "facts": [
+      {
+        "label": "Template",
+        "value": "Essencial"
+      },
+      {
+        "label": "Conteúdo",
+        "value": "Exemplos editáveis"
+      }
+    ],
+    "sections": [
+      {
+        "title": "Páginas para suas ideias",
+        "body": [
+          "O plugin Pages permite criar, revisar e publicar páginas. Conheça os exemplos de apresentação institucional, projeto e serviço; depois crie sua própria versão pelo painel."
+        ],
+        "list": [
+          "Comece como rascunho e revise antes de publicar.",
+          "Experimente os campos estruturados ou o editor de JSON.",
+          "Recupere versões anteriores e páginas removidas."
+        ]
+      },
+      {
+        "title": "Menus que orientam a navegação",
+        "body": [
+          "O cabeçalho e o rodapé deste site utilizam o plugin Menu. Abra Conteúdo no cabeçalho para explorar submenus e páginas. O mesmo conjunto pode ser associado a locais compatíveis."
+        ],
+        "list": [
+          "Itens de página, âncora e link externo.",
+          "Ordenação e hierarquia pelo painel.",
+          "Layouts de Navbar, Sidebar, Lista e Dropdown conforme o template."
+        ]
+      },
+      {
+        "title": "Arquivos que fazem parte do conteúdo",
+        "body": [
+          "No painel, o File-Manager organiza uploads e subdiretórios. No editor de Slides, use Selecionar no File-Manager para escolher uma imagem pública: o resultado aparece no banner ou cartão publicado. As imagens iniciais desta demonstração acompanham o template; arquivos próprios podem ser enviados pelo gerenciador."
+        ],
+        "list": [
+          "Organização de arquivos públicos e privados.",
+          "Seleção de imagens públicas nos itens de Slides.",
+          "Lixeira e recuperação para arquivos removidos."
+        ]
+      },
+      {
+        "title": "Uma vitrine dentro da página",
+        "body": [
+          "Este carrossel foi inserido como marcador de conteúdo. O template mantém o mesmo layout utilizado na página inicial.",
+          "{{slides:home-products}}"
+        ],
+        "list": []
+      },
+      {
+        "title": "Composições reutilizáveis",
+        "body": [
+          "Abaixo, um banner inserido como bloco estruturado demonstra outra forma de usar o mesmo conjunto em páginas diferentes. No painel, escolha o local, a forma de inserção e publique após a revisão."
+        ],
+        "list": [
+          "Banners e campanhas.",
+          "Produtos ou cartões de conteúdo.",
+          "Depoimentos ilustrativos, marcas e faixas de avisos."
+        ]
+      }
+    ],
+    "related": [
+      {
+        "label": "Conheça o dbless-cms",
+        "href": "/exemplo-cms"
+      },
+      {
+        "label": "Perguntas frequentes",
+        "href": "/exemplo-perguntas"
+      },
+      {
+        "label": "Todos os exemplos da home",
+        "href": "/#recursos"
+      }
+    ],
+    "cta": {
+      "eyebrow": "Personalize a demonstração",
+      "title": "Transforme os exemplos na sua próxima publicação.",
+      "description": "Defina sua identidade, organize os conteúdos e revise as informações antes de disponibilizar seu site."
+    },
+    "blocks": [
+      {
+        "type": "slides",
+        "location": "page-showcase"
+      }
+    ],
+    "demonstrateMenus": true
+  },
+  "markup": {
+    "html": "<section class=\"section\"><div class=\"container text-flow\">\n  <h1>Public data, your presentation</h1>\n  <p>This editable example uses the same data engine as Homepage and Blog HTML blocks.</p>\n  <section><h2>Latest articles</h2>\n    {{#news.items}}<article><h3><a href=\"{{href}}\">{{title}}</a></h3><p>{{excerpt}}</p><p>{{author}}</p></article>{{/news.items}}\n    {{^news.items}}<p>No articles have been published yet.</p>{{/news.items}}\n  </section>\n  <section><h2>Reusable highlights</h2>{{#highlights.items}}<article><h3>{{description}}</h3><p>{{value}}</p></article>{{/highlights.items}}</section>\n  <nav aria-label=\"Example links\"><ul>{{#navigation.items}}<li><a href=\"{{href}}\">{{label}}</a><ul>{{#children}}<li><a href=\"{{href}}\">{{label}}</a></li>{{/children}}</ul></li>{{/navigation.items}}</ul></nav>\n  <section><h2>Published slides</h2>{{#promotion.items}}<figure><img src=\"{{image}}\" alt=\"{{alt}}\" loading=\"lazy\"><figcaption>{{title}} — {{text}}</figcaption></figure>{{/promotion.items}}{{^promotion.items}}<p>Assign a collection to home-hero to see its public items.</p>{{/promotion.items}}</section>\n  <section><h2>Published pages</h2><ul>{{#directory.items}}<li><a href=\"{{href}}\">{{title}}</a></li>{{/directory.items}}</ul></section>\n</div></section>",
+    "bindings": [
+      {
+        "plugin": "blog",
+        "service": "posts",
+        "alias": "news",
+        "parameters": {
+          "limit": 3,
+          "category": ""
+        }
+      },
+      {
+        "plugin": "widgets",
+        "service": "records",
+        "alias": "highlights",
+        "parameters": {
+          "key": "example-highlights"
+        }
+      },
+      {
+        "plugin": "menu",
+        "service": "tree",
+        "alias": "navigation",
+        "parameters": {
+          "key": "footer-links"
+        }
+      },
+      {
+        "plugin": "slides",
+        "service": "data",
+        "alias": "promotion",
+        "parameters": {
+          "key": "home-hero"
+        }
+      },
+      {
+        "plugin": "pages",
+        "service": "list",
+        "alias": "directory",
+        "parameters": {
+          "limit": 6
+        }
+      }
+    ]
+  }
+}

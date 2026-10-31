@@ -2,7 +2,7 @@
   "id": "slides",
   "name": "Slides",
   "description": "Conjuntos de banners, carrosséis, depoimentos e faixas rotativas.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "api": 1,
   "cmsMajor": 2,
   "entry": "Plugin.php",
@@ -136,6 +136,118 @@
       "formats": [
         "cards",
         "list"
+      ]
+    },
+    "data": {
+      "api": 1,
+      "description": "Full enabled items and playback settings of a published slide location.",
+      "context": "block",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 48
+          }
+        }
+      },
+      "result": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "contentType",
+          "type",
+          "autoplay",
+          "interval",
+          "items"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "contentType": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "type": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "autoplay": {
+            "type": "boolean"
+          },
+          "interval": {
+            "type": "integer",
+            "minimum": 3000,
+            "maximum": 30000
+          },
+          "items": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "title",
+                "text",
+                "image",
+                "alt",
+                "href",
+                "label",
+                "attribution",
+                "price"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "title": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "text": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "image": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "alt": {
+                  "type": "string",
+                  "maxLength": 300
+                },
+                "href": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "label": {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                "attribution": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "price": {
+                  "type": "string",
+                  "maxLength": 80
+                }
+              }
+            }
+          }
+        }
+      },
+      "formats": [
+        "data"
       ]
     }
   },

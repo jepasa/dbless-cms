@@ -30,7 +30,7 @@ final class Navigation {
     if ($location===null||$menu===null||$menu['deleted']||!in_array($binding['type'],$location['types'],true)||MenuStore::items($menu['items'])>$location['maxDepth']) throw new HttpError(422,'Associação incompatível.','menu.error.binding');
   }
 
-  /** Resolve uma localização ativa para árvore pública ou null para navegação nativa; recebe chave e propaga erros reais de leitura/contrato. */
+  /** Resolve uma localização ativa para nome/tipo/árvore públicos ou null para navegação nativa; recebe chave, não grava e propaga erros reais de leitura/contrato. */
   public function location(string $key): ?array {
     $locations=self::locations($this->store->templates->get($this->template));
     if (!isset($locations[$key])) return null;
@@ -42,7 +42,7 @@ final class Navigation {
     foreach ($this->document['assignments'] as $binding) if ($binding['template']===$this->template&&$binding['location']===$key) {
       $menu=$this->document['menus'][$binding['menu']];
       if ($menu['deleted']||!in_array($binding['type'],$locations[$key]['types'],true)||MenuStore::items($menu['items'])>$locations[$key]['maxDepth']) return null;
-      return ['type'=>$binding['type'],'items'=>$this->tree($menu['items'])];
+      return ['name'=>$menu['name'],'type'=>$binding['type'],'items'=>$this->tree($menu['items'])];
     }
     return null;
   }

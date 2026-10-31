@@ -56,7 +56,7 @@ final class App {
   }
 
   /** Render validated page/template; receive store/key/preview/template/base and optional private home draft, return HTML or 404 fallback; reject overrides outside preview and propagate contract/render failures without writes. */
-  public static function render(JsonStore $store,string $key,bool $preview=false,?string $template=null,?string $base=null,?array $override=null): string {
+  public static function render(JsonStore $store,string $key,bool $preview=false,?string $template=null,?string $base=null,?array $override=null,?array $homepagePreview=null): string {
     $site=$store->read('site')['data']; $id=$template??$site['template'];
     $manifest=$store->templates->get($id); $missing=false;
     if (!preg_match('/^[a-z0-9][a-z0-9-]{0,63}$/D',$key)) { $key='404'; $missing=true; }
@@ -66,6 +66,13 @@ final class App {
     if (!$preview && $page['status']!=='published') { $page=$store->read('404',$id)['data']; $missing=true; }
     if ($missing || $page['slug']==='404') http_response_code(404);
     $base_url=$base??self::base($store); $currentPage=$page['slug'];
+    $homepageHtml=null;
+    if($key==='home'&&$override===null){
+      $readContext=new ContentContext($store,$id,$base_url,'home');
+      if($homepagePreview!==null){if(!$preview)throw new \InvalidArgumentException('Homepage draft requires private preview.');$homepageHtml=Homepages::renderBody($homepagePreview,$readContext);}
+      else $homepageHtml=(new Homepages($store))->resolve($readContext)['html'];
+      $globals=$site['settings'];$page['meta']=['title'=>$globals['name'],'description'=>$globals['description'],'keywords'=>$globals['keywords'],'image'=>$globals['image'],'imageAlt'=>$globals['imageAlt']];
+    }elseif($homepagePreview!==null)throw new \InvalidArgumentException('Homepage preview requires the home route.');
     $route=['meta'=>$page['meta']]; $settings=$site['settings'];
     $publicLocale=SiteLocale::resolve($settings);
     header('Content-Language: '.$publicLocale['tag']);
@@ -76,7 +83,9 @@ final class App {
     $slides=new Slides($store,$id);
     $components=new Components(new ContentContext($store,$id,$base_url,$currentPage));
     $contentFile=$store->templates->path($id,'pages',$manifest['pages'][$page['page']]);
-    if($page['page']==='home'&&!isset($manifest['homepage'])&&($page['homepage']['sections']??[])!==[]){$nativeContentFile=$contentFile;$contentFile=__DIR__.'/views/homepage.php';}
+    if(isset($page['markup'])){$markupDefinition=$page['markup'];$contentFile=__DIR__.'/views/markup.php';}
+    if($homepageHtml!==null)$contentFile=__DIR__.'/views/markup.php';
+    if($homepageHtml===null&&!isset($page['markup'])&&$page['page']==='home'&&!isset($manifest['homepage'])&&($page['homepage']['sections']??[])!==[]){$nativeContentFile=$contentFile;$contentFile=__DIR__.'/views/homepage.php';}
     ob_start();
     try { require $store->templates->path($id,'partials',$manifest['partials']['layout']); return (string)ob_get_clean(); }
     catch (\Throwable $error) { ob_end_clean(); throw $error; }

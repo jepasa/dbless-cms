@@ -27,7 +27,7 @@ final class JsonStore {
     catch (\JsonException) { throw new HttpError(422,'JSON inválido.','error.json'); }
     if (!is_array($data) || array_is_list($data)) throw new HttpError(422,'Documento precisa ser um objeto JSON.','error.document_object');
     if ($key==='site') $data=GlobalSettings::upgrade($data);
-    $data=Schema::sanitize($data);
+    $authored=$data['markup']??null;unset($data['markup']);$data=Schema::sanitize($data);if($authored!==null){if(!is_array($authored))throw new HttpError(422,'Invalid markup.','markup.error');$data['markup']=ContentMarkup::definition($authored);}
     if ($key==='templates') {
       if (($data['schema_version']??null)!==1 || !is_array($data['templates']??null) || count($data)!==2 || count($data['templates'])>50) throw new HttpError(422,'Opções de templates inválidas.','error.extension_options');
       foreach ($data['templates'] as $id=>$options) if (!is_string($id) || !Templates::identifier($id) || !is_array($options)) throw new HttpError(422,'Opções inválidas.','error.extension_options');
@@ -60,6 +60,7 @@ final class JsonStore {
       Slides::page($data['content']);
       HomepageLayout::validate($data,$manifest);
       (new Components(new ContentContext($this,$template,'',$key)))->validate($data);
+      if(isset($data['markup']))(new Components(new ContentContext($this,$template,'',$key)))->validateBindings($data['markup']['bindings']);
     }
     return $data;
   }
@@ -76,7 +77,7 @@ final class JsonStore {
     if ($this->cache!==null&&$this->cache->enabled()&&!in_array($key,['site','plugins','templates'],true)) {
       $template??=$this->read('site')['data']['template'];
       $contracts=$this->templates->schema($template);
-      $fingerprint=hash('sha256',json_encode([$contracts,$this->templates->get($template)],JSON_THROW_ON_ERROR).(string)file_get_contents($this->config->root.'/config/schemas/page.schema.json').(string)file_get_contents(__FILE__).(string)file_get_contents(__DIR__.'/Schema.php').(string)file_get_contents(__DIR__.'/Slides.php').(string)file_get_contents(__DIR__.'/Components.php').(string)file_get_contents(__DIR__.'/HomepageLayout.php'));
+      $fingerprint=hash('sha256',json_encode([$contracts,$this->templates->get($template)],JSON_THROW_ON_ERROR).(string)file_get_contents($this->config->root.'/config/schemas/page.schema.json').(string)file_get_contents(__FILE__).(string)file_get_contents(__DIR__.'/Schema.php').(string)file_get_contents(__DIR__.'/Slides.php').(string)file_get_contents(__DIR__.'/Components.php').(string)file_get_contents(__DIR__.'/HomepageLayout.php').(string)file_get_contents(__DIR__.'/ContentMarkup.php').(string)file_get_contents(__DIR__.'/Mustache.php'));
       $data=$this->cache->remember('page:'.$template.':'.$key.':'.$revision.':'.$fingerprint,fn(): array=>$this->document($key,$raw,$template));
     } else $data=$this->document($key,$raw,$template);
     return ['data'=>$data,'revision'=>$revision];

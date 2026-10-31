@@ -418,3 +418,6 @@ declare up to 100 widget positions; dynamic records stay in plugin storage.
 ## Homepage and shared components
 
 See [Homepage and shared content components](components.md) for manifest service declarations, provider interfaces, template presentations, reusable Widget sets, private drafts and plugin-owned English presentation pages.
+
+
+For shared raw-data Mustache, authored HTML, document-source contracts and Homepage publications, see [Components](components.md). PHP ext-dom is required for authored HTML. Plugin About presentations document each public schema in English.

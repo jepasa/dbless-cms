@@ -54,6 +54,8 @@ final class BlogModel {
     foreach ($blocks as $block) {
       self::expect(is_array($block)&&is_string($block['type']??null));
       switch ($block['type']) {
+        case 'markup':
+          self::fields($block,['type','html','bindings']);self::expect(is_string($block['html'])&&trim($block['html'])!=='');ContentMarkup::definition(['html'=>$block['html'],'bindings'=>$block['bindings']]);break;
         case 'paragraph': case 'quote': case 'code':
           self::fields($block,['type','text']);self::text($block['text'],12000,false,true,$block['type']==='code');break;
         case 'heading':
@@ -130,7 +132,7 @@ final class BlogModel {
   }
   /** Read text suitable for search/excerpts/reading time; takes article, returns plain text and never interprets markup. */
   public static function bodyText(array $article): string {
-    $text=[];foreach ($article['blocks'] as $block) $text[]=isset($block['text'])?$block['text']:($block['type']==='list'?implode(' ',$block['items']):($block['caption']??''));return implode("\n",$text);
+    $text=[];foreach ($article['blocks'] as $block) $text[]=isset($block['text'])?$block['text']:($block['type']==='list'?implode(' ',$block['items']):($block['type']==='markup'?strip_tags($block['html']):($block['caption']??'')));return implode("\n",$text);
   }
   /** Count Unicode words at the configured speed; takes article/words per minute, returns at least one minute. */
   public static function readingTime(array $article,int $speed): int {preg_match_all('/[\p{L}\p{N}]+/u',self::bodyText($article),$words);return max(1,(int)ceil(count($words[0])/$speed));}

@@ -65,3 +65,5 @@ if (isset($registry->all()['widgets'])) {
 \DBLESSCMS\GlobalSettings::export($store,$target);
 \DBLESSCMS\SiteFavicon::export($store,$target);
 echo count($pages)." páginas sanitizadas.\n";
+
+(new \DBLESSCMS\Homepages($store))->export($target);

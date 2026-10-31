@@ -23,6 +23,14 @@
         "Comments start disabled. Enable them in Blog settings when needed; submissions remain pending until moderation and contain no email/IP fields.",
         "Use Trash and History to recover content. RSS and sitemap include only permitted published data. Exports omit comments, moderation state, history and trash. Concurrent changes are rejected instead of silently overwritten."
       ]
+    },
+    {
+      "title": "Raw articles and authored Mustache blocks",
+      "body": [
+        "blog:posts(limit:1–12, category: optional category ID) returns items: id, title, excerpt, href, image, publishedAt, author (display name), categories and tags (arrays of display names). Only released published articles are included. blog:latest remains available for existing template-owned card formats.",
+        "Add an HTML / Mustache block to an article to reuse the core authoring control and public data bindings. Example with alias news: {{#news.items}}<article><a href=\"{{href}}\">{{title}}</a><p>{{excerpt}}</p></article>{{/news.items}}{{^news.items}}<p>No articles yet.</p>{{/news.items}}. Never add a service that recursively renders the same document. Blog is also a Homepage source for published article bodies; comments, moderation details, credentials and the site frame are excluded."
+      ],
+      "code": "Bind blog:posts with alias news, limit 3 and an optional category ID.\n\n{{#news.items}}\n  <article>\n    <h2><a href=\"{{href}}\">{{title}}</a></h2>\n    <p>{{excerpt}}</p>\n    {{#tags}}<span>{{.}}</span>{{/tags}}\n  </article>\n{{/news.items}}\n{{^news.items}}<p>No articles yet.</p>{{/news.items}}"
     }
   ]
 }

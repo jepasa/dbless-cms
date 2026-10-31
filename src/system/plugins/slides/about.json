@@ -24,6 +24,14 @@
         "Autoplay starts disabled. When enabled, use a suitable interval and template controls that support pause, keyboard navigation and reduced motion.",
         "History and Trash preserve recovery. Missing template locations produce administrative warnings without deleting assignments."
       ]
+    },
+    {
+      "title": "Raw slide collections",
+      "body": [
+        "slides:data(key: active-template location key) returns name, contentType, type, autoplay, interval and items: id, title, text, image, alt, href, label, attribution, price. Only live published collections and enabled matching items are returned. Template/filter rules still apply. slides:location remains compatible with existing card partials.",
+        "Bind slides:data as promotion. Example: {{#promotion.items}}<figure><img src=\"{{image}}\" alt=\"{{alt}}\"><figcaption>{{title}} — {{text}}</figcaption></figure>{{/promotion.items}}. The plugin supplies data; the template supplies accessible carousel controls, CSS and JavaScript. No script may be authored inside the HTML editor."
+      ],
+      "code": "Bind slides:data with alias promotion and an active-template location key.\n\n<section>\n  {{#promotion.items}}\n    <figure>\n      <img src=\"{{image}}\" alt=\"{{alt}}\" loading=\"lazy\">\n      <figcaption>{{title}} — {{text}}</figcaption>\n    </figure>\n  {{/promotion.items}}\n  {{^promotion.items}}<p>No slides match this page.</p>{{/promotion.items}}\n</section>"
     }
   ]
 }

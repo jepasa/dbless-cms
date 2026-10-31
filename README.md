@@ -50,7 +50,7 @@ Brazilian Portuguese, with English blog examples, and can be edited independentl
 
 ## Get started
 
-Requires PHP 8.2+ with JSON, sessions, fileinfo, OpenSSL and Argon2id, plus Node.js 22
+Requires PHP 8.2+ with JSON, sessions, DOM (ext-dom), fileinfo, OpenSSL and Argon2id, plus Node.js 22
 for the development commands.
 
 ```bash
@@ -114,3 +114,6 @@ Settings, and clear it safely from the Dashboard. No database, Redis or backgrou
 service is required. [Plugin integration guide](docs/plugins.md#core-dashboard-indicators).
 
 Discover the [Homepage and shared component workflow](docs/components.md). Each plugin also includes its own English presentation and usage guide, available from the Plugins manager.
+
+
+Create independent homepages, schedule publications and shape public Blog, Pages, Menu, Slides and Widgets data with your own HTML and Mustache loops. The same local editor works in pages and Blog blocks. Explore `/mustache-example` and the shared [data-authoring guide](docs/components.md).

@@ -2,7 +2,7 @@
   "id": "widgets",
   "name": "Widgets",
   "description": "Template-defined key/value content slots.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "api": 1,
   "cmsMajor": 2,
   "entry": "Plugin.php",
@@ -196,6 +196,63 @@
       },
       "formats": [
         "text"
+      ]
+    },
+    "records": {
+      "api": 1,
+      "description": "Ordered literal reusable Widget key/value/description records from a live set.",
+      "context": "block",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 48
+          }
+        }
+      },
+      "result": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "key",
+                "value",
+                "description"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "maxLength": 48
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 12000
+                },
+                "description": {
+                  "type": "string",
+                  "maxLength": 500
+                }
+              }
+            }
+          }
+        }
+      },
+      "formats": [
+        "data"
       ]
     }
   },

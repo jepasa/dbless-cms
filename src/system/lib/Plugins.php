@@ -40,7 +40,7 @@ final class Plugins {
           if (!is_array($manifest['publicSettings']) || !array_is_list($manifest['publicSettings']) || count($manifest['publicSettings'])>50) throw new \RuntimeException('Campos públicos inválidos.');
           foreach ($manifest['publicSettings'] as $key) if (!is_string($key) || !isset($schema['properties'][$key])) throw new \RuntimeException('Campo público sem contrato.');
         }
-        Components::definitions($manifest);
+        Components::definitions($manifest);ContentDocuments::definition($manifest);
         if(isset($manifest['presentation'])){if(!is_string($manifest['presentation']))throw new \RuntimeException('Invalid presentation path.');PluginPresentation::read($directory,$manifest['presentation']);}
         Schema::validate($manifest['defaults']??null,$schema);
         $this->catalog[$id]=$manifest;
@@ -148,7 +148,7 @@ final class Plugins {
   /** Lê JSON privado limitado sem links; recebe arquivo, retorna objeto ou erro seguro de manifesto. */
   private static function json(string $file): array {
     if (is_link($file) || !is_file($file) || filesize($file)>131072) throw new \RuntimeException('Manifesto indisponível.');
-    try { $data=json_decode((string)file_get_contents($file),true,16,JSON_THROW_ON_ERROR); }
+    try { $data=json_decode((string)file_get_contents($file),true,32,JSON_THROW_ON_ERROR); }
     catch (\JsonException) { throw new \RuntimeException('JSON inválido.'); }
     if (!is_array($data)) throw new \RuntimeException('Objeto obrigatório.'); return $data;
   }

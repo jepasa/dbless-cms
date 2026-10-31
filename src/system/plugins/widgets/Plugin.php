@@ -8,15 +8,15 @@ final class WidgetsPlugin implements PluginInterface,ContentProviderInterface,Co
 
   /** List existing reusable keys or set keys for the authorized insertion UI; receive service/context, return plain labels without exposing values or writing state. */
   public function contentOptions(string $service,ContentContext $context): array {
-    $choices=[];$data=(new WidgetsStore($context->store))->read()['data'];foreach($data[$service==='set'?'sets':'reusable']??[] as $record)if(!$record['deleted']&&count($choices)<100)$choices[]=['value'=>$record['key'],'label'=>$record['key'].' — '.($record['name']??$record['description'])];return ['key'=>$choices];
+    $choices=[];$data=(new WidgetsStore($context->store))->read()['data'];foreach($data[in_array($service,['set','records'],true)?'sets':'reusable']??[] as $record)if(!$record['deleted']&&count($choices)<100)$choices[]=['value'=>$record['key'],'label'=>$record['key'].' — '.($record['name']??$record['description'])];return ['key'=>$choices];
   }
 
   /** Resolve reusable widgets/set members by stable key; receive service/parameters/context, return literal active values in stored order, omit trash, perform no writes and never interpret value markers. */
   public function content(string $service,array $parameters,ContentContext $context): array {
     $data=(new WidgetsStore($context->store))->read()['data'];$records=$data['reusable']??[];
     if($service==='value'){foreach($records as $record)if(!$record['deleted']&&$record['key']===$parameters['key'])return ['value'=>$record['value']];return ['value'=>''];}
-    if($service!=='set')throw new HttpError(404,'Unknown service.','components.error');$items=[];
-    foreach($data['sets']??[] as $set)if(!$set['deleted']&&$set['key']===$parameters['key'])foreach($set['widgets'] as $id){$record=$records[$id];if(!$record['deleted'])$items[]=['title'=>$record['description']?:$record['key'],'text'=>$record['value'],'href'=>'','image'=>''];}
+    if(!in_array($service,['set','records'],true))throw new HttpError(404,'Unknown service.','components.error');$items=[];
+    foreach($data['sets']??[] as $set)if(!$set['deleted']&&$set['key']===$parameters['key'])foreach($set['widgets'] as $id){$record=$records[$id];if(!$record['deleted'])$items[]=$service==='records'?['key'=>$record['key'],'value'=>$record['value'],'description'=>$record['description']]:['title'=>$record['description']?:$record['key'],'text'=>$record['value'],'href'=>'','image'=>''];}
     return ['items'=>$items];
   }
   /** Validate the empty settings contract; receives values/config, throws 422 for unknown options, never toggles activation. */

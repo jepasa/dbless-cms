@@ -1,14 +1,14 @@
 {
   "name": "dbless-cms",
   "private": true,
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "A database-free PHP CMS with JSON content, a focused admin panel and extensible templates and plugins.",
   "scripts": {
     "dev": "php -d upload_max_filesize=12M -d post_max_size=13M -S 127.0.0.1:8080 -t src/public_html scripts/dev-router.php",
     "predev": "npm run init:contents",
     "init:contents": "php src/system/bin/init-contents.php",
     "lint": "node scripts/check.mjs",
-    "test": "node --test tests/*.test.mjs",
+    "test": "node --test --test-concurrency=2 tests/*.test.mjs",
     "identity:check": "node scripts/check-identity.mjs",
     "verify": "npm run identity:check && npm run lint && npm test",
     "export:production": "node scripts/build.mjs",

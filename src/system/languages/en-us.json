@@ -375,6 +375,27 @@
     "components.category": "Category",
     "components.marker": "Component marker",
     "components.invalid": "Complete the parameters and select a supported presentation.",
-    "components.noChoices": "No items are available. Create the referenced content first."
+    "components.noChoices": "No items are available. Create the referenced content first.",
+    "markup.content": "HTML / Mustache content",
+    "markup.htmlHelp": "Define sections manually. HTML is validated; scripts, event handlers and inline styles are not accepted.",
+    "markup.captureTab": "Capture Tab for indentation (Escape restores navigation)",
+    "markup.bindingsJson": "Data bindings JSON",
+    "markup.plugins": "Plugins and Mustache data",
+    "markup.bindingHelp": "Bind public services and copy the snippets below manually into the content. Each alias identifies one query.",
+    "markup.plugin": "Plugin",
+    "markup.service": "Service",
+    "markup.alias": "Data alias",
+    "markup.add": "Add binding",
+    "markup.remove": "Remove binding",
+    "markup.unavailable": "The linked data service is unavailable.",
+    "markup.code": "Available Mustache code",
+    "markup.fields": "Service result fields",
+    "markup.invalid": "Review the source or supplied parameters.",
+    "markup.duplicate": "Duplicate/colliding alias or binding limit reached.",
+    "markup.error": "Invalid HTML/Mustache or binding. Review elements, URLs, sections and parameters.",
+    "markup.unavailableCore": "HTML authoring requires PHP ext-dom.",
+    "markup.pageEnable": "Use HTML/Mustache content for this page",
+    "markup.pageSave": "Save HTML/Mustache content",
+    "markup.native": "When unchecked, the page keeps its structured content."
   }
 }

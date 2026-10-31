@@ -375,6 +375,27 @@
     "components.category": "Categoria",
     "components.marker": "Marcador do componente",
     "components.invalid": "Preencha os parâmetros e selecione uma apresentação compatível.",
-    "components.noChoices": "Não há itens disponíveis. Crie o conteúdo referenciado primeiro."
+    "components.noChoices": "Não há itens disponíveis. Crie o conteúdo referenciado primeiro.",
+    "markup.content": "Conteúdo HTML / Mustache",
+    "markup.htmlHelp": "Defina as sections manualmente. HTML é validado; scripts, eventos e estilos inline não são aceitos.",
+    "markup.captureTab": "Capturar Tab para indentar (Esc libera a navegação)",
+    "markup.bindingsJson": "Vínculos de dados em JSON",
+    "markup.plugins": "Plugins e dados Mustache",
+    "markup.bindingHelp": "Vincule serviços públicos e copie os códigos abaixo manualmente para o conteúdo. Cada alias identifica uma consulta.",
+    "markup.plugin": "Plugin",
+    "markup.service": "Serviço",
+    "markup.alias": "Alias dos dados",
+    "markup.add": "Adicionar vínculo",
+    "markup.remove": "Remover vínculo",
+    "markup.unavailable": "O serviço de dados vinculado está indisponível.",
+    "markup.code": "Código Mustache disponível",
+    "markup.fields": "Campos retornados pelo serviço",
+    "markup.invalid": "Revise o código ou os parâmetros informados.",
+    "markup.duplicate": "Alias duplicado, conflitante ou limite de vínculos atingido.",
+    "markup.error": "HTML/Mustache ou vínculo inválido. Revise elementos, URLs, seções e parâmetros.",
+    "markup.unavailableCore": "A edição HTML exige a extensão DOM do PHP.",
+    "markup.pageEnable": "Utilizar conteúdo HTML/Mustache nesta página",
+    "markup.pageSave": "Salvar conteúdo HTML/Mustache",
+    "markup.native": "Quando desmarcado, o conteúdo estruturado da página permanece em uso."
   }
 }
