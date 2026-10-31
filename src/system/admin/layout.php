@@ -22,7 +22,7 @@ $labels=['site'=>$t('nav.site'),'templates'=>$t('nav.templates'),'history'=>$t('
 <?php if ($authenticated): ?>
 <button type="button" class="nav-backdrop" data-nav-backdrop tabindex="-1" aria-label="<?= e($t('nav.close')) ?>" hidden></button>
 <aside id="admin-navigation" class="sidebar" aria-label="<?= e($t('nav.label')) ?>">
-<a class="brand" href="<?= e($base.'/cms-admin/') ?>"><span class="brand-mark">D</span><span>dbless-cms<small><?= e($t('common.studio')) ?></small></span></a>
+<a class="brand" href="<?= e($base.'/cms-admin/') ?>"><img class="brand-logo" src="<?= e(asset('cms-admin/assets/brand/dbless-cms-inverse.svg',$base)) ?>" width="444" height="96" alt="DBLess-CMS"><small><?= e($t('common.studio')) ?></small></a>
 <button type="button" class="nav-close button-quiet" data-nav-close aria-label="<?= e($t('nav.close')) ?>">×</button>
 <p class="nav-caption"><?= e($t('nav.workspace')) ?></p>
 <nav>

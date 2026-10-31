@@ -64,6 +64,11 @@
       "sha256": "d6419d7a4a868a305b279afa17e6ece9fc058ecbafb30591e06e5df377f4d4bd"
     },
     {
+      "path": "doc/identidade_visual/README.md",
+      "bytes": 2474,
+      "sha256": "9b497865d28c21f2c13bc2f8f240e9abc62f707b0fc95d3a631c8ee042a45744"
+    },
+    {
       "path": "docs/images/essencial-preview.png",
       "bytes": 705812,
       "sha256": "f3b90d946638823133ebecb2717c320fab3430a7fed8c202d2c4ce89b1baf65d"
@@ -189,6 +194,11 @@
       "sha256": "efb59d985bc168d7fad1d9557a708cac5aafbc5d291602780eee0e4c3899a179"
     },
     {
+      "path": "scripts/generate-admin-favicon.mjs",
+      "bytes": 2677,
+      "sha256": "1739ca83137ccae03a7a53015e35289ec0aa1a6910ff356fce929a83fce35eb8"
+    },
+    {
       "path": "SECURITY.md",
       "bytes": 1867,
       "sha256": "fe5a7409d509f124b7f2a0cdef244ec504f12d4a79231227e5b7f0b8213e2dad"
@@ -200,8 +210,8 @@
     },
     {
       "path": "src/public_html/cms-admin/assets/admin.css",
-      "bytes": 19220,
-      "sha256": "ad74a31bd120ad57abafdfdcbd70efc32aa91b73ab091a7c8c96434a2be0c9f2"
+      "bytes": 19270,
+      "sha256": "5653205b07ce6740ec795661d7a3bb23fa3668033c86855fa2383951fbcb46ce"
     },
     {
       "path": "src/public_html/cms-admin/assets/admin.js",
@@ -209,9 +219,29 @@
       "sha256": "0f4e0bcd26d9db23b1d6763e021235015e9f80d027c09b588ea08c593a80b259"
     },
     {
+      "path": "src/public_html/cms-admin/assets/brand/dbless-cms-inverse.svg",
+      "bytes": 1702,
+      "sha256": "172f325860e76dc5088c90d362c119e6f910800d308068eb434863aab97a0743"
+    },
+    {
+      "path": "src/public_html/cms-admin/assets/brand/dbless-cms-symbol.svg",
+      "bytes": 773,
+      "sha256": "af8cc4795935e829b14cb5b7edbc3f67c1254b6342ca86a3d000e45bf18f64a3"
+    },
+    {
+      "path": "src/public_html/cms-admin/assets/brand/dbless-cms.svg",
+      "bytes": 1702,
+      "sha256": "9a555954a2eaad1077df721daaef54c6e6001e07b562ff0cea6c841b223e975d"
+    },
+    {
+      "path": "src/public_html/cms-admin/assets/brand/plugin-icon-color.svg",
+      "bytes": 424,
+      "sha256": "3220251b70c52f30272674d3956a03f167adb385c6c9e427399c8a4de094d2ee"
+    },
+    {
       "path": "src/public_html/cms-admin/assets/favicon.ico",
-      "bytes": 7069,
-      "sha256": "873b60c9c27dbd6006caddbff66fb5acf0c7b45ca500794c633efa067eef1e37"
+      "bytes": 18977,
+      "sha256": "6d302705f381174b95989ebf0fbfbc34bca2c4a20927c64dbc6215fa8d6e30ff"
     },
     {
       "path": "src/public_html/cms-admin/assets/icons/arrow-right.svg",
@@ -880,8 +910,8 @@
     },
     {
       "path": "src/system/admin/layout.php",
-      "bytes": 11299,
-      "sha256": "c06e03d08439c5fec3fec1362dc33f3dee0f063b9693e2638ad6c20cd2cff247"
+      "bytes": 11385,
+      "sha256": "1f42270fff1b1bf0ce0073bc82601464514f4732a18efa814dbf3784f2a3482a"
     },
     {
       "path": "src/system/admin/plugin-options-history.php",
@@ -1634,9 +1664,19 @@
       "sha256": "b8ecc3f15aafb667b68a4046c7bddb36c524fec0b778e3c0e4e8d8e4161f37b0"
     },
     {
+      "path": "tests/admin-brand.test.mjs",
+      "bytes": 1204,
+      "sha256": "808402ecd6328ab1260415dd7dee971ff8e133b1bbbf218f6c4257f3cf3ab4c4"
+    },
+    {
       "path": "tests/blog.test.mjs",
       "bytes": 23478,
       "sha256": "bdfcc79092ee8ebe601d023034605101fcbc754eb348e437e3ab77626b3e0632"
+    },
+    {
+      "path": "tests/browser/admin-brand.mjs",
+      "bytes": 5779,
+      "sha256": "b53487b2f96511cf05f8b3c2763936d1748211dfa5a7c910c83c8ae28057a059"
     },
     {
       "path": "tests/browser/blog.mjs",
@@ -1680,8 +1720,8 @@
     },
     {
       "path": "tests/runtime.test.mjs",
-      "bytes": 9450,
-      "sha256": "61d0a8b7a7825c3084f7024738c1e8f88b2490d972fc1aece375b1d8834f2af9"
+      "bytes": 9720,
+      "sha256": "b9d8db68ca4b9ca50b3c180d2ea80a255ba75638423bc7b04e42c63f0b2719bf"
     },
     {
       "path": "tests/semgrep/http-input.php",
@@ -1695,8 +1735,8 @@
     },
     {
       "path": "THIRD_PARTY.md",
-      "bytes": 1231,
-      "sha256": "b947ab2d7bea1ba2aea4a0f2f6c91a37e5172a3abf650ae15e7f6f4aac7bf99e"
+      "bytes": 1428,
+      "sha256": "0534affe90aad4fc53d2ffabd6d2f4258958a2367f791acefbcf7da222fa6be2"
     }
   ]
 }
