@@ -326,3 +326,84 @@ examples for the administration panel. The [plugin guide](plugins.md#12-run-the-
 describes authoring, moderation and storage limits.
 
 Public Blog template models contain only currently visible articles, including the catalog projection used for related reading. Drafts, future schedules and trash are removed before the public template executes; only authenticated saved-preview context may contain a draft.
+
+## Global settings and Widgets
+
+The global editor contains three cards: Global, Identity and Contact. `site.json`
+uses schema version 2 with a single `settings` map. Site name, slogan, description,
+base/canonical URLs, locale, identity images, author/keywords/Open Graph image data
+and contact country/state/city/phone/email/responsible person have one source of truth.
+Public image paths are relative to `public_html/`; do not include an origin or leading
+slash. The admin locale is discovered from installed JSON dictionaries. Template and
+selected theme are read-only here; manage them through the Templates catalog.
+
+Existing installations: back up the application, run
+`php src/system/bin/migrate-global-settings.php --check`, then `--apply`. The CLI
+uses maintenance/content locks, preserves the original site backup and imports old
+social links into the Widgets plugin without replacing existing values. Retry safely
+after interruption. Unknown legacy positions remain available for reassignment.
+
+Templates declare only static positions, for example:
+
+```json
+"widgetLocations": {
+  "footer-note": "Optional footer notice",
+  "social-website": "Website profile link"
+}
+```
+
+The private Widgets editor discovers keys from the active template. Each record
+has Key, Value and Description, with one non-deleted record per template/key.
+Values are literal UTF-8, not executable HTML or a general template engine. The
+repository is `system/storage/contents/widgets/widgets.json`, with optimistic
+revisions, soft-delete trash and twenty private history snapshots. Limits are 1000
+records, 512 KiB per document, 12000 bytes per value and 500 per description.
+Changing templates preserves values and warns about missing positions. Missing,
+deleted or disabled values return the caller's fallback without public errors.
+
+```php
+<?php $notice = $widgets->value('footer-note'); ?>
+<?php if ($notice !== ''): ?><p><?= \DBLESSCMS\e($notice) ?></p><?php endif; ?>
+<?php $href = $widgets->link('social-website'); ?>
+<?php if ($href !== ''): ?><a href="<?= \DBLESSCMS\e($href) ?>">Profile</a><?php endif; ?>
+```
+
+Always escape output contextually; `link()` additionally limits URL protocols and
+rejects credentials, traversal and executable destinations. Do not insert widget
+values into scripts, CSS or raw HTML. There is no public mutation endpoint.
+Essencial demonstrates profile links and a footer notice. Export omits widget trash,
+history and audit logs. Updates preserve existing installation state; examples are
+installed only for a new installation.
+
+A theme-capable template may declare `"themeFields":["appearance.palette",
+"appearance.mode"]` to identify the selected options shown in global settings.
+Paths refer to its validated configuration. Templates without this declaration
+display an empty theme field. Theme options remain in the template configuration.
+
+### Global settings v2 field reference
+
+Template rendering receives `$settings` from the validated site document. Per-page
+metadata may override the site defaults. Do not persist duplicate identity values
+in template options. `template` is the catalog-managed site preference; the theme
+label is derived from `themeFields`, not a second editable preference.
+
+| Settings path | Value and purpose |
+| --- | --- |
+| `siteLocale` | Public BCP 47 content tag, HTML lang/dir, Open Graph locale and Content-Language |
+| `adminLocale` | Installed administrator dictionary locale |
+| `name`, `slogan`, `description` | Unique site presentation values |
+| `baseUrl` | Absolute HTTP(S) base URL, or empty for local discovery |
+| `canonical` | Absolute HTTP(S) canonical site root |
+| `favicon` | Public-root-relative ICO path; template fallback if the chosen file is missing |
+| `logo`, `featuredImage` | Public-root-relative identity image paths, or empty |
+| `author`, `keywords`, `type` | Site author, comma-separated keywords and Open Graph site type |
+| `image`, `imageAlt`, `imageType` | Public-root thumbnail path, description and selected MIME type |
+| `imageWidth`, `imageHeight` | Integer pixel dimensions, 0–16384 |
+| `contact.country`, `contact.state`, `contact.city` | Site origin/address components |
+| `contact.phone`, `contact.email`, `contact.responsible` | Contact telephone, email and responsible person |
+
+Phone values remain strings to preserve `+` and formatting. Identity raster images
+are limited to 12 MiB/40 megapixels during export, with matching extension/MIME;
+SVG must be static and at most 64 KiB. Export copies only the referenced files and
+rejects links, traversal, executable payloads and missing images. A manifest may
+declare up to 100 widget positions; dynamic records stay in plugin storage.

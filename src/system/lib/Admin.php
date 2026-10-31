@@ -76,8 +76,12 @@ final class Admin {
           if (isset($_POST['admin_locale'])) $data['settings']['adminLocale']=$this->input('admin_locale',64);
           if (isset($_POST['site_locale'])) $data['settings']['siteLocale']=$this->input('site_locale',64);
           if (isset($_POST['site_favicon'])) $data['settings']['favicon']=$this->input('site_favicon',240);
-          if (isset($_POST['site_template'])) $data['template']=$this->input('site_template',64);
+          if (isset($_POST['site_template']) && $_POST['site_template']!==$this->store->read('site')['data']['template']) throw new HttpError(422,'Use the template catalog.','error.template_id');
           $raw=JsonStore::encode($data);
+        }
+        if ($key==='site') {
+          try {$submitted=json_decode($raw,true,32,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(422,'Invalid JSON.','error.json');}
+          if (($submitted['template']??null)!==$this->store->read('site')['data']['template']) throw new HttpError(422,'Use the template catalog.','error.template_id');
         }
         $this->store->save($key,$raw,$revision);
         $this->redirect($key==='site'?'site':'edit',$key,'notice.content');

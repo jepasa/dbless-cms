@@ -1,0 +1,71 @@
+{
+  "id": "widgets",
+  "name": "Widgets",
+  "description": "Template-defined key/value content slots.",
+  "version": "1.0.0",
+  "api": 1,
+  "cmsMajor": 2,
+  "entry": "Plugin.php",
+  "class": "DBLESSCMS\\WidgetsPlugin",
+  "assets": {
+    "css": "css/widgets.css",
+    "js": "js/widgets.js",
+    "icon": "widgets.svg"
+  },
+  "defaults": {},
+  "router": "Router.php",
+  "routes": {
+    "overview": {
+      "title": "widgets.overview",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "editor": {
+      "title": "widgets.editor",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "history": {
+      "title": "widgets.history",
+      "file": "pages/workspace.php",
+      "requiresEnabled": false,
+      "visibility": "private"
+    },
+    "trash": {
+      "title": "widgets.trash",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    }
+  },
+  "navigation": {
+    "label": "widgets.name",
+    "items": [
+      {
+        "label": "widgets.overview",
+        "route": "overview"
+      },
+      {
+        "label": "widgets.new",
+        "route": "editor"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "widgets.history",
+        "route": "history"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "widgets.trash",
+        "route": "trash"
+      }
+    ]
+  },
+  "configuration": false
+}

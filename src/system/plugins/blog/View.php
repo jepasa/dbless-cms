@@ -110,7 +110,8 @@ final class BlogView {
     }
     $site=$store->read('site')['data'];$id=$site['template'];$manifest=$store->templates->get($id);$base_url=$base;$currentPage='blog';$settings=$site['settings'];
     $publicLocale=SiteLocale::resolve($settings);header('Content-Language: '.$publicLocale['tag']);
-    $siteContent=['brand'=>$site['brand'],'media'=>$site['media'],'home'=>[],'details'=>['blog'=>[]]];
+    $siteContent=GlobalSettings::presentation($site,$store,$id)+['home'=>[],'details'=>['blog'=>[]]];
+    $widgets=new Widgets($store,$id);
     $templateSettings=isset($manifest['configuration'])?(new Extensions($store))->options($id)['values']:[];
     $navigation=new Navigation($store,$id,$base);$slides=new Slides($store,$id);$blogModel=$model;$blogSettings=$options;
     $title=$options['publication']['title'];$description=$options['publication']['description'];$cover='';$coverAlt='';$canonical=self::url(rtrim($settings['canonical'],'/'));$robots='index, follow';

@@ -65,33 +65,14 @@ $labels=['site'=>$t('nav.site'),'templates'=>$t('nav.templates'),'history'=>$t('
 </button></form>
 <?php endif; ?>
 <?php else: ?>
-<div class="page-heading"><div><p class="eyebrow"><?= e($t('common.studio')) ?></p><h1><?= e($labels[$view]) ?></h1><p class="muted"><?php if ($view==='plugin-panel'): ?><?= isset($panelRoute['description'])?e($panelLanguage->text($panelRoute['description'])):'' ?><?php elseif ($view==='plugins'): ?><?= e($t('catalog.plugins_help')) ?><?php elseif ($view==='template-settings'): ?><?= e($this->store->templates->labels($themeId,$language->locale())['name']) ?><?php elseif ($view==='templates'): ?><?= e($t('heading.templates')) ?><?php elseif ($view==='history'): ?><?= e($t('heading.history')) ?><?php else: ?><?= e($t('heading.edit')) ?><?php endif; ?></p></div><span class="version-tag">v2.1.0</span></div>
+<div class="page-heading"><div><p class="eyebrow"><?= e($t('common.studio')) ?></p><h1><?= e($labels[$view]) ?></h1><p class="muted"><?php if ($view==='plugin-panel'): ?><?= isset($panelRoute['description'])?e($panelLanguage->text($panelRoute['description'])):'' ?><?php elseif ($view==='plugins'): ?><?= e($t('catalog.plugins_help')) ?><?php elseif ($view==='template-settings'): ?><?= e($this->store->templates->labels($themeId,$language->locale())['name']) ?><?php elseif ($view==='templates'): ?><?= e($t('heading.templates')) ?><?php elseif ($view==='history'): ?><?= e($t('heading.history')) ?><?php else: ?><?= e($t('heading.edit')) ?><?php endif; ?></p></div><span class="version-tag">v2.2.0</span></div>
 <?php if ($view==='site'): ?>
 <div class="editor-toolbar"><div class="tabs" aria-label="<?= e($t('editor.mode')) ?>"><button type="button" data-mode="fields" aria-pressed="true"><?= e($t('editor.fields')) ?></button><button type="button" data-mode="json" aria-pressed="false"><?= e($t('editor.json')) ?></button></div><div><a class="text-link" href="?view=history&amp;key=<?= e($key) ?>"><?= e($t('nav.history')) ?></a></div></div>
 <form method="post" class="document-form"><input type="hidden" name="action" value="save"><input type="hidden" name="key" value="<?= e($key) ?>"><input type="hidden" name="revision" value="<?= e($revision) ?>"><input type="hidden" name="csrf_token" value="<?= e($csrf) ?>">
-<?php if ($view==='site'): ?>
-<section class="panel stack">
-  <label><?= e($t('global.template')) ?><select name="site_template" data-site-template required>
-  <?php if (!isset($templates[$templateChoice])): ?><option value="" selected disabled><?= e($t($templates===[]?'global.no_templates':'global.choose_template')) ?></option><?php endif; ?>
-  <?php foreach ($templates as $templateId=>$catalog): ?><option value="<?= e($templateId) ?>" <?= $templateChoice===$templateId?'selected':'' ?>><?= e($catalog['name'].' — '.$templateId) ?></option><?php endforeach; ?>
-  </select></label>
-  <p class="muted"><?= e($t('global.template_help')) ?></p>
-  <?php if (!isset($templates[$site['data']['template']])): ?><div class="notice error" role="alert"><?= e($t('global.template_unavailable')) ?></div><?php endif; ?>
-  <?php if ($rejectedTemplates!==[]): ?><div class="notice error" role="alert"><?= e($t('global.invalid_templates',['files'=>implode(', ',$rejectedTemplates)])) ?></div><?php endif; ?>
-  <label><?= e($t('global.site_language')) ?><input name="site_locale" data-site-locale value="<?= e($siteLocaleChoice) ?>" maxlength="64" pattern="[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*" list="site-locale-options" required></label>
-  <datalist id="site-locale-options"><?php foreach (['pt-BR','pt-PT','en-US','en-GB','es','fr','de','ar','he','ja','zh-Hant-TW'] as $publicTag): ?><option value="<?= e($publicTag) ?>"></option><?php endforeach; ?></datalist>
-  <p class="muted"><?= e($t('global.site_language_help')) ?></p>
-  <label><?= e($t('global.favicon')) ?><input name="site_favicon" data-site-favicon value="<?= e($faviconChoice) ?>" maxlength="240" required></label>
-  <p class="muted"><?= e($t('global.favicon_help')) ?></p>
-  <label><?= e($t('global.language')) ?><select name="admin_locale" data-admin-locale>
-  <?php foreach ($language->all() as $locale=>$catalog): ?><option value="<?= e($locale) ?>" <?= $localeChoice===$locale?'selected':'' ?>><?= e($catalog['name']) ?></option><?php endforeach; ?>
-  </select></label>
-  <p class="muted"><?= e($t('global.help')) ?></p>
-  <?php if ($language->fallback): ?><div class="notice" role="status"><?= e($t('global.fallback')) ?></div><?php endif; ?>
-  <?php if ($language->invalid()!==[]): ?><div class="notice error" role="alert"><?= e($t('global.invalid', ['files'=>implode(', ', $language->invalid())])) ?></div><?php endif; ?>
-</section>
-<?php endif; ?>
-<div class="notice error" data-editor-error role="alert" hidden></div><section class="panel editor-panel"><div data-fields hidden></div><label data-json-label><?= e($t('editor.document')) ?><textarea class="json-editor" name="document" data-document spellcheck="false" rows="28" required><?= e($document) ?></textarea></label></section>
+<?php if(!isset($templates[$templateChoice])): ?><p class="notice error" role="alert"><?= e($t('global.template_unavailable')) ?></p><?php endif; ?>
+<?php if($language->fallback): ?><p class="notice" role="status"><?= e($t('global.fallback')) ?></p><?php endif; ?>
+<?php if($language->invalid()!==[]): ?><p class="notice error" role="alert"><?= e($t('global.invalid',['files'=>implode(', ',$language->invalid())])) ?></p><?php endif; ?>
+<div class="notice error" data-editor-error role="alert" hidden></div><section class="editor-panel global-editor"><div data-fields hidden></div><label data-json-label><?= e($t('editor.document')) ?><textarea class="json-editor" name="document" data-document data-global-groups="<?= e(json_encode(\DBLESSCMS\GlobalSettings::groups($this->store,$language),JSON_THROW_ON_ERROR)) ?>" data-global-template="<?= e($templates[$templateChoice]['name']??$templateChoice) ?>" data-global-theme="<?= e(isset($templates[$templateChoice])?\DBLESSCMS\GlobalSettings::theme($this->store,$templateChoice):'') ?>" spellcheck="false" rows="28" required><?= e($document) ?></textarea></label></section>
 <div class="savebar"><span class="muted"><?= e($t('editor.revision', ['key'=>$key,'revision'=>substr($revision,0,10)])) ?></span><button class="button-primary" type="submit"><?= e($t('editor.save')) ?></button></div></form>
 <?php elseif (in_array($view,['plugins','templates'],true)): require __DIR__.'/extensions.php'; ?>
 <?php elseif ($view==='template-settings'): require __DIR__.'/template-settings.php'; ?>

@@ -58,5 +58,10 @@ if (isset($registry->all()['blog'])) {
   require_once $config->root.'/plugins/blog/Export.php';
   \DBLESSCMS\BlogExport::run($store,$target);
 }
+if (isset($registry->all()['widgets'])) {
+  require_once $config->root.'/plugins/widgets/Plugin.php';require_once $config->root.'/plugins/widgets/Export.php';
+  \DBLESSCMS\WidgetsExport::run($store,$target);
+}
+\DBLESSCMS\GlobalSettings::export($store,$target);
 \DBLESSCMS\SiteFavicon::export($store,$target);
 echo count($pages)." páginas sanitizadas.\n";

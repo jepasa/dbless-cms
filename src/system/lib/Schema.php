@@ -36,6 +36,8 @@ final class Schema {
     $value = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F\x{202A}-\x{202E}\x{2066}-\x{2069}]/u','',strip_tags($value));
     if ($value === null) throw new HttpError(422,'Texto precisa ser UTF-8 válido.','error.utf8');
     if ($key==='email' && $value!=='' && !filter_var($value,FILTER_VALIDATE_EMAIL)) throw new HttpError(422,'E-mail de conteúdo inválido.','error.content_email');
+    if (in_array($key,['logo','featuredImage'],true)&&str_starts_with($value,'assets/'))$value='templates/jepasaDotCom/'.substr($value,7);
+    if ($key==='image' && !preg_match('~^(?:https?://|/|#)~i',$value)) {GlobalSettings::media($value);return $value;}
     if (in_array($key,['href','url','image','hero','profile','feature','website','canonical','baseUrl'],true) && $value !== '') {
       if (str_starts_with($value,'assets/')) $value='templates/jepasaDotCom/'.substr($value,7);
       if (preg_match('/[\x00-\x20\x7F]/',$value) || str_starts_with($value,'//') || str_contains(rawurldecode($value),'..') || !preg_match('~^(?:https?://[^/]+(?:/.*)?|mailto:[^\s]+|tel:[+0-9()-]+|/[^\\\\]*|#[A-Za-z0-9_-]+|templates/[A-Za-z][A-Za-z0-9-]*/[A-Za-z0-9_./-]+)$~D',$value)) throw new HttpError(422,'URL de conteúdo inválida.','error.url');

@@ -37,6 +37,10 @@
           "maxLength": 2000
         }
       }
+    },
+    "widgets": {
+      "enabled": true,
+      "settings": {}
     }
   }
 }

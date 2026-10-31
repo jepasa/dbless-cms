@@ -3,9 +3,10 @@
 declare(strict_types=1);
 use function DBLESSCMS\e;
 $menuData=$navigation->location('footer-links');
-$contact=$settings['contact'];
-$hasContact=$contact['email']!==''||$contact['phone']!==''||$contact['address']!==''||$siteContent['brand']['socials']!==[];
+$contact=$settings['contact'];$contact['address']=implode(', ',array_filter([$contact['city'],$contact['state'],$contact['country']],static fn(string $part):bool=>$part!==''))?:$widgets->value('contact-address');
+$hasContact=$contact['responsible']!==''||$contact['email']!==''||$contact['phone']!==''||$contact['address']!==''||$siteContent['brand']['socials']!==[];
 ?>
+<?php $footerNote=$widgets->value('footer-note'); ?>
 <footer class="site-footer" aria-label="Rodapé do site">
   <div class="container">
     <div class="footer-grid">
@@ -24,6 +25,7 @@ $hasContact=$contact['email']!==''||$contact['phone']!==''||$contact['address']!
       <?php if ($hasContact): ?><div class="footer-contact">
         <h2 class="footer-heading">Conecte-se</h2>
         <ul class="footer-list">
+          <?php if($contact['responsible']!==''): ?><li><span class="footer-label">Responsável</span><span><?= e($contact['responsible']) ?></span></li><?php endif; ?>
           <?php if ($contact['email']!==''): ?><li><span class="footer-label">E-mail</span><a href="<?= e('mailto:'.$contact['email']) ?>"><?= e($contact['email']) ?></a></li><?php endif; ?>
           <?php if ($contact['phone']!==''): ?><li><span class="footer-label">Telefone</span><a href="<?= e('tel:'.preg_replace('/[^+0-9]/','',$contact['phone'])) ?>"><?= e($contact['phone']) ?></a></li><?php endif; ?>
           <?php if ($contact['address']!==''): ?><li><span class="footer-label">Localização</span><span><?= e($contact['address']) ?></span></li><?php endif; ?>
@@ -33,4 +35,5 @@ $hasContact=$contact['email']!==''||$contact['phone']!==''||$contact['address']!
     </div>
     <div class="footer-bottom"><small>© <?= e(gmdate('Y')) ?> <?= e($siteContent['brand']['name']) ?></small><a class="back-link" href="#main">Voltar ao topo <span aria-hidden="true">↑</span></a></div>
   </div>
+  <?php if($footerNote!==''): ?><p class="container widget-footer-note"><?= \DBLESSCMS\e($footerNote) ?></p><?php endif; ?>
 </footer>

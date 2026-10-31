@@ -22,8 +22,8 @@ try{
       await page.goto(sandbox.base+'/cms-admin/');await page.getByLabel('Username',{exact:true}).fill('editor');await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Sign in',exact:true}).click();
       assert.match(await page.locator('link[rel="icon"]').getAttribute('href'),/\/cms-admin\/assets\/favicon\.ico$/);
       await page.waitForSelector('[data-plugin-menu="slides"]');
-      const icons=page.locator('.sidebar .plugin-icon');assert.equal(await icons.count(),5);
-      const urls=await icons.evaluateAll(nodes=>nodes.map(node=>node.src));assert.equal(new Set(urls).size,5);
+      const icons=page.locator('.sidebar .plugin-icon');assert.equal(await icons.count(),6);
+      const urls=await icons.evaluateAll(nodes=>nodes.map(node=>node.src));assert.equal(new Set(urls).size,6);
       assert.ok(urls.some(url=>url.endsWith('/plugins/slides/slides.svg')));assert.ok(urls.some(url=>url.endsWith('/plugins/files-manager/files-manager.svg')));
       await page.screenshot({path:path.join(evidence,'sidebar-desktop.png')});
       await page.locator('[data-plugin-menu="slides"] > summary').click();await page.locator('[data-plugin-menu="files-manager"] > summary').click();

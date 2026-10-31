@@ -1,60 +1,32 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "template": "essencial",
-  "brand": {
-    "name": "Sua Marca",
-    "role": "Ideias que ganham forma",
-    "tagline": "Um site de exemplo para apresentar sua organização, seus projetos e o que torna seu trabalho único.",
-    "email": "contato@example.com",
-    "website": "https://example.com",
-    "socials": [
-      {
-        "label": "Conheça o site",
-        "icon": "bi-globe2",
-        "href": "/"
-      },
-      {
-        "label": "Fale com a equipe",
-        "icon": "bi-chat-dots",
-        "href": "/#contact"
-      }
-    ]
-  },
-  "media": {
-    "hero": "templates/essencial/images/examples/studio.png",
-    "profile": "templates/essencial/images/examples/studio.png",
-    "feature": "templates/essencial/images/examples/process.png"
-  },
   "settings": {
-    "baseUrl": null,
-    "canonical": "https://example.com",
-    "pageDefaults": {
-      "title": "Sua Marca",
-      "description": "Site demonstrativo com serviços, projetos e conteúdo editável.",
-      "author": "Equipe de exemplo",
-      "keywords": "site de exemplo, serviços, projetos, conteúdo",
-      "bodyClass": "site-demo"
-    },
-    "og": {
-      "author": "Equipe de exemplo",
-      "siteName": "Sua Marca",
-      "type": "website",
-      "locale": "pt_BR",
-      "image": "templates/essencial/images/examples/studio.png",
-      "imageAlt": "Ambiente criativo com madeira, objetos e vegetação",
-      "imageType": "image/png",
-      "imageWidth": "1672",
-      "imageHeight": "941"
-    },
-    "themeColor": "#149ddd",
-    "contact": {
-      "email": "contato@example.com",
-      "phone": "",
-      "whatsapp": "",
-      "address": ""
-    },
-    "adminLocale": "en-us",
     "siteLocale": "pt-BR",
-    "favicon": "templates/essencial/favicon.ico"
+    "adminLocale": "en-us",
+    "name": "Sua Marca",
+    "slogan": "Ideias que ganham forma",
+    "description": "Site demonstrativo com serviços, projetos e conteúdo editável.",
+    "baseUrl": "",
+    "canonical": "https://example.com",
+    "favicon": "templates/essencial/favicon.ico",
+    "logo": "templates/essencial/images/examples/studio.png",
+    "featuredImage": "templates/essencial/images/examples/studio.png",
+    "author": "Equipe de exemplo",
+    "keywords": "site de exemplo, serviços, projetos, conteúdo",
+    "type": "website",
+    "image": "templates/essencial/images/examples/studio.png",
+    "imageAlt": "Ambiente criativo com madeira, objetos e vegetação",
+    "imageType": "image/png",
+    "imageWidth": 1672,
+    "imageHeight": 941,
+    "contact": {
+      "country": "",
+      "state": "",
+      "city": "",
+      "phone": "",
+      "email": "contato@example.com",
+      "responsible": ""
+    }
   }
 }

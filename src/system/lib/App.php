@@ -67,7 +67,8 @@ final class App {
     $route=['meta'=>$page['meta']]; $settings=$site['settings'];
     $publicLocale=SiteLocale::resolve($settings);
     header('Content-Language: '.$publicLocale['tag']);
-    $siteContent=['brand'=>$site['brand'],'media'=>$site['media'],'home'=>$page['page']==='home'?$page['content']:[], 'details'=>[$currentPage=>$page['content']]];
+    $siteContent=GlobalSettings::presentation($site,$store,$id)+['home'=>$page['page']==='home'?$page['content']:[], 'details'=>[$currentPage=>$page['content']]];
+    $widgets=new Widgets($store,$id);
     $templateSettings=isset($manifest['configuration'])?(new Extensions($store))->options($id)['values']:[];
     $navigation=new Navigation($store,$id,$base_url);
     $slides=new Slides($store,$id);
