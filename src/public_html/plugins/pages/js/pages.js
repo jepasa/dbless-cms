@@ -28,4 +28,8 @@
       const destination=new URL(result.redirect,location.href);if(destination.origin!==location.origin)throw new Error(root.dataset.networkError);location.assign(destination.href);
     } catch(error) {status.textContent=error instanceof Error?error.message:root.dataset.networkError;status.hidden=false;status.scrollIntoView({block:'nearest'});if(submit)submit.disabled=false;}
   });
+  root.addEventListener('cms-component-insert',event=>{
+    const documentField=root.querySelector('[data-document]');if(!documentField)return;
+    try{const fieldsButton=document.querySelector('[data-mode="json"]');fieldsButton?.click();const value=JSON.parse(documentField.value);value.content.sections??=[];value.content.sections.push({title:'',body:[event.detail.marker],list:[]});documentField.value=JSON.stringify(value,null,2)+'\n';document.querySelector('[data-mode="fields"]')?.click();}catch(error){const status=root.querySelector('[data-pages-status]');status.textContent=error.message||root.dataset.networkError;status.hidden=false;}
+  });
 })();

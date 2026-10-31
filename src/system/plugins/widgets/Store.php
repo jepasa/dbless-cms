@@ -21,7 +21,7 @@ final class WidgetsStore {
 
   /** Validate the closed widget document; receives data, returns unchanged validated copy; duplicates, code, invalid references and excessive content throw 422 without writes. */
   public static function validate(array $data): array {
-    self::fields($data,['schema_version','widgets']);
+    if(array_diff(array_keys($data),['schema_version','widgets','reusable','sets'])!==[]||!array_key_exists('schema_version',$data)||!array_key_exists('widgets',$data))throw new HttpError(422,'Invalid widget catalog.','widgets.error.contract');
     if($data['schema_version']!==1||!is_array($data['widgets'])||count($data['widgets'])>1000) throw new HttpError(422,'Invalid widget catalog.','widgets.error.contract');
     $seen=[];
     foreach($data['widgets'] as $id=>$record){
@@ -31,12 +31,26 @@ final class WidgetsStore {
       if(!$record['deleted']&&isset($seen[$key])) throw new HttpError(422,'Duplicate widget key.','widgets.error.duplicate');
       if(!$record['deleted'])$seen[$key]=true;
     }
+    $keys=[];$reusable=$data['reusable']??[];$sets=$data['sets']??[];
+    if(!is_array($reusable)||!is_array($sets)||count($reusable)>1000||count($sets)>100)throw new HttpError(422,'Invalid reusable widgets.','widgets.error.contract');
+    foreach($reusable as $id=>$record){
+      self::fields($record,['id','key','value','description','deleted']);
+      if(!is_string($id)||!self::identifier($id)||$record['id']!==$id||!is_string($record['key'])||!self::identifier($record['key'])||!self::text($record['value'],12000,true)||!self::text($record['description'],500,true)||!is_bool($record['deleted']))throw new HttpError(422,'Invalid reusable widget.','widgets.error.contract');
+      if(!$record['deleted']&&isset($keys[$record['key']]))throw new HttpError(422,'Duplicate reusable key.','widgets.error.duplicate');if(!$record['deleted'])$keys[$record['key']]=true;
+    }
+    $keys=[];
+    foreach($sets as $id=>$set){
+      self::fields($set,['id','key','name','description','widgets','deleted']);
+      if(!is_string($id)||!self::identifier($id)||$set['id']!==$id||!is_string($set['key'])||!self::identifier($set['key'])||!self::text($set['name'],120)||!self::text($set['description'],500,true)||!is_bool($set['deleted'])||!is_array($set['widgets'])||!array_is_list($set['widgets'])||count($set['widgets'])>20||count(array_unique($set['widgets'],SORT_REGULAR))!==count($set['widgets']))throw new HttpError(422,'Invalid widget set.','widgets.error.contract');
+      foreach($set['widgets'] as $member)if(!is_string($member)||!isset($reusable[$member]))throw new HttpError(422,'Unknown widget member.','widgets.error.contract');
+      if(!$set['deleted']&&isset($keys[$set['key']]))throw new HttpError(422,'Duplicate set key.','widgets.error.duplicate');if(!$set['deleted'])$keys[$set['key']]=true;
+    }
     return $data;
   }
 
   /** Serializa mapas vazios como objetos e JSON indentado; recebe documento validado e retorna bytes, propagando erro de codificação. */
   public static function encode(array $data): string {
-    if ($data['widgets']===[]) $data['widgets']=(object)[];
+    foreach(['widgets','reusable','sets'] as $key)if(isset($data[$key])&&$data[$key]===[])$data[$key]=(object)[];
     return json_encode($data,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR)."\n";
   }
 

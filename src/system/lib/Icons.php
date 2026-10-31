@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace DBLESSCMS;
 final class Icons {
   private const FILES=['arrow-right', 'arrow-up-short', 'box-arrow-in-right', 'box-arrow-right', 'box-arrow-up-right', 'briefcase', 'chat-dots', 'check-circle', 'check2-circle', 'clock-history', 'code-slash', 'envelope', 'eye', 'facebook', 'file-earmark-text', 'gear', 'github', 'globe', 'globe2', 'grid', 'hdd-stack', 'house', 'image', 'images', 'instagram', 'kanban', 'link-45deg', 'linkedin', 'list', 'list-ul', 'palette', 'pencil', 'person', 'person-circle', 'person-fill', 'shield-check', 'toggle-off', 'toggle-on', 'trash', 'twitter', 'twitter-x', 'whatsapp', 'x', 'youtube'];
-  private const ALIASES=['settings'=>'gear','plugins'=>'grid','templates'=>'palette','activate'=>'toggle-on','deactivate'=>'toggle-off','uninstall'=>'trash','configure'=>'gear','logout'=>'box-arrow-right','login'=>'box-arrow-in-right','edit'=>'pencil','preview'=>'eye','history'=>'clock-history','menu'=>'list-ul','pages'=>'file-earmark-text','image'=>'image','external'=>'box-arrow-up-right'];
+  private const ALIASES=['presentation'=>'file-earmark-text','settings'=>'gear','plugins'=>'grid','templates'=>'palette','activate'=>'toggle-on','deactivate'=>'toggle-off','uninstall'=>'trash','configure'=>'gear','logout'=>'box-arrow-right','login'=>'box-arrow-in-right','edit'=>'pencil','preview'=>'eye','history'=>'clock-history','menu'=>'list-ul','pages'=>'file-earmark-text','image'=>'image','external'=>'box-arrow-up-right'];
   /** Resolve somente nome conhecido para SVG local; recebe nome/base/template opcional, retorna URL escapável ou InvalidArgumentException, sem escrita. */
   public static function url(string $name,string $base='',?string $template=null): string {
     $file=self::ALIASES[$name]??$name;

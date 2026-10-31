@@ -357,6 +357,24 @@
     "cache.window": "Measurements cover up to 24 hours; clearing the cache resets counters.",
     "cache.confirm_clear": "Clear cached data and reset its metrics?",
     "cache.clear": "Clear cache",
-    "cache.cleared": "Cache cleared and metrics reset."
+    "cache.cleared": "Cache cleared and metrics reset.",
+    "catalog.presentation": "Plugin presentation",
+    "catalog.about": "About {name}",
+    "components.error": "Invalid component marker or contract. Check the registered service and its parameters.",
+    "components.warning": "Unavailable component references: {items}",
+    "components.insert": "Insert component",
+    "components.plugin": "Plugin",
+    "components.service": "Service",
+    "components.layout": "Presentation",
+    "components.parameters": "Parameters",
+    "components.add": "Insert marker",
+    "components.empty": "No compatible component services are available.",
+    "components.target": "The component is inserted in the focused section, or in a new content section.",
+    "components.limit": "Item limit",
+    "components.key": "Key",
+    "components.category": "Category",
+    "components.marker": "Component marker",
+    "components.invalid": "Complete the parameters and select a supported presentation.",
+    "components.noChoices": "No items are available. Create the referenced content first."
   }
 }

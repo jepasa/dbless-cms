@@ -1,0 +1,36 @@
+{
+  "language": "en",
+  "title": "Homepage",
+  "lead": "Build your homepage with template sections, reusable components and a private review workflow.",
+  "sections": [
+    {
+      "title": "Compose your homepage",
+      "body": [
+        "Open Homepage → Edit Homepage. Use the section controls to arrange optional sections, change visibility and add content sections. Required sections remain visible. Existing template content and page metadata are editable in Fields or JSON mode.",
+        "Keep paragraph breaks between component markers and normal prose. A block marker occupies its own paragraph. Template manifests define native section partials; section order and values remain in the page."
+      ]
+    },
+    {
+      "title": "Review and publish",
+      "body": [
+        "Save draft stores a private per-template working copy without changing the public homepage. Preview saved draft opens the last saved copy in an authenticated, noindex tab. Return to Overview and publish after review.",
+        "Publication checks the saved draft, homepage and global-setting revisions under the shared lock. Conflicts preserve the public page. Start from published version explicitly archives a stale working copy. History can restore a previous published version."
+      ]
+    },
+    {
+      "title": "Insert reusable components",
+      "body": [
+        "Insert component discovers enabled plugin services, their typed parameters and supported template presentations. Choose a Blog query, a Widget set or a Slides/Menu location; the editor generates the marker.",
+        "Create reusable widgets and ordered sets in Widgets. Their keys do not need template positions. The template still controls every component format."
+      ],
+      "code": "{{blog:latest limit=\"3\" category=\"\" layout=\"cards\"}}\n{{widgets:set key=\"example-highlights\" layout=\"list\"}}"
+    },
+    {
+      "title": "Template and installation behavior",
+      "body": [
+        "The published source remains pages/home.json. Drafts live privately in contents/homepage and never enter production exports. Disabling Homepage keeps the published website available.",
+        "Essencial demonstrates native section ordering and component layouts. A legacy template keeps its native homepage intact and may register a manifest adapter for finer controls. Missing references are preserved and reported in the editor."
+      ]
+    }
+  ]
+}

@@ -38,6 +38,23 @@
     "widgets.error.conflict": "Another change was saved. Reopen this page before saving.",
     "widgets.error.binding": "Select a key declared by the active template.",
     "widgets.error.missing": "Widget unavailable.",
-    "widgets.error.templateChanged": "The template or global settings changed. Reopen the editor."
+    "widgets.error.templateChanged": "The template or global settings changed. Reopen the editor.",
+    "widgets.library": "Reusable widgets",
+    "widgets.record": "Edit reusable widget",
+    "widgets.sets": "Widget sets",
+    "widgets.setEditor": "Edit widget set",
+    "widgets.newReusable": "New reusable widget",
+    "widgets.newSet": "New widget set",
+    "widgets.nameField": "Name",
+    "widgets.members": "Members in display order",
+    "widgets.memberHelp": "Select widgets and use the arrows to set their display order. Deleted members are preserved and omitted publicly.",
+    "widgets.libraryHelp": "Stable keys are created here and do not require a template position. Values remain plain text.",
+    "widgets.setHelp": "Use this set in a page with the component marker below. Keys remain stable after creation.",
+    "widgets.up": "Move up",
+    "widgets.down": "Move down",
+    "widgets.chooseMember": "Add a widget",
+    "widgets.addMember": "Add member",
+    "widgets.removeMember": "Remove member",
+    "widgets.noMembers": "No reusable widgets are available. Create one first."
   }
 }

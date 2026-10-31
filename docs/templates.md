@@ -414,3 +414,7 @@ are limited to 12 MiB/40 megapixels during export, with matching extension/MIME;
 SVG must be static and at most 64 KiB. Export copies only the referenced files and
 rejects links, traversal, executable payloads and missing images. A manifest may
 declare up to 100 widget positions; dynamic records stay in plugin storage.
+
+## Homepage and shared components
+
+See [Homepage and shared content components](components.md) for manifest service declarations, provider interfaces, template presentations, reusable Widget sets, private drafts and plugin-owned English presentation pages.

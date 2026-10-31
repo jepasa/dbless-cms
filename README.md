@@ -31,12 +31,13 @@ projects where a file-based CMS fits the job. PHP 8.2+ powers the application; N
 
 ## Explore a complete example
 
-The distribution includes the **Essencial** template and six ready-to-use plugins:
+The distribution includes the **Essencial** template and seven ready-to-use plugins:
 
 | Plugin | What it brings to your project |
 | --- | --- |
 | Blog | Articles, scheduled publication, authors, topics, SEO, RSS and moderated comments |
-| Widgets | Reusable text and safe links at positions declared by the template |
+| Widgets | Positional values, reusable widgets and ordered sets inserted through components |
+| Homepage | Compose sections, reuse components and review private drafts before publishing |
 | Pages | Structured pages, drafts, publishing, history and trash |
 | Menu | Hierarchical navigation assigned to locations declared by your template |
 | Slides | Banners, carousels, testimonials, product displays and rotating content |
@@ -111,3 +112,5 @@ Open the admin panel to a focused Dashboard: content, active extensions and meas
 cache health in one place. Configure the optional private page-data cache in Global
 Settings, and clear it safely from the Dashboard. No database, Redis or background
 service is required. [Plugin integration guide](docs/plugins.md#core-dashboard-indicators).
+
+Discover the [Homepage and shared component workflow](docs/components.md). Each plugin also includes its own English presentation and usage guide, available from the Plugins manager.

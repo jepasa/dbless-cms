@@ -1,0 +1,65 @@
+{
+  "id": "homepage",
+  "name": "Homepage",
+  "description": "Compose and publish the homepage with private drafts, reusable components and revision history.",
+  "version": "1.0.0",
+  "api": 1,
+  "cmsMajor": 2,
+  "entry": "Plugin.php",
+  "class": "DBLESSCMS\\HomepagePlugin",
+  "assets": {
+    "css": "css/homepage.css",
+    "js": "js/homepage.js",
+    "icon": "homepage.svg"
+  },
+  "defaults": {},
+  "router": "Router.php",
+  "routes": {
+    "overview": {
+      "title": "homepage.overview",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "editor": {
+      "title": "homepage.editor",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "history": {
+      "title": "homepage.history",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "preview": {
+      "title": "homepage.preview",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    }
+  },
+  "navigation": {
+    "label": "homepage.name",
+    "items": [
+      {
+        "label": "homepage.overview",
+        "route": "overview"
+      },
+      {
+        "label": "homepage.editor",
+        "route": "editor"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "homepage.history",
+        "route": "history"
+      }
+    ]
+  },
+  "configuration": false,
+  "presentation": "about.json"
+}

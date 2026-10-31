@@ -6,13 +6,14 @@ use function DBLESSCMS\asset;
 use DBLESSCMS\Icons;
 /** Traduz chave e parâmetros do layout; retorna texto para escape contextual, sem efeitos externos. */
 $t = static fn(string $key, array $parameters = []): string => $language->text($key, $parameters);
-$labels=['dashboard'=>$t('nav.dashboard'),'site'=>$t('nav.site'),'templates'=>$t('nav.templates'),'history'=>$t('nav.history'),'login'=>$t('nav.login'),'plugins'=>$t('nav.plugins'),'plugin-settings'=>$t('catalog.plugin_settings'),'template-settings'=>$t('catalog.template_settings'),'plugin-panel'=>$panelLanguage?->text($panelRoute['title'])??$t('nav.plugins')];
+$labels=['plugin-about'=>$t('catalog.presentation'),'dashboard'=>$t('nav.dashboard'),'site'=>$t('nav.site'),'templates'=>$t('nav.templates'),'history'=>$t('nav.history'),'login'=>$t('nav.login'),'plugins'=>$t('nav.plugins'),'plugin-settings'=>$t('catalog.plugin_settings'),'template-settings'=>$t('catalog.template_settings'),'plugin-panel'=>$panelLanguage?->text($panelRoute['title'])??$t('nav.plugins')];
 ?>
 <!doctype html><html lang="<?= e($language->locale()) ?>" dir="<?= e($language->direction()) ?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow"><title><?= e($labels[$view]) ?> · dbless-cms</title>
 <link rel="icon" type="image/x-icon" href="<?= e(asset('cms-admin/assets/favicon.ico',$base)) ?>">
 <link rel="stylesheet" href="<?= e(asset('cms-admin/assets/admin.css',$base)) ?>">
 <script src="<?= e(asset('cms-admin/assets/admin.js',$base)) ?>" defer></script>
+<script src="<?= e(asset('cms-admin/assets/components.js',$base)) ?>" defer></script>
 <?php if ($panelAssets!==null): ?>
 <link rel="stylesheet" href="<?= e(asset('plugins/'.$panelId.'/'.$panelAssets['css'],$base)) ?>">
 <script src="<?= e(asset('plugins/'.$panelId.'/'.$panelAssets['js'],$base)) ?>" defer></script>
@@ -64,8 +65,9 @@ $labels=['dashboard'=>$t('nav.dashboard'),'site'=>$t('nav.site'),'templates'=>$t
 </button></form>
 <?php endif; ?>
 <?php else: ?>
-<div class="page-heading"><div><p class="eyebrow"><?= e($t('common.studio')) ?></p><h1><?= e($labels[$view]) ?></h1><p class="muted"><?php if ($view==='dashboard'): ?><?= e($t('dashboard.help')) ?><?php elseif ($view==='plugin-panel'): ?><?= isset($panelRoute['description'])?e($panelLanguage->text($panelRoute['description'])):'' ?><?php elseif ($view==='plugins'): ?><?= e($t('catalog.plugins_help')) ?><?php elseif ($view==='template-settings'): ?><?= e($this->store->templates->labels($themeId,$language->locale())['name']) ?><?php elseif ($view==='templates'): ?><?= e($t('heading.templates')) ?><?php elseif ($view==='history'): ?><?= e($t('heading.history')) ?><?php else: ?><?= e($t('heading.edit')) ?><?php endif; ?></p></div><span class="version-tag">v2.3.0</span></div>
-<?php if ($view==='dashboard'): require __DIR__.'/dashboard.php'; ?>
+<div class="page-heading"><div><p class="eyebrow"><?= e($t('common.studio')) ?></p><h1><?= e($labels[$view]) ?></h1><p class="muted"><?php if ($view==='dashboard'): ?><?= e($t('dashboard.help')) ?><?php elseif ($view==='plugin-panel'): ?><?= isset($panelRoute['description'])?e($panelLanguage->text($panelRoute['description'])):'' ?><?php elseif ($view==='plugins'): ?><?= e($t('catalog.plugins_help')) ?><?php elseif ($view==='template-settings'): ?><?= e($this->store->templates->labels($themeId,$language->locale())['name']) ?><?php elseif ($view==='templates'): ?><?= e($t('heading.templates')) ?><?php elseif ($view==='history'): ?><?= e($t('heading.history')) ?><?php else: ?><?= e($t('heading.edit')) ?><?php endif; ?></p></div><span class="version-tag">v<?= e($this->config->data['version']) ?></span></div>
+<?php if ($view==='plugin-about'): require __DIR__.'/plugin-about.php'; ?>
+<?php elseif ($view==='dashboard'): require __DIR__.'/dashboard.php'; ?>
 <?php elseif ($view==='site'): ?>
 <div class="editor-toolbar"><div class="tabs" aria-label="<?= e($t('editor.mode')) ?>"><button type="button" data-mode="fields" aria-pressed="true"><?= e($t('editor.fields')) ?></button><button type="button" data-mode="json" aria-pressed="false"><?= e($t('editor.json')) ?></button></div><div><a class="text-link" href="?view=history&amp;key=<?= e($key) ?>"><?= e($t('nav.history')) ?></a></div></div>
 <form method="post" class="document-form"><input type="hidden" name="action" value="save"><input type="hidden" name="key" value="<?= e($key) ?>"><input type="hidden" name="revision" value="<?= e($revision) ?>"><input type="hidden" name="csrf_token" value="<?= e($csrf) ?>">

@@ -58,6 +58,8 @@ final class JsonStore {
       if (!isset($contracts['pages'][$data['page']])) throw new HttpError(422,'Contrato de página ausente.','error.page_contract');
       Schema::validate($data['content'],$contracts['pages'][$data['page']],'content');
       Slides::page($data['content']);
+      HomepageLayout::validate($data,$manifest);
+      (new Components(new ContentContext($this,$template,'',$key)))->validate($data);
     }
     return $data;
   }
@@ -74,7 +76,7 @@ final class JsonStore {
     if ($this->cache!==null&&$this->cache->enabled()&&!in_array($key,['site','plugins','templates'],true)) {
       $template??=$this->read('site')['data']['template'];
       $contracts=$this->templates->schema($template);
-      $fingerprint=hash('sha256',json_encode([$contracts,$this->templates->get($template)],JSON_THROW_ON_ERROR).(string)file_get_contents($this->config->root.'/config/schemas/page.schema.json').(string)file_get_contents(__FILE__).(string)file_get_contents(__DIR__.'/Schema.php').(string)file_get_contents(__DIR__.'/Slides.php'));
+      $fingerprint=hash('sha256',json_encode([$contracts,$this->templates->get($template)],JSON_THROW_ON_ERROR).(string)file_get_contents($this->config->root.'/config/schemas/page.schema.json').(string)file_get_contents(__FILE__).(string)file_get_contents(__DIR__.'/Schema.php').(string)file_get_contents(__DIR__.'/Slides.php').(string)file_get_contents(__DIR__.'/Components.php').(string)file_get_contents(__DIR__.'/HomepageLayout.php'));
       $data=$this->cache->remember('page:'.$template.':'.$key.':'.$revision.':'.$fingerprint,fn(): array=>$this->document($key,$raw,$template));
     } else $data=$this->document($key,$raw,$template);
     return ['data'=>$data,'revision'=>$revision];

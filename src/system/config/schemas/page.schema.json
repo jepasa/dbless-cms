@@ -61,6 +61,68 @@
     },
     "content": {
       "type": "object"
+    },
+    "homepage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "order",
+        "hidden",
+        "sections"
+      ],
+      "properties": {
+        "order": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "string",
+            "maxLength": 48
+          }
+        },
+        "hidden": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "string",
+            "maxLength": 48
+          }
+        },
+        "sections": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "title",
+              "body",
+              "visible"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "maxLength": 48
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "body": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string",
+                  "maxLength": 12000
+                }
+              },
+              "visible": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

@@ -2,7 +2,7 @@
   "id": "widgets",
   "name": "Widgets",
   "description": "Template-defined key/value content slots.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "api": 1,
   "cmsMajor": 2,
   "entry": "Plugin.php",
@@ -38,6 +38,30 @@
       "file": "pages/workspace.php",
       "requiresEnabled": true,
       "visibility": "private"
+    },
+    "library": {
+      "title": "widgets.library",
+      "file": "pages/library.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "record": {
+      "title": "widgets.record",
+      "file": "pages/library.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "sets": {
+      "title": "widgets.sets",
+      "file": "pages/library.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "set": {
+      "title": "widgets.setEditor",
+      "file": "pages/library.php",
+      "requiresEnabled": true,
+      "visibility": "private"
     }
   },
   "navigation": {
@@ -50,6 +74,14 @@
       {
         "label": "widgets.new",
         "route": "editor"
+      },
+      {
+        "label": "widgets.library",
+        "route": "library"
+      },
+      {
+        "label": "widgets.sets",
+        "route": "sets"
       },
       {
         "separator": true
@@ -67,5 +99,105 @@
       }
     ]
   },
-  "configuration": false
+  "configuration": false,
+  "contentServices": {
+    "set": {
+      "api": 1,
+      "description": "A reusable ordered widget set, independent of template positions.",
+      "context": "block",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 48
+          }
+        }
+      },
+      "result": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "title",
+                "text",
+                "href",
+                "image"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "maxLength": 12000
+                },
+                "text": {
+                  "type": "string",
+                  "maxLength": 12000
+                },
+                "href": {
+                  "type": "string",
+                  "maxLength": 12000
+                },
+                "image": {
+                  "type": "string",
+                  "maxLength": 12000
+                }
+              }
+            }
+          }
+        }
+      },
+      "formats": [
+        "list",
+        "cards"
+      ]
+    },
+    "value": {
+      "api": 1,
+      "description": "A reusable plain widget value for inline text.",
+      "context": "text",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 64
+          }
+        }
+      },
+      "result": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "value"
+        ],
+        "properties": {
+          "value": {
+            "type": "string",
+            "maxLength": 12000
+          }
+        }
+      },
+      "formats": [
+        "text"
+      ]
+    }
+  },
+  "presentation": "about.json"
 }

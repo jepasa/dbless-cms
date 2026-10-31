@@ -1,0 +1,28 @@
+{
+  "language": "en",
+  "title": "Blog",
+  "lead": "Publish structured articles with editorial authors, topic archives, scheduled releases and moderated discussion.",
+  "sections": [
+    {
+      "title": "Create and edit articles",
+      "body": [
+        "Open Blog → Articles and create an article with a unique slug, title, excerpt, author and structured blocks. Select public images through Images, write useful alternative text and choose categories or tags.",
+        "Keep work as a draft until it is ready. Published articles are public only after their UTC release time. Preview is authenticated; metadata, canonical links and social images remain under editorial control."
+      ]
+    },
+    {
+      "title": "Show articles inside a page",
+      "body": [
+        "Use the shared component picker in Homepage or Pages. Select Blog → latest, a quantity of 1–12, an optional category and a supported template layout. Only released public articles are returned."
+      ],
+      "code": "{{blog:latest limit=\"3\" category=\"\" layout=\"cards\"}}"
+    },
+    {
+      "title": "Manage discussion and recovery",
+      "body": [
+        "Comments start disabled. Enable them in Blog settings when needed; submissions remain pending until moderation and contain no email/IP fields.",
+        "Use Trash and History to recover content. RSS and sitemap include only permitted published data. Exports omit comments, moderation state, history and trash. Concurrent changes are rejected instead of silently overwritten."
+      ]
+    }
+  ]
+}

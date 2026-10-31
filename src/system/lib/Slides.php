@@ -3,6 +3,9 @@
 declare(strict_types=1);
 namespace DBLESSCMS;
 final class Slides {
+  private static int $instances=0;
+  /** Return a unique request-local accessible carousel identifier; receive a validated location key, increment only memory and never persist state. */
+  public static function instanceId(string $location): string {return 'slides-'.$location.'-'.(++self::$instances);}
   private ?array $document=null;
   private bool $loaded=false;
   private int $resolved=0;

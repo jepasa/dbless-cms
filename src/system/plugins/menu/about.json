@@ -1,0 +1,28 @@
+{
+  "language": "en",
+  "title": "Menu",
+  "lead": "Create reusable navigation trees and assign them to locations supported by the active template.",
+  "sections": [
+    {
+      "title": "Create a menu",
+      "body": [
+        "Create a menu with a clear name and add page links, anchors or validated URLs. Set parent relationships to build submenus and arrange their order.",
+        "Draft or missing pages are omitted from public navigation. The public template chooses the actual Navbar, Sidebar, List or Dropdown presentation."
+      ]
+    },
+    {
+      "title": "Choose a location",
+      "body": [
+        "The editor reads locations, permitted types and maximum depth from the active template manifest. Dynamic items and assignments stay in the menu repository.",
+        "Changing templates preserves unsupported assignments and shows a warning. The component picker can insert a public projection of an assigned menu."
+      ],
+      "code": "{{menu:location key=\"footer-links\" layout=\"list\"}}"
+    },
+    {
+      "title": "Recover changes",
+      "body": [
+        "Use Trash for recoverable removal and History for catalog revisions. Saves verify revisions and template state to prevent silent overwrites."
+      ]
+    }
+  ]
+}

@@ -55,13 +55,14 @@ final class App {
     return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS']!=='off'?'https://':'http://').$host.($dir==='/'?'':$dir);
   }
 
-  /** Renderiza página e template; recebe store/chave/preview/template/base; retorna HTML e usa 404 em conteúdo ausente/draft. */
-  public static function render(JsonStore $store,string $key,bool $preview=false,?string $template=null,?string $base=null): string {
+  /** Render validated page/template; receive store/key/preview/template/base and optional private home draft, return HTML or 404 fallback; reject overrides outside preview and propagate contract/render failures without writes. */
+  public static function render(JsonStore $store,string $key,bool $preview=false,?string $template=null,?string $base=null,?array $override=null): string {
     $site=$store->read('site')['data']; $id=$template??$site['template'];
     $manifest=$store->templates->get($id); $missing=false;
     if (!preg_match('/^[a-z0-9][a-z0-9-]{0,63}$/D',$key)) { $key='404'; $missing=true; }
     try { $page=$store->read($key,$id)['data']; }
     catch (HttpError $error) { if ($error->status!==404) throw $error; $page=$store->read('404',$id)['data']; $missing=true; }
+    if($override!==null){if(!$preview||$key!=='home')throw new \InvalidArgumentException('Draft override requires homepage preview.');$page=$store->document('home',JsonStore::encode($override),$id);}
     if (!$preview && $page['status']!=='published') { $page=$store->read('404',$id)['data']; $missing=true; }
     if ($missing || $page['slug']==='404') http_response_code(404);
     $base_url=$base??self::base($store); $currentPage=$page['slug'];
@@ -73,7 +74,9 @@ final class App {
     $templateSettings=isset($manifest['configuration'])?(new Extensions($store))->options($id)['values']:[];
     $navigation=new Navigation($store,$id,$base_url);
     $slides=new Slides($store,$id);
+    $components=new Components(new ContentContext($store,$id,$base_url,$currentPage));
     $contentFile=$store->templates->path($id,'pages',$manifest['pages'][$page['page']]);
+    if($page['page']==='home'&&!isset($manifest['homepage'])&&($page['homepage']['sections']??[])!==[]){$nativeContentFile=$contentFile;$contentFile=__DIR__.'/views/homepage.php';}
     ob_start();
     try { require $store->templates->path($id,'partials',$manifest['partials']['layout']); return (string)ob_get_clean(); }
     catch (\Throwable $error) { ob_end_clean(); throw $error; }

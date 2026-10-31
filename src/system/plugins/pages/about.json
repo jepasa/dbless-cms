@@ -1,0 +1,29 @@
+{
+  "language": "en",
+  "title": "Pages",
+  "lead": "Manage structured site pages with validated content, authenticated preview and recoverable revision history.",
+  "sections": [
+    {
+      "title": "Create and edit",
+      "body": [
+        "Open Pages → Overview, then create a page from an existing model. Use a lowercase unique slug and choose a model supported by the active template.",
+        "Edit content in Fields mode or inspect the readable JSON. Save changes only after checking required metadata and the template contract. Homepage edits are routed to Homepage when that plugin is active."
+      ]
+    },
+    {
+      "title": "Add components",
+      "body": [
+        "Use Insert component to choose a registered plugin service and a template-supported format. The generated marker is inserted in a content section. Block markers must occupy their own paragraph.",
+        "Legacy Slides markers and typed slide blocks remain supported. Components show only data that the provider permits publicly."
+      ],
+      "code": "{{blog:latest limit=\"3\" layout=\"cards\"}}"
+    },
+    {
+      "title": "Publish and recover",
+      "body": [
+        "Ordinary pages can be drafts or published. Homepage and 404 are protected published pages. Preview requires an authenticated session.",
+        "Trash preserves removable pages in revision history. Restore only from a listed revision; concurrent edits are rejected rather than overwritten."
+      ]
+    }
+  ]
+}

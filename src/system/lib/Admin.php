@@ -111,7 +111,7 @@ final class Admin {
     $authenticated=Security::authenticated($this->config);
     $view=$_GET['view']??'dashboard'; $key=$_GET['key']??'home';
     if (!is_string($view) || !is_string($key)) throw new HttpError(400,'Rota administrativa inválida.','error.admin_route');
-    if (!in_array($view,['dashboard','pages','page-new','page-trash','edit','site','templates','history','preview','login','plugins','plugin','plugin-panel','plugin-settings','template-settings'],true)) throw new HttpError(404,'Página não encontrada.','error.not_found');
+    if (!in_array($view,['dashboard','pages','page-new','page-trash','edit','site','templates','history','preview','login','plugins','plugin','plugin-panel','plugin-settings','template-settings','plugin-about'],true)) throw new HttpError(404,'Página não encontrada.','error.not_found');
     if (!$authenticated) $view='login';
     $plugins=$authenticated?new Plugins($this->store):null;
     $requestedPlugin=$_GET['plugin']??'';$requestedRoute=$_GET['route']??'';
@@ -125,6 +125,12 @@ final class Admin {
       $manifest=$plugins->get($requestedPlugin);
       if (($manifest['configuration']??null)===false) throw new HttpError(404,'Plugin sem configuração.','error.not_found');
       if (isset($manifest['configuration'])) {$requestedRoute=$manifest['configuration'];$view='plugin-panel';}
+    }
+    $presentation=null;
+    if($view==='plugin-about'){
+      if(!is_string($requestedPlugin))throw new HttpError(400,'Invalid plugin.','error.plugin');
+      $definition=$plugins->get($requestedPlugin);if(!isset($definition['presentation']))throw new HttpError(404,'Presentation unavailable.','error.not_found');
+      $presentation=PluginPresentation::read($this->config->root.'/plugins/'.$requestedPlugin,$definition['presentation']);
     }
     $manager=new Extensions($this->store);
     $extensionRows=$authenticated&&in_array($view,['plugins','templates'],true)?$manager->catalog($view,$this->language->locale()):[];

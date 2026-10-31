@@ -6,7 +6,7 @@ $data=$page['content'];
 ?>
 <?php if (($data['sections']??[])!==[]||($data['blocks']??[])!==[]): ?><section class="section"><div class="container text-flow">
 <?php foreach ($data['sections']??[] as $section): ?><section><?php if ($section['title']!==''): ?><h2><?= e($section['title']) ?></h2><?php endif; ?>
-<?php foreach ($section['body']??[] as $paragraph): $slideKey=\DBLESSCMS\Slides::marker($paragraph);if ($slideKey===null): ?><p><?= e($paragraph) ?></p><?php else: $slideData=$slides->location($slideKey);if ($slideData!==null)require $store->templates->path($id,'partials',$manifest['partials']['slides']);endif;endforeach; ?>
+<?php foreach ($section['body']??[] as $paragraph): echo $components->paragraph($paragraph);endforeach; ?>
 <?php if (($section['list']??[])!==[]): ?><ul><?php foreach ($section['list'] as $entry): ?><li><?= e($entry) ?></li><?php endforeach; ?></ul><?php endif; ?></section><?php endforeach; ?>
 <?php require $store->templates->path($id,'partials',$manifest['partials']['slide-blocks']); ?>
 </div></section><?php endif; ?>

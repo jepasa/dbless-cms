@@ -38,6 +38,23 @@
     "widgets.error.conflict": "Outra edição foi salva. Reabra a página antes de salvar novamente.",
     "widgets.error.binding": "Selecione uma chave declarada pelo template ativo.",
     "widgets.error.missing": "Widget indisponível.",
-    "widgets.error.templateChanged": "O template ou as configurações globais mudaram. Reabra o editor."
+    "widgets.error.templateChanged": "O template ou as configurações globais mudaram. Reabra o editor.",
+    "widgets.library": "Widgets reutilizáveis",
+    "widgets.record": "Editar widget reutilizável",
+    "widgets.sets": "Conjuntos de Widgets",
+    "widgets.setEditor": "Editar conjunto de Widgets",
+    "widgets.newReusable": "Novo widget reutilizável",
+    "widgets.newSet": "Novo conjunto de Widgets",
+    "widgets.nameField": "Nome",
+    "widgets.members": "Membros na ordem de exibição",
+    "widgets.memberHelp": "Selecione os widgets e use as setas para definir a ordem. Membros excluídos são preservados e omitidos no site.",
+    "widgets.libraryHelp": "As chaves são criadas aqui e não exigem posição no template. Os valores permanecem texto simples.",
+    "widgets.setHelp": "Insira o conjunto na página com o marcador abaixo. A chave permanece fixa após a criação.",
+    "widgets.up": "Mover para cima",
+    "widgets.down": "Mover para baixo",
+    "widgets.chooseMember": "Adicionar um widget",
+    "widgets.addMember": "Adicionar membro",
+    "widgets.removeMember": "Remover membro",
+    "widgets.noMembers": "Não há widgets reutilizáveis disponíveis. Crie um primeiro."
   }
 }

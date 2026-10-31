@@ -1,0 +1,29 @@
+{
+  "language": "en",
+  "title": "Widgets",
+  "lead": "Use literal key/value content in fixed template positions or reusable ordered sets.",
+  "sections": [
+    {
+      "title": "Template positions",
+      "body": [
+        "Overview lists positional widgets. Create one by selecting a key discovered from the active template manifest, then enter a plain value and description.",
+        "Existing records remain preserved when the active template does not declare their positions. Global identity and contact defaults continue to belong to Global Settings."
+      ]
+    },
+    {
+      "title": "Reusable content",
+      "body": [
+        "Open Reusable widgets to create stable keys independent of template positions. Values are plain text. Descriptions can label the content in a rendered set.",
+        "Open Widget sets, create a stable set key, select members and arrange their display order. Insert the set in Homepage or Pages using the shared component picker."
+      ],
+      "code": "{{widgets:set key=\"example-highlights\" layout=\"list\"}}\nA plain inline value: {{widgets:value key=\"example-message\" layout=\"text\"}}"
+    },
+    {
+      "title": "Recovery and safety",
+      "body": [
+        "Move positional widgets, reusable records or sets to Trash instead of deleting them permanently. Restore them from Trash or restore the catalog from History.",
+        "Trashed members are omitted publicly while their references remain recoverable. Exports include live content only. Values never execute HTML, PHP, JavaScript or nested component markers."
+      ]
+    }
+  ]
+}

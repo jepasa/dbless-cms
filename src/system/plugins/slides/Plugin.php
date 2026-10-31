@@ -4,7 +4,18 @@ declare(strict_types=1);
 namespace DBLESSCMS;
 require_once __DIR__.'/Router.php';
 require_once __DIR__.'/Placement.php';
-final class SlidesPlugin implements PluginInterface {
+final class SlidesPlugin implements PluginInterface,ContentProviderInterface,ContentOptionsInterface {
+
+  /** List active template's declared slide locations for the private picker; receive service/context, return bounded key/description pairs, no collection mutation. */
+  public function contentOptions(string $service,ContentContext $context): array {
+    $choices=[];foreach(Slides::locations($context->store->templates->get($context->template)) as $key=>$location)$choices[]=['value'=>$key,'label'=>$location['description']];return ['key'=>$choices];
+  }
+
+  /** Project visible slides from a template-declared location; receive service/parameters/context, return public card data with safe media and no storage mutation. */
+  public function content(string $service,array $parameters,ContentContext $context): array {
+    if($service!=='location')throw new HttpError(404,'Unknown service.','components.error');$data=(new Slides($context->store,$context->template))->location($parameters['key']);
+    return ['items'=>array_map(static fn(array $item):array=>['title'=>$item['title'],'text'=>$item['text'],'href'=>$item['href'],'image'=>$item['image']],array_slice($data['items']??[],0,20))];
+  }
   /** Valida somente opções legadas para compatibilidade, sem aplicá-las ou gravar; recebe settings/config e propaga 422. */
   public function validateSettings(array $settings,Config $config): void {
     Schema::validate($settings,json_decode((string)file_get_contents(__DIR__.'/settings.schema.json'),true,8,JSON_THROW_ON_ERROR));

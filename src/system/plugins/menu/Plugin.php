@@ -4,7 +4,20 @@ declare(strict_types=1);
 namespace DBLESSCMS;
 require_once __DIR__.'/Router.php';
 require_once __DIR__.'/Placement.php';
-final class MenuPlugin implements PluginInterface {
+final class MenuPlugin implements PluginInterface,ContentProviderInterface,ContentOptionsInterface {
+
+  /** List active template menu locations for the authorized picker; receive service/context, return plain key/description pairs without changing assignments. */
+  public function contentOptions(string $service,ContentContext $context): array {
+    $choices=[];foreach(Navigation::locations($context->store->templates->get($context->template)) as $key=>$location)$choices[]=['value'=>$key,'label'=>$location['description']];return ['key'=>$choices];
+  }
+
+  /** Flatten released menu links for the shared list component; receive service/parameters/context, return at most twenty public links, no writes or hidden-page disclosure. */
+  public function content(string $service,array $parameters,ContentContext $context): array {
+    if($service!=='location')throw new HttpError(404,'Unknown service.','components.error');$menu=(new Navigation($context->store,$context->template,$context->base))->location($parameters['key']);$items=[];
+    /** Walk a validated bounded public tree; receive nodes/depth, append safe links to this projection, no I/O or recursion beyond five levels. */
+    $walk=static function(array $nodes,int $depth=0)use(&$walk,&$items):void{if($depth>5)return;foreach($nodes as $node){if(count($items)>=20)return;if($node['href']!=='')$items[]=['title'=>$node['label'],'text'=>'','href'=>$node['href'],'image'=>''];$walk($node['children'],$depth+1);}};
+    $walk($menu['items']??[]);return ['items'=>$items];
+  }
   /** Valida somente o contrato legado de opções, sem aplicá-las ou gravar; recebe settings/config e lança 422 em contrato inválido. */
   public function validateSettings(array $settings,Config $config): void {
     Schema::validate($settings,json_decode((string)file_get_contents(__DIR__.'/settings.schema.json'),true,16,JSON_THROW_ON_ERROR));
