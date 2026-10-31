@@ -104,3 +104,9 @@ respeitando os termos da licença. Preserve os avisos aplicáveis. Componentes d
 mantêm suas próprias licenças. Consulte [LICENSE](LICENSE), [NOTICE](NOTICE) e [THIRD_PARTY.md](THIRD_PARTY.md).
 
 **Widgets** transforma posições declaradas pelo template em textos e links reutilizáveis. Atualize os valores no painel e recupere alterações pelo histórico ou pela lixeira. As configurações globais mantêm a identidade e os contatos consistentes em todo o site.
+
+### Visão operacional sem infraestrutura adicional
+Ao abrir o painel, o Dashboard apresenta conteúdo, extensões ativas e métricas reais
+do cache. O cache privado de dados de páginas é opcional, configurado em Configurações
+Globais e limpo pelo Dashboard. Sem banco de dados, Redis ou serviço em segundo plano.
+[Guia de integração de plugins, em inglês](docs/plugins.md#core-dashboard-indicators).

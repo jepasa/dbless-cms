@@ -105,3 +105,9 @@ subject to the license terms. Keep the applicable notices. Third-party component
 their own licenses. See [LICENSE](LICENSE), [NOTICE](NOTICE) and [THIRD_PARTY.md](THIRD_PARTY.md).
 
 **Widgets** turns template-defined positions into reusable text and profile links. Update values in the admin panel, preserve them across template changes, and recover changes through history or trash. Global settings keep your identity and contact information consistent across the site.
+
+### An operational overview without extra infrastructure
+Open the admin panel to a focused Dashboard: content, active extensions and measured
+cache health in one place. Configure the optional private page-data cache in Global
+Settings, and clear it safely from the Dashboard. No database, Redis or background
+service is required. [Plugin integration guide](docs/plugins.md#core-dashboard-indicators).

@@ -251,3 +251,10 @@ textarea { resize: vertical; line-height: 1.6; }
 .global-card > h2 { margin-block: 0 1rem; }
 .global-card .field-group + .field-group { margin-block-start: 1.25rem; }
 .global-editor [data-json-label] { padding: 1.25rem; }
+
+/* Core dashboard reuses administrative surfaces, spacing and colors at every viewport. */
+.dashboard-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.25rem}.dashboard-grid .panel{min-width:0;margin:0}.dashboard-stat h2{font-size:1rem}.dashboard-value{font-size:clamp(1.3rem,2.4vw,2.2rem);font-weight:700;margin:.7rem 0;overflow-wrap:anywhere}.dashboard-cache{grid-column:1/-1}.dashboard-card-heading,.dashboard-actions{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}.dashboard-actions{justify-content:flex-start;margin-top:1.25rem}.dashboard-actions form{margin:0}.dashboard-metrics{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.75rem 1rem}.dashboard-metrics dt,.dashboard-metrics dd{margin:0;overflow-wrap:anywhere}.dashboard-metrics dd{text-align:end;font-variant-numeric:tabular-nums}.global-card input[type=checkbox]{width:1.25rem;height:1.25rem;accent-color:var(--accent,#167963)}
+@media(max-width:1050px){.dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:540px){.dashboard-grid{grid-template-columns:minmax(0,1fr)}.dashboard-metrics{font-size:.875rem}}
+
+/* Keep the permanent core entry visible while expanded plugin navigation scrolls. */
+.sidebar .dashboard-link{position:sticky;top:0;z-index:2;background:#111e32}

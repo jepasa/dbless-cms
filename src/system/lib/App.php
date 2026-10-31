@@ -14,6 +14,7 @@ final class App {
       if ($admin) { $language=new Language(); $language->select($store->read('site')['data']['settings']['adminLocale']??null); }
       $base=self::base($store);
       if ($admin) { echo (new Admin($config,$store,$base,$language))->run(); return; }
+      if (($_SERVER['REQUEST_METHOD']??'GET')==='GET'&&empty($_GET['action'])&&!Security::authenticated($config)) $store->publicCache(new Cache($config,$store->read('site')['data']['settings']['cache']??[]));
       foreach (['page','action'] as $name) if (isset($_GET[$name]) && !is_string($_GET[$name])) throw new HttpError(400,'Parâmetro inválido.','error.parameter');
       $action=strtolower(trim($_GET['action']??''));
       if ($action==='contact') {

@@ -6,7 +6,7 @@ use function DBLESSCMS\asset;
 use DBLESSCMS\Icons;
 /** Traduz chave e parâmetros do layout; retorna texto para escape contextual, sem efeitos externos. */
 $t = static fn(string $key, array $parameters = []): string => $language->text($key, $parameters);
-$labels=['site'=>$t('nav.site'),'templates'=>$t('nav.templates'),'history'=>$t('nav.history'),'login'=>$t('nav.login'),'plugins'=>$t('nav.plugins'),'plugin-settings'=>$t('catalog.plugin_settings'),'template-settings'=>$t('catalog.template_settings'),'plugin-panel'=>$panelLanguage?->text($panelRoute['title'])??$t('nav.plugins')];
+$labels=['dashboard'=>$t('nav.dashboard'),'site'=>$t('nav.site'),'templates'=>$t('nav.templates'),'history'=>$t('nav.history'),'login'=>$t('nav.login'),'plugins'=>$t('nav.plugins'),'plugin-settings'=>$t('catalog.plugin_settings'),'template-settings'=>$t('catalog.template_settings'),'plugin-panel'=>$panelLanguage?->text($panelRoute['title'])??$t('nav.plugins')];
 ?>
 <!doctype html><html lang="<?= e($language->locale()) ?>" dir="<?= e($language->direction()) ?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow"><title><?= e($labels[$view]) ?> · dbless-cms</title>
@@ -26,6 +26,7 @@ $labels=['site'=>$t('nav.site'),'templates'=>$t('nav.templates'),'history'=>$t('
 <button type="button" class="nav-close button-quiet" data-nav-close aria-label="<?= e($t('nav.close')) ?>">×</button>
 <p class="nav-caption"><?= e($t('nav.workspace')) ?></p>
 <nav>
+<a class="dashboard-link" href="?view=dashboard" <?= $view==='dashboard'?'aria-current="page"':'' ?>><?= Icons::svg('house',$base) ?><?= e($t('nav.dashboard')) ?></a>
 <?php foreach ($pluginMenus as $menuId=>$menu): ?>
 <?php if ($menu['dropdown']): ?>
 <details class="sidebar-dropdown" data-plugin-menu="<?= e($menuId) ?>" <?= $view==='plugin-panel'&&$panelId===$menuId?'open':'' ?>><summary><img class="admin-icon plugin-icon" src="<?= e($plugins->icon($menuId,$base)) ?>" width="24" height="24" alt="" aria-hidden="true"><?= e($menu['label']) ?><span class="dropdown-chevron" aria-hidden="true">⌄</span></summary><div class="sidebar-submenu">
@@ -63,14 +64,15 @@ $labels=['site'=>$t('nav.site'),'templates'=>$t('nav.templates'),'history'=>$t('
 </button></form>
 <?php endif; ?>
 <?php else: ?>
-<div class="page-heading"><div><p class="eyebrow"><?= e($t('common.studio')) ?></p><h1><?= e($labels[$view]) ?></h1><p class="muted"><?php if ($view==='plugin-panel'): ?><?= isset($panelRoute['description'])?e($panelLanguage->text($panelRoute['description'])):'' ?><?php elseif ($view==='plugins'): ?><?= e($t('catalog.plugins_help')) ?><?php elseif ($view==='template-settings'): ?><?= e($this->store->templates->labels($themeId,$language->locale())['name']) ?><?php elseif ($view==='templates'): ?><?= e($t('heading.templates')) ?><?php elseif ($view==='history'): ?><?= e($t('heading.history')) ?><?php else: ?><?= e($t('heading.edit')) ?><?php endif; ?></p></div><span class="version-tag">v2.2.0</span></div>
-<?php if ($view==='site'): ?>
+<div class="page-heading"><div><p class="eyebrow"><?= e($t('common.studio')) ?></p><h1><?= e($labels[$view]) ?></h1><p class="muted"><?php if ($view==='dashboard'): ?><?= e($t('dashboard.help')) ?><?php elseif ($view==='plugin-panel'): ?><?= isset($panelRoute['description'])?e($panelLanguage->text($panelRoute['description'])):'' ?><?php elseif ($view==='plugins'): ?><?= e($t('catalog.plugins_help')) ?><?php elseif ($view==='template-settings'): ?><?= e($this->store->templates->labels($themeId,$language->locale())['name']) ?><?php elseif ($view==='templates'): ?><?= e($t('heading.templates')) ?><?php elseif ($view==='history'): ?><?= e($t('heading.history')) ?><?php else: ?><?= e($t('heading.edit')) ?><?php endif; ?></p></div><span class="version-tag">v2.3.0</span></div>
+<?php if ($view==='dashboard'): require __DIR__.'/dashboard.php'; ?>
+<?php elseif ($view==='site'): ?>
 <div class="editor-toolbar"><div class="tabs" aria-label="<?= e($t('editor.mode')) ?>"><button type="button" data-mode="fields" aria-pressed="true"><?= e($t('editor.fields')) ?></button><button type="button" data-mode="json" aria-pressed="false"><?= e($t('editor.json')) ?></button></div><div><a class="text-link" href="?view=history&amp;key=<?= e($key) ?>"><?= e($t('nav.history')) ?></a></div></div>
 <form method="post" class="document-form"><input type="hidden" name="action" value="save"><input type="hidden" name="key" value="<?= e($key) ?>"><input type="hidden" name="revision" value="<?= e($revision) ?>"><input type="hidden" name="csrf_token" value="<?= e($csrf) ?>">
 <?php if(!isset($templates[$templateChoice])): ?><p class="notice error" role="alert"><?= e($t('global.template_unavailable')) ?></p><?php endif; ?>
 <?php if($language->fallback): ?><p class="notice" role="status"><?= e($t('global.fallback')) ?></p><?php endif; ?>
 <?php if($language->invalid()!==[]): ?><p class="notice error" role="alert"><?= e($t('global.invalid',['files'=>implode(', ',$language->invalid())])) ?></p><?php endif; ?>
-<div class="notice error" data-editor-error role="alert" hidden></div><section class="editor-panel global-editor"><div data-fields hidden></div><label data-json-label><?= e($t('editor.document')) ?><textarea class="json-editor" name="document" data-document data-global-groups="<?= e(json_encode(\DBLESSCMS\GlobalSettings::groups($this->store,$language),JSON_THROW_ON_ERROR)) ?>" data-global-template="<?= e($templates[$templateChoice]['name']??$templateChoice) ?>" data-global-theme="<?= e(isset($templates[$templateChoice])?\DBLESSCMS\GlobalSettings::theme($this->store,$templateChoice):'') ?>" spellcheck="false" rows="28" required><?= e($document) ?></textarea></label></section>
+<div class="notice error" data-editor-error role="alert" hidden></div><section class="editor-panel global-editor"><div data-fields hidden></div><label data-json-label><?= e($t('editor.document')) ?><textarea class="json-editor" name="document" data-document data-global-groups="<?= e(json_encode(\DBLESSCMS\GlobalSettings::groups($this->store,$language),JSON_THROW_ON_ERROR)) ?>" data-global-defaults="<?= e(json_encode(['cache'=>\DBLESSCMS\Cache::DEFAULTS],JSON_THROW_ON_ERROR)) ?>" data-global-template="<?= e($templates[$templateChoice]['name']??$templateChoice) ?>" data-global-theme="<?= e(isset($templates[$templateChoice])?\DBLESSCMS\GlobalSettings::theme($this->store,$templateChoice):'') ?>" spellcheck="false" rows="28" required><?= e($document) ?></textarea></label></section>
 <div class="savebar"><span class="muted"><?= e($t('editor.revision', ['key'=>$key,'revision'=>substr($revision,0,10)])) ?></span><button class="button-primary" type="submit"><?= e($t('editor.save')) ?></button></div></form>
 <?php elseif (in_array($view,['plugins','templates'],true)): require __DIR__.'/extensions.php'; ?>
 <?php elseif ($view==='template-settings'): require __DIR__.'/template-settings.php'; ?>
