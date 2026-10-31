@@ -1100,8 +1100,8 @@
     },
     {
       "path": "src/system/lib/Operations.php",
-      "bytes": 22308,
-      "sha256": "690a4935aac1a3c5b12da4f3d79251f13627493f6a215798e50509d26688d21f"
+      "bytes": 22322,
+      "sha256": "43da6d3081575e536fa255160441563b8dc47bc7e32a2c10f822b12922936674"
     },
     {
       "path": "src/system/lib/OptionFields.php",
@@ -1725,8 +1725,8 @@
     },
     {
       "path": "tests/cache-dashboard.test.mjs",
-      "bytes": 12301,
-      "sha256": "4948d9b0b7598c16a0fd9caae7fb5c8a85019cac698d1e762ed43e712e9c8d6b"
+      "bytes": 12549,
+      "sha256": "89f7938dd2d3a0a5fbe415b4ffb858633fe9d714999112830e8bfb2b6d7a5dfd"
     },
     {
       "path": "tests/extension-media.test.mjs",
