@@ -46,3 +46,18 @@ dependency. Keep the generated artwork under the same license and verify SVG/ICO
 validation and actual desktop/mobile rendering after changes. Template and plugin
 authors should also follow the [template guide](../../docs/templates.md) and
 [plugin guide](../../docs/plugins.md).
+
+## Account menu icons
+
+The administrative account dropdown uses independent semantic icon names, resolved
+to the existing local Bootstrap Icons SVG files:
+
+| Destination | Semantic name | Local SVG |
+| --- | --- | --- |
+| Global settings | `settings` | `gear.svg` |
+| Plugins | `plugins` | `grid.svg` (module grid) |
+| Templates | `templates` | `palette.svg` |
+
+Keep these navigation defaults distinct from catalog action names such as
+`configure` and `activate`. Icons remain decorative addressed images alongside
+translated link text; their destination routes and existing MIT notices are preserved.

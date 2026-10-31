@@ -24,6 +24,20 @@ try{
       const response=await context.request.get(favicon);assert.equal(response.status(),200);assert.equal((await response.body()).readUInt16LE(4),7);
       await page.getByLabel('Username',{exact:true}).fill('editor');await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Sign in',exact:true}).click();
       assert.equal(await page.locator('.topbar .files-shortcut').count(),0);assert.equal(await page.locator('.topbar .site-shortcut').count(),1);assert.equal(await page.locator('.topbar [data-user-menu]').count(),1);
+      const accountMenu=page.locator('[data-user-menu]'),accountIcons={site:'gear',plugins:'grid',templates:'palette'};
+      for(const width of [1440,390]){
+        await page.setViewportSize({width,height:1000});if(!await accountMenu.evaluate(node=>node.open))await accountMenu.locator('summary').click();
+        const addresses=[];
+        for(const [view,name] of Object.entries(accountIcons)){
+          const icon=accountMenu.locator('a[href="?view='+view+'"] img.admin-icon');await icon.evaluate(image=>image.decode());
+          const address=await icon.getAttribute('src');assert.ok(address.endsWith('/icons/'+name+'.svg'));addresses.push(address);
+        }
+        assert.equal(new Set(addresses).size,3);await page.screenshot({path:path.join(directory,'account-menu-'+width+'.png')});await accountMenu.locator('summary').click();
+      }
+      await page.setViewportSize({width:1440,height:1000});
+      for(const view of Object.keys(accountIcons)){
+        if(!await accountMenu.evaluate(node=>node.open))await accountMenu.locator('summary').click();await accountMenu.locator('a[href="?view='+view+'"]').click();assert.equal(new URL(page.url()).searchParams.get('view'),view);
+      }
       const logo=page.locator('.brand-logo');await logo.evaluate(image=>image.decode());assert.equal(await logo.getAttribute('alt'),'DBLess-CMS');assert.match(await logo.getAttribute('src'),/brand\/dbless-cms-inverse\.svg$/);
       /** Measure the displayed signature against its parent; receives image and returns geometry without changing DOM. */
       const dimensions=await logo.evaluate(image=>{const a=image.getBoundingClientRect(),b=image.closest('.brand').getBoundingClientRect();return {width:a.width,height:a.height,fits:a.left>=b.left&&a.right<=b.right+1};});
@@ -45,7 +59,7 @@ try{
       await page.screenshot({path:path.join(directory,'panel-mobile.png')});
       await page.setViewportSize({width:320,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await page.screenshot({path:path.join(directory,'panel-mobile-320.png')});
       assert.equal(await page.locator('svg').count(),0);assert.equal(await page.locator('.brand-mark').count(),0);assert.deepEqual(errors,[]);assert.doesNotMatch(sandbox.logs(),/PHP (?:Warning|Fatal|Parse)/);
-      results.push({application,status:'passed',viewports:[1440,390,320],loginAvatarPreserved:true,logoAddressedSVG:true,logoDimensions:dimensions,pluginIcons:urls.map(url=>new URL(url).pathname),filterLoaded:true,paintedIconSamples:9,icoFrames:7,inlineSVG:false,unexpectedErrors:errors});
+      results.push({application,status:'passed',viewports:[1440,390,320],loginAvatarPreserved:true,logoAddressedSVG:true,logoDimensions:dimensions,pluginIcons:urls.map(url=>new URL(url).pathname),filterLoaded:true,paintedIconSamples:9,icoFrames:7,accountMenuIcons:accountIcons,accountMenuRoutesVerified:true,inlineSVG:false,unexpectedErrors:errors});
     }catch(error){await page.screenshot({path:path.join(directory,'failure.png'),fullPage:true});throw error;}finally{await context.close();await sandbox.close();}
   }
 }finally{await browser.close();fs.writeFileSync(path.join(evidence,'results.json'),JSON.stringify(results,null,2)+'\n');}

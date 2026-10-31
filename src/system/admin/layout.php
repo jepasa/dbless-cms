@@ -39,9 +39,9 @@ $labels=['site'=>$t('nav.site'),'templates'=>$t('nav.templates'),'history'=>$t('
 </aside>
 <div class="workspace"><header class="topbar"><div class="topbar-location"><button class="nav-toggle button-secondary" type="button" data-nav-toggle aria-controls="admin-navigation" aria-expanded="false" aria-label="<?= e($t('nav.open')) ?>"><?= Icons::svg('list',$base) ?></button><span><?= e($t('nav.admin')) ?> / <?= e($labels[$view]) ?></span></div><div class="top-actions"><a class="site-shortcut" href="<?= e($base.'/') ?>" target="_blank" rel="noopener" aria-label="<?= e($t('common.open_site')) ?>"><span><?= e($t('common.open_site')) ?></span><?= Icons::svg('external',$base) ?></a><details class="user-menu" data-user-menu><summary title="<?= e($t('nav.account')) ?>" aria-label="<?= e($t('nav.account')) ?>" aria-expanded="false"><?= Icons::svg('person-fill',$base) ?></summary>
 <nav class="user-menu-items" aria-label="<?= e($t('nav.account')) ?>">
-<a href="?view=site"><?= Icons::svg('configure',$base) ?><?= e($t('nav.settings')) ?></a>
-<a href="?view=plugins"><?= Icons::svg('activate',$base) ?><?= e($t('nav.plugins')) ?></a>
-<a href="?view=templates"><?= Icons::svg('configure',$base) ?><?= e($t('nav.templates')) ?></a><hr>
+<a href="?view=site"><?= Icons::svg('settings',$base) ?><?= e($t('nav.settings')) ?></a>
+<a href="?view=plugins"><?= Icons::svg('plugins',$base) ?><?= e($t('nav.plugins')) ?></a>
+<a href="?view=templates"><?= Icons::svg('templates',$base) ?><?= e($t('nav.templates')) ?></a><hr>
 <form method="post"><input type="hidden" name="action" value="logout"><input type="hidden" name="csrf_token" value="<?= e($csrf) ?>"><button type="submit"><?= Icons::svg('logout',$base) ?><?= e($t('common.logout')) ?></button></form>
 </nav></details></div></header>
 <?php endif; ?>
