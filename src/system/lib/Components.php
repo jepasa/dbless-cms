@@ -107,6 +107,7 @@ final class Components {
   }
   /** Validate known marker parameters even for inactive providers; return diagnostic code for unknown/disabled/unsupported references, never load a provider. */
   public function inspect(string $text): ?string {
+    if(ContentForms::parse($text)!==null)return ContentForms::inspect($text,$this->context);
     $marker=self::parse($text);if($marker===null)return null;$id=$marker['plugin'];$service=$marker['service'];$manifest=$this->registry()->all()[$id]??null;
     if($manifest===null||!isset($manifest['contentServices'][$service]))return $id.':'.$service.' (unavailable)';
     if($marker['legacy']){
@@ -177,6 +178,7 @@ final class Components {
   }
   /** Resolve one allowlisted read-only provider and render a trusted template partial; receive marker, return safe HTML/text or empty with warning; isolate optional provider errors in bounded logs. */
   public function render(string $text,bool $inline=false): string {
+    if(($form=ContentForms::parse($text))!==null){if($inline)throw new HttpError(422,'Form requires a block.','markup.error');return ContentForms::render($form,$this->context);}
     $marker=self::parse($text);if($marker===null)return e($text);
     if(++$this->resolved>20){$this->warnings[]='limit';return '';}
     if($marker['legacy'])return $this->legacy($marker['parameters']['key']);

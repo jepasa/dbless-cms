@@ -4,5 +4,5 @@ declare(strict_types=1);
 namespace DBLESSCMS;
 final class ContentContext {
   /** Receive shared store, template, base and page identifiers; store context without reads/writes; provider failures propagate to the resolver. */
-  public function __construct(public readonly JsonStore $store,public readonly string $template,public readonly string $base,public readonly string $page) {}
+  public function __construct(public readonly JsonStore $store,public readonly string $template,public readonly string $base,public readonly string $page,public readonly bool $preview=false) {}
 }

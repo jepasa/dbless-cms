@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "consentDays": 180,
+  "notice": {
+    "title": "Your privacy choices",
+    "description": "Optional resources remain disabled until you choose. Necessary session features remain available.",
+    "accept": "Accept optional resources",
+    "reject": "Reject optional resources",
+    "manage": "Privacy preferences",
+    "save": "Save choices",
+    "analytics": "Analytics",
+    "marketing": "Marketing",
+    "media": "External media",
+    "privacy": "Privacy policy",
+    "terms": "Terms of use",
+    "refund": "Cancellation and refunds",
+    "accessibility": "Accessibility"
+  },
+  "resources": []
+}

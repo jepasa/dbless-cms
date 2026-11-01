@@ -14,7 +14,7 @@ export const applications=[path.join(root,'src'),...(process.env.DBLESS_CMS_PACK
 export function fixture(application=applications[0]){
   const temporary=fs.mkdtempSync(path.join(os.tmpdir(),'dbless-extension-media-')),app=path.join(temporary,'src'),contents=path.join(temporary,'contents');
   try{
-    for(const relative of ['system/bootstrap.php','system/core.php','system/lib','system/admin','system/config/settings.php','system/config/schemas','system/templates','system/languages','system/plugins','public_html/index.php','public_html/cms-admin','public_html/templates','public_html/plugins']){const destination=path.join(app,relative);fs.mkdirSync(path.dirname(destination),{recursive:true});fs.cpSync(path.join(application,relative),destination,{recursive:true});}
+    for(const relative of ['system/bootstrap.php','system/core.php','system/lib','system/admin','system/config/settings.php','system/config/schemas','system/templates','system/languages','system/plugins','public_html/index.php','public_html/cms-admin','public_html/cms-assets','public_html/templates','public_html/plugins']){const destination=path.join(app,relative);fs.mkdirSync(path.dirname(destination),{recursive:true});fs.cpSync(path.join(application,relative),destination,{recursive:true});}
     if(fs.existsSync(path.join(application,'system/config/production.php')))fs.copyFileSync(path.join(application,'system/config/production.php'),path.join(app,'system/config/production.php'));
     fs.cpSync(path.join(application,fs.existsSync(path.join(application,'system/resources/contents'))?'system/resources/contents':'system/storage/contents'),contents,{recursive:true});
     const hash=spawnSync('php',['-r',"echo password_hash('Synthetic-Media-Password-2026',PASSWORD_ARGON2ID,['memory_cost'=>8192,'time_cost'=>1]);"],{encoding:'utf8'});if(hash.error)throw hash.error;if(hash.status!==0)throw new Error(hash.stderr);
@@ -31,13 +31,15 @@ export function inspect(context,expression){
 }
 
 /** Start an ephemeral loopback fixture for real browser usage; receives application, returns base/logs/async close and removes the fixture even on startup failure. */
-export async function server(application=applications[0]){
+export async function server(application=applications[0],options={}){
   const context=fixture(application),socket=net.createServer();let processHandle;
   try{
     socket.listen(0,'127.0.0.1');await once(socket,'listening');const port=socket.address().port;await new Promise(resolve=>socket.close(resolve));
     const base=`http://127.0.0.1:${port}`,siteFile=path.join(context.contents,'site.json'),site=JSON.parse(fs.readFileSync(siteFile));site.settings.canonical=base;site.settings.adminLocale='en-us';fs.writeFileSync(siteFile,JSON.stringify(site));
     fs.mkdirSync(path.join(context.temporary,'scripts'));fs.copyFileSync(path.join(root,'scripts/dev-router.php'),path.join(context.temporary,'scripts/dev-router.php'));
-    processHandle=spawn('php',['-d','disable_functions=mail','-d','upload_max_filesize=12M','-d','post_max_size=13M','-d',`session.save_path=${context.temporary}`,'-S',`127.0.0.1:${port}`,'-t',path.join(context.app,'public_html'),path.join(context.temporary,'scripts/dev-router.php')],{env:context.env});
+    const mailArguments=[];
+    if(options.syntheticMail===true){const script=path.join(context.temporary,'synthetic-sendmail.sh'),output=path.join(context.temporary,'synthetic-mail.txt');if(!/^[A-Za-z0-9_./-]+$/.test(output))throw new Error('Unsafe synthetic mail path.');fs.writeFileSync(script,'#!/bin/sh\ncat >> \"'+output+'\"\nexit 0\n',{mode:0o700});mailArguments.push('-d','disable_functions=','-d','sendmail_path='+script);const configFile=path.join(context.temporary,'app.json'),settings=JSON.parse(fs.readFileSync(configFile));settings.contact_enabled=true;fs.writeFileSync(configFile,JSON.stringify(settings));}
+    processHandle=spawn('php',['-d','disable_functions=mail',...mailArguments,'-d','upload_max_filesize=12M','-d','post_max_size=13M','-d',`session.save_path=${context.temporary}`,'-S',`127.0.0.1:${port}`,'-t',path.join(context.app,'public_html'),path.join(context.temporary,'scripts/dev-router.php')],{env:context.env});
     let logs='';processHandle.stderr.on('data',data=>{logs+=data;});processHandle.stdout.on('data',data=>{logs+=data;});
     /** Stop this server and delete only its fixture; no arguments/return value, preserves logs in closure and propagates cleanup errors. */
     async function close(){if(processHandle.exitCode===null){const done=once(processHandle,'exit');processHandle.kill();await done;}context.close();}

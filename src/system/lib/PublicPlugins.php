@@ -42,7 +42,7 @@ final class PublicPlugins {
   }
   /** Emit a declared trusted plugin response through the public-document boundary; receive typed plugin, validated public context and store, write its owned view with optional global assets. Plugins escape editorial/request fields in their views; never pass raw route parameters as HTML. */
   private static function respond(PublicPluginInterface $plugin,PublicPluginContext $context,JsonStore $store): void {
-    echo (new SiteCustomizations($store))->publicResponse($plugin->publicPage($context),$context->base);
+    echo (new MediaRights($store))->decorate((new Privacy($store))->decorate(ContentForms::assets((new SiteCustomizations($store))->publicResponse($plugin->publicPage($context),$context->base),$context->base,$store),$context->base),$context->base);
   }
   /** Normaliza raiz com 308 e extrai IDs de REQUEST_URI; retorna par de IDs ou encerra redirect, rejeitando entradas inválidas com 400/404. */
   private static function destination(): array {

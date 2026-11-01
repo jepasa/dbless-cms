@@ -1,0 +1,14 @@
+/** Shared public privacy controls, independent of template palettes; visible focus, responsive layout and equivalent accept/reject controls. */
+.cms-legal { padding: 1.25rem; display: flex; flex-wrap: wrap; gap: .8rem 1.25rem; align-items: center; justify-content: center; background: #f2f6f5; color: #173c32; font: 1rem/1.5 system-ui,sans-serif; }
+.cms-legal a { color: #075944; text-decoration: underline; text-underline-offset: .2em; }
+.cms-legal button { color: #173c32; background: #fff; border: 1px solid #537367; border-radius: .5rem; padding: .65rem .9rem; cursor: pointer; font: inherit; min-height: 44px; }
+.cms-legal :focus-visible { outline: 3px solid #075944; outline-offset: 4px; }
+.cms-consent { position: relative; flex-basis: 100%; width: min(52rem,100%); max-width: 52rem; margin: 1rem auto; overflow: auto; background: #fff; color: #173c32; padding: 1.5rem; border: 1px solid #537367; border-radius: 1rem; box-shadow: 0 1rem 3rem #10271f33; z-index: 2000; }
+.cms-consent[hidden] { display: none; }
+.cms-consent h2 { color: inherit; margin: 0 0 .75rem; font-size: 1.35rem; }
+.cms-consent label { display: flex; align-items: center; gap: .6rem; margin-top: .75rem; }
+.cms-consent input { width: 24px; height: 24px; }
+.cms-consent ul { margin: .35rem 0 .8rem; }
+.cms-consent-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
+@media print { .cms-consent,[data-privacy-open] { display: none; } }
+@media (max-width: 420px) { .cms-consent { padding: 1rem; } .cms-consent-actions button { width: 100%; } }

@@ -1,0 +1,19 @@
+/** Forms uses admin tokens for private screens and a bounded public card; explicit labels, responsive controls and visible keyboard focus. */
+.cms-form-page { max-width: 56rem; margin: 2rem auto; padding: 1rem; }
+.cms-form-header { padding: 1.5rem; font: 600 1.2rem/1.5 system-ui,sans-serif; }
+.cms-form { max-width: 48rem; padding: 1.5rem; margin: 1.5rem auto; border: 1px solid #b8cdc5; border-radius: 1rem; background: #fff; color: #193d32; font: 1rem/1.6 system-ui,sans-serif; }
+.cms-form h2,.cms-form h1 { color: #193d32; }
+.cms-form label,.cms-form legend { display: block; margin: .75rem 0 .35rem; font-weight: 600; }
+.cms-form input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),.cms-form textarea,.cms-form select { display: block; box-sizing: border-box; width: 100%; border: 1px solid #527668; border-radius: .5rem; padding: .75rem; background: #fff; color: #193d32; font: inherit; }
+.cms-form .cms-form-checkbox,.cms-form fieldset label { display: flex; align-items: center; gap: .7rem; font-weight: 400; }
+.cms-form input[type="checkbox"],.cms-form input[type="radio"] { width: 24px; height: 24px; flex: 0 0 24px; }
+.cms-form button { min-height: 44px; border: 1px solid #075944; border-radius: .5rem; padding: .7rem 1.1rem; background: #075944; color: #fff; font: inherit; cursor: pointer; }
+.cms-form button:disabled { opacity: .6; cursor: default; }
+.cms-form a { color: #075944; text-decoration: underline; }
+.cms-form :focus-visible { outline: 3px solid #075944; outline-offset: 4px; }
+.cms-form .cms-form-trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.cms-form-notice { padding: .75rem; background: #f0f6f3; border-radius: .5rem; }
+.forms-plugin textarea { width: 100%; box-sizing: border-box; min-height: 20rem; font-family: ui-monospace,monospace; }
+.forms-plugin .form-snippet { overflow-wrap: anywhere; }
+.forms-plugin pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 420px) { .cms-form { padding: 1rem; } }

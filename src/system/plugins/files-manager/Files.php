@@ -37,7 +37,7 @@ final class ManagedFiles {
   /** Impede uso das áreas de código público e arquivos de sistema; recebe caminho relativo à raiz pública. */
   private function protect(string $relative): void {
     $first=strtolower(explode('/',$relative)[0]);
-    if (in_array($first,['cms-admin','templates','plugins','index.php','robots.txt','sitemap.xml'],true)) self::fail('protected',403);
+    if (in_array($first,['cms-admin','cms-assets','customizations','templates','plugins','index.php','robots.txt','sitemap.xml'],true)) self::fail('protected',403);
   }
   /** Resolve alvo contido validado; recebe relativo/existência, retorna caminho absoluto; não segue links. */
   private function path(string $relative,bool $exists=true): string {
@@ -174,7 +174,9 @@ final class ManagedFiles {
     } elseif (!unlink($path)) self::fail('io',503);
   }
   /** Executa uma mutação serializada sob sessão/CSRF verificados pelo núcleo; recebe operação/payload; retorna nova listagem. */
-  public function mutate(string $operation,array $input): array {
+  public function mutate(string $operation,array $input): array {return $this->context->store->transaction(fn():array=>$this->mutation($operation,$input));}
+  /** Apply one filesystem mutation under the shared contents lock; receive operation/input, keep provenance identities in sync, restore the filesystem if metadata publication fails. */
+  private function mutation(string $operation,array $input): array {
     $directory=$input['path']??''; $revision=$input['revision']??'';
     if (!is_string($directory) || !is_string($revision)) self::fail('path');
     self::relative($directory); self::noLinks($this->state); Security::directory($this->state);
@@ -210,6 +212,7 @@ final class ManagedFiles {
           $metadata=['status'=>'deleted','deleted_at'=>$deletedAt,'scope'=>$this->scope,'root'=>$this->context->settings['uploads'][$this->scope],'path'=>$relative,'name'=>$target,'directory'=>is_dir($file),'size'=>is_file($file)?filesize($file):0,'deleted'=>$deletedAt];
           if (file_put_contents($trashdir.'/metadata.json',JsonStore::encode($metadata),LOCK_EX)===false) self::fail('io',503);
           if (!rename($file,$trashdir.'/data')) { unlink($trashdir.'/metadata.json'); rmdir($trashdir); self::fail('io',503); }
+          try{(new MediaRights($this->context->store))->moved($this->scope,$this->context->settings['uploads'][$this->scope],$relative,$relative,$id);}catch(\Throwable $error){if(!rename($trashdir.'/data',$file))self::fail('io',503);unlink($trashdir.'/metadata.json');rmdir($trashdir);throw $error;}
         } else {
           if ($operation==='rename') { self::name($name); $dest=$directory===''?$name:$directory.'/'.$name; }
           else {
@@ -222,6 +225,7 @@ final class ManagedFiles {
           $to=$this->destination($dest);
           if (stat(dirname($file))['dev']!==stat(dirname($to))['dev']) self::fail('filesystem');
           if (!rename($file,$to)) self::fail('io',503);
+          try{(new MediaRights($this->context->store))->moved($this->scope,$this->context->settings['uploads'][$this->scope],$relative,$dest);}catch(\Throwable $error){if(!rename($to,$file))self::fail('io',503);throw $error;}
         }
       } elseif ($trash) {
         $item=$this->tombstone($target); $trashdir=$this->state.'/trash/'.$target; $data=$trashdir.'/data';
@@ -230,6 +234,7 @@ final class ManagedFiles {
           if (stat(dirname($to))['dev']!==stat($trashdir)['dev']) self::fail('filesystem');
           self::noLinks($data);
           if (!rename($data,$to)) self::fail('io',503);
+          try{(new MediaRights($this->context->store))->moved($this->scope,$this->context->settings['uploads'][$this->scope],'','',null,$target);}catch(\Throwable $error){if(!rename($to,$data))self::fail('io',503);throw $error;}
         } else {
           if ($name!==$item['name']) self::fail('confirmation');
           self::noLinks($data); $this->erase($data);
@@ -240,6 +245,27 @@ final class ManagedFiles {
       if (file_put_contents($this->state.'/audit.jsonl',json_encode($event,JSON_THROW_ON_ERROR)."\n",FILE_APPEND|LOCK_EX)===false) self::fail('io',503);
       clearstatcache(); return $trash?$this->trash():$this->listing($directory);
     } finally { flock($lock,LOCK_UN); fclose($lock); }
+  }
+  /** Describe one already-contained managed image for rights editing; receive relative path, return hash/dimensions/scope without absolute paths, reject nonimage or unsafe file. */
+  public function describe(string $relative): array {
+    $file=$this->path($relative);if(!is_file($file))self::fail('type');$mime=$this->mime($file,basename($file));if(!str_starts_with($mime,'image/'))self::fail('type');$size=@getimagesize($file);if($size===false)self::fail('type');
+    return ['scope'=>$this->scope,'root'=>$this->context->settings['uploads'][$this->scope],'path'=>$relative,'sha256'=>hash_file('sha256',$file),'width'=>$size[0],'height'=>$size[1]];
+  }
+  /** Publish an explicitly licensed sanitized copy from private scope using optional GD; receive source/name/catalog revision, preserve original and rights lineage, reject unsupported animations/formats and never overwrite public files. */
+  public function publishCopy(string $relative,string $name,string $revision): array {
+    return $this->context->store->transaction(function()use($relative,$name,$revision):array{
+      if($this->scope!=='private'||!function_exists('imagecreatefromstring'))throw new HttpError(503,'Private source and PHP GD are required.','fm.error.rights');
+      $rights=new MediaRights($this->context->store);if(!hash_equals($rights->repository()->read()['revision'],$revision))throw new HttpError(409,'Rights changed.','fm.error.revision');$source=$this->describe($relative);$record=$rights->find('private',$source['root'],$relative);
+      if($record===null||$record['review']!=='approved'||!$record['derivativesAllowed']||!hash_equals($record['sha256'],$source['sha256']))throw new HttpError(422,'Reviewed derivative permission is required.','fm.error.rights');
+      $extension=strtolower(pathinfo($relative,PATHINFO_EXTENSION));$targetExtension=strtolower(pathinfo($name,PATHINFO_EXTENSION));if(!in_array($extension,['jpg','jpeg','png','webp'],true)||($extension==='jpeg'?'jpg':$extension)!==($targetExtension==='jpeg'?'jpg':$targetExtension)||$source['width']*$source['height']>8000000)throw new HttpError(422,'Unsupported derivative format or pixel budget.','fm.error.rights');
+      $bytes=file_get_contents($this->path($relative));if($bytes===false)self::fail('io',503);if($extension==='webp'&&str_contains($bytes,'ANIM')||$extension==='png'&&str_contains($bytes,'acTL'))throw new HttpError(422,'Animated derivatives are unsupported.','fm.error.rights');
+      $image=@imagecreatefromstring($bytes);if($image===false)self::fail('type');$public=new self($this->context,'public');self::name($name);self::noLinks($public->root);Security::directory($public->root);$destination=$public->destination($name);$temporary=tempnam($public->root,'.image-copy-');if($temporary===false)self::fail('io',503);$written=false;
+      try{
+        if(in_array($extension,['jpg','jpeg'],true)&&function_exists('exif_read_data')){$exif=@exif_read_data($this->path($relative),'IFD0',true,false);$orientation=is_array($exif)?($exif['IFD0']['Orientation']??1):1;$angle=match($orientation){3=>180,5,6=>270,7,8=>90,default=>0};if($angle){$rotated=imagerotate($image,$angle,0);if($rotated===false)self::fail('type');imagedestroy($image);$image=$rotated;}if(in_array($orientation,[2,5,7],true))imageflip($image,IMG_FLIP_HORIZONTAL);if($orientation===4)imageflip($image,IMG_FLIP_VERTICAL);}
+        imagealphablending($image,false);imagesavealpha($image,true);$ok=match($extension){'jpg','jpeg'=>imagejpeg($image,$temporary,92),'png'=>imagepng($image,$temporary,6),'webp'=>function_exists('imagewebp')&&imagewebp($image,$temporary,90)};
+        if(!$ok)self::fail('io',503);$public->mime($temporary,$name);if(!chmod($temporary,0640)||!rename($temporary,$destination))self::fail('io',503);$written=true;$description=$public->describe($name);$description['parent']=$record['id'];$fields=array_intersect_key($record,array_fill_keys(['author','source','license','licenseUrl','credit','evidence','altSuggestion','review','derivativesAllowed'],true));$rights->save($description,$fields,$revision);return $description;
+      }catch(\Throwable $error){if($written&&is_file($destination)&&!unlink($destination))self::fail('io',503);throw $error;}finally{imagedestroy($image);if(is_file($temporary))unlink($temporary);}
+    });
   }
   /** Transmite arquivo validado em sessão autenticada; recebe relativo/preview, sem retorno; MIME inseguro nunca fica inline. */
   public function download(string $relative,bool $preview): void {

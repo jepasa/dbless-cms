@@ -40,12 +40,12 @@ final class Operations {
     if (!in_array($manifest['name']??null,['dbless-cms','DBLESS-CMS'],true)||!is_array($manifest['files']??null)) return false;
     foreach ($manifest['files'] as $entry) {
       $relative=$entry['path']??'';
-      if (!is_string($relative)||!preg_match('~^(?:system/(?:lib/|admin/|bin/|languages/|config/(?:schemas/|settings\.php$|production\.php$)|bootstrap\.php$|core\.php$)|public_html/(?:cms-admin/|index\.php$|plugins/index\.php$|\.htaccess$))~D',$relative)) continue;
+      if (!is_string($relative)||!preg_match('~^(?:system/(?:lib/|admin/|bin/|languages/|config/(?:schemas/|settings\.php$|production\.php$)|bootstrap\.php$|core\.php$)|public_html/(?:cms-admin/|cms-assets/|index\.php$|plugins/index\.php$|\.htaccess$))~D',$relative)) continue;
       Lifecycle::path($this->installation.'/'.$relative);
       if (isset($expected[$relative])) return false;
       $expected[$relative]=['bytes'=>$entry['bytes']??null,'sha256'=>$entry['sha256']??null];
     }
-    foreach (['system/lib','system/admin','system/bin','system/config/schemas','public_html/cms-admin'] as $directory) {
+    foreach (['system/lib','system/admin','system/bin','system/config/schemas','public_html/cms-admin','public_html/cms-assets'] as $directory) {
       if (!is_dir($this->installation.'/'.$directory)) return false;
       foreach (self::inventory($this->installation.'/'.$directory) as $relative=>$entry) $actual[$directory.'/'.$relative]=$entry;
     }
@@ -228,13 +228,14 @@ final class Operations {
   /** Restaura snapshot validado em instalação nova; recebe backup/destino e retorna caminho; nunca sobrescreve instalação ou dados ativos. */
   public function restore(string $source,string $destination): array {
     $destination=$this->destination($destination,[$source]);$root=self::snapshot($source);
-    return Lifecycle::exclusive($this->config,fn(): array=>$this->publish($destination,static function(string $stage) use($root): void {
+    return Lifecycle::exclusive($this->config,fn(): array=>$this->publish($destination,function(string $stage) use($root): void {
       // copyTree exige destino novo; o staging já existe, portanto copia cada entrada validada.
       foreach (scandir($root)?:[] as $name) {
         if ($name==='.'||$name==='..') continue;
         if (is_dir($root.'/'.$name)) self::copyTree($root.'/'.$name,$stage.'/'.$name);
         else self::write($stage.'/'.$name,self::read($root.'/'.$name));
       }
+      ErasureLedger::reconcile($this->config->data['storage'],$stage.'/system/storage');
     }));
   }
   /** Verifica pacote DBLESS-CMS em caixa alta ou baixa, nomes relativos e ausência de entradas extras; recebe raiz e retorna mapa de arquivos íntegros ou falha. */
@@ -258,7 +259,7 @@ final class Operations {
         self::installation($package,$stage.'/new');$this->persistent($stage.'/new');$next=$stage.'/new';
         // Somente áreas públicas fora do código são uploads; a raiz vazia/customizada permanece preservada.
         foreach (scandir($this->installation.'/public_html')?:[] as $name) {
-          if (in_array($name,['.','..','index.php','.htaccess','cms-admin','templates','plugins','robots.txt','sitemap.xml'],true)) continue;
+          if (in_array($name,['.','..','index.php','.htaccess','cms-admin','cms-assets','templates','plugins','robots.txt','sitemap.xml'],true)) continue;
           $from=$this->installation.'/public_html/'.$name;$to=$next.'/public_html/'.$name;
           if (is_dir($to)) self::erase($to);
           if (is_dir($from)) self::copyTree($from,$to);else self::write($to,self::read($from));

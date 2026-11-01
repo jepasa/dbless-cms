@@ -1,7 +1,7 @@
 {
   "id": "files-manager",
   "name": "Gerenciador de arquivos",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "api": 1,
   "cmsMajor": 2,
   "entry": "Plugin.php",
@@ -46,6 +46,12 @@
       "file": "pages/history.php",
       "requiresEnabled": false,
       "visibility": "private"
+    },
+    "rights": {
+      "title": "fm.rights",
+      "file": "pages/rights.php",
+      "requiresEnabled": true,
+      "visibility": "private"
     }
   },
   "navigation": {
@@ -54,6 +60,10 @@
       {
         "label": "fm.overview",
         "route": "overview"
+      },
+      {
+        "label": "fm.rights",
+        "route": "rights"
       },
       {
         "separator": true
@@ -80,5 +90,88 @@
   },
   "configuration": "settings",
   "description": "Gerenciamento de arquivos públicos e privados, uploads e lixeira.",
-  "presentation": "about.json"
+  "presentation": "about.json",
+  "contentServices": {
+    "asset": {
+      "api": 1,
+      "description": "An approved public image and public provenance; private evidence is never returned.",
+      "context": "block",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 30
+          }
+        }
+      },
+      "result": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "src",
+          "author",
+          "source",
+          "license",
+          "licenseUrl",
+          "credit",
+          "altSuggestion",
+          "width",
+          "height"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 30
+          },
+          "src": {
+            "type": "string",
+            "maxLength": 2048
+          },
+          "author": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 2048
+          },
+          "license": {
+            "type": "string",
+            "maxLength": 30
+          },
+          "licenseUrl": {
+            "type": "string",
+            "maxLength": 2048
+          },
+          "credit": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "altSuggestion": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40000000
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40000000
+          }
+        }
+      },
+      "formats": [
+        "data"
+      ]
+    }
+  }
 }

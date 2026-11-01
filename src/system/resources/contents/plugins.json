@@ -45,6 +45,10 @@
     "homepage": {
       "enabled": true,
       "settings": {}
+    },
+    "forms": {
+      "enabled": true,
+      "settings": {}
     }
   }
 }

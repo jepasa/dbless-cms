@@ -93,6 +93,17 @@
           "url": "",
           "enabled": true,
           "newTab": false
+        },
+        {
+          "id": "forms-example",
+          "parent": "conteudo",
+          "label": "Formulários e direitos de imagens",
+          "kind": "page",
+          "page": "forms-example",
+          "anchor": "",
+          "url": "",
+          "enabled": true,
+          "newTab": false
         }
       ]
     },

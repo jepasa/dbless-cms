@@ -13,6 +13,7 @@ $markupLabels=array_filter($coreMarkupLanguage->messages(),static fn(string $key
 <div class="markup-editor" data-markup-editor data-catalog="<?= e(json_encode($markupCatalog,JSON_THROW_ON_ERROR)) ?>" data-labels="<?= e(json_encode($markupLabels,JSON_THROW_ON_ERROR)) ?>">
 <label><?= e($mt('content')) ?><textarea name="<?= e($markupHtmlName) ?>" rows="18" maxlength="131072" spellcheck="false" data-markup-html><?= e($markupDefinition['html']) ?></textarea></label>
 <p class="muted"><?= e($mt('htmlHelp')) ?></p>
+<?php foreach(\DBLESSCMS\ContentForms::catalog($markupContext) as $formProvider): ?><details><summary><?= e($mt('formHelp')) ?></summary><p><?= e($formProvider['description']) ?></p><?php foreach($formProvider['choices'] as $choice): ?><p><?= e($choice['label']) ?> <code><?= e('{{'.$formProvider['plugin'].':form id="'.$choice['value'].'"}}') ?></code></p><?php endforeach; ?></details><?php endforeach; ?>
 <div data-markup-bindings></div>
 <details><summary><?= e($mt('bindingsJson')) ?></summary><label><?= e($mt('bindingsJson')) ?><textarea name="<?= e($markupBindingsName) ?>" rows="5" spellcheck="false" data-markup-bindings-json><?= e(json_encode($markupDefinition['bindings'],JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR)) ?></textarea></label></details>
 </div>

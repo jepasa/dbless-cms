@@ -190,6 +190,48 @@
               "maximum": 2000
             }
           }
+        },
+        "privacy": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "controller": {
+              "type": "string",
+              "maxLength": 500
+            },
+            "registration": {
+              "type": "string",
+              "maxLength": 500
+            },
+            "address": {
+              "type": "string",
+              "maxLength": 500
+            },
+            "email": {
+              "type": "string",
+              "maxLength": 500
+            },
+            "contactNotice": {
+              "type": "string",
+              "maxLength": 2000
+            },
+            "privacyPage": {
+              "type": "string",
+              "maxLength": 500
+            },
+            "termsPage": {
+              "type": "string",
+              "maxLength": 500
+            },
+            "refundPage": {
+              "type": "string",
+              "maxLength": 500
+            },
+            "accessibilityPage": {
+              "type": "string",
+              "maxLength": 500
+            }
+          }
         }
       }
     }
