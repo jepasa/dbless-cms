@@ -35,7 +35,10 @@
     "home-contact": "home-contact.php",
     "homepage-section": "homepage-section.php",
     "component-cards": "component-cards.php",
-    "component-list": "component-list.php"
+    "component-list": "component-list.php",
+    "homepage-markup": "homepage-markup.php",
+    "contact-form": "contact-form.php",
+    "homepage-composition": "homepage-composition.php"
   },
   "version": "2.1.0",
   "author": "dbless-cms",
@@ -283,5 +286,12 @@
     "menu:location": {
       "list": "component-list"
     }
+  },
+  "homepageMarkup": "homepage-markup",
+  "markupFragments": {
+    "contact": "contact-form",
+    "showcase": "showcase",
+    "extras": "home-extras",
+    "composition": "homepage-composition"
   }
 }

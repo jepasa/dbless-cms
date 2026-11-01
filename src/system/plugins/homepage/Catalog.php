@@ -33,9 +33,18 @@ final class HomepageCatalog {
   /** Save a draft or explicitly publish/schedule it; receive ID/name/description/body/revisions/publish flag, return snapshot plus immutable ID; validation/CAS failures preserve public content. */
   public function save(string $id,string $name,string $description,array $body,string $revision,string $siteRevision,bool $publish=false): array {
     $assigned=$id===''?'home-'.bin2hex(random_bytes(10)):$id;$result=$this->mutate($revision,$siteRevision,function(array $data)use($id,$assigned,$name,$description,$body,$publish):array{
-      $now=gmdate('Y-m-d\TH:i:s\Z');$existing=$id===''?null:($data['homepages'][$id]??throw new HttpError(404,'Homepage unavailable.','error.not_found'));if($existing!==null&&$existing['deletedAt']!==null)throw new HttpError(404,'Homepage is removed.','error.not_found');Homepages::body($body,$assigned==='legacy-home');$this->bindings($body);
+      $now=gmdate('Y-m-d\TH:i:s\Z');$existing=$id===''?null:($data['homepages'][$id]??throw new HttpError(404,'Homepage unavailable.','error.not_found'));if($existing!==null&&$existing['deletedAt']!==null)throw new HttpError(404,'Homepage is removed.','error.not_found');Homepages::body($body);$this->bindings($body);
       $record=$existing??['id'=>$assigned,'createdAt'=>$now,'deletedAt'=>null,'protected'=>false,'enabled'=>false,'publishAt'=>'','published'=>null];$record['name']=$name;$record['description']=$description;$record['updatedAt']=$now;$record['draft']=$body;if($publish)$record=$this->authorize($record,false);$data['homepages'][$assigned]=$record;return $data;
     });$result['id']=$assigned;return $result;
+  }
+  /** Convert legacy baseline snapshots through the active template adapter; receive catalog/site/page revisions, return snapshot, backup before atomic replacement, preserve edited/scheduled bodies, and reject stale reads without writes. */
+  public function convert(string $revision,string $siteRevision,string $homeRevision): array {
+    return $this->store->transaction(function()use($revision,$siteRevision,$homeRevision):array{
+      $current=$this->read();if(!hash_equals($current['revision'],$revision)||!hash_equals($this->store->read('site')['revision'],$siteRevision)||!hash_equals($this->store->read('home')['revision'],$homeRevision))throw new HttpError(409,'Stale Homepage conversion.','homepage.error.conflict');
+      $record=$current['data']['homepages']['legacy-home'];if($record['draft']['mode']!=='legacy'&&$record['published']['mode']!=='legacy')return $current;
+      $site=$this->store->read('site')['data'];$body=TemplateMarkup::homepage(new ContentContext($this->store,$site['template'],'','home'));
+      return $this->mutate($revision,$siteRevision,static function(array $data)use($body):array{foreach(['draft','published'] as $snapshot)if($data['homepages']['legacy-home'][$snapshot]['mode']==='legacy'){$converted=$body;$converted['publicationAt']=$data['homepages']['legacy-home'][$snapshot]['publicationAt'];$data['homepages']['legacy-home'][$snapshot]=$converted;}return $data;});
+    });
   }
   /** Activate now, deactivate, soft-delete or recover one entry; receive ID/operation/revisions, return snapshot, protect baseline and preserve scheduled snapshots/history. */
   public function action(string $id,string $operation,string $revision,string $siteRevision): array {

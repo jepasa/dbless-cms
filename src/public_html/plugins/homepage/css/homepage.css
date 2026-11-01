@@ -5,3 +5,10 @@
 
 /* Publication list follows the core extension table; code/source modes remain fully integrated at narrow widths. */
 .homepage-catalog .extension-table small{display:block;overflow-wrap:anywhere}.homepage-catalog .savebar{align-items:flex-start}.homepage-catalog .savebar>p{max-width:42rem}.homepage-catalog .savebar .homepage-actions{justify-content:flex-end}.homepage-catalog [data-homepage-source][hidden],.homepage-catalog [data-homepage-html][hidden],.homepage-catalog [data-homepage-legacy][hidden]{display:none}.homepage-catalog .row-actions{white-space:nowrap}@media(max-width:700px){.homepage-catalog .savebar{position:static;display:block}.homepage-catalog .savebar .homepage-actions{justify-content:flex-start}.homepage-catalog .editor-toolbar{align-items:flex-start;flex-direction:column}}
+
+/* Publication editor labels follow the global form rhythm, including stacked rows on mobile. */
+.homepage-catalog [data-homepage-publication] .panel>label{margin-block-start:1.75rem}
+.homepage-catalog [data-homepage-publication] .panel>label:first-child{margin-block-start:0}
+.homepage-catalog [data-homepage-publication] .field-grid{row-gap:1.75rem}
+.homepage-catalog [data-homepage-publication] .markup-editor>label{margin-block-start:1.75rem}
+.homepage-catalog [data-homepage-publication] .markup-editor>label:first-child{margin-block-start:0}

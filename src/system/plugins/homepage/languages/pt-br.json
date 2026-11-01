@@ -75,11 +75,9 @@
     "homepage.localTime": "Horário local do navegador",
     "homepage.htmlMode": "Conteúdo próprio HTML/Mustache",
     "homepage.sourceMode": "Página ou artigo de um plugin",
-    "homepage.legacyMode": "Conteúdo original do template (preservado)",
     "homepage.sourcePlugin": "Plugin de origem",
     "homepage.sourcePage": "Página ou artigo",
     "homepage.sourceUnavailable": "Origem indisponível ou ainda não publicada. A referência permanece preservada.",
-    "homepage.legacyHelp": "A home original permanece preservada. Selecione HTML ou uma origem de plugin para substituí-la por uma composição própria.",
     "homepage.metadataHelp": "Os metadados públicos são obtidos das configurações globais. Nome e descrição identificam este registro administrativo.",
     "homepage.publishSchedule": "Publicar / Agendar",
     "homepage.catalogSave": "Salvar rascunho",
@@ -100,6 +98,8 @@
     "homepage.state.scheduled": "Agendado",
     "homepage.state.draft": "Rascunho",
     "homepage.state.deleted": "Removido",
-    "homepage.dateInvalid": "Data de publicação inválida ou alteração do horário local."
+    "homepage.dateInvalid": "Data de publicação inválida ou alteração do horário local.",
+    "homepage.conversionUnavailable": "O template precisa de um adaptador HTML/Mustache para converter esta Homepage com segurança.",
+    "homepage.convertedHelp": "O conteúdo nativo foi convertido em HTML/Mustache para edição. Salvar rascunho mantém a publicação atual; publicar aplica a conversão. Formulários e recursos dinâmicos continuam sendo renderizados por requisição."
   }
 }
