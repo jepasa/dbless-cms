@@ -68,7 +68,7 @@ final class App {
     $base_url=$base??self::base($store); $currentPage=$page['slug'];
     $homepageHtml=null;
     if($key==='home'&&$override===null){
-      $readContext=new ContentContext($store,$id,$base_url,'home');
+      $readContext=new ContentContext($store,$id,$base_url,'home',$preview);
       if($homepagePreview!==null){if(!$preview)throw new \InvalidArgumentException('Homepage draft requires private preview.');$homepageHtml=Homepages::renderBody($homepagePreview,$readContext);}
       else $homepageHtml=(new Homepages($store))->resolve($readContext)['html'];
       $globals=$site['settings'];$page['meta']=['title'=>$globals['name'],'description'=>$globals['description'],'keywords'=>$globals['keywords'],'image'=>$globals['image'],'imageAlt'=>$globals['imageAlt']];
@@ -81,7 +81,7 @@ final class App {
     $templateSettings=isset($manifest['configuration'])?(new Extensions($store))->options($id)['values']:[];
     $navigation=new Navigation($store,$id,$base_url);
     $slides=new Slides($store,$id);
-    $components=new Components(new ContentContext($store,$id,$base_url,$currentPage));
+    $components=new Components(new ContentContext($store,$id,$base_url,$currentPage,$preview));
     $contentFile=$store->templates->path($id,'pages',$manifest['pages'][$page['page']]);
     if(isset($page['markup'])){$markupDefinition=$page['markup'];$contentFile=__DIR__.'/views/markup.php';}
     if($homepageHtml!==null)$contentFile=__DIR__.'/views/markup.php';
@@ -89,7 +89,7 @@ final class App {
     ob_start();
     try { require $store->templates->path($id,'partials',$manifest['partials']['layout']); $html=(string)ob_get_clean(); }
     catch (\Throwable $error) { ob_end_clean(); throw $error; }
-    return $preview?$html:(new SiteCustomizations($store))->decorate($html,$base_url);
+    return $preview?$html:(new MediaRights($store))->decorate((new Privacy($store))->decorate(ContentForms::assets((new SiteCustomizations($store))->decorate($html,$base_url),$base_url,$store),$base_url),$base_url);
 
   }
 }

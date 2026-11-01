@@ -417,6 +417,25 @@
     "custom.captureTab": "Capture Tab for indentation (Escape releases)",
     "custom.native": "Native content / existing blocks",
     "custom.authoring": "HTML and Mustache data",
-    "custom.mode": "Content mode"
+    "custom.mode": "Content mode",
+    "global.group.privacy": "Privacy and legal information",
+    "privacy.title": "Privacy and optional resources",
+    "privacy.help": "This core registry does not install trackers or certify compliance. Resources are optional and blocked until a valid category choice. Trusted custom JavaScript and PHP plugins are outside that isolation guarantee.",
+    "privacy.registry": "Optional resource registry",
+    "privacy.registryHelp": "Edit public notice text and explicit resource entries. Types: script, image, embed. Categories: analytics, marketing, media. Origins are explicit HTTPS origins grouped by script/connect/img/frame; no wildcards. No resources means no consent banner.",
+    "privacy.document": "Registry JSON",
+    "privacy.example": "Resource entry example",
+    "privacy.exampleHelp": "Add entries to resources only after assessing purpose, provider and legal basis. Replace example paths with actual installed resources. The example below is documentation and does not enable a request.",
+    "privacy.error": "Privacy configuration is invalid. Check the public text, page slugs and explicit resource origins.",
+    "markup.formHelp": "For an interactive published form, insert a complete block using its stable key. It is separate from read-only definition data.",
+    "global.field.privacy.controller": "Controller or legal name",
+    "global.field.privacy.registration": "Public commercial registration, when applicable",
+    "global.field.privacy.address": "Public commercial address, when applicable",
+    "global.field.privacy.email": "Privacy contact email",
+    "global.field.privacy.contactNotice": "Notice next to the legacy contact form",
+    "global.field.privacy.privacyPage": "Privacy page slug",
+    "global.field.privacy.termsPage": "Terms page slug",
+    "global.field.privacy.refundPage": "Cancellation/refund page slug",
+    "global.field.privacy.accessibilityPage": "Accessibility page slug"
   }
 }

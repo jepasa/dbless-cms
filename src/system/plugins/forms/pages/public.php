@@ -1,0 +1,5 @@
+<?php
+/** Public Forms result document, consumed only through FormsView with validated template/site/form data; direct execution has no request dispatch. */
+declare(strict_types=1);
+namespace DBLESSCMS;
+return '<!doctype html><html lang="'.e($locale['tag']).'" dir="'.e($locale['direction']).'"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>'.e($form['name'].' — '.$site['settings']['name']).'</title><link rel="icon" href="'.e(SiteFavicon::url($store,$base)).'">'.$styles.'</head><body><a class="skip-link" href="#form-main">Skip to content</a><header class="cms-form-header"><a href="'.e($base.'/').'">'.e($site['settings']['name']).'</a></header><main class="cms-form-page" data-cms-form-provider="forms" id="form-main" tabindex="-1">'.($success?'<section class="cms-form"><h1>'.e($form['name']).'</h1><p role="status">'.e($form['successText']).'</p><p>'.e($message).'</p><a href="'.e($base.'/').'">Back to the website</a></section>':self::fragment($form,$base,$values,$message)).'</main></body></html>';

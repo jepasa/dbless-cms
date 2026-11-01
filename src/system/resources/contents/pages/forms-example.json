@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "slug": "forms-example",
+  "status": "published",
+  "page": "starter-page",
+  "meta": {
+    "title": "Forms and image provenance examples",
+    "description": "Noncollecting examples of declarative forms, public data and accessible presentation.",
+    "keywords": "site demonstrativo, conteúdo de exemplo, dbless-cms",
+    "image": "templates/essencial/images/examples/studio.png",
+    "imageAlt": "Uma página para sua história"
+  },
+  "content": {
+    "title": "Uma página para sua história",
+    "lead": "Organize seu conteúdo com títulos claros e informações úteis.",
+    "summary": "Este modelo pode receber uma apresentação institucional, um guia ou uma iniciativa. Adapte cada seção ao objetivo da página.",
+    "eyebrow": "Modelo de conteúdo",
+    "image": "templates/essencial/images/examples/studio.png",
+    "facts": [],
+    "sections": [
+      {
+        "title": "Comece pelo que importa",
+        "body": [
+          "Apresente o assunto, explique por que ele é relevante e indique o próximo passo. Textos objetivos ajudam as pessoas a encontrar a informação de que precisam."
+        ],
+        "list": [
+          "Escolha um título que descreva o conteúdo.",
+          "Use imagens originais e descrições acessíveis.",
+          "Revise os links e as informações antes de publicar."
+        ]
+      }
+    ],
+    "related": [
+      {
+        "label": "Página inicial",
+        "href": "/"
+      },
+      {
+        "label": "Projeto de exemplo",
+        "href": "/portfolio-details"
+      },
+      {
+        "label": "Serviço de exemplo",
+        "href": "/service-details"
+      }
+    ],
+    "cta": {
+      "eyebrow": "Próximo passo",
+      "title": "Dê espaço à sua próxima ideia.",
+      "description": "Personalize este modelo com seus conteúdos e canais de atendimento."
+    }
+  },
+  "markup": {
+    "html": "<section class=\"section\"><div class=\"container text-flow\"><h1>Forms and image provenance</h1><p>This is demonstration content, not a legal policy or an operating contact channel.</p><h2>Request-scoped form</h2>{{forms:form id=\"contact-example\"}}<p>A separate noncollecting <a href=\"/plugins/forms/form?id=privacy-request-example\">privacy request model</a> demonstrates minimal data and the privacy destination. It requires operator review before use.</p><h2>Accessible image attribution</h2><p>Upload an image using Images, record its author, source and actual license, then approve the rights. Public labels appear beside matching images. Contextual alternative text remains the responsibility of each image placement.</p></div></section>",
+    "bindings": []
+  }
+}

@@ -81,6 +81,10 @@ function renderGlobalFields(data, parent) {
     data.settings.cache = {...JSON.parse(editor.dataset.globalDefaults).cache, ...data.settings.cache};
     editor.value = JSON.stringify(data, null, 2) + '\n';
   }
+  if (data.settings && (data.settings.privacy === undefined || (data.settings.privacy && typeof data.settings.privacy === 'object' && !Array.isArray(data.settings.privacy)))) {
+    data.settings.privacy = {...JSON.parse(editor.dataset.globalDefaults).privacy, ...data.settings.privacy};
+    editor.value = JSON.stringify(data, null, 2) + '\n';
+  }
   for (const card of JSON.parse(editor.dataset.globalGroups)) {
     const section=document.createElement('section');section.className='panel global-card';
     const title=document.createElement('h2');title.textContent=translate(card.title);section.append(title);
@@ -97,14 +101,14 @@ function renderGlobalFields(data, parent) {
           input=document.createElement('select');
           const options=key==='adminLocale'?languages:Object.fromEntries(['','image/png','image/jpeg','image/webp','image/avif','image/gif','image/svg+xml','image/x-icon'].map(type=>[type,type||'—']));
           for(const [id,text] of Object.entries(options)){const option=document.createElement('option');option.value=id;option.textContent=text;input.append(option);}
-        } else if(key==='description'){input=document.createElement('textarea');input.rows=4;label.className='wide';}
-        else {input=document.createElement('input');input.type=typeof value==='boolean'?'checkbox':typeof value==='number'?'number':key==='contact.email'?'email':'text';}
+        } else if(key==='description'||key==='privacy.contactNotice'){input=document.createElement('textarea');input.rows=4;label.className='wide';}
+        else {input=document.createElement('input');input.type=typeof value==='boolean'?'checkbox':typeof value==='number'?'number':['contact.email','privacy.email'].includes(key)?'email':'text';}
         input.setAttribute('aria-label',translate('global.field.'+key.replace(/^@/,'')));
         input.name=({adminLocale:'admin_locale',siteLocale:'site_locale',favicon:'site_favicon'})[key]||key;input.value=key==='adminLocale'&&!Object.hasOwn(languages,String(value))?language.dataset.locale:value??'';
         if(input.type==='checkbox')input.checked=value;
         if(key==='adminLocale')input.dataset.adminLocale='';if(key==='siteLocale')input.dataset.siteLocale='';if(key==='favicon')input.dataset.siteFavicon='';
         if(key.startsWith('@')){input.readOnly=true;input.className='read-only';}
-        else {input.dataset.path=JSON.stringify(path);input.dataset.kind=typeof value;input.maxLength=key==='description'?2000:['baseUrl','canonical'].includes(key)?2048:key==='keywords'?1000:300;}
+        else {input.dataset.path=JSON.stringify(path);input.dataset.kind=typeof value;input.maxLength=['description','privacy.contactNotice'].includes(key)?2000:['baseUrl','canonical'].includes(key)?2048:key==='keywords'?1000:300;}
         if(input.type==='number'){const limits=({'cache.ttl':[1,86400],'cache.maxMiB':[1,256],'cache.maxEntries':[1,2000]})[key]||[0,16384];input.min=limits[0];input.max=limits[1];input.step=1;}
         if(['name','canonical','siteLocale'].includes(key))input.required=true;
         if(key==='siteLocale')input.pattern='[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*';

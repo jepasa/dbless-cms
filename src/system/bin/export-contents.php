@@ -68,3 +68,6 @@ echo count($pages)." páginas sanitizadas.\n";
 
 (new \DBLESSCMS\Homepages($store))->export($target);
 (new \DBLESSCMS\SiteCustomizations($store))->export($target);
+(new \DBLESSCMS\Privacy($store))->export($target);
+(new \DBLESSCMS\MediaRights($store))->export($target);
+if(isset($registry->all()['forms'])){require_once $config->root.'/plugins/forms/Plugin.php';$forms=\DBLESSCMS\FormsModel::repository($store)->read()['data'];$forms['forms']=array_filter($forms['forms'],static fn(array $f):bool=>!$f['deleted']&&$f['status']==='published');\DBLESSCMS\ExtensionDocument::atomic($target.'/system/storage/contents/forms/catalog.json',\DBLESSCMS\ExtensionDocument::encode($forms));}

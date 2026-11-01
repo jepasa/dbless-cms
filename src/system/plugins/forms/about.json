@@ -1,0 +1,38 @@
+{
+  "language": "en",
+  "title": "Forms",
+  "lead": "Build purpose-driven forms without a database, using safe request-scoped composition and read-only Mustache definitions.",
+  "sections": [
+    {
+      "title": "Author a form",
+      "body": [
+        "Open New form. Define a stable key, visible fields, limits and options. Select a specific processing purpose and assessed legal basis. A dropdown selection is not legal approval.",
+        "Demonstration forms never deliver. For collection, disable Demonstration, select a published privacy page, configure the global destination and enable contact delivery in private application configuration. No default credentials or external CAPTCHA are added."
+      ]
+    },
+    {
+      "title": "Embed a functional form",
+      "body": [
+        "Insert this complete block in Homepage, Page or Blog HTML. The core renders the form through a separate narrow interactive contract after validating authored HTML. Variables cannot inject form HTML.",
+        "The renderer issues request/session-bound tickets. Private previews disable interactive forms; never copy tokens or forms from an old page into static content."
+      ],
+      "code": "{{forms:form id=\"contact-example\"}}"
+    },
+    {
+      "title": "Read public definition data",
+      "body": [
+        "Bind forms:definition with parameter id and an alias such as inquiry. Definition data contains labels and choices only. It never includes responses, recipients, tokens or submission tickets.",
+        "Use escaped variables and bounded loops for descriptive presentation; ordinary authored HTML still cannot create form/input elements. Functional forms use the interactive marker."
+      ],
+      "code": "{{inquiry.name}}\n{{#inquiry.fields}}<p>{{label}}</p>{{/inquiry.fields}}"
+    },
+    {
+      "title": "Delivery, retention and rights",
+      "body": [
+        "The default retains no answers. Optional per-form retention is private and requires an assessed purpose and period. The private receipt list distinguishes transport acceptance, failure and uncertainty; transport acceptance is not proof of inbox delivery.",
+        "For rights requests, configure the privacy destination and appropriate minimal fields. The operator must verify identity proportionately, respond and assess applicable retention; the plugin does not automatically erase all site data. Mailboxes and backups remain processing locations.",
+        "Use the private CLI privacy-retention.php for simulation or explicit application of expired receipt cleanup. It does not delete legal access logs, contracts or incident records. Restore handling and mailbox deletion require an operational policy."
+      ]
+    }
+  ]
+}

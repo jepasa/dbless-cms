@@ -1,0 +1,4 @@
+/** Public image provenance labels inherit the active template typography and contrast; attribution never replaces contextual alt text. */
+.cms-image-credit { display: block; margin: .4rem 0 1rem; color: inherit; font-size: .875rem; line-height: 1.6; overflow-wrap: anywhere; }
+.cms-image-credit a { color: inherit; text-decoration: underline; text-underline-offset: .2em; }
+.cms-image-credit a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }

@@ -29,6 +29,12 @@ final class Admin {
     }
     if (!Security::authenticated($this->config)) throw new HttpError(403,'Autenticação necessária.','error.authentication');
     Security::csrf($_POST['csrf_token']??null);
+    if(in_array($action,['privacy-save','privacy-restore'],true)){
+      $repository=(new Privacy($this->store))->repository();$revision=$this->input('revision');
+      if($action==='privacy-restore')$repository->restore($this->input('backup',80),$revision);
+      else{try{$data=json_decode($this->input('privacy_document',131072),true,24,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(422,'Invalid privacy registry JSON.','privacy.error');}if(!is_array($data))throw new HttpError(422,'Invalid privacy registry.','privacy.error');Privacy::validate($data);if($data['resources']!==[]){$settings=Privacy::settings($this->store->read('site')['data']['settings']['privacy']??[]);if($settings['controller']===''||$settings['email']===''||!isset((new Privacy($this->store))->links($this->base,$settings)['privacy']))throw new HttpError(422,'Configure controller, privacy channel and a published privacy page first.','privacy.error');}$repository->change($revision,static fn(array $current):array=>$data);}
+      $this->redirect('privacy');
+    }
     if (str_starts_with($action,'custom-')) {
       $source=[];foreach(['css','js'] as $kind)$source[$kind]=['enabled'=>$this->input($kind.'_enabled',1)==='1','code'=>$this->input($kind.'_code',SiteCustomizations::LIMIT)];
       (new SiteCustomizations($this->store))->change(substr($action,7),$source,$this->input('revision'),$this->input('site_revision'),$this->input('backup'));
@@ -116,7 +122,7 @@ final class Admin {
     $authenticated=Security::authenticated($this->config);
     $view=$_GET['view']??'dashboard'; $key=$_GET['key']??'home';
     if (!is_string($view) || !is_string($key)) throw new HttpError(400,'Rota administrativa inválida.','error.admin_route');
-    if (!in_array($view,['customizations','customizations-preview','dashboard','pages','page-new','page-trash','edit','site','templates','history','preview','login','plugins','plugin','plugin-panel','plugin-settings','template-settings','plugin-about'],true)) throw new HttpError(404,'Página não encontrada.','error.not_found');
+    if (!in_array($view,['privacy','customizations','customizations-preview','dashboard','pages','page-new','page-trash','edit','site','templates','history','preview','login','plugins','plugin','plugin-panel','plugin-settings','template-settings','plugin-about'],true)) throw new HttpError(404,'Página não encontrada.','error.not_found');
     if (!$authenticated) $view='login';
     if($authenticated&&$view==='customizations-preview') {
       $previewRevision=$_GET['revision']??'';if(!is_string($previewRevision))throw new HttpError(400,'Invalid preview revision.','custom.error');
@@ -188,7 +194,7 @@ final class Admin {
     $pages=$authenticated && $effectiveTemplate!==null?$this->store->pages($effectiveTemplate):[];
     $document=null; $revision='';
     if ($authenticated && $view==='site') {
-      $opened=$this->store->read($key,$effectiveTemplate); $editable=$opened['data'];$editable['settings']['cache']=Cache::options($editable['settings']['cache']??[]);$document=JsonStore::encode($editable); $revision=$opened['revision'];
+      $opened=$this->store->read($key,$effectiveTemplate); $editable=$opened['data'];$editable['settings']['cache']=Cache::options($editable['settings']['cache']??[]);$editable['settings']['privacy']=Privacy::settings($editable['settings']['privacy']??[]);$document=JsonStore::encode($editable); $revision=$opened['revision'];
       if ($error!==null && ($_POST['action']??'')==='save' && is_string($_POST['document']??null)) $document=$_POST['document'];
       if ($error!==null && is_string($_POST['revision']??null)) $revision=$_POST['revision'];
     }

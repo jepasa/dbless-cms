@@ -23,6 +23,7 @@
 !/src/public_html/index.php
 !/src/public_html/.htaccess
 !/src/public_html/cms-admin/
+!/src/public_html/cms-assets/
 !/src/public_html/templates/
 !/src/public_html/plugins/
 !/src/public_html/media/

@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "forms": {
+    "contact-example": {
+      "id": "contact-example",
+      "name": "Example contact form",
+      "description": "A noncollecting example of the Forms plugin. Configure it for your own operation before use.",
+      "status": "published",
+      "deleted": false,
+      "demo": true,
+      "purpose": "Demonstrate minimal contact fields without accepting or retaining messages.",
+      "legalBasis": "precontract",
+      "noticeVersion": "example-1",
+      "noticeText": "Demonstration only: no messages are accepted. A live form needs the operator’s purpose, privacy information and delivery channel.",
+      "privacyPage": "",
+      "destination": "contact",
+      "retainDays": 0,
+      "consentText": "",
+      "submitLabel": "Send message",
+      "successText": "Message accepted by the delivery service.",
+      "fields": [
+        {
+          "name": "email",
+          "label": "Email",
+          "type": "email",
+          "required": true,
+          "maxLength": 254,
+          "options": [],
+          "autocomplete": "email"
+        },
+        {
+          "name": "message",
+          "label": "Message",
+          "type": "textarea",
+          "required": true,
+          "maxLength": 4000,
+          "options": [],
+          "autocomplete": "off"
+        }
+      ]
+    },
+    "privacy-request-example": {
+      "id": "privacy-request-example",
+      "name": "Privacy request example",
+      "description": "A noncollecting model for human-reviewed privacy requests. No identity documents are requested.",
+      "status": "published",
+      "deleted": false,
+      "demo": true,
+      "purpose": "Route a privacy request to the operator for proportional identity assessment and a documented response.",
+      "legalBasis": "",
+      "noticeVersion": "example-1",
+      "noticeText": "Demonstration only. The operator must define the applicable basis, notice, response process and retention before enabling collection.",
+      "privacyPage": "",
+      "destination": "privacy",
+      "retainDays": 0,
+      "consentText": "",
+      "submitLabel": "Send privacy request",
+      "successText": "Message accepted by the delivery service.",
+      "fields": [
+        {
+          "name": "email",
+          "label": "Email",
+          "type": "email",
+          "required": true,
+          "maxLength": 254,
+          "options": [],
+          "autocomplete": "email"
+        },
+        {
+          "name": "request-type",
+          "label": "Request type",
+          "type": "select",
+          "required": true,
+          "maxLength": 100,
+          "options": [
+            "Access or confirmation",
+            "Correction",
+            "Deletion or restriction",
+            "Withdrawal of consent",
+            "Other privacy request"
+          ],
+          "autocomplete": "off"
+        },
+        {
+          "name": "message",
+          "label": "Request details",
+          "type": "textarea",
+          "required": false,
+          "maxLength": 2000,
+          "options": [],
+          "autocomplete": "off"
+        }
+      ]
+    }
+  }
+}

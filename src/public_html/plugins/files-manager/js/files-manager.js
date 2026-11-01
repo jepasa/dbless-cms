@@ -20,6 +20,16 @@
       } catch (error) { status.textContent = error.message; status.classList.add('fm-error'); pending = false; buttons.forEach(button => { button.disabled = false; }); }
     }));
   }
+  const rights = document.querySelector('[data-fm-rights]');
+  if (rights) {
+    rights.querySelectorAll('[data-rights-form]').forEach(form => form.addEventListener('submit', async event => {
+      event.preventDefault(); const button = form.querySelector('button[type="submit"]'), status = rights.querySelector('[data-rights-status]');
+      if (button.disabled) return; button.disabled = true;
+      try { const response = await fetch(form.action, {method: 'POST', credentials: 'same-origin', headers: {Accept: 'application/json'}, body: new FormData(form)}); const result = await response.json(); if (!response.ok) throw new Error(result.error || 'Metadata save failed.'); location.assign(result.redirect); }
+      catch (error) { status.textContent = error.message; status.hidden = false; status.focus(); button.disabled = false; }
+    }));
+    return;
+  }
   const root = document.querySelector('[data-fm]');
   if (!root) return;
   const messages = JSON.parse(root.dataset.messages);
@@ -63,11 +73,11 @@
   function select(item) {
     selected = item;
     document.querySelector('[data-selected]').textContent = item ? t('selected', {name: item.name}) : t(trash ? 'trash' : 'files');
-    for (const action of ['rename','move','download','preview','delete','restore','purge']) {
+    for (const action of ['rename','move','download','preview','metadata','delete','restore','purge']) {
       const button = document.querySelector(`[data-action="${action}"]`);
       const isTrash = ['restore','purge'].includes(action);
       button.hidden = isTrash !== trash;
-      button.disabled = busy || !item || (action === 'preview' && (item.directory || !/\.(jpe?g|png|gif|webp|ico)$/i.test(item.name))) || (action === 'download' && item.directory);
+      button.disabled = busy || !item || (['preview','metadata'].includes(action) && (item.directory || !/\.(jpe?g|png|gif|webp|ico)$/i.test(item.name))) || (action === 'download' && item.directory);
     }
     for (const row of items.children) {
       const active = row.dataset.id === (item?.id || item?.path);
@@ -187,6 +197,7 @@
     }
     if (name === 'mkdir') { const value = await ask(t('newFolder'), t('name')); if (value !== null) return mutate('mkdir', {name: value}); return; }
     if (!entry) return;
+    if (name === 'metadata') { const destination = new URL(base); destination.searchParams.set('view','plugin-panel'); destination.searchParams.set('route','rights'); destination.searchParams.set('scope',scope); destination.searchParams.set('path',entry.path); destination.searchParams.delete('operation'); location.assign(destination); return; }
     if (name === 'download') { location.href = url('download', {path: entry.path}); return; }
     if (name === 'preview') {
       const image = document.querySelector('[data-preview-image]'); image.alt = entry.name; image.src = url('preview', {path: entry.path}); preview.showModal(); return;

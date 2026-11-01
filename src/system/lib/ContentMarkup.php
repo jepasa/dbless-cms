@@ -32,9 +32,9 @@ final class ContentMarkup {
     return $html;
   }
   /** Validate one authored template and binding declarations; receive decoded definition, return original safe HTML/bindings or 422 without provider execution or writes. */
-  public static function definition(array $definition): array {Schema::validate($definition,self::schema());Mustache::parse($definition['html']);self::html($definition['html']);Components::bindingShape($definition['bindings']);return $definition;}
+  public static function definition(array $definition): array {Schema::validate($definition,self::schema());$prepared=ContentForms::prepare($definition['html']);Mustache::parse($prepared['html']);self::html($prepared['html']);Components::bindingShape($definition['bindings']);return $definition;}
   /** Resolve declared public data and render/validate HTML; receive definition/context, return safe HTML or typed contract error, isolate provider errors through Components, never mutate content. */
   public static function render(array $definition,ContentContext $context): string {
-    self::definition($definition);$components=new Components($context);$data=$components->environment($definition['bindings']);$html=self::html(Mustache::render($definition['html'],$data),false);self::$budgets??=new \WeakMap();$bytes=(self::$budgets[$context->store]??0)+strlen($html);if($bytes>1048576)throw new HttpError(422,'Request markup budget exceeded.','markup.error');self::$budgets[$context->store]=$bytes;return $html;
+    self::definition($definition);$components=new Components($context);$data=$components->environment($definition['bindings']);$prepared=ContentForms::prepare($definition['html']);$html=self::html(Mustache::render($prepared['html'],$data),false);$html=ContentForms::mount($html,$prepared['slots'],$context);self::$budgets??=new \WeakMap();$bytes=(self::$budgets[$context->store]??0)+strlen($html);if($bytes>1048576)throw new HttpError(422,'Request markup budget exceeded.','markup.error');self::$budgets[$context->store]=$bytes;return $html;
   }
 }

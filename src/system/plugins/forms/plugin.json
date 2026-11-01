@@ -1,0 +1,211 @@
+{
+  "id": "forms",
+  "name": "Forms",
+  "description": "Purpose-driven forms with minimal collection, private delivery receipts and safe Mustache composition.",
+  "version": "1.0.0",
+  "api": 1,
+  "cmsMajor": 2,
+  "entry": "Plugin.php",
+  "class": "DBLESSCMS\\FormsPlugin",
+  "assets": {
+    "css": "css/forms.css",
+    "js": "js/forms.js",
+    "icon": "forms.svg"
+  },
+  "defaults": {},
+  "router": "Router.php",
+  "routes": {
+    "overview": {
+      "title": "forms.overview",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "new": {
+      "title": "forms.new",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "editor": {
+      "title": "forms.editor",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "history": {
+      "title": "forms.history",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "trash": {
+      "title": "forms.trash",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "submissions": {
+      "title": "forms.submissions",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "form": {
+      "title": "forms.form",
+      "file": "pages/public.php",
+      "requiresEnabled": true,
+      "visibility": "public",
+      "methods": [
+        "GET"
+      ],
+      "maxBodyBytes": 65536
+    },
+    "submit": {
+      "title": "forms.submit",
+      "file": "pages/public.php",
+      "requiresEnabled": true,
+      "visibility": "public",
+      "methods": [
+        "POST"
+      ],
+      "maxBodyBytes": 65536
+    }
+  },
+  "navigation": {
+    "label": "forms.menu",
+    "items": [
+      {
+        "label": "forms.overview",
+        "route": "overview"
+      },
+      {
+        "label": "forms.new",
+        "route": "new"
+      },
+      {
+        "label": "forms.submissions",
+        "route": "submissions"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "forms.history",
+        "route": "history"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "forms.trash",
+        "route": "trash"
+      }
+    ]
+  },
+  "configuration": false,
+  "presentation": "about.json",
+  "formServices": {
+    "form": {
+      "description": "A request-scoped form, separate from public data services.",
+      "route": "submit"
+    }
+  },
+  "contentServices": {
+    "definition": {
+      "api": 1,
+      "description": "Published non-sensitive form definition; no recipients, answers or tokens.",
+      "context": "block",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 48
+          }
+        }
+      },
+      "result": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "description",
+          "notice",
+          "noticeVersion",
+          "fields"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 48
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "notice": {
+            "type": "string",
+            "maxLength": 3000
+          },
+          "noticeVersion": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "fields": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "label",
+                "type",
+                "required",
+                "options"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 48
+                },
+                "label": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "type": {
+                  "type": "string",
+                  "maxLength": 20
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "options": {
+                  "type": "array",
+                  "maxItems": 30,
+                  "items": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "formats": [
+        "data"
+      ]
+    }
+  }
+}

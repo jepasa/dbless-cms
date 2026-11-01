@@ -4,6 +4,7 @@
  * Exclui segredos e storage. Publica staging completo; qualquer falha aborta sem substituir o pacote anterior.
  */
 import {customizations} from './lib/customizations.mjs';
+import {privacyResources} from './lib/privacy.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -42,7 +43,7 @@ async function exportDirectory(directory) {
     // Publica somente código conhecido: uploads em media, pastas customizadas ou raiz vazia ficam fora.
     if (relative.startsWith('public_html/')) {
       const top = relative.slice('public_html/'.length).split('/')[0];
-      if (!['index.php','.htaccess','cms-admin','templates','plugins','robots.txt','sitemap.xml'].includes(top)) continue;
+      if (!['index.php','.htaccess','cms-admin','cms-assets','templates','plugins','robots.txt','sitemap.xml'].includes(top)) continue;
     }
     if (/\.s[ac]ss$/i.test(entry.name) || relative === 'system/resources/contents' || relative === 'system/storage' || relative === 'system/storage/contents' || relative === 'system/config/app.json' || relative === 'system/config/production.php' || entry.name.startsWith('.env') || /\.(log|jsonl|pem|key)$/i.test(entry.name) || /\s/.test(entry.name)) continue;
     if (entry.isSymbolicLink()) throw new Error(`Symlink proibido no pacote: ${relative}`);
@@ -87,6 +88,7 @@ try {
   await exportDirectory(source);
   process.stdout.write(php([path.join(source, 'system/bin/export-contents.php'), staging]));
   await customizations(staging);
+  await privacyResources(staging);
   await fs.writeFile(path.join(staging, 'system/config/production.php'), '<?php\n/** Marcador gerado pelo exportador; impede uso de .env no pacote de produção. */\ndeclare(strict_types=1);\nreturn true;\n');
   await fs.mkdir(path.join(staging, 'system/storage/files'), { recursive: true });
   await fs.mkdir(path.join(staging, 'public_html/media'), { recursive: true });

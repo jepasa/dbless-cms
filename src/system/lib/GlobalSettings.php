@@ -23,7 +23,7 @@ final class GlobalSettings {
   /** Validate canonical URLs, public-root media paths and required identity; receives data, throws 422 on unsafe/malformed values, no I/O. */
   public static function validate(array $data): void {
     $s=$data['settings'];
-    Cache::options($s['cache']??[]);
+    Cache::options($s['cache']??[]);Privacy::settings($s['privacy']??[]);
     if (trim($s['name'])==='') throw new HttpError(422,'Site name is required.','error.metadata');
     foreach (['baseUrl','canonical'] as $key) {
       $url=$s[$key];if ($key==='baseUrl'&&$url==='') continue;
@@ -67,7 +67,8 @@ final class GlobalSettings {
         ['title'=>'global.group.metadata','fields'=>['author','keywords','type','image','imageAlt','imageType','imageWidth','imageHeight']]]],
       ['title'=>'global.card.contact','groups'=>[
         ['title'=>'global.group.address','fields'=>['contact.country','contact.state','contact.city']],
-        ['title'=>'global.group.communication','fields'=>['contact.phone','contact.email','contact.responsible']]]],
+        ['title'=>'global.group.communication','fields'=>['contact.phone','contact.email','contact.responsible']],
+        ['title'=>'global.group.privacy','fields'=>array_map(static fn(string $key):string=>'privacy.'.$key,array_keys(Privacy::DEFAULTS))]]],
       ['title'=>'global.card.cache','groups'=>[
         ['title'=>'global.group.cache','fields'=>['cache.enabled','cache.development','cache.ttl','cache.maxMiB','cache.maxEntries']]]]
     ];

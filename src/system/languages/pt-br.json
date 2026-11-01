@@ -417,6 +417,25 @@
     "custom.captureTab": "Usar Tab para indentar (Escape libera)",
     "custom.native": "Conteúdo nativo / blocos existentes",
     "custom.authoring": "HTML e dados Mustache",
-    "custom.mode": "Modo de conteúdo"
+    "custom.mode": "Modo de conteúdo",
+    "global.group.privacy": "Privacidade e informações legais",
+    "privacy.title": "Privacidade e recursos opcionais",
+    "privacy.help": "Este registro do core não instala rastreadores nem certifica conformidade. Recursos opcionais são bloqueados até escolha válida da categoria. JavaScript complementar e plugins PHP confiáveis ficam fora dessa garantia de isolamento.",
+    "privacy.registry": "Registro de recursos opcionais",
+    "privacy.registryHelp": "Edite os textos públicos do aviso e as entradas explícitas. Tipos: script, image, embed. Categorias: analytics, marketing, media. Origens HTTPS explícitas por script/connect/img/frame; sem curingas. Sem recursos, não há banner de consentimento.",
+    "privacy.document": "JSON do registro",
+    "privacy.example": "Exemplo de entrada de recurso",
+    "privacy.exampleHelp": "Adicione entradas em resources somente após avaliar finalidade, fornecedor e base legal. Substitua os caminhos por recursos instalados. O exemplo abaixo é documentação e não habilita requisições.",
+    "privacy.error": "A configuração de privacidade é inválida. Verifique textos públicos, slugs das páginas e origens explícitas.",
+    "markup.formHelp": "Para um formulário interativo publicado, insira um bloco completo com sua chave permanente. Ele é separado dos dados de definição de leitura.",
+    "global.field.privacy.controller": "Controlador ou razão social",
+    "global.field.privacy.registration": "Identificação comercial pública, quando aplicável",
+    "global.field.privacy.address": "Endereço comercial público, quando aplicável",
+    "global.field.privacy.email": "E-mail do canal de privacidade",
+    "global.field.privacy.contactNotice": "Aviso junto ao formulário de contato legado",
+    "global.field.privacy.privacyPage": "Slug da página de privacidade",
+    "global.field.privacy.termsPage": "Slug da página de termos",
+    "global.field.privacy.refundPage": "Slug da página de cancelamento/reembolso",
+    "global.field.privacy.accessibilityPage": "Slug da página de acessibilidade"
   }
 }

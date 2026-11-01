@@ -24,7 +24,7 @@ $t=static fn(string $key): string => $context->language->text('fm.'.$key);
 </div><nav class="fm-breadcrumb" data-breadcrumb aria-label="<?= e($t('root')) ?>"></nav>
 <p class="fm-scope-help" data-scope-help></p><p class="fm-status" data-status role="status" aria-live="polite"></p><progress data-progress max="100" value="0" hidden aria-label="<?= e($t('upload')) ?>"></progress>
 <div class="fm-selection" data-selection><span data-selected><?= e($t('files')) ?></span><div>
-<?php foreach (['rename'=>'✎','move'=>'↪','download'=>'↓','preview'=>'◉','delete'=>'♲','restore'=>'↶','purge'=>'×'] as $action=>$icon): ?><button type="button" data-action="<?= e($action) ?>" disabled><?= e($icon.' '.$t($action)) ?></button><?php endforeach; ?>
+<?php foreach (['rename'=>'✎','move'=>'↪','download'=>'↓','preview'=>'◉','metadata'=>'ⓘ','delete'=>'♲','restore'=>'↶','purge'=>'×'] as $action=>$icon): ?><button type="button" data-action="<?= e($action) ?>" disabled><?= e($icon.' '.$t($action)) ?></button><?php endforeach; ?>
 </div></div>
 <section class="fm-dropzone" data-dropzone aria-label="<?= e($t('files')) ?>"><div class="fm-items" data-items></div><p class="fm-empty" data-empty hidden></p></section>
 <footer class="fm-footer"><p><?= e($t('drop')) ?></p><small><?= e($t('help')) ?></small></footer>
