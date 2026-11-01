@@ -434,3 +434,7 @@ separate; a template must not override response headers to cache HTML.
 Global CSS/JS complements and shared authoring are documented in [Authoring and customizations](authoring-customizations.md). Do not edit template assets through the panel. Complete public-plugin HTML also receives published complements.
 
 Privacy controls, interactive Forms, public image credits and their boundaries are documented in [Privacy, Forms and image provenance](privacy-forms-media.md).
+
+## Editable native Homepage bodies
+
+Templates may provide an opt-in `homepageMarkup` adapter and explicitly declared public `markupFragments` to preserve native HTML while keeping contact forms and plugin output request-scoped. See [Editable native Homepages](homepage-conversion.md) for the manifest fields, Mustache syntax, preview restrictions and revision-checked migration.

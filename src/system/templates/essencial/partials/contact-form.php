@@ -1,0 +1,9 @@
+<?php
+/** Request-scoped public contact form shared by native and editable Homepage bodies; retains the original endpoint, classes, labels, privacy notice and session CSRF. */
+declare(strict_types=1);
+use function DBLESSCMS\e;
+$contactMessages=['site.sending'=>'Enviando mensagem…','site.sent'=>'Mensagem aceita pelo serviço de envio.','site.unavailable'=>'O envio está indisponível no momento. Utilize os contatos informados ou tente novamente mais tarde.','site.failed'=>'Não foi possível enviar a mensagem. Verifique os campos e tente novamente.','site.session'=>'A sessão expirou. Atualize a página antes de enviar novamente.','site.network'=>'A conexão falhou. A mensagem foi mantida para uma nova tentativa.'];
+?>
+<form class="contact-form" method="post" action="<?= e($base_url.'/?action=contact') ?>" data-site-contact data-messages="<?= e(json_encode($contactMessages,JSON_THROW_ON_ERROR)) ?>">
+<?php $privacy=\DBLESSCMS\Privacy::settings($settings['privacy']??[]);if($privacy['contactNotice']!==''): ?><p class="contact-privacy-notice"><?= e($privacy['contactNotice']) ?></p><?php endif; ?>
+<input type="hidden" name="csrf_token" value="<?= e(\DBLESSCMS\Security::token()) ?>"><div class="form-grid"><label><?= e('Nome') ?><input name="name" autocomplete="name" maxlength="120" required></label><label><?= e('E-mail') ?><input name="email" type="email" autocomplete="email" maxlength="254" required></label></div><label><?= e('Assunto') ?><input name="subject" maxlength="200" required></label><label><?= e('Mensagem') ?><textarea name="message" rows="5" maxlength="10000" required></textarea></label><p class="form-status" data-contact-status role="status" aria-live="polite" hidden></p><button class="button" type="submit"><?= e('Enviar mensagem') ?><span aria-hidden="true">↗</span></button></form>

@@ -75,11 +75,9 @@
     "homepage.localTime": "Browser local time",
     "homepage.htmlMode": "Own HTML/Mustache content",
     "homepage.sourceMode": "Plugin page or article",
-    "homepage.legacyMode": "Original template content (preserved)",
     "homepage.sourcePlugin": "Source plugin",
     "homepage.sourcePage": "Page or article",
     "homepage.sourceUnavailable": "Source unavailable or not yet published. Its reference is preserved.",
-    "homepage.legacyHelp": "The original homepage is preserved. Select HTML or a plugin source to replace it with authored content.",
     "homepage.metadataHelp": "Public metadata comes from global settings. Name and description identify this administrative entry.",
     "homepage.publishSchedule": "Publish / Schedule",
     "homepage.catalogSave": "Save draft",
@@ -100,6 +98,8 @@
     "homepage.state.scheduled": "Scheduled",
     "homepage.state.draft": "Draft",
     "homepage.state.deleted": "Removed",
-    "homepage.dateInvalid": "Invalid publication date or local clock change."
+    "homepage.dateInvalid": "Invalid publication date or local clock change.",
+    "homepage.conversionUnavailable": "This template needs an HTML/Mustache adapter to safely convert this Homepage.",
+    "homepage.convertedHelp": "Native content has been converted to editable HTML/Mustache. Saving a draft preserves the current publication; publishing applies the conversion. Forms and dynamic resources are still rendered per request."
   }
 }

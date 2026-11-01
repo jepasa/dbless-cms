@@ -93,6 +93,7 @@ final class Templates {
     }
     Components::layouts($manifest);
     HomepageLayout::definition($manifest);
+    TemplateMarkup::manifest($manifest);
     Widgets::locations($manifest);
     if (isset($manifest['themeFields'])) {
       if (!is_array($manifest['themeFields'])||!array_is_list($manifest['themeFields'])||count($manifest['themeFields'])>5||!isset($manifest['configuration'])) throw new HttpError(422,'Invalid theme fields.','error.manifest');

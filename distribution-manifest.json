@@ -1,6 +1,6 @@
 {
   "name": "dbless-cms",
-  "version": "2.7.0",
+  "version": "2.7.1",
   "license": "Apache-2.0",
   "files": [
     {
@@ -79,6 +79,11 @@
       "sha256": "771fd823aca596cb368414b076e3d22de93d578e0b73c1d81c9db6394da63863"
     },
     {
+      "path": "docs/homepage-conversion.md",
+      "bytes": 3055,
+      "sha256": "5629ac1179e13d58b222c3e5b657d4e61ac2c82b8003b4eb872b6f1433c0db70"
+    },
+    {
       "path": "docs/images/essencial-preview.png",
       "bytes": 705812,
       "sha256": "f3b90d946638823133ebecb2717c320fab3430a7fed8c202d2c4ce89b1baf65d"
@@ -95,8 +100,8 @@
     },
     {
       "path": "docs/templates.md",
-      "bytes": 23623,
-      "sha256": "358b7deec08b7bb5064a866d66158de21243ea882df50944eae61b6c02d01814"
+      "bytes": 24003,
+      "sha256": "d20f3e510203ca59af2d23a566d4ecd78d976b1036c4e3ed845a7a3c7cadff52"
     },
     {
       "path": "examples/hello/public_html/plugins/hello/css/hello.css",
@@ -171,12 +176,12 @@
     {
       "path": "package-lock.json",
       "bytes": 9863,
-      "sha256": "9e5709dff8ba095669d73b58cc3c2b9005f42bdabee98acc8c67875b3e8d9962"
+      "sha256": "c6baf7346a3f5f13bf59553b86b7f774cb83d0a680e7aec61d9c6d3ef88a217a"
     },
     {
       "path": "package.json",
       "bytes": 1116,
-      "sha256": "541bc2ad69e7239f3c49b57517a728a55d4f87a5623d01bd2dc8aff9ef1590c6"
+      "sha256": "02cf2c9000ee0e49c49d2d5da952674de4de3cd1f3dcb88e08bfe850b4d196e3"
     },
     {
       "path": "README.md",
@@ -635,8 +640,8 @@
     },
     {
       "path": "src/public_html/plugins/homepage/css/homepage.css",
-      "bytes": 2649,
-      "sha256": "93f5ca33c00e688ff6d773d52d63660e280cdaab9ed8c04957805fce14a01643"
+      "bytes": 3198,
+      "sha256": "9e83293bac2c79b4ca5a804d4114382d185ee45491d404fa9dd0802a3c89243b"
     },
     {
       "path": "src/public_html/plugins/homepage/homepage.svg",
@@ -645,8 +650,8 @@
     },
     {
       "path": "src/public_html/plugins/homepage/js/homepage.js",
-      "bytes": 14600,
-      "sha256": "003198dff88fb31ff04332d4d7cc1a1ab16023eb9155e76c6d67f9499cf8605f"
+      "bytes": 14524,
+      "sha256": "ba272b17270a109a495406d767d4fd364635ca77c59b59b13638a3d046fbefd2"
     },
     {
       "path": "src/public_html/plugins/index.php",
@@ -1094,6 +1099,11 @@
       "sha256": "d525d8875a17d768a5f89904371d5da116737f6460b30bb30d1d7d41e003b8c4"
     },
     {
+      "path": "src/system/bin/convert-homepage.php",
+      "bytes": 1240,
+      "sha256": "2500cfb847e106ccaeabbdbe7f66785dfbf2faf9afb000975a78aa327af380fa"
+    },
+    {
       "path": "src/system/bin/export-contents.php",
       "bytes": 5823,
       "sha256": "7a33ea58ac2156ba8e87d3f107576bbe9d86edd91ec65a24d250dca892723d6e"
@@ -1166,7 +1176,7 @@
     {
       "path": "src/system/config/settings.php",
       "bytes": 479,
-      "sha256": "f3069dd332a229505037e17ba19817272c937ce566f3d4566cb1d4af9e8b823f"
+      "sha256": "16dc82e34b31da21501aade77ba6bac1ee74f9aa07ea5a4324e4d7fa189148be"
     },
     {
       "path": "src/system/core.php",
@@ -1205,8 +1215,8 @@
     },
     {
       "path": "src/system/lib/Components.php",
-      "bytes": 24901,
-      "sha256": "e12b8cd183ce9e2273799cf9bd05bdea42fb919dc1d00fb1971ae093c02fa97c"
+      "bytes": 24944,
+      "sha256": "4a36173bfed33f73f7a3372f1d68f5814b8d14e5e2ca4938e6459a5275d9bcec"
     },
     {
       "path": "src/system/lib/Config.php",
@@ -1245,8 +1255,8 @@
     },
     {
       "path": "src/system/lib/ContentMarkup.php",
-      "bytes": 5990,
-      "sha256": "5cf2b15872c8f065fe861e3d16bf69ec22f8d65fcf559be9575f6558bea237a1"
+      "bytes": 6209,
+      "sha256": "83dd94204be931d57f8b19011ae11f676b9cffd6aac5187a45f07336e471e277"
     },
     {
       "path": "src/system/lib/ContentOptionsInterface.php",
@@ -1449,9 +1459,14 @@
       "sha256": "5848573b0db53f7bcea6344d27e1610f276b3c347ab92b5b92da3c16b7f36f53"
     },
     {
+      "path": "src/system/lib/TemplateMarkup.php",
+      "bytes": 7301,
+      "sha256": "0718f7c5567daae646f5732055941968c711c886c0794ba73718711c0e6bb2d1"
+    },
+    {
       "path": "src/system/lib/Templates.php",
-      "bytes": 11956,
-      "sha256": "1f2fa52c54168619e2b6ff214ce8ba03d892a10beb30525a4531861a6c47861d"
+      "bytes": 11997,
+      "sha256": "16c256bd268df9dfe6fe85059df1a19c6872ecee7c09cb02787d94bd35b32330"
     },
     {
       "path": "src/system/lib/views/homepage.php",
@@ -1670,28 +1685,28 @@
     },
     {
       "path": "src/system/plugins/homepage/about.json",
-      "bytes": 4129,
-      "sha256": "100bf8f93ad8dc9aa1cf8c04ed6bfc493adf5709d19b670532a310370ae4856b"
+      "bytes": 4888,
+      "sha256": "2e74c243cb956188bf7b771076844869862013ff0f60393c27fd0dc640d9b7d7"
     },
     {
       "path": "src/system/plugins/homepage/Catalog.php",
-      "bytes": 8135,
-      "sha256": "f600ae7fcceb86bdf321fd407a4b63166314615b4bc9830f09f2ec16869f1eb3"
+      "bytes": 9533,
+      "sha256": "cd6a3c13dc49054cbcdf9eece07d81df981083b52b8108d2b72203498ae7924d"
     },
     {
       "path": "src/system/plugins/homepage/languages/en-us.json",
-      "bytes": 5814,
-      "sha256": "a2c5c19a971c0a8b93e57566bf6f8331c6234381e32749d4c35bb5e9f583eb26"
+      "bytes": 5970,
+      "sha256": "f1fa5c683d297f573d5da302feb67f2370f8063120354407bf15c6eb1faa3498"
     },
     {
       "path": "src/system/plugins/homepage/languages/pt-br.json",
-      "bytes": 6303,
-      "sha256": "4e19f7500b0700cc57a40ab58f038ebf4523c5cb4f8e5e727172a7c4196e5f4b"
+      "bytes": 6464,
+      "sha256": "055604f238a7368ab9cf44b961cf9b8cf99d2e00b2a835205c604a4a3920054d"
     },
     {
       "path": "src/system/plugins/homepage/pages/catalog.php",
-      "bytes": 11183,
-      "sha256": "42e0c9d8b930c3dc144ef522385745af228589719cbdd9032409d982ba92da49"
+      "bytes": 11284,
+      "sha256": "1f4e7b052bf5cb7d14fc4410fc88282e22563187c173870077f7bcb8e09e4a81"
     },
     {
       "path": "src/system/plugins/homepage/pages/workspace.php",
@@ -2109,6 +2124,11 @@
       "sha256": "9a4048dcf5f93deecad7bbd39ae898e3727e605dbc9decf5270b4a52fbf73601"
     },
     {
+      "path": "src/system/templates/essencial/partials/contact-form.php",
+      "bytes": 1824,
+      "sha256": "db56ad72a0ccf8913453b6dc92cfda2e4560a282c77e3dc6a738d5ccf6ebfdf4"
+    },
+    {
       "path": "src/system/templates/essencial/partials/footer.php",
       "bytes": 3441,
       "sha256": "bfefbc153f90bb597b23a4aa543a272e9940c017c07f2baf3fecd3ca8f3b7fbd"
@@ -2125,8 +2145,8 @@
     },
     {
       "path": "src/system/templates/essencial/partials/home-contact.php",
-      "bytes": 2319,
-      "sha256": "2ee858a1f3995360294fd0d6e63fbeb27c81b874e1f388ea7aa2b4d1d621d42b"
+      "bytes": 1407,
+      "sha256": "2e21e15323969e93e64d2b0650d0b208f2d2d4233835a801f6af2394c9354226"
     },
     {
       "path": "src/system/templates/essencial/partials/home-extras.php",
@@ -2152,6 +2172,16 @@
       "path": "src/system/templates/essencial/partials/home-services.php",
       "bytes": 998,
       "sha256": "6560a7078c09c8b1fb110536abaa11842e06f032611d78d57b0c2609e07f0454"
+    },
+    {
+      "path": "src/system/templates/essencial/partials/homepage-composition.php",
+      "bytes": 439,
+      "sha256": "106076f068ecc008e6962d69ee88c13ab0612f0b27fd54ab3752b3968c889693"
+    },
+    {
+      "path": "src/system/templates/essencial/partials/homepage-markup.php",
+      "bytes": 779,
+      "sha256": "7cb61bdd61b089ff151f0a1f2d9ebd23d83636d63bb4607a0a21b6fa0901b72f"
     },
     {
       "path": "src/system/templates/essencial/partials/homepage-section.php",
@@ -2205,8 +2235,8 @@
     },
     {
       "path": "src/system/templates/essencial/template.json",
-      "bytes": 8185,
-      "sha256": "7ffde9a2520a63807ac5ab99f69df6070215b016c4ae29bab8c0ea6682a196ed"
+      "bytes": 8524,
+      "sha256": "6584ed26822d6a1219c6f6d8f4e5b0bda5016d6290e8eb75ea4ce06a2ae5e19e"
     },
     {
       "path": "tests/admin-brand.test.mjs",
@@ -2247,6 +2277,11 @@
       "path": "tests/browser/extension-media.mjs",
       "bytes": 7387,
       "sha256": "e8d1ac364a2e745db293936d74f0fdebe85e5fb627e387e152925996c2f4e812"
+    },
+    {
+      "path": "tests/browser/homepage-conversion.mjs",
+      "bytes": 6648,
+      "sha256": "89a496b5adc94af0cfbb5ddcebf174654965039ab021326e286af143cd767fe4"
     },
     {
       "path": "tests/browser/homepage.mjs",
@@ -2309,6 +2344,11 @@
       "sha256": "775e94f104ee92ff1242043ae14c154648e14b8ce80ed21f7610737501a16e97"
     },
     {
+      "path": "tests/homepage-conversion.test.mjs",
+      "bytes": 9268,
+      "sha256": "fd585c775e41010ca97e467cba2fef69c02b1301661a3ad18121b3566c53d2d1"
+    },
+    {
       "path": "tests/homepage-publications.test.mjs",
       "bytes": 22250,
       "sha256": "8a76ea7f265b3dee5c23ee742b37017cf74f0af4785201f5141f5b2fc111521b"
@@ -2340,8 +2380,8 @@
     },
     {
       "path": "tests/runtime.test.mjs",
-      "bytes": 9875,
-      "sha256": "48835a299353e94a269217057262949a22e85b63bfe305a5e767a944305d49ec"
+      "bytes": 9930,
+      "sha256": "c6abcede2b43064f6200937adb837e3b52413460c747b351711916d9e6afba3c"
     },
     {
       "path": "tests/semgrep/http-input.php",

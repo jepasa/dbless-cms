@@ -39,6 +39,13 @@
         "HTML mode accepts semantic HTML, escaped variables, # sections/loops, ^ inverted sections and comments. Add multiple plugin/service bindings, give each a unique alias and insert snippets manually. Plugin results are plain JSON, never HTML or executable helpers. Source mode references a currently published Page or Blog article by stable ID; a missing/unpublished/disabled source falls back to the preceding valid homepage. Source body excludes its own site frame. Metadata always comes from global settings. Preview is authenticated and noindex. Trash recovery does not automatically activate content."
       ],
       "code": "Binding: {\"plugin\":\"blog\",\"service\":\"posts\",\"alias\":\"news\",\"parameters\":{\"limit\":3,\"category\":\"\"}}\n\n<section>\n  <h1>Latest articles</h1>\n  {{#news.items}}\n    <article><h2><a href=\"{{href}}\">{{title}}</a></h2><p>{{excerpt}}</p></article>\n  {{/news.items}}\n  {{^news.items}}<p>No articles yet.</p>{{/news.items}}\n</section>"
+    },
+    {
+      "title": "Editable native Homepage",
+      "body": [
+        "The content-source selector contains HTML/Mustache and plugin documents only. An installed template can declare a homepageMarkup adapter to convert its native sections to editable HTML. Existing legacy catalogs and private history stay readable; conversion is never a public rendering write.",
+        "Declared markupFragments retain live contact forms and plugin integrations without saving rendered tokens or provider snapshots. Insert {{template:fragment id=\"contact\"}} for a registered public fragment; {{cms.base}} keeps local links portable. Private previews show inert fragment labels. See docs/homepage-conversion.md for adapter and CAS migration contracts."
+      ]
     }
   ]
 }
