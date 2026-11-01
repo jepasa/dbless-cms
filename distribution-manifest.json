@@ -2280,8 +2280,8 @@
     },
     {
       "path": "tests/browser/homepage-conversion.mjs",
-      "bytes": 6648,
-      "sha256": "89a496b5adc94af0cfbb5ddcebf174654965039ab021326e286af143cd767fe4"
+      "bytes": 7288,
+      "sha256": "4529b6b80fe5cd8f2e08965c1af2fb490dd0d3370e599978e7aea7bcafc50fa9"
     },
     {
       "path": "tests/browser/homepage.mjs",
