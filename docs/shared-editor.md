@@ -56,3 +56,5 @@ The editor implementation is original DBLess-CMS code under the distribution lic
 Run `npm run test:browser:editor` with `PLAYWRIGHT_MODULE` pointing to an existing authorized local Playwright installation. Optional `DBLESS_CMS_PACKAGE_ROOT` repeats source journeys against an isolated production package. Fixtures use synthetic credentials/content and ephemeral loopback ports. No browser/dependency download or live-content migration is performed.
 
 Flush acknowledgements use an instance-generated UUID v4 and a fixed native event. Only the exact outstanding token completes its lexical promise; message identifiers never select callable methods or callbacks. Window, opaque origin, channel and generation checks remain mandatory.
+
+Canvas source serialization is text-only: it restores attributes in a plain map without assigning URLs to detached DOM clones. Unresolved Mustache image addresses never trigger requests during rendering, selection, flushing or editing. Original attribute/token order is preserved.

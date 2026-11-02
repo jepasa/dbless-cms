@@ -21,7 +21,7 @@
   function build(node){
     if(node.type==='comment')return document.createComment(node.raw.slice(4,-3));
     if(node.type==='text'){const fragment=document.createDocumentFragment();text(node.raw,fragment);return fragment;}
-    const element=document.createElement(node.tag||'div');
+    const element=document.createElement(node.tag||'div');element.dataset.dblessOrder=JSON.stringify(Object.keys(node.attrs||{}));
     for(const [key,value] of Object.entries(node.attrs||{})){
       // Preserve URL expressions in the model; the canvas does not request unresolved or remote images.
       if(key==='src'){element.dataset.dblessSrc=value;if(value.includes('{{'))continue;const url=new URL(value,config.publicBase);if(url.origin!==config.origin||url.pathname.includes('/cms-admin/'))continue;element.setAttribute('src',url.href);continue;}
@@ -36,13 +36,23 @@
     if(node.editable&&!config.readOnly)snapshots.set(element,serialize(element));
     return element;
   }
-  /** Serialize only one edited leaf, restoring protected tokens and original addressed attributes; receives element, returns HTML without editor-only markers. */
-  function serialize(element){
-    const clone=element.cloneNode(true);
-    for(const token of clone.querySelectorAll('[data-dbless-token]'))token.replaceWith(document.createTextNode(token.dataset.dblessToken));
-    for(const node of clone.querySelectorAll('*')){if(node.hasAttribute('data-dbless-href'))node.setAttribute('href',node.dataset.dblessHref);if(node.hasAttribute('data-dbless-src'))node.setAttribute('src',node.dataset.dblessSrc);if(node.hasAttribute('data-dbless-hidden'))node.setAttribute('hidden',node.dataset.dblessHidden);if(node.hasAttribute('data-dbless-tabindex'))node.setAttribute('tabindex',node.dataset.dblessTabindex);if(node.dataset.dblessDisabled==='0')node.removeAttribute('disabled');for(const attribute of [...node.attributes])if(attribute.name.startsWith('data-dbless-')||['contenteditable','spellcheck'].includes(attribute.name))node.removeAttribute(attribute.name);}
-    return clone.innerHTML;
+  /** Escape text or attribute data without creating DOM nodes; receives value/attribute flag, returns inert HTML text and never starts resource requests. */
+  function escape(value,attribute=false){const text=value.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');return attribute?text.replaceAll('"','&quot;'):text;}
+  /** Serialize one owned DOM node as text; receives node, restores source attributes in a plain map and never assigns src/href or mounts a clone. */
+  function serializeNode(current){
+    if(current.nodeType===Node.TEXT_NODE)return escape(current.data);
+    if(current.nodeType===Node.COMMENT_NODE)return '<!--'+current.data+'-->';
+    if(current.nodeType!==Node.ELEMENT_NODE)return '';
+    if(current.hasAttribute('data-dbless-token'))return escape(current.dataset.dblessToken);
+    const attributes=new Map([...current.attributes].filter(attribute=>!attribute.name.startsWith('data-dbless-')&&!['contenteditable','spellcheck'].includes(attribute.name)).map(attribute=>[attribute.name,attribute.value]));
+    for(const [marker,name] of [['data-dbless-href','href'],['data-dbless-src','src'],['data-dbless-hidden','hidden'],['data-dbless-tabindex','tabindex']])if(current.hasAttribute(marker))attributes.set(name,current.getAttribute(marker));
+    if(current.dataset.dblessDisabled==='0')attributes.delete('disabled');
+    const order=JSON.parse(current.dataset.dblessOrder||'[]'),names=[...new Set([...order,...attributes.keys()])].filter(name=>attributes.has(name));
+    const tag=current.tagName.toLowerCase(),start='<'+tag+names.map(name=>' '+name+'="'+escape(attributes.get(name),true)+'"').join('')+'>';
+    return ['img','br','hr'].includes(tag)?start:start+[...current.childNodes].map(serializeNode).join('')+'</'+tag+'>';
   }
+  /** Serialize only one edited leaf without resource side effects; receives element, returns HTML/source markers with no editor metadata or URL hydration. */
+  function serialize(element){return [...element.childNodes].map(serializeNode).join('');}
   /** Commit one editable leaf as a source patch; receives element, posts only its ID/interior and preserves all other original source bytes. */
   function commit(element){if(!element?.dataset.dblessEditable)return;const html=serialize(element);if(snapshots.get(element)===html)return;snapshots.set(element,html);send('patch',{id:element.dataset.dblessEditable,html});}
   /** Split an owned paragraph selection into two source patches; receives block/range, sends serialized halves while retaining protected tokens. */

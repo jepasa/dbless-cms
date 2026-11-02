@@ -100,8 +100,8 @@
     },
     {
       "path": "docs/shared-editor.md",
-      "bytes": 6031,
-      "sha256": "623a4bc88d665355c69434809b9b86a9d53d0a010b3607e97f1c83c9c20dc629"
+      "bytes": 6313,
+      "sha256": "d6bf24a4034ebbe0cc00f8f18a1c3da43778ef881212cb68012661e2990f2f4f"
     },
     {
       "path": "docs/templates.md",
@@ -315,8 +315,8 @@
     },
     {
       "path": "src/public_html/cms-admin/assets/editor-frame.js",
-      "bytes": 13536,
-      "sha256": "83b9836265c74e466f23fa7853da9b7c17e427008583ce3948a9ad6b2aac2176"
+      "bytes": 14540,
+      "sha256": "1b0cc6fc2d2e1cb5be5e535ac38684811effb510058bba0709a71bdb05d359cd"
     },
     {
       "path": "src/public_html/cms-admin/assets/editor-model.js",
@@ -2310,8 +2310,8 @@
     },
     {
       "path": "tests/browser/core-editor.mjs",
-      "bytes": 16750,
-      "sha256": "2f66bf6b9c86fd75ff1b507c8c4ecf49cd0ac2fcd2c21b48cf43b134dd3f2a57"
+      "bytes": 18089,
+      "sha256": "b85427391988bb9769c0d93d7dd7d968da6f72740037568d4011576086c49a1e"
     },
     {
       "path": "tests/browser/extension-media.mjs",
