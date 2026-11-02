@@ -13,12 +13,12 @@
   /** Emit a genuine textarea input event; receives field, returns nothing and lets plugin bindings synchronize their existing model. */
   function changed(field){field.dispatchEvent(new Event('input',{bubbles:true}));}
   /** Add inert highlighting and optional Tab indentation; receives textarea/translator/options, returns owned nodes and cleanup, never evaluates code. */
-  function code(textarea,translate=()=>t('captureTab'),input={}){
+  function code(textarea,translate=key=>t(key),input={}){
     if(textarea._dblessCode)return textarea._dblessCode;
     const settings=model.options({language:textarea.dataset.codeLanguage||'html',visual:false,...input});
     textarea.dataset.codeMounted='true';textarea.dataset.codeLanguage=settings.language;textarea.readOnly=settings.readOnly;
     const wrapper=node('div','','markup-code'),preview=node('pre'),numbers=node('pre','','markup-lines'),indent=node('input'),label=node('label','','editor-checkbox');
-    preview.setAttribute('aria-hidden','true');numbers.setAttribute('aria-hidden','true');indent.type='checkbox';indent.disabled=settings.readOnly;label.append(indent,document.createTextNode(translate('captureTab')));
+    preview.setAttribute('aria-hidden','true');numbers.setAttribute('aria-hidden','true');indent.type='checkbox';indent.disabled=settings.readOnly;indent.setAttribute('aria-label',translate('captureTab'));label.title=translate('captureTab');label.append(indent,node('span',t('indent')));
     const originalLabel=textarea.closest('label');if(originalLabel){textarea.id||='dbless-code-'+(++nextId);originalLabel.htmlFor=textarea.id;originalLabel.after(label,wrapper);}else textarea.before(label,wrapper);wrapper.append(numbers,preview,textarea);
     /** Refresh text highlighting without changing submitted bytes; no arguments/return or evaluation. */
     function refresh(){
@@ -39,17 +39,23 @@
     constructor(textarea,input={}){
       if(!(textarea instanceof HTMLTextAreaElement))throw new TypeError('A textarea is required.');
       this.options=model.options(input);this.textarea=textarea;this.originalReadOnly=textarea.readOnly;this.mode='code';this.history=[];this.future=[];this.generation=0;this.syncEvents=new EventTarget();this.ready=false;this.lastSource=textarea.value;
-      this.originalRows=textarea.rows;textarea.rows=Math.max(6,Math.ceil((this.options.height-32)/21));this.code=code(textarea,()=>t('captureTab'),this.options);this.wrapper=node('section','','dbless-editor');this.wrapper.dataset.coreEditor=this.options.language;
-      this.code.wrapper.before(this.wrapper);this.wrapper.append(this.code.label,this.code.wrapper);this.status=node('p','','muted dbless-editor-status');this.status.setAttribute('role','status');this.status.setAttribute('aria-live','polite');this.wrapper.append(this.status);
+      this.originalRows=textarea.rows;textarea.rows=Math.max(6,Math.ceil((this.options.height-32)/21));this.code=code(textarea,key=>t(key),this.options);this.wrapper=node('section','','dbless-editor');this.wrapper.dataset.coreEditor=this.options.language;
+      this.code.wrapper.before(this.wrapper);this.wrapper.append(this.code.wrapper);this.status=node('p','','muted dbless-editor-status');this.status.setAttribute('role','status');this.status.setAttribute('aria-live','polite');this.footer=node('div','','dbless-editor-footer');this.footer.append(this.status,this.code.label);this.wrapper.append(this.footer);
       this.input=()=>{if(this.internal)return;this.lastSource=this.textarea.value;this.update();if(this.mode!=='code')this.render();};textarea.addEventListener('input',this.input);
-      if(this.options.language==='html'&&this.options.visual&&config)this.visual();else this.status.textContent=this.options.language==='php'?t('phpHelp'):t('codeHelp');
+      if(this.options.language==='html'&&this.options.visual&&config)this.visual();else {this.wrapper.prepend(this.heading());this.status.textContent=this.options.language==='php'?t('phpHelp'):t('codeHelp');}
       instances.set(textarea,this);live.add(this);textarea.dataset.editorMounted='true';
     }
     /** Build the shared mode/format controls and opaque canvas; no arguments/return, all executable assets are trusted addressed local files. */
     visual(){
       this.toolbar=node('div','','dbless-editor-toolbar');this.toolbar.setAttribute('role','toolbar');this.toolbar.setAttribute('aria-label',t('tools'));this.buttons=new Map();
-      for(const mode of ['visual','code','preview'])this.button(mode,()=>this.setMode(mode));
-      if(!this.options.readOnly){this.button('undo',()=>this.undo(false));this.button('redo',()=>this.undo(true));for(const tool of this.options.toolbar)this.button(tool,()=>this.tool(tool));}
+      const heading=this.heading(),modes=this.group('modes','dbless-editor-modes');
+      modes.append(...['visual','code','preview'].map(mode=>this.button(mode,()=>this.setMode(mode),true)));heading.firstElementChild.replaceWith(modes);this.toolbar.append(heading);
+      this.commands=node('div','','dbless-editor-commands');
+      if(!this.options.readOnly){
+        const history=this.group('history');history.append(this.button('undo',()=>this.undo(false)),this.button('redo',()=>this.undo(true)));this.commands.append(history);
+        for(const [name,tools] of [['formatting',['bold','italic']],['blocks',['paragraph','heading','list','quote']],['insertion',['link','image']]]){const available=this.options.toolbar.filter(tool=>tools.includes(tool));if(!available.length)continue;const group=this.group(name);for(const tool of available)group.append(this.button(tool,()=>this.tool(tool)));this.commands.append(group);}
+      }
+      this.toolbar.append(this.commands);this.toolbar.addEventListener('keydown',event=>this.navigate(event));this.toolbar.addEventListener('focusin',event=>{if(event.target.matches('button[data-editor-action]')){this.tabStop=event.target;this.syncToolbar();}});
       this.wrapper.prepend(this.toolbar);this.frame=node('iframe','','dbless-editor-canvas');this.frame.title=t('canvas');this.frame.setAttribute('sandbox','allow-scripts');this.frame.referrerPolicy='no-referrer';
       this.channel=Array.from(crypto.getRandomValues(new Uint8Array(16)),value=>value.toString(16).padStart(2,'0')).join('');this.frame.name=this.channel;
       const origin=location.origin,script=new URL(config.script,location.href),style=new URL(config.style,location.href);
@@ -59,8 +65,25 @@
       this.code.wrapper.after(this.frame);this.listener=event=>this.receive(event);window.addEventListener('message',this.listener);this.setMode('visual');
       this.invalid=()=>{this.setMode('code');this.textarea.focus();};this.textarea.addEventListener('invalid',this.invalid);
     }
-    /** Add one localized non-submit command button; receives key/callback, returns element and records it for state updates. */
-    button(key,callback){const button=node('button',t(key),'button-secondary');button.type='button';button.dataset.editorAction=key;button.title=t(key);button.addEventListener('click',async()=>{try{await callback();}catch(error){this.status.textContent=t('invalid')+' '+error.message;}});this.toolbar.append(button);this.buttons.set(key,button);return button;}
+    /** Create an addressed first-party decorative SVG; receives a closed action name, returns an image or null when editor metadata is unavailable. */
+    icon(key){const address=config?.icons?.[key];if(!address)return null;const icon=node('img','','dbless-editor-icon');icon.src=address;icon.alt='';icon.width=icon.height=20;icon.setAttribute('aria-hidden','true');icon.draggable=false;return icon;}
+    /** Build a common editor header; no arguments, returns localized mode identity and a literal language badge, without changing content. */
+    heading(){const heading=node('div','','dbless-editor-heading'),identity=node('div','','dbless-editor-identity'),icon=this.icon('code');if(icon)identity.append(icon);identity.append(node('span',t('code')));const language=node('span',this.options.mustache?'HTML / Mustache':this.options.language==='js'?'JavaScript':this.options.language.toUpperCase(),'dbless-editor-language');heading.append(identity,language);if(this.options.readOnly)language.append(node('span',t('readOnly'),'dbless-editor-readonly'));return heading;}
+    /** Group related commands with a localized accessible name; receives label/class, returns an owned group without side effects outside the toolbar. */
+    group(key,className='dbless-editor-group'){const group=node('div','',className);group.setAttribute('role','group');group.setAttribute('aria-label',t(key));return group;}
+    /** Add a localized non-submit command; receives key/callback and visible-label flag, returns an icon button with a title and accessible name. */
+    button(key,callback,labelled=false){const button=node('button','','dbless-editor-button'+(labelled?' dbless-editor-mode':'')),icon=this.icon(key);button.type='button';button.dataset.editorAction=key;button.title=t(key);button.setAttribute('aria-label',t(key));if(icon)button.append(icon);if(labelled||!icon)button.append(node('span',t(key)));button.addEventListener('click',async()=>{try{await callback();}catch(error){this.status.textContent=t('invalid')+' '+error.message;}});this.buttons.set(key,button);return button;}
+    /** Reflect real mode/history availability and one keyboard entry point; no arguments/return, never modifies the document or selection. */
+    syncToolbar(){
+      if(!this.buttons)return;this.commands.hidden=this.mode!=='visual'||this.options.readOnly;
+      for(const [key,button] of this.buttons){if(['visual','code','preview'].includes(key))button.setAttribute('aria-pressed',String(key===this.mode));else button.disabled=this.mode!=='visual'||this.options.readOnly||(key==='undo'&&!this.history.length)||(key==='redo'&&!this.future.length);}
+      const available=[...this.buttons.values()].filter(button=>!button.disabled&&!button.closest('[hidden]'));if(!available.includes(this.tabStop))this.tabStop=this.buttons.get(this.mode)||available[0];for(const button of this.buttons.values())button.tabIndex=button===this.tabStop?0:-1;
+    }
+    /** Navigate enabled visible toolbar controls by arrows/Home/End; receives key event, preserves Tab exit and never applies a formatting command. */
+    navigate(event){
+      if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)||!event.target.matches('button[data-editor-action]'))return;
+      const available=[...this.buttons.values()].filter(button=>!button.disabled&&!button.closest('[hidden]')),index=available.indexOf(event.target);if(index<0)return;event.preventDefault();const rtl=getComputedStyle(this.toolbar).direction==='rtl',delta=(event.key==='ArrowRight'?1:-1)*(rtl?-1:1),next=event.key==='Home'?0:event.key==='End'?available.length-1:(index+delta+available.length)%available.length;available[next].focus();
+    }
     /** Validate the current HTML and update advisory feedback; no arguments, returns model or null while keeping invalid source intact. */
     update(){
       try{this.model=model.analyze(this.textarea.value,this.options,config.policy);this.issue=null;this.status.textContent=this.model.tree?.protected||this.model.tokens.some(token=>['#','^','/','form','fragment'].includes(token.kind))?t('protected'):t('valid');return this.model;}
@@ -70,7 +93,7 @@
     setMode(mode){
       if(!['visual','code','preview'].includes(mode)||!this.frame)return;
       if(mode!=='code'&&!this.update())mode='code';this.mode=mode;this.code.wrapper.hidden=mode!=='code';this.code.label.hidden=mode!=='code';this.frame.hidden=mode==='code';
-      for(const [key,button] of this.buttons){if(['visual','code','preview'].includes(key))button.setAttribute('aria-pressed',String(key===mode));else button.disabled=mode!=='visual'||this.options.readOnly;}
+      this.syncToolbar();
       if(mode!=='code')this.render();else this.textarea.focus();
     }
     /** Send a validated source model to this opaque frame; no arguments/return, never includes session, provider values or PHP execution results. */
@@ -112,9 +135,9 @@
       }catch(error){this.render();this.status.textContent=t('invalid')+' '+error.message;}
     }
     /** Write authored bytes and emit the established plugin event path; receives source, no return, does not execute or persist anything. */
-    write(source){this.internal=true;this.textarea.value=source;this.lastSource=source;changed(this.textarea);this.code.refresh();this.internal=false;}
+    write(source){this.internal=true;this.textarea.value=source;this.lastSource=source;changed(this.textarea);this.code.refresh();this.internal=false;this.syncToolbar();}
     /** Save a bounded visual undo snapshot; receives previous source, returns nothing, trims memory without changing persisted history. */
-    remember(source){if(this.history.at(-1)!==source)this.history.push(source);while(this.history.length>60||this.history.reduce((sum,item)=>sum+item.length,0)>2097152)this.history.shift();this.future=[];}
+    remember(source){if(this.history.at(-1)!==source)this.history.push(source);while(this.history.length>60||this.history.reduce((sum,item)=>sum+item.length,0)>2097152)this.history.shift();this.future=[];this.syncToolbar();}
     /** Undo/redo one visual transaction; receives direction flag, returns nothing and preserves all content outside explicit edits. */
     undo(redo=false){if(this.mode!=='visual'||this.options.readOnly)return;const from=redo?this.future:this.history,to=redo?this.history:this.future;if(!from.length)return;to.push(this.textarea.value);this.write(from.pop());this.render();}
     /** Apply an explicit toolbar action; receives closed tool name, edits only a chosen source block or delegates safe inline commands. */

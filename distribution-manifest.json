@@ -1,6 +1,6 @@
 {
   "name": "dbless-cms",
-  "version": "2.8.0",
+  "version": "2.8.1",
   "license": "Apache-2.0",
   "files": [
     {
@@ -100,8 +100,8 @@
     },
     {
       "path": "docs/shared-editor.md",
-      "bytes": 6313,
-      "sha256": "d6bf24a4034ebbe0cc00f8f18a1c3da43778ef881212cb68012661e2990f2f4f"
+      "bytes": 7437,
+      "sha256": "af8397884f4fb2d65acb158da622729dcbdaa7fbefaf9231e100b575539fdf6a"
     },
     {
       "path": "docs/templates.md",
@@ -181,12 +181,12 @@
     {
       "path": "package-lock.json",
       "bytes": 9863,
-      "sha256": "e3cad19d4bfbfd50255ca35ea40c57e5e4008280979128848187ce088211b1e5"
+      "sha256": "9fc033092d5b8bf73184fb027bd718f325a102a4cb5c9c9209ccd6efffac89ab"
     },
     {
       "path": "package.json",
       "bytes": 1181,
-      "sha256": "402e785f21bda903a67330ae0af1cfb55ec9322b8b234f2d36ba0c59140aac97"
+      "sha256": "c5a47739873f6f3b613f168211f7f14dcda1a8509b0640749ffec4671d95ba7e"
     },
     {
       "path": "README.md",
@@ -319,19 +319,84 @@
       "sha256": "1b0cc6fc2d2e1cb5be5e535ac38684811effb510058bba0709a71bdb05d359cd"
     },
     {
+      "path": "src/public_html/cms-admin/assets/editor-icons/bold.svg",
+      "bytes": 374,
+      "sha256": "4270c1d61bf2f3808bdf0e304769613c67fa6d0d79b622aff5dda2351f8340a9"
+    },
+    {
+      "path": "src/public_html/cms-admin/assets/editor-icons/code.svg",
+      "bytes": 337,
+      "sha256": "bd78f2ed60d99a0651088eafa58e6699bec089aa2a2c62ebbdd3e7a3985323af"
+    },
+    {
+      "path": "src/public_html/cms-admin/assets/editor-icons/heading.svg",
+      "bytes": 343,
+      "sha256": "67c6d253a3aa8c2ccfd8abd3363a6d41b2a93cc1170e431e7cfabe074a4d7176"
+    },
+    {
+      "path": "src/public_html/cms-admin/assets/editor-icons/image.svg",
+      "bytes": 403,
+      "sha256": "ebea41133fdb0a58ec53fc3da634d27817e52da954e2abf7ab90d9d25c7216c0"
+    },
+    {
+      "path": "src/public_html/cms-admin/assets/editor-icons/italic.svg",
+      "bytes": 329,
+      "sha256": "31c2f840a7a6a4112c6e487db7feaebbeb2a2fdae9551bc422ded00e20c8c079"
+    },
+    {
+      "path": "src/public_html/cms-admin/assets/editor-icons/link.svg",
+      "bytes": 373,
+      "sha256": "05c5f8bdeb38a900ca13de42658cb3b5ff40189621df12be3f13fab348110da1"
+    },
+    {
+      "path": "src/public_html/cms-admin/assets/editor-icons/list.svg",
+      "bytes": 416,
+      "sha256": "de53227775b55e73814bd9c383abb85f43dff6a8c84768d488c30fe474b46b13"
+    },
+    {
+      "path": "src/public_html/cms-admin/assets/editor-icons/paragraph.svg",
+      "bytes": 345,
+      "sha256": "137c79a4ff823e7871af3a06c8df291531fc609e4dd741c937790718b090740b"
+    },
+    {
+      "path": "src/public_html/cms-admin/assets/editor-icons/preview.svg",
+      "bytes": 390,
+      "sha256": "7f8175ad43215feee3f0f5416a3f715927758c78085fe6a985ef95a253491156"
+    },
+    {
+      "path": "src/public_html/cms-admin/assets/editor-icons/quote.svg",
+      "bytes": 363,
+      "sha256": "5bf675ba0babc9c4de74707fa6ee33f66f2d0add4984006437bd545e3da11b2f"
+    },
+    {
+      "path": "src/public_html/cms-admin/assets/editor-icons/redo.svg",
+      "bytes": 337,
+      "sha256": "d3d34411529b07384ad767c6c46acfc89920e4e2f0b01a6952518930dcec7707"
+    },
+    {
+      "path": "src/public_html/cms-admin/assets/editor-icons/undo.svg",
+      "bytes": 337,
+      "sha256": "522831f0f2493b16a080bfe80c5cf187da33eb38c9bfaa24cac5667782aac0dc"
+    },
+    {
+      "path": "src/public_html/cms-admin/assets/editor-icons/visual.svg",
+      "bytes": 374,
+      "sha256": "a869d7f1114effc106e2bbd9045c28e4dc5171afb983676fa846f79f038ee328"
+    },
+    {
       "path": "src/public_html/cms-admin/assets/editor-model.js",
       "bytes": 11180,
       "sha256": "9b56f610ae14623d505ce6f7ae5db1c932387ca36a83c70f755a197668c7f32b"
     },
     {
       "path": "src/public_html/cms-admin/assets/editor.css",
-      "bytes": 1724,
-      "sha256": "c5d1c6aef7c85166340e08690c1092a39dda8c94eac91f70b488be1469b1d6c8"
+      "bytes": 5473,
+      "sha256": "33d7ca079cca8bbbdcf825a1418b41f26aa45232678ef1a285c86f7ebe05c676"
     },
     {
       "path": "src/public_html/cms-admin/assets/editor.js",
-      "bytes": 24386,
-      "sha256": "226f40f9184894cfa2d0b07e129b8a036fb69397f7c9fd2e3eeaa21424e34973"
+      "bytes": 28503,
+      "sha256": "4e5c1d5a32992d63b8375793d2f772c65ec4a33854f064c6947845a6b03dc73c"
     },
     {
       "path": "src/public_html/cms-admin/assets/favicon.ico",
@@ -1206,7 +1271,7 @@
     {
       "path": "src/system/config/settings.php",
       "bytes": 479,
-      "sha256": "b0d0ce6059bad865f6ae0bf0c58ac5dac49af4d86f77d30c97458f9e3978071e"
+      "sha256": "a073f80ed8197513c997b1d8c0c7a2c28c0af6f1a4a8c28d5d695c103772dbc7"
     },
     {
       "path": "src/system/core.php",
@@ -1215,13 +1280,13 @@
     },
     {
       "path": "src/system/languages/en-us.json",
-      "bytes": 25562,
-      "sha256": "d94a7e58207cd48be016f084ffbcebe20f783e43fad27c31ba270da75bfcef05"
+      "bytes": 25847,
+      "sha256": "9032bb505c2459a14565dad05e89179ddaae120e4cffee2940bd380e8191eb7e"
     },
     {
       "path": "src/system/languages/pt-br.json",
-      "bytes": 27454,
-      "sha256": "b9f284729149466a2efaae4b95667b7f042634c544d7ac4605b40798f29c2cf1"
+      "bytes": 27770,
+      "sha256": "325856137440a920b85d0259c706068fef06891af591d6b6918cc69fc4c02ffe"
     },
     {
       "path": "src/system/lib/Admin.php",
@@ -1310,8 +1375,8 @@
     },
     {
       "path": "src/system/lib/Editor.php",
-      "bytes": 1959,
-      "sha256": "3345e85fdd2de19e5a78ae30ff447cdefe5901f605223160d4389aee941c531b"
+      "bytes": 2190,
+      "sha256": "da6ce8395ac1c7c230b65b89a04216a0f649726346de7609eda6158b2e91ad3d"
     },
     {
       "path": "src/system/lib/ErasureLedger.php",
@@ -2310,8 +2375,8 @@
     },
     {
       "path": "tests/browser/core-editor.mjs",
-      "bytes": 18089,
-      "sha256": "b85427391988bb9769c0d93d7dd7d968da6f72740037568d4011576086c49a1e"
+      "bytes": 22023,
+      "sha256": "f5958843d02f1692a386f02293de149ceb940c0b02cd4a50e59b2dde1b192cbe"
     },
     {
       "path": "tests/browser/extension-media.mjs",
@@ -2365,8 +2430,8 @@
     },
     {
       "path": "tests/core-editor.test.mjs",
-      "bytes": 6017,
-      "sha256": "cb0eeb189f3c9e1a5919bb6f2b1ae6f03b69300f0277104839444731ba70ec94"
+      "bytes": 6738,
+      "sha256": "a69053ac3f84dd7437d3eae2e0782dca4d0ba33665470a17fbb1bb58a9d83d5d"
     },
     {
       "path": "tests/extension-media.test.mjs",
