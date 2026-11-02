@@ -40,6 +40,14 @@
         "Pages keeps native content behind an optional markup override. Blog keeps existing typed blocks unless HTML mode is explicitly selected; only the selected mode is saved. A mode switch does not convert old blocks automatically. See docs/authoring-customizations.md for the complete workflow."
       ],
       "code": "<section>\n  {{#related.items}}<p>{{title}}</p>{{/related.items}}\n  {{^related.items}}<p>No items yet.</p>{{/related.items}}\n</section>"
+    },
+    {
+      "title": "Shared visual editor",
+      "body": [
+        "HTML/Mustache content opens in the shared core visual editor. Use Visual for static content, Code for advanced structure and protected dynamic blocks, and Preview for an isolated template-CSS view. Opening or switching modes does not rewrite the original source.",
+        "Select content before applying formatting, links or images. Enter creates another paragraph. Bindings discover the enabled plugins; Insert block appends a validated Mustache snippet. Variables, loops, Forms and template fragments keep their existing server-side contracts.",
+        "CSS, JavaScript and PHP are separate code-authoring profiles available to plugin developers. PHP is never executed or published by this editor. Global supplemental CSS/JavaScript retain their own draft, validation, history and explicit publishing workflow."
+      ]
     }
   ]
 }

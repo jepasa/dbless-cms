@@ -1,0 +1,9 @@
+/* Shared editor shell uses the fixed admin identity; canvas content and template preview styles stay inside the opaque iframe. */
+.dbless-editor{min-width:0;max-width:100%;margin-block:.6rem 1rem;border:1px solid var(--line,#dce3ec);border-radius:var(--radius,.5rem);overflow:hidden;background:var(--surface,#fff)}
+.dbless-editor-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem;padding:.75rem;border-bottom:1px solid var(--line,#dce3ec);background:var(--surface,#fff)}
+.dbless-editor-toolbar button{font:inherit;font-size:.88rem;min-height:2.5rem;padding:.45rem .65rem}.dbless-editor-toolbar button[aria-pressed=true]{background:var(--text,#14273b);border-color:var(--text,#14273b);color:var(--surface,#fff)}
+.dbless-editor .markup-code{margin:0}.dbless-editor>.editor-checkbox{margin:.7rem}.dbless-editor-canvas{width:100%;display:block;max-width:100%;min-height:220px;border:0;background:#fff}.dbless-editor [hidden]{display:none!important}
+.dbless-editor-status{margin:0;padding:.75rem;border-top:1px solid var(--line,#dce3ec);font-size:.9rem;overflow-wrap:anywhere}
+.dbless-editor-dialog{width:min(34rem,calc(100% - 2rem));max-height:90dvh;overflow:auto;border:1px solid var(--line,#dce3ec);border-radius:var(--radius,.5rem);background:var(--surface,#fff);color:var(--text,#14273b);padding:1.5rem}
+.dbless-editor-dialog::backdrop{background:#10223888}.dbless-editor-dialog label{display:block;margin-block:1rem}.dbless-editor-dialog input{display:block;width:100%;margin-top:.5rem}.dbless-editor-dialog .savebar{display:flex;justify-content:flex-end;gap:.6rem}
+@media(max-width:480px){.dbless-editor-toolbar{gap:.3rem;padding:.5rem}.dbless-editor-toolbar button{font-size:.82rem;padding:.4rem .55rem}}
