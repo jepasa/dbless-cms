@@ -38,7 +38,7 @@
     /** Mount a profile on one textarea; receives field/options, initializes local UI and throws before any unsafe rendering for invalid configuration. */
     constructor(textarea,input={}){
       if(!(textarea instanceof HTMLTextAreaElement))throw new TypeError('A textarea is required.');
-      this.options=model.options(input);this.textarea=textarea;this.originalReadOnly=textarea.readOnly;this.mode='code';this.history=[];this.future=[];this.generation=0;this.pending=new Map();this.ready=false;this.lastSource=textarea.value;
+      this.options=model.options(input);this.textarea=textarea;this.originalReadOnly=textarea.readOnly;this.mode='code';this.history=[];this.future=[];this.generation=0;this.syncEvents=new EventTarget();this.ready=false;this.lastSource=textarea.value;
       this.originalRows=textarea.rows;textarea.rows=Math.max(6,Math.ceil((this.options.height-32)/21));this.code=code(textarea,()=>t('captureTab'),this.options);this.wrapper=node('section','','dbless-editor');this.wrapper.dataset.coreEditor=this.options.language;
       this.code.wrapper.before(this.wrapper);this.wrapper.append(this.code.label,this.code.wrapper);this.status=node('p','','muted dbless-editor-status');this.status.setAttribute('role','status');this.status.setAttribute('aria-live','polite');this.wrapper.append(this.status);
       this.input=()=>{if(this.internal)return;this.lastSource=this.textarea.value;this.update();if(this.mode!=='code')this.render();};textarea.addEventListener('input',this.input);
@@ -84,7 +84,7 @@
     receive(event){
       if(event.source!==this.frame.contentWindow||event.origin!=='null'||!event.data||event.data.channel!==this.channel)return;const data=event.data;
       if(data.type==='ready'){this.ready=true;this.render();return;}if(data.generation!==this.generation)return;
-      if(data.type==='flushed'&&typeof data.request==='string'){const resolve=this.pending.get(data.request);if(resolve){this.pending.delete(data.request);resolve();}return;}
+      if(data.type==='flushed'&&typeof data.request==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.request)){this.syncEvents.dispatchEvent(new CustomEvent('flush-ack',{detail:data.request}));return;}
       if(data.type==='selected'&&typeof data.id==='string'&&this.model?.blocks.some(block=>block.id===data.id)){this.selected=data.id;return;}
       if(data.type==='split'&&this.mode==='visual'&&!this.options.readOnly&&typeof data.id==='string'&&typeof data.before==='string'&&typeof data.after==='string'&&data.before.length+data.after.length<=131072){
         const block=this.model?.blocks.find(item=>item.id===data.id);if(!block||!['','p','h1','h2','h3','h4','h5','h6','blockquote'].includes(block.tag))return;
@@ -144,7 +144,16 @@
       });
     }
     /** Flush queued frame input before a real submit; no arguments, returns a bounded promise or rejects rather than silently losing edits. */
-    flush(){if(!this.frame||this.mode==='code'||!this.ready)return Promise.resolve();return new Promise((resolve,reject)=>{const request=crypto.randomUUID(),timer=setTimeout(()=>{this.pending.delete(request);reject(new Error(t('syncError')));},3000);this.pending.set(request,()=>{clearTimeout(timer);resolve();});this.send('flush',{request});});}
+    flush(){
+      if(!this.frame||this.mode==='code'||!this.ready)return Promise.resolve();
+      return new Promise((resolve,reject)=>{
+        const request=crypto.randomUUID();
+        /** Complete only this lexical promise's exact request; receives a native acknowledgement event, returns nothing and never selects or invokes a callback by message-owned name. */
+        const acknowledge=event=>{if(event.detail!==request)return;clearTimeout(timer);this.syncEvents.removeEventListener('flush-ack',acknowledge);resolve();};
+        const timer=setTimeout(()=>{this.syncEvents.removeEventListener('flush-ack',acknowledge);reject(new Error(t('syncError')));},3000);
+        this.syncEvents.addEventListener('flush-ack',acknowledge);this.send('flush',{request});
+      });
+    }
     /** Append an explicit safe integration snippet; receives HTML/Mustache, validates the combined document, records undo and notifies the owning plugin without provider execution. */
     insertMarkup(source){if(this.options.readOnly||this.options.language!=='html')throw new TypeError('HTML editing is unavailable.');const next=this.textarea.value+(this.textarea.value?'\n':'')+source;model.analyze(next,this.options,config.policy);this.remember(this.textarea.value);this.write(next);this.update();this.render();}
     /** Read canonical source without rendering; no arguments, returns the textarea bytes. */
