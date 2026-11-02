@@ -2430,8 +2430,8 @@
     },
     {
       "path": "tests/core-editor.test.mjs",
-      "bytes": 6739,
-      "sha256": "cf143a029c0698e06405eb56269839336cb526d63950fed5b19c46bc3367d9f4"
+      "bytes": 6738,
+      "sha256": "a69053ac3f84dd7437d3eae2e0782dca4d0ba33665470a17fbb1bb58a9d83d5d"
     },
     {
       "path": "tests/extension-media.test.mjs",
