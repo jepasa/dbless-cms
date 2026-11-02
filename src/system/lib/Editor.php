@@ -13,6 +13,7 @@ final class Editor {
     $labels=[];foreach($language->messages() as $key=>$message)if(str_starts_with($key,'wysiwyg.'))$labels[substr($key,8)]=$message;
     $site=$store->read('site')['data'];$publicLocale=SiteLocale::resolve($site['settings']);$template=$site['template'];$manifest=$store->templates->all()[$template]??null;$styles=[];
     foreach($manifest['assets']['styles']??[] as $relative)$styles[]=$store->templates->asset($template,$relative,$base);
-    return ['version'=>1,'policy'=>ContentMarkup::policy(),'profiles'=>array_combine(['html','mustache','php','css','js'],array_map(self::profile(...),['html','mustache','php','css','js'])),'labels'=>$labels,'script'=>asset('cms-admin/assets/editor-frame.js',$base),'style'=>asset('cms-admin/assets/editor-frame.css',$base),'styles'=>$styles,'publicBase'=>$base.'/','locale'=>$publicLocale['tag'],'direction'=>$publicLocale['direction']];
+    $icons=[];foreach(['visual','code','preview','undo','redo','bold','italic','link','image','list','paragraph','heading','quote'] as $name)$icons[$name]=asset('cms-admin/assets/editor-icons/'.$name.'.svg',$base);
+    return ['version'=>1,'policy'=>ContentMarkup::policy(),'profiles'=>array_combine(['html','mustache','php','css','js'],array_map(self::profile(...),['html','mustache','php','css','js'])),'labels'=>$labels,'icons'=>$icons,'script'=>asset('cms-admin/assets/editor-frame.js',$base),'style'=>asset('cms-admin/assets/editor-frame.css',$base),'styles'=>$styles,'publicBase'=>$base.'/','locale'=>$publicLocale['tag'],'direction'=>$publicLocale['direction']];
   }
 }

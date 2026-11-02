@@ -470,6 +470,13 @@
     "wysiwyg.localImage": "Utilize uma imagem dentro da raiz pública do site.",
     "wysiwyg.insert": "Inserir bloco",
     "wysiwyg.pastePlain": "A formatação não suportada da área de transferência foi colada como texto.",
+    "wysiwyg.insertion": "Inserir conteúdo",
+    "wysiwyg.modes": "Modos do editor",
+    "wysiwyg.history": "Histórico de edição",
+    "wysiwyg.formatting": "Formatação do texto",
+    "wysiwyg.blocks": "Blocos de conteúdo",
+    "wysiwyg.indent": "Indentar com Tab",
+    "wysiwyg.readOnly": "Somente leitura",
     "markup.insertSnippet": "Inserir bloco"
   }
 }

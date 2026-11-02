@@ -470,6 +470,13 @@
     "wysiwyg.localImage": "Use an image address inside the public site root.",
     "wysiwyg.insert": "Insert block",
     "wysiwyg.pastePlain": "Unsupported clipboard formatting was pasted as plain text.",
+    "wysiwyg.insertion": "Insert content",
+    "wysiwyg.modes": "Editor modes",
+    "wysiwyg.history": "Editing history",
+    "wysiwyg.formatting": "Text formatting",
+    "wysiwyg.blocks": "Content blocks",
+    "wysiwyg.indent": "Indent with Tab",
+    "wysiwyg.readOnly": "Read only",
     "markup.insertSnippet": "Insert block"
   }
 }

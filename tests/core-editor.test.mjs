@@ -38,6 +38,10 @@ for(const application of applications){
     for(const value of ['javascript:alert(1)','java&#x73;cript:alert(1)','data:text/html,x','//example.invalid/a','%2e%2e/private','https://user:pass@example.invalid/a'])assert.throws(()=>analyze('<p><a href="'+value+'">Link</a></p>'));
     for(const value of ['/media/example.png','{{cms.base}}/media/example.png','https://example.invalid/image.png'])assert.equal(analyze('<p><img src="'+value+'" alt="Example"></p>').blocks.length,1);
   });
+  test(`${application}: addressed editor icons remain local static geometry without executable or external content`,()=>{
+    const directory=path.join(asset,'editor-icons'),files=fs.readdirSync(directory);assert.equal(files.length,13);const hashes=new Set();
+    for(const file of files){assert.match(file,/^[a-z]+\.svg$/);const source=fs.readFileSync(path.join(directory,file),'utf8');assert.match(source,/viewBox="0 0 20 20"/);assert.match(source,/Apache-2.0/);assert.doesNotMatch(source,/<(?:script|foreignObject|image|use|style)\b|\bon[a-z]+\s*=|\b(?:href|src)\s*=|url\s*\(/i);hashes.add(source.replace(/<!--[\s\S]*?-->/g,''));}assert.equal(hashes.size,files.length,'Every action must have distinct geometry');
+  });
   test(`${application}: server rejects forged editor markup and keeps PHP outside editorial content`,()=>{
     const result=php(application,'$cases=["<p data-dbless-token=\\"x\\">Text</p>","<?php echo 1; ?>"]; $codes=[];foreach($cases as $html){try{DBLESSCMS\\ContentMarkup::definition(["html"=>$html,"bindings"=>[]]);$codes[]=200;}catch(DBLESSCMS\\HttpError $e){$codes[]=$e->status;}}echo json_encode($codes);');assert.deepEqual(result,[422,422]);
     const javascript=fs.readFileSync(path.join(asset,fs.existsSync(path.join(asset,'editor.js'))?'editor.js':'editor.min.js'),'utf8');assert.doesNotMatch(javascript,/\beval\s*\(|new\s+Function\s*\(|execCommand\s*\(/);

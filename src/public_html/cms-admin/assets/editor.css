@@ -1,9 +1,32 @@
-/* Shared editor shell uses the fixed admin identity; canvas content and template preview styles stay inside the opaque iframe. */
-.dbless-editor{min-width:0;max-width:100%;margin-block:.6rem 1rem;border:1px solid var(--line,#dce3ec);border-radius:var(--radius,.5rem);overflow:hidden;background:var(--surface,#fff)}
-.dbless-editor-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem;padding:.75rem;border-bottom:1px solid var(--line,#dce3ec);background:var(--surface,#fff)}
-.dbless-editor-toolbar button{font:inherit;font-size:.88rem;min-height:2.5rem;padding:.45rem .65rem}.dbless-editor-toolbar button[aria-pressed=true]{background:var(--text,#14273b);border-color:var(--text,#14273b);color:var(--surface,#fff)}
-.dbless-editor .markup-code{margin:0}.dbless-editor>.editor-checkbox{margin:.7rem}.dbless-editor-canvas{width:100%;display:block;max-width:100%;min-height:220px;border:0;background:#fff}.dbless-editor [hidden]{display:none!important}
-.dbless-editor-status{margin:0;padding:.75rem;border-top:1px solid var(--line,#dce3ec);font-size:.9rem;overflow-wrap:anywhere}
-.dbless-editor-dialog{width:min(34rem,calc(100% - 2rem));max-height:90dvh;overflow:auto;border:1px solid var(--line,#dce3ec);border-radius:var(--radius,.5rem);background:var(--surface,#fff);color:var(--text,#14273b);padding:1.5rem}
+/* Shared editor chrome: grouped addressed SVG tools, segmented modes and the fixed DBLess-CMS ink/mint identity; content styles stay in the opaque canvas. */
+.dbless-editor{min-width:0;max-width:100%;margin-block:.6rem 1rem;border:1px solid var(--line,#e2e8f0);border-radius:var(--radius,12px);overflow:hidden;background:var(--surface,#fff);color:var(--ink,#1e293b)}
+.dbless-editor-toolbar{position:relative;background:var(--surface,#fff);border-bottom:1px solid var(--line,#e2e8f0)}
+.dbless-editor-heading{display:flex;align-items:center;justify-content:space-between;gap:.75rem;min-width:0;min-height:3.75rem;padding:.6rem .85rem;border-bottom:1px solid var(--line,#e2e8f0);background:var(--surface,#fff)}
+.dbless-editor-toolbar .dbless-editor-heading{border-bottom:0}
+.dbless-editor-identity{display:flex;align-items:center;gap:.5rem;min-width:0;color:var(--ink,#1e293b);font-size:.86rem;font-weight:600}
+.dbless-editor-language{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;font:600 .72rem/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted,#64748b);white-space:nowrap}
+.dbless-editor-readonly{padding:.15rem .4rem;border:1px solid var(--line,#e2e8f0);border-radius:4px;font-family:inherit;font-size:.72rem;font-weight:500;line-height:1.5}
+.dbless-editor-modes{display:flex;gap:2px;min-width:0;padding:3px;background:var(--paper,#f5f7fb);border:1px solid var(--line,#e2e8f0);border-radius:8px}
+.dbless-editor .dbless-editor-button{position:relative;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;gap:.45rem;width:36px;height:36px;min-height:36px;margin:0;padding:7px;border:1px solid transparent;border-radius:5px;background:transparent;color:var(--ink,#1e293b);font-family:inherit;font-size:.84rem;font-weight:500;line-height:1.2;cursor:pointer;box-shadow:none;transition:background-color .12s ease,border-color .12s ease}
+.dbless-editor .dbless-editor-mode{width:auto;padding-inline:.7rem;white-space:nowrap}
+.dbless-editor .dbless-editor-button:hover:not(:disabled){background:#edf4f3;border-color:#cbded9;color:var(--ink,#1e293b)}
+.dbless-editor .dbless-editor-button[aria-pressed=true]{background:var(--mint,#78e4ca);border-color:#60c5ad;color:var(--ink,#1e293b);box-shadow:0 1px 2px #14273b12}
+.dbless-editor .dbless-editor-button[aria-pressed=true]:hover{background:#8fead3;border-color:#60c5ad}
+.dbless-editor .dbless-editor-button:focus-visible{outline:2px solid var(--accent,#2563eb);outline-offset:2px;z-index:1}
+.dbless-editor .dbless-editor-button:disabled{opacity:.35;cursor:default}
+.dbless-editor-icon{display:block;width:20px;height:20px;flex-shrink:0;pointer-events:none;user-select:none}
+.dbless-editor-commands{display:flex;align-items:center;flex-wrap:wrap;gap:6px 0;padding:.45rem .6rem;border-top:1px solid var(--line,#e2e8f0);background:#fafcfc}
+.dbless-editor-group{display:flex;align-items:center;gap:2px;flex-shrink:0;margin-inline-end:.4rem;padding-inline-end:.4rem;border-inline-end:1px solid var(--line,#e2e8f0)}
+.dbless-editor-group:last-child{margin-inline-end:0;padding-inline-end:0;border-inline-end:0}
+.dbless-editor .markup-code{margin:0}.dbless-editor .markup-code textarea,.dbless-editor .markup-code pre{border-radius:0}.dbless-editor .markup-code textarea{border-width:0}
+.dbless-editor-canvas{width:100%;display:block;max-width:100%;min-height:220px;border:0;background:#fff}
+.dbless-editor [hidden]{display:none!important}
+.dbless-editor-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.6rem 1rem;padding:.65rem .85rem;border-top:1px solid var(--line,#e2e8f0);background:var(--surface,#fff)}
+.dbless-editor-status{flex:1 1 18rem;margin:0;min-width:0;color:var(--muted,#64748b);font-size:.8rem;font-weight:400;line-height:1.5;overflow-wrap:anywhere}
+.dbless-editor .editor-checkbox{display:inline-flex;align-items:center;gap:.4rem;flex-shrink:0;width:auto;margin:0;font-size:.8rem;font-weight:400;line-height:1.5;cursor:pointer}
+.dbless-editor .editor-checkbox input{display:block;width:1rem;height:1rem;margin:0;accent-color:var(--success,#16704a)}
+.dbless-editor-dialog{width:min(34rem,calc(100% - 2rem));max-height:90dvh;overflow:auto;border:1px solid var(--line,#e2e8f0);border-radius:var(--radius,12px);background:var(--surface,#fff);color:var(--ink,#1e293b);padding:1.5rem}
 .dbless-editor-dialog::backdrop{background:#10223888}.dbless-editor-dialog label{display:block;margin-block:1rem}.dbless-editor-dialog input{display:block;width:100%;margin-top:.5rem}.dbless-editor-dialog .savebar{display:flex;justify-content:flex-end;gap:.6rem}
-@media(max-width:480px){.dbless-editor-toolbar{gap:.3rem;padding:.5rem}.dbless-editor-toolbar button{font-size:.82rem;padding:.4rem .55rem}}
+@media(max-width:600px){.dbless-editor-heading{padding:.55rem;gap:.4rem}.dbless-editor-toolbar .dbless-editor-language{display:none}.dbless-editor .dbless-editor-button{width:40px;height:40px;min-height:40px}.dbless-editor .dbless-editor-mode{width:auto;gap:.35rem;padding-inline:.5rem;font-size:.82rem}.dbless-editor-mode .dbless-editor-icon{width:16px;height:16px}.dbless-editor-commands{padding:.4rem}.dbless-editor-group{margin-inline-end:.3rem;padding-inline-end:.3rem}.dbless-editor-footer{padding:.6rem .7rem}}
+@media(prefers-reduced-motion:reduce){.dbless-editor .dbless-editor-button{transition:none}}
+@media(forced-colors:active){.dbless-editor .dbless-editor-button{border-color:ButtonText}.dbless-editor .dbless-editor-button[aria-pressed=true]{outline:2px solid Highlight;outline-offset:-3px}.dbless-editor-icon{forced-color-adjust:none;background:#fff;border-radius:2px}}

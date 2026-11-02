@@ -58,3 +58,11 @@ Run `npm run test:browser:editor` with `PLAYWRIGHT_MODULE` pointing to an existi
 Flush acknowledgements use an instance-generated UUID v4 and a fixed native event. Only the exact outstanding token completes its lexical promise; message identifiers never select callable methods or callbacks. Window, opaque origin, channel and generation checks remain mandatory.
 
 Canvas source serialization is text-only: it restores attributes in a plain map without assigning URLs to detached DOM clones. Unresolved Mustache image addresses never trigger requests during rendering, selection, flushing or editing. Original attribute/token order is preserved.
+
+## Toolbar and editor appearance
+
+Version 2.8.1 uses DBLess-CMS ink/mint colors with segmented Visual/Code/Preview modes. Original locally addressed SVG icons identify grouped history, formatting, block and insertion commands. Titles and accessible names follow the selected administration dictionary. Undo/redo availability reflects actual visual history; formatting commands are hidden in Code/Preview.
+
+Arrow keys (including RTL direction), Home and End move between enabled toolbar controls; Tab leaves the toolbar. Code-only PHP/CSS/JavaScript profiles use the same header, language identifier and compact diagnostic/indentation footer. Groups wrap on small screens without removing controls. Existing language/toolbar/readOnly options and all content/publication/security contracts remain unchanged. No external editor library or icon service is required.
+
+Core metadata provides a closed action-to-icon map from `cms-admin/assets/editor-icons/`; plugins keep using the editor API instead of embedding SVG or depending on toolbar markup. This presentation change does not alter API version 1 or the accepted options.
