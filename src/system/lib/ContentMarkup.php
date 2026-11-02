@@ -4,6 +4,10 @@ declare(strict_types=1);
 namespace DBLESSCMS;
 final class ContentMarkup {
   private static ?\WeakMap $budgets=null;
+  /** Return the canonical editorial allowlist for PHP validation and the shared client editor; no parameters/I/O or executable options. */
+  public static function policy(): array {
+    return ['tags'=>explode(' ','section main article aside header footer nav div span p a h1 h2 h3 h4 h5 h6 em strong b i small code pre ul ol li dl dt dd img figure figcaption blockquote cite abbr time br hr table thead tbody tfoot tr th td caption button details summary'),'global'=>['id','class','title','role','lang','dir','tabindex','hidden'],'specific'=>['a'=>['href','rel','target'],'img'=>['src','alt','width','height','loading','decoding','fetchpriority'],'time'=>['datetime'],'button'=>['type','disabled'],'details'=>['open'],'td'=>['colspan','rowspan'],'th'=>['colspan','rowspan','scope']]];
+  }
   /** Return the portable optional markup schema for page/other plugin fields; no parameters/I/O, structured metadata only. */
   public static function schema(): array {
     return ['type'=>'object','additionalProperties'=>false,'required'=>['html','bindings'],'properties'=>['html'=>['type'=>'string','maxLength'=>131072],'bindings'=>['type'=>'array','maxItems'=>20,'items'=>['type'=>'object','additionalProperties'=>false,'required'=>['plugin','service','alias','parameters'],'properties'=>['plugin'=>['type'=>'string','maxLength'=>64],'service'=>['type'=>'string','maxLength'=>64],'alias'=>['type'=>'string','maxLength'=>100],'parameters'=>['type'=>'object']]]]]];
@@ -20,12 +24,11 @@ final class ContentMarkup {
   public static function html(string $html,bool $template=true): string {
     if(($template&&substr_count($html,"\n")>4096)||strlen($html)>524288||preg_match('//u',$html)!==1||preg_match('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/',$html)||str_contains($html,'<?')||preg_match('~</?\s*(?:html|head|body)(?:\s|/?>)~i',$html)||preg_match('/<!\s*(?:doctype|entity|\[cdata)/i',$html))throw new HttpError(422,'Unsafe markup.','markup.error');
     if(!class_exists(\DOMDocument::class))throw new HttpError(503,'PHP ext-dom is required for authored HTML.','markup.unavailableCore');
-    $tags=explode(' ','section main article aside header footer nav div span p a h1 h2 h3 h4 h5 h6 em strong b i small code pre ul ol li dl dt dd img figure figcaption blockquote cite abbr time br hr table thead tbody tfoot tr th td caption button details summary');
-    $global=['id','class','title','role','lang','dir','tabindex','hidden'];$specific=['a'=>['href','rel','target'],'img'=>['src','alt','width','height','loading','decoding','fetchpriority'],'time'=>['datetime'],'button'=>['type','disabled'],'details'=>['open'],'td'=>['colspan','rowspan'],'th'=>['colspan','rowspan','scope']];
+    $policy=self::policy();$tags=$policy['tags'];$global=$policy['global'];$specific=$policy['specific'];
     $previous=libxml_use_internal_errors(true);$document=new \DOMDocument('1.0','UTF-8');
     try{$loaded=$document->loadHTML('<?xml encoding="UTF-8"><html><body>'.$html.'</body></html>',LIBXML_NONET|LIBXML_NOERROR|LIBXML_NOWARNING);if(!$loaded)throw new HttpError(422,'Invalid HTML.','markup.error');
       foreach($document->getElementsByTagName('*') as $node){$tag=strtolower($node->tagName);if(in_array($tag,['html','body'],true))continue;if(!in_array($tag,$tags,true))throw new HttpError(422,'Unsupported HTML element: '.$tag,'markup.error');
-        foreach($node->attributes as $attribute){$key=strtolower($attribute->name);if(!in_array($key,$global,true)&&!in_array($key,$specific[$tag]??[],true)&&!preg_match('/^(?:aria|data)-[a-z][a-z0-9-]*$/D',$key))throw new HttpError(422,'Unsupported HTML attribute.','markup.error');if(in_array($key,['href','src'],true))self::url($attribute->value,$key,$template);if($key==='target'&&!in_array($attribute->value,['_self','_blank'],true))throw new HttpError(422,'Invalid HTML target.','markup.error');}
+        foreach($node->attributes as $attribute){$key=strtolower($attribute->name);if(str_starts_with($key,'data-dbless-'))throw new HttpError(422,'Reserved editor attribute.','markup.error');if(!in_array($key,$global,true)&&!in_array($key,$specific[$tag]??[],true)&&!preg_match('/^(?:aria|data)-[a-z][a-z0-9-]*$/D',$key))throw new HttpError(422,'Unsupported HTML attribute.','markup.error');if(in_array($key,['href','src'],true))self::url($attribute->value,$key,$template);if($key==='target'&&!in_array($attribute->value,['_self','_blank'],true))throw new HttpError(422,'Invalid HTML target.','markup.error');}
       }
       if(!$template){$html='';$body=$document->getElementsByTagName('body')->item(0);if($body!==null)foreach($body->childNodes as $child)$html.=$document->saveHTML($child);}
     }finally{libxml_clear_errors();libxml_use_internal_errors($previous);}

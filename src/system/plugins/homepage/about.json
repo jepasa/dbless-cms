@@ -46,6 +46,14 @@
         "The content-source selector contains HTML/Mustache and plugin documents only. An installed template can declare a homepageMarkup adapter to convert its native sections to editable HTML. Existing legacy catalogs and private history stay readable; conversion is never a public rendering write.",
         "Declared markupFragments retain live contact forms and plugin integrations without saving rendered tokens or provider snapshots. Insert {{template:fragment id=\"contact\"}} for a registered public fragment; {{cms.base}} keeps local links portable. Private previews show inert fragment labels. See docs/homepage-conversion.md for adapter and CAS migration contracts."
       ]
+    },
+    {
+      "title": "Shared visual editor",
+      "body": [
+        "HTML/Mustache content opens in the shared core visual editor. Use Visual for static content, Code for advanced structure and protected dynamic blocks, and Preview for an isolated template-CSS view. Opening or switching modes does not rewrite the original source.",
+        "Select content before applying formatting, links or images. Enter creates another paragraph. Bindings discover the enabled plugins; Insert block appends a validated Mustache snippet. Variables, loops, Forms and template fragments keep their existing server-side contracts.",
+        "CSS, JavaScript and PHP are separate code-authoring profiles available to plugin developers. PHP is never executed or published by this editor. Global supplemental CSS/JavaScript retain their own draft, validation, history and explicit publishing workflow."
+      ]
     }
   ]
 }

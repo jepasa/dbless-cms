@@ -22,3 +22,5 @@ The DBLess-CMS administrative symbol, geometric wordmark and derived favicon are
 ## Terser browser parser
 
 The admin customization editor uses the locally vendored browser bundle from the pinned Terser development dependency (BSD-2-Clause). Source: https://github.com/terser/terser. License: src/public_html/cms-admin/assets/vendor/TERSER-LICENSE.txt. It parses administrator-authored JavaScript without executing it; no CDN or production Node dependency.
+
+The shared core editor is original DBLess-CMS code under Apache-2.0. Quillit ME was evaluated as a product reference; no source code, WPM presets or installers from that package are redistributed.
