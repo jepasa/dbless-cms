@@ -1,7 +1,7 @@
 {
   "id": "files-manager",
   "name": "Gerenciador de arquivos",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "api": 1,
   "cmsMajor": 2,
   "entry": "Plugin.php",
@@ -16,6 +16,9 @@
     "uploads": {
       "public": "media",
       "private": "media"
+    },
+    "browser": {
+      "pageSize": 25
     }
   },
   "router": "Router.php",

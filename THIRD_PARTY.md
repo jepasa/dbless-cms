@@ -24,3 +24,8 @@ The DBLess-CMS administrative symbol, geometric wordmark and derived favicon are
 The admin customization editor uses the locally vendored browser bundle from the pinned Terser development dependency (BSD-2-Clause). Source: https://github.com/terser/terser. License: src/public_html/cms-admin/assets/vendor/TERSER-LICENSE.txt. It parses administrator-authored JavaScript without executing it; no CDN or production Node dependency.
 
 The shared core editor is original DBLess-CMS code under Apache-2.0. Quillit ME was evaluated as a product reference; no source code, WPM presets or installers from that package are redistributed.
+
+The additional upload, download, folder, folder-plus, refresh, replace, restore,
+move, info, video, more, sort and chevron action SVGs in `cms-admin/assets/icons/`
+are original DBLess-CMS geometry distributed under this project's Apache-2.0
+license. Existing third-party icon notices remain applicable to their files.

@@ -13,8 +13,8 @@ final class PluginOptions {
     if (!$value instanceof \stdClass) throw new HttpError(422,'Configuração deve ser um objeto.','error.plugin');
     return json_decode($raw,true,16,JSON_THROW_ON_ERROR);
   }
-  /** Renderiza Campos/JSON; recebe contexto/operação/atributo/help/opções dinâmicas e retorna HTML; propaga falhas de leitura. */
-  public static function render(PluginContext $context,string $operation,string $attribute,string $help,array $choices=[]): string {
+  /** Renderiza Campos/JSON; recebe contexto/operação/atributo/help/opções dinâmicas/modo de ícones e retorna HTML; propaga falhas de leitura. */
+  public static function render(PluginContext $context,string $operation,string $attribute,string $help,array $choices=[],bool $iconOnly=false): string {
     if (!preg_match('/^data-[a-z-]+$/D',$attribute)) throw new \LogicException('Atributo de formulário inválido.');
     $registry=new Plugins($context->store);$schema=$registry->schema($context->manifest['id']);
     $ui=new Language();$ui->select($context->language->locale());
@@ -22,8 +22,8 @@ final class PluginOptions {
     try {require dirname(__DIR__).'/admin/plugin-options.php';return (string)ob_get_clean();}
     catch (\Throwable $error) {ob_end_clean();throw $error;}
   }
-  /** Renderiza histórico individual de opções; recebe contexto/atributo do formulário, retorna HTML e propaga falhas de leitura. */
-  public static function history(PluginContext $context,string $attribute): string {
+  /** Renderiza histórico individual de opções; recebe contexto/atributo/modo de ícones do formulário, retorna HTML e propaga falhas de leitura. */
+  public static function history(PluginContext $context,string $attribute,bool $iconOnly=false): string {
     if (!preg_match('/^data-[a-z-]+$/D',$attribute)) throw new \LogicException('Atributo de formulário inválido.');
     $ui=new Language();$ui->select($context->language->locale());
     ob_start();

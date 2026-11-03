@@ -1,16 +1,45 @@
 {
   "type": "object",
   "additionalProperties": false,
-  "required": ["uploads"],
+  "required": [
+    "uploads"
+  ],
   "properties": {
     "uploads": {
       "type": "object",
       "title": "setting.uploads",
       "additionalProperties": false,
-      "required": ["public", "private"],
+      "required": [
+        "public",
+        "private"
+      ],
       "properties": {
-        "public": {"type": "string", "title": "setting.public", "maxLength": 240},
-        "private": {"type": "string", "title": "setting.private", "maxLength": 240}
+        "public": {
+          "type": "string",
+          "title": "setting.public",
+          "maxLength": 240
+        },
+        "private": {
+          "type": "string",
+          "title": "setting.private",
+          "maxLength": 240
+        }
+      }
+    },
+    "browser": {
+      "type": "object",
+      "title": "setting.browser",
+      "additionalProperties": false,
+      "required": [
+        "pageSize"
+      ],
+      "properties": {
+        "pageSize": {
+          "type": "integer",
+          "title": "setting.pageSize",
+          "minimum": 25,
+          "maximum": 100
+        }
       }
     }
   }
