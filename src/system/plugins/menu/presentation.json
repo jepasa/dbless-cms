@@ -5,32 +5,38 @@
   "sections": [
     {
       "title": "Create a menu",
-      "body": [
-        "Create a menu with a clear name and add page links, anchors or validated URLs. Set parent relationships to build submenus and arrange their order.",
-        "Draft or missing pages are omitted from public navigation. The public template chooses the actual Navbar, Sidebar, List or Dropdown presentation."
-      ]
+      "steps": [
+        "Open Menu → New menu. Enter a descriptive name, for example “Main navigation”.",
+        "Add page links, anchors or validated URLs. Choose parent relationships to build submenus, adjust order and select whether a link opens a new tab.",
+        "Save the menu. Use Edit from Overview to change its items; only eligible public targets appear on the site. The template supplies the visual navigation style."
+      ],
+      "body": []
     },
     {
       "title": "Choose a location",
-      "body": [
+      "code": "{{menu:location key=\"footer-links\" layout=\"list\"}}",
+      "steps": [
+        "In the menu editor, choose a location from the active template, an allowed navigation type and the intended page filter. Save and review the public destination.",
         "The editor reads locations, permitted types and maximum depth from the active template manifest. Dynamic items and assignments stay in the menu repository.",
         "Changing templates preserves unsupported assignments and shows a warning. The component picker can insert a public projection of an assigned menu."
       ],
-      "code": "{{menu:location key=\"footer-links\" layout=\"list\"}}"
+      "body": []
     },
     {
       "title": "Recover changes",
-      "body": [
+      "steps": [
         "Use Trash for recoverable removal and History for catalog revisions. Saves verify revisions and template state to prevent silent overwrites."
-      ]
+      ],
+      "body": []
     },
     {
       "title": "Full public navigation data",
-      "body": [
+      "code": "Bind menu:tree with alias navigation and an active-template location key.\n\n<nav aria-label=\"Example navigation\">\n  <ul>{{#navigation.items}}\n    <li><a href=\"{{href}}\">{{label}}</a>\n      <ul>{{#children}}<li><a href=\"{{href}}\">{{label}}</a></li>{{/children}}</ul>\n    </li>\n  {{/navigation.items}}</ul>\n</nav>",
+      "steps": [
         "menu:tree(key: active-template location key) supplies name, type and items with label, href, slug, anchor, newTab and children. Up to five item levels are declared; submenu items use the same fields. Unpublished/private page targets are omitted. menu:location remains a compatible flat-card service.",
         "Bind menu:tree with alias navigation. Write {{#navigation.items}}<li><a href=\"{{href}}\">{{label}}</a>{{#children}}<a href=\"{{href}}\">{{label}}</a>{{/children}}</li>{{/navigation.items}} inside your own nav/ul markup. Layout and behavior belong to your template and authored HTML. Missing location assignments return an empty items list."
       ],
-      "code": "Bind menu:tree with alias navigation and an active-template location key.\n\n<nav aria-label=\"Example navigation\">\n  <ul>{{#navigation.items}}\n    <li><a href=\"{{href}}\">{{label}}</a>\n      <ul>{{#children}}<li><a href=\"{{href}}\">{{label}}</a></li>{{/children}}</ul>\n    </li>\n  {{/navigation.items}}</ul>\n</nav>"
+      "body": []
     }
   ]
 }

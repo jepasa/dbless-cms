@@ -5,33 +5,47 @@
   "sections": [
     {
       "title": "Author a form",
-      "body": [
-        "Open New form. Define a stable key, visible fields, limits and options. Select a specific processing purpose and assessed legal basis. A dropdown selection is not legal approval.",
-        "Demonstration forms never deliver. For collection, disable Demonstration, select a published privacy page, configure the global destination and enable contact delivery in private application configuration. No default credentials or external CAPTCHA are added."
-      ]
+      "steps": [
+        "Open Forms → New form. Enter a stable key, name and description. Start in Draft and Demonstration mode.",
+        "Define fields and their labels, required flags, limits and choices. For example, use name, email and message for a small inquiry form. Choose a specific purpose and assessed legal basis; the selection itself is not legal approval.",
+        "Save and review the definition. To collect responses, select a published privacy page, configure the global destination and private contact delivery, disable Demonstration and publish. Demonstration forms never deliver."
+      ],
+      "body": []
     },
     {
       "title": "Embed a functional form",
-      "body": [
+      "code": "{{forms:form id=\"contact-example\"}}",
+      "steps": [
         "Insert this complete block in Homepage, Page or Blog HTML. The core renders the form through a separate narrow interactive contract after validating authored HTML. Variables cannot inject form HTML.",
         "The renderer issues request/session-bound tickets. Private previews disable interactive forms; never copy tokens or forms from an old page into static content."
       ],
-      "code": "{{forms:form id=\"contact-example\"}}"
+      "body": []
     },
     {
       "title": "Read public definition data",
-      "body": [
+      "code": "{{inquiry.name}}\n{{#inquiry.fields}}<p>{{label}}</p>{{/inquiry.fields}}",
+      "steps": [
         "Bind forms:definition with parameter id and an alias such as inquiry. Definition data contains labels and choices only. It never includes responses, recipients, tokens or submission tickets.",
         "Use escaped variables and bounded loops for descriptive presentation; ordinary authored HTML still cannot create form/input elements. Functional forms use the interactive marker."
       ],
-      "code": "{{inquiry.name}}\n{{#inquiry.fields}}<p>{{label}}</p>{{/inquiry.fields}}"
+      "body": []
     },
     {
       "title": "Delivery, retention and rights",
-      "body": [
+      "steps": [
         "The default retains no answers. Optional per-form retention is private and requires an assessed purpose and period. The private receipt list distinguishes transport acceptance, failure and uncertainty; transport acceptance is not proof of inbox delivery.",
         "For rights requests, configure the privacy destination and appropriate minimal fields. The operator must verify identity proportionately, respond and assess applicable retention; the plugin does not automatically erase all site data. Mailboxes and backups remain processing locations.",
         "Use the private CLI privacy-retention.php for simulation or explicit application of expired receipt cleanup. It does not delete legal access logs, contracts or incident records. Restore handling and mailbox deletion require an operational policy."
+      ],
+      "body": []
+    },
+    {
+      "title": "Inspect submissions and recover definitions",
+      "body": [],
+      "steps": [
+        "Open Submissions to inspect receipt status and any explicitly retained response data. Transport acceptance does not prove inbox delivery.",
+        "Open History to review and restore a catalog revision if a definition was changed incorrectly.",
+        "Move a form to Trash for recoverable removal. Open the last Trash item to restore it, then review its status and collection settings before reuse."
       ]
     }
   ]

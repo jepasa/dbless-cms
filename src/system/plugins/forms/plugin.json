@@ -99,12 +99,13 @@
       },
       {
         "label": "forms.trash",
-        "route": "trash"
+        "route": "trash",
+        "role": "trash"
       }
     ]
   },
   "configuration": false,
-  "presentation": "about.json",
+  "presentation": "presentation.json",
   "formServices": {
     "form": {
       "description": "A request-scoped form, separate from public data services.",

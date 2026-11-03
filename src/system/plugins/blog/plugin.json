@@ -161,7 +161,8 @@
       },
       {
         "label": "blog.trash",
-        "route": "trash"
+        "route": "trash",
+        "role": "trash"
       }
     ]
   },
@@ -340,7 +341,7 @@
       ]
     }
   },
-  "presentation": "about.json",
+  "presentation": "presentation.json",
   "documentSource": {
     "api": 1,
     "description": "Released Blog articles, without site frame or comments."

@@ -78,13 +78,14 @@
       },
       {
         "label": "fm.trash",
-        "route": "trash"
+        "route": "trash",
+        "role": "trash"
       }
     ]
   },
   "configuration": "settings",
   "description": "Gerenciamento de arquivos públicos e privados, uploads e lixeira.",
-  "presentation": "about.json",
+  "presentation": "presentation.json",
   "contentServices": {
     "asset": {
       "api": 1,

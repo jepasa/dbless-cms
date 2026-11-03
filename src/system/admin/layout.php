@@ -40,9 +40,11 @@ $labels=['privacy'=>$t('privacy.title'),'customizations'=>$t('custom.title'),'pl
 <a class="dashboard-link" href="?view=dashboard" <?= $view==='dashboard'?'aria-current="page"':'' ?>><?= Icons::svg('house',$base) ?><?= e($t('nav.dashboard')) ?></a>
 <?php foreach ($pluginMenus as $menuId=>$menu): ?>
 <?php if ($menu['dropdown']): ?>
-<details class="sidebar-dropdown" data-plugin-menu="<?= e($menuId) ?>" <?= $view==='plugin-panel'&&$panelId===$menuId?'open':'' ?>><summary><img class="admin-icon plugin-icon" src="<?= e($plugins->icon($menuId,$base)) ?>" width="24" height="24" alt="" aria-hidden="true"><?= e($menu['label']) ?><span class="dropdown-chevron" aria-hidden="true">⌄</span></summary><div class="sidebar-submenu">
+<details class="sidebar-dropdown" data-plugin-menu="<?= e($menuId) ?>" <?= (($view==='plugin-panel'&&$panelId===$menuId)||($view==='plugin-about'&&$requestedPlugin===$menuId))?'open':'' ?>><summary><img class="admin-icon plugin-icon" src="<?= e($plugins->icon($menuId,$base)) ?>" width="24" height="24" alt="" aria-hidden="true"><?= e($menu['label']) ?><span class="dropdown-chevron" aria-hidden="true">⌄</span></summary><div class="sidebar-submenu">
 <?php endif; ?>
-<?php foreach ($menu['items'] as $item): if (isset($item['separator'])): ?><hr><?php else: ?>
+<?php foreach ($menu['items'] as $item): if (isset($item['separator'])): ?><hr><?php elseif(isset($item['presentation'])): ?>
+<a href="?view=plugin-about&amp;plugin=<?= e($menuId) ?>" <?= $view==='plugin-about'&&$requestedPlugin===$menuId?'aria-current="page"':'' ?>><?= e($t('catalog.presentation_link')) ?></a>
+<?php else: ?>
 <a href="?view=plugin-panel&amp;plugin=<?= e($menuId) ?>&amp;route=<?= e($item['route']) ?>" <?= $view==='plugin-panel'&&$panelId===$menuId&&$panelRoute['id']===$item['route']?'aria-current="page"':'' ?>><?php if (!$menu['dropdown']): ?><img class="admin-icon plugin-icon" src="<?= e($plugins->icon($menuId,$base)) ?>" width="24" height="24" alt="" aria-hidden="true"><?php endif; ?><?= e($item['label']) ?></a>
 <?php endif; endforeach; ?>
 <?php if ($menu['dropdown']): ?></div></details><?php endif; ?>
@@ -57,7 +59,7 @@ $labels=['privacy'=>$t('privacy.title'),'customizations'=>$t('custom.title'),'pl
 <form method="post"><input type="hidden" name="action" value="logout"><input type="hidden" name="csrf_token" value="<?= e($csrf) ?>"><button type="submit"><?= Icons::svg('logout',$base) ?><?= e($t('common.logout')) ?></button></form>
 </nav></details></div></header>
 <?php endif; ?>
-<main id="workspace" tabindex="-1" class="<?= $authenticated?'main-workspace'.($view==='plugin-panel'?' plugin-workspace':''):'auth-card' ?>">
+<main id="workspace" tabindex="-1" class="<?= $authenticated?'main-workspace'.(in_array($view,['plugin-panel','plugin-about'],true)?' plugin-workspace':''):'auth-card' ?>">
 <?php if ($view==='login'): ?>
 <div class="auth-avatar" aria-hidden="true">
   <?= Icons::svg('person-circle',$base,'icon-person-circle') ?>

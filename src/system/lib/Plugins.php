@@ -41,7 +41,8 @@ final class Plugins {
           foreach ($manifest['publicSettings'] as $key) if (!is_string($key) || !isset($schema['properties'][$key])) throw new \RuntimeException('Campo público sem contrato.');
         }
         Components::definitions($manifest);ContentForms::definitions($manifest);ContentDocuments::definition($manifest);
-        if(isset($manifest['presentation'])){if(!is_string($manifest['presentation']))throw new \RuntimeException('Invalid presentation path.');PluginPresentation::read($directory,$manifest['presentation']);}
+        if(($manifest['presentation']??null)!=='presentation.json')throw new \RuntimeException('Missing required presentation.json declaration.');
+        PluginPresentation::read($directory,$manifest['presentation']);
         Schema::validate($manifest['defaults']??null,$schema);
         $this->catalog[$id]=$manifest;
       } catch (\RuntimeException|HttpError $failure) { $this->rejected[$id]='error.plugin'; }
@@ -79,27 +80,36 @@ final class Plugins {
       if (isset($menu['route']) || !is_array($menu['items']) || !array_is_list($menu['items']) || count($menu['items'])<1 || count($menu['items'])>20) throw new \RuntimeException('Submenu inválido.');
       $items=$menu['items'];
     } else $items=[['label'=>$menu['label'],'route'=>$menu['route']??null]];
-    $separator=true; $seen=[];
+    $separator=true; $seen=[]; $trash=false;
     foreach ($items as $item) {
       if (is_array($item) && $item===['separator'=>true]) {
         if ($separator) throw new \RuntimeException('Separador inválido.');
         $separator=true; continue;
       }
-      if (!is_array($item) || count(array_diff(array_keys($item),['label','route']))>0 || !is_string($item['label']??null) || !$language->has($item['label']) || !is_string($item['route']??null) || !isset($manifest['routes'][$item['route']]) || ($manifest['routes'][$item['route']]['visibility']??'private')!=='private' || isset($seen[$item['route']])) throw new \RuntimeException('Destino de menu inválido.');
+      if (!is_array($item) || count(array_diff(array_keys($item),['label','route','role']))>0 || !is_string($item['label']??null) || !$language->has($item['label']) || !is_string($item['route']??null) || !isset($manifest['routes'][$item['route']]) || ($manifest['routes'][$item['route']]['visibility']??'private')!=='private' || isset($seen[$item['route']])) throw new \RuntimeException('Destino de menu inválido.');
+      if(array_key_exists('role',$item)){if($item['role']!=='trash'||$trash)throw new \RuntimeException('Invalid navigation role.');$trash=true;}
       $seen[$item['route']]=true; $separator=false;
     }
     if ($separator) throw new \RuntimeException('Separador final inválido.');
   }
-  /** Monta menus por manifesto/dicionário; recebe locale, retorna dados com ícone próprio, sem executar plugins ou resolver nomes globais legados. */
+  /** Build localized manifest menus with a Core presentation destination and final trash role; receive locale, return menu data without executing plugins or writing state. */
   public function navigation(string $locale): array {
     $menus=[];
     foreach ($this->catalog as $id=>$manifest) {
       if (!isset($manifest['navigation'])) continue;
       $language=$this->language($id,$locale); $menu=$manifest['navigation'];
       $items=$menu['items']??[['label'=>$menu['label'],'route'=>$menu['route']]];
-      foreach ($items as &$item) if (isset($item['label'])) $item['label']=$language->text($item['label']);
-      unset($item);
-      $menus[$id]=['label'=>$language->text($menu['label']),'dropdown'=>isset($menu['items']),'icon'=>$manifest['assets']['icon'],'items'=>$items];
+      $ordered=[]; $trash=null;
+      foreach ($items as $item) {
+        if(isset($item['label']))$item['label']=$language->text($item['label']);
+        if(($item['role']??null)==='trash'){$trash=$item;continue;}
+        if(isset($item['separator'])&&(!$ordered||isset($ordered[array_key_last($ordered)]['separator'])))continue;
+        $ordered[]=$item;
+      }
+      if($ordered&&!isset($ordered[array_key_last($ordered)]['separator']))$ordered[]=['separator'=>true];
+      $ordered[]=['presentation'=>true];
+      if($trash!==null){$ordered[]=['separator'=>true];$ordered[]=$trash;}
+      $menus[$id]=['label'=>$language->text($menu['label']),'dropdown'=>true,'icon'=>$manifest['assets']['icon'],'items'=>$ordered];
     }
     return $menus;
   }

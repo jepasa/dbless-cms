@@ -260,7 +260,7 @@ textarea { resize: vertical; line-height: 1.6; }
 .sidebar .dashboard-link{position:sticky;top:0;z-index:2;background:#111e32}
 
 /* Shared component picker and plugin-owned English presentation remain inside the fixed admin identity. */
-.components-picker{min-width:0}.components-picker [data-component-marker]{font-family:ui-monospace,monospace}.plugin-presentation{max-width:68rem;line-height:1.7}.plugin-presentation section{margin-top:2rem}.plugin-presentation pre{max-width:100%;overflow:auto;padding:1rem;background:var(--paper);border-radius:var(--radius);white-space:pre-wrap;overflow-wrap:anywhere}.plugin-presentation p{overflow-wrap:anywhere}
+.components-picker{min-width:0}.components-picker [data-component-marker]{font-family:ui-monospace,monospace}.plugin-presentation{width:100%;max-width:none;min-width:0;line-height:1.7}.plugin-presentation nav{border-block:1px solid var(--line);padding-block:1rem}.plugin-presentation li+li{margin-top:.65rem}.plugin-presentation section{scroll-margin-top:2rem}.plugin-presentation section{margin-top:2rem}.plugin-presentation pre{max-width:100%;overflow:auto;padding:1rem;background:var(--paper);border-radius:var(--radius);white-space:pre-wrap;overflow-wrap:anywhere}.plugin-presentation p{overflow-wrap:anywhere}
 
 /* Opt-in WordPress editorial geometry: continuous canvas, compact header and attached inspector; CMS color tokens remain authoritative. */
 .editorial-workspace{display:grid;grid-template-columns:minmax(0,1fr) 280px;grid-template-areas:"toolbar toolbar" "content properties";grid-template-rows:auto 1fr;gap:0;align-items:stretch;min-width:0;min-height:calc(100vh - 230px);border:1px solid var(--line);background:var(--surface);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
