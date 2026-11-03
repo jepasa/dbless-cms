@@ -1,5 +1,5 @@
 /** Human-style core editor journeys against synthetic source/export installs: fidelity, formatting, synchronization, program profiles, sandbox and responsive layouts. No live data or external requests. */
-import {createDraft,publishDraft} from './helpers/editorial-pages.mjs';
+import {createDraft,publishDraft,revealField} from './helpers/editorial-pages.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -64,7 +64,7 @@ try{
       await page.evaluate(()=>{const editor=document.querySelector('iframe.dbless-editor-canvas');window.postMessage({channel:editor.name,type:'patch',generation:1,id:'b1',html:'forged'},'*');});assert.equal(await source.inputValue(),protectedValue);
       await mode(owner,'code');const invalid='<p>{{#items}}</p>';await source.fill(invalid);await owner.locator('[data-editor-action="visual"]').click();assert.equal(await source.isVisible(),true);assert.equal(await source.inputValue(),invalid);
       await source.fill('<section><h2>Published visually</h2><p>Source retained.</p></section>');await mode(owner,'visual');await frame.getByRole('textbox',{name:'Editable content block'}).last().fill('Updated immediately before submit.');
-      const compose=page.locator('[data-page-markup-form]');await compose.locator('[name="meta_description"]').fill('Synthetic visual authoring regression.');await publishDraft(page);
+      const compose=page.locator('[data-page-markup-form]');await revealField(compose.locator('[name="meta_description"]'));await compose.locator('[name="meta_description"]').fill('Synthetic visual authoring regression.');await publishDraft(page);
       const reader=await context.newPage();await reader.goto(fixture.base+'/core-editor-browser');await reader.getByRole('heading',{name:'Published visually'}).waitFor();assert.match(await reader.locator('body').innerText(),/Updated immediately before submit/);await reader.close();
       // Existing complementary CSS/JS UI uses the same core API without executing its draft in the panel.
       await page.goto(fixture.base+'/cms-admin/?view=customizations');assert.equal(await page.locator('[data-core-editor="css"]').count(),1);assert.equal(await page.locator('[data-core-editor="js"]').count(),1);await page.locator('[name="css_code"]').fill('body { --test: 29; }');await page.locator('[name="js_code"]').fill('globalThis.authoredProgramExecuted = true;');assert.equal(await page.evaluate(()=>globalThis.authoredProgramExecuted),undefined);

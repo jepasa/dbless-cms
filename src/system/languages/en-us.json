@@ -523,6 +523,7 @@
     "pages.editorial.parent": "Invalid, deleted or circular parent page.",
     "pages.editorial.missing": "Page unavailable.",
     "pages.editorial.dependencies": "Some data providers are unavailable. Review bindings before publishing.",
-    "wysiwyg.dataUnavailable": "Preview has unavailable providers:"
+    "wysiwyg.dataUnavailable": "Preview has unavailable providers:",
+    "markup.advanced": "Dynamic content and integrations"
   }
 }

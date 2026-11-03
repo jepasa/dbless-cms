@@ -523,6 +523,7 @@
     "pages.editorial.parent": "Página-pai inválida, removida ou com referência circular.",
     "pages.editorial.missing": "Página indisponível.",
     "pages.editorial.dependencies": "Há fornecedores de dados indisponíveis. Revise os vínculos antes de publicar.",
-    "wysiwyg.dataUnavailable": "Prévia com fornecedores indisponíveis:"
+    "wysiwyg.dataUnavailable": "Prévia com fornecedores indisponíveis:",
+    "markup.advanced": "Conteúdo dinâmico e integrações"
   }
 }

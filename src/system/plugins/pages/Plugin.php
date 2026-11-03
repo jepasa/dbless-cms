@@ -67,7 +67,16 @@ final class PagesPlugin implements PluginInterface,ContentProviderInterface,Cont
     $action=substr($operation,10);$allowed=['create','save','publish','schedule','unpublish','trash','recover','restore','duplicate'];
     if(!in_array($action,$allowed,true)||!in_array($context->route,['new','editor','overview','history','trash'],true))throw new HttpError(404,'Unknown page operation.','error.not_found');
     $repository=new PagePublications($context->store);$id=$this->input($_POST,'key');$input=['sourceRevision'=>$this->input($_POST,'source_revision')];
-    if($action==='create'){$input['model']=$this->input($_POST,'model');$input['snapshot']=PageBlueprints::create($input['model'],$this->input($_POST,'title',200),$this->input($_POST,'slug',64));$input['parent']=$this->input($_POST,'parent',64);}
+    if($action==='create'){
+      $input['model']=$this->input($_POST,'model');$input['snapshot']=PageBlueprints::create($input['model'],$this->input($_POST,'title',200),$this->input($_POST,'slug',64));$input['parent']=$this->input($_POST,'parent',64);
+      // Optional unified editor payload is fully validated before the first catalog write; old model-only callers remain unchanged.
+      if($this->input($_POST,'compose',1)==='1'){
+        $post=$_POST;$post['meta_title']=$this->input($_POST,'title',200);$post['meta_description']=$this->input($_POST,'meta_description',500)?:$post['meta_title'];$post['page_status']='draft';
+        $authored=$this->authored($post);$input['snapshot']['document']=array_replace($input['snapshot']['document'],$authored);
+        if(!isset($authored['markup'])){unset($input['snapshot']['document']['markup']);$native=$this->input($_POST,'native_content',131072);if($native!==''){try{$input['snapshot']['document']['content']=json_decode($native,true,32,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(422,'Invalid native content.','pages.editorial.invalid');}}}
+        foreach(PagePublications::seo() as $field=>$default)$input['snapshot']['seo'][$field]=$field==='noindex'?$this->input($_POST,'seo_noindex',1)==='1':$this->input($_POST,'seo_'.$field,2048);
+      }
+    }
     elseif($action==='save'){
       $row=$repository->record($id);$document=$row['draft']['document'];$document['meta']=[];
       foreach(['title'=>200,'description'=>500,'image'=>2048,'imageAlt'=>500] as $field=>$limit)$document['meta'][$field]=$this->input($_POST,'meta_'.$field,$limit);

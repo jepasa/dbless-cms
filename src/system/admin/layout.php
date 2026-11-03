@@ -14,6 +14,7 @@ $labels=['privacy'=>$t('privacy.title'),'customizations'=>$t('custom.title'),'pl
 <link rel="stylesheet" href="<?= e(asset('cms-admin/assets/admin.css',$base)) ?>">
 <script src="<?= e(asset('cms-admin/assets/admin.js',$base)) ?>" defer></script>
 <script src="<?= e(asset('cms-admin/assets/components.js',$base)) ?>" defer></script>
+<script src="<?= e(asset('cms-admin/assets/editorial-workspace.js',$base)) ?>" defer></script>
 <link rel="stylesheet" href="<?= e(asset('cms-admin/assets/markup.css',$base)) ?>">
 <?php if($authenticated): ?><meta name="dbless-editor" content="<?= e(json_encode(\DBLESSCMS\Editor::config($this->store,$language,$base),JSON_THROW_ON_ERROR)) ?>">
 <link rel="stylesheet" href="<?= e(asset('cms-admin/assets/editor.css',$base)) ?>">
