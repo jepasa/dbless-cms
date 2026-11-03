@@ -77,3 +77,6 @@ The latter contains the Core Visual/Code/Preview controls. Switching tabs retain
 both working buffers without converting one format into the other; saving uses
 the active format. Reopening selects the saved format. Arrow keys, Home and End
 move between the format tabs.
+
+Both editorial formats fill the available content column on wide screens, with
+normal control gutters and the separate properties inspector.

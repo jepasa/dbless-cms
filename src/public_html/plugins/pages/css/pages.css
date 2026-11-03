@@ -19,7 +19,7 @@
 .pages-plugin .page-depth-12{display:block;padding-inline-start:192px}
 
 /* WordPress editor proportions and flat inspector, scoped to Pages; only colors come from the CMS theme. */
-.pages-plugin .pages-authoring{max-width:900px;margin:0 auto;padding:40px 32px;min-height:620px;border:0;border-radius:0;box-shadow:none}
+.pages-plugin .pages-authoring{width:100%;max-width:none;margin:0;padding:40px 32px;min-height:620px;border:0;border-radius:0;box-shadow:none}
 .pages-plugin .page-title-label{display:grid;gap:0;margin-bottom:28px;font-weight:600}.pages-plugin .page-title-input{font-size:clamp(28px,2.5vw,40px);line-height:1.2;font-weight:600;letter-spacing:-.025em;padding:0;border:0;border-radius:0;background:transparent}
 .pages-plugin .page-work-state{color:var(--muted);font-size:12px}.pages-plugin .page-work-state[data-dirty=true]{color:var(--danger)}
 .pages-plugin .markup-advanced{margin-top:24px;padding-top:16px;border-top:1px solid var(--line)}.pages-plugin .markup-advanced>summary{cursor:pointer;font-size:13px;font-weight:600}.pages-plugin .markup-advanced[open]>summary{margin-bottom:16px}.pages-plugin .pages-authoring [hidden]{display:none!important}

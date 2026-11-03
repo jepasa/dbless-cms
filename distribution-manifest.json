@@ -90,8 +90,8 @@
     },
     {
       "path": "docs/pages-media-authoring.md",
-      "bytes": 8508,
-      "sha256": "bf9800ad846b5872f5620d13c683d23783295bacdb806212dafc186234067f25"
+      "bytes": 8650,
+      "sha256": "3a4abb7d8144abc818bd236935cc6c43d1eac2075672569398369ba595e0b344"
     },
     {
       "path": "docs/plugins.md",
@@ -870,8 +870,8 @@
     },
     {
       "path": "src/public_html/plugins/pages/css/pages.css",
-      "bytes": 3799,
-      "sha256": "b59755cb0c529302dd2ca6e67b7aee3f3aa3d4181dff5c64290b0d6be7c69b68"
+      "bytes": 3804,
+      "sha256": "455fc9b60922b43c9799802aec50d7d181939583a18662382da89949bccf60a5"
     },
     {
       "path": "src/public_html/plugins/pages/js/pages.js",
@@ -2570,8 +2570,8 @@
     },
     {
       "path": "tests/browser/pages.mjs",
-      "bytes": 14636,
-      "sha256": "e45c10a1230c0569dd51ec024e7fb3065b3fc167739ff0af1953865755a1e97f"
+      "bytes": 15677,
+      "sha256": "db9bb09ebd34c38fca5024b3abe45ef228ab3e65a4622e0bd18434b98d8adc99"
     },
     {
       "path": "tests/browser/pentest.mjs",
