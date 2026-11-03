@@ -71,6 +71,7 @@ Install matching private/public trees:
 src/system/plugins/hello/
   plugin.json
   Plugin.php
+  presentation.json
   Router.php
   settings.schema.json
   languages/pt-br.json
@@ -604,3 +605,9 @@ originating action was not recorded. Reads never migrate or create history.
 Image-rights administration is removed, including its route, toolbar/context
 action and write endpoints. Existing private records and read-only public asset
 references remain available for compatibility; no stored data is deleted.
+
+## Required presentation and sidebar order
+
+Every plugin, including data-only plugins, declares `"presentation": "presentation.json"`. Store that English tutorial beside `plugin.json`; see [the presentation contract](components.md#plugin-owned-presentations) and the Hello example. Older packages must rename their presentation and add a nonempty `steps` array to each section before upgrading. Missing or malformed tutorials reject discovery.
+
+Mark the private trash navigation item with `"role": "trash"`; route IDs remain plugin-owned. The Core places Presentation before Trash, with separators, or last when there is no trash role. It automatically promotes a single-item menu to a dropdown. Presentation uses the authenticated Core route and requires no executable plugin page.

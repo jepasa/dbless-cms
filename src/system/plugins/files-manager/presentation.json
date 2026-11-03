@@ -1,0 +1,61 @@
+{
+  "language": "en",
+  "title": "Images and files",
+  "lead": "Browse, upload and organize public or private files without a database.",
+  "sections": [
+    {
+      "title": "Choose the repository and folder",
+      "body": [],
+      "steps": [
+        "Open Images → Overview and select Public or Private. Public files can be served by the site; private downloads require an authenticated administrative session.",
+        "Expand the directory tree and select a folder. Use breadcrumbs or Up to navigate. Create a folder when a separate collection is needed.",
+        "To change repository roots, use Global Settings. Changes do not relocate files. Plugin Settings controls upload subdirectories and browser page size; paths must remain inside the allowed roots."
+      ]
+    },
+    {
+      "title": "Find and inspect files",
+      "body": [],
+      "steps": [
+        "Switch between list and grid. Grid shows image/video thumbnails or file-type icons.",
+        "Enter a search term, filter by type and choose sorting. In list view, click Name, Type, Size or Added on to toggle sorting direction. Use pagination to inspect further results.",
+        "Select an item to enable its applicable actions. Open Preview or Information to inspect it; older files may have no recorded addition date."
+      ]
+    },
+    {
+      "title": "Upload, download and organize",
+      "body": [],
+      "steps": [
+        "Choose the destination folder, use Upload or drag permitted files into the explorer. Observe the displayed type and size limits; file contents are validated as well as extensions.",
+        "Select a file and use Download, Rename or Move. The right-click context menu provides the applicable operations as well as the toolbar; keyboard users can use the action buttons.",
+        "For example, upload a public banner, rename it to an identifiable filename and use its public address in an editor. Uploading alone does not insert it into a page."
+      ]
+    },
+    {
+      "title": "Replace a file while keeping its address",
+      "body": [],
+      "steps": [
+        "Select the existing file and choose Replace. Choose a replacement of the required matching type and confirm the operation.",
+        "The stored filename remains the same, so existing references keep their address. Review the replacement preview; dependent pages will use the new file.",
+        "Use this action only when the replacement is intended for every reference to that file. Use a different uploaded filename for a separate asset."
+      ]
+    },
+    {
+      "title": "Review operations and recover removed files",
+      "body": [],
+      "steps": [
+        "Open History for recorded action descriptions and available configuration revisions. Old snapshots without an action record are labeled without inventing a filename or operation.",
+        "Use Delete to move a file to Trash. Open the final Trash sidebar item and recover the file when its original permitted destination is available.",
+        "Review a configuration revision before restoring it. Restoring configuration does not relocate media or restore every historical version of a file."
+      ]
+    },
+    {
+      "title": "Use media from other editors",
+      "body": [],
+      "steps": [
+        "Upload assets here, then use the Core media selector in Pages, Blog or Homepage. That selector supports search, sorting, list/grid views and pagination without uploading.",
+        "A public editor can select only public media. Private media is available only to a selector whose receiving context is authorized as private.",
+        "For public layout data, use public media URLs from the selected content services. The legacy files-manager:asset service only exposes previously approved public references; no image-rights administration screen is provided."
+      ]
+    }
+  ]
+}

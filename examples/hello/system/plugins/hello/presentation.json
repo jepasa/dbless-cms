@@ -1,0 +1,25 @@
+{
+  "language": "en",
+  "title": "Hello",
+  "lead": "A small trusted plugin demonstrating private and public routes.",
+  "sections": [
+    {
+      "title": "Install and open the example",
+      "body": [
+        "Install the complete private and public example directories together."
+      ],
+      "steps": [
+        "Open the plugin catalog and enable Hello.",
+        "Open its sidebar overview, then inspect the public welcome route linked there."
+      ]
+    },
+    {
+      "title": "Configure and inspect the contracts",
+      "body": [],
+      "steps": [
+        "Open the plugin settings and change the public greeting. Save and review the public route.",
+        "Inspect the supplied manifest, router and page scripts when adapting this example. Keep private values out of publicSettings."
+      ]
+    }
+  ]
+}

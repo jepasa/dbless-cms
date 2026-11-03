@@ -5,33 +5,39 @@
   "sections": [
     {
       "title": "Build a collection",
-      "body": [
-        "Create a collection and select its content type. Add images, titles, text and links, then arrange the items and enable only those ready for display.",
-        "The image picker browses the public Images upload area. Keep alternative text useful and avoid embedding text that should remain editable inside images."
-      ]
+      "steps": [
+        "Open Slides → New collection. Enter a name and choose the content type, for example a banner collection.",
+        "Add items with image, alternative text, title, text, link and the other fields offered for that content type. Choose public files from Images; upload new files in Images first.",
+        "Arrange item order and enable only finished items. Save the collection, then use Edit from Overview for subsequent changes."
+      ],
+      "body": []
     },
     {
       "title": "Assign and insert",
-      "body": [
+      "code": "{{slides:location key=\"home-hero\" layout=\"cards\"}}\n{{slides:home-hero}}",
+      "steps": [
+        "Choose a supported template location, presentation type and optional page filter in the editor. Configure autoplay and interval only when desired, then save the published state.",
         "Choose a location discovered from the active template manifest and publish the collection. A location must accept the collection content type.",
         "Use a typed page block, a legacy Slides marker or the shared component service. The modern service provides published item data to the chosen registered component format."
       ],
-      "code": "{{slides:location key=\"home-hero\" layout=\"cards\"}}\n{{slides:home-hero}}"
+      "body": []
     },
     {
       "title": "Motion and recovery",
-      "body": [
+      "steps": [
         "Autoplay starts disabled. When enabled, use a suitable interval and template controls that support pause, keyboard navigation and reduced motion.",
         "History and Trash preserve recovery. Missing template locations produce administrative warnings without deleting assignments."
-      ]
+      ],
+      "body": []
     },
     {
       "title": "Raw slide collections",
-      "body": [
+      "code": "Bind slides:data with alias promotion and an active-template location key.\n\n<section>\n  {{#promotion.items}}\n    <figure>\n      <img src=\"{{image}}\" alt=\"{{alt}}\" loading=\"lazy\">\n      <figcaption>{{title}} — {{text}}</figcaption>\n    </figure>\n  {{/promotion.items}}\n  {{^promotion.items}}<p>No slides match this page.</p>{{/promotion.items}}\n</section>",
+      "steps": [
         "slides:data(key: active-template location key) returns name, contentType, type, autoplay, interval and items: id, title, text, image, alt, href, label, attribution, price. Only live published collections and enabled matching items are returned. Template/filter rules still apply. slides:location remains compatible with existing card partials.",
         "Bind slides:data as promotion. Example: {{#promotion.items}}<figure><img src=\"{{image}}\" alt=\"{{alt}}\"><figcaption>{{title}} — {{text}}</figcaption></figure>{{/promotion.items}}. The plugin supplies data; the template supplies accessible carousel controls, CSS and JavaScript. No script may be authored inside the HTML editor."
       ],
-      "code": "Bind slides:data with alias promotion and an active-template location key.\n\n<section>\n  {{#promotion.items}}\n    <figure>\n      <img src=\"{{image}}\" alt=\"{{alt}}\" loading=\"lazy\">\n      <figcaption>{{title}} — {{text}}</figcaption>\n    </figure>\n  {{/promotion.items}}\n  {{^promotion.items}}<p>No slides match this page.</p>{{/promotion.items}}\n</section>"
+      "body": []
     }
   ]
 }

@@ -40,5 +40,6 @@
   "navigation": {
     "label": "hello.name",
     "route": "overview"
-  }
+  },
+  "presentation": "presentation.json"
 }

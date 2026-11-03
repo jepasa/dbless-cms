@@ -120,3 +120,5 @@ Discover the [Homepage and shared component workflow](docs/components.md). Each 
 
 
 Create independent homepages, schedule publications and shape public Blog, Pages, Menu, Slides and Widgets data with your own HTML and Mustache loops. The same local editor works in pages and Blog blocks. Explore `/mustache-example` and the shared [data-authoring guide](docs/components.md).
+
+Plugin tutorials are available from each sidebar dropdown under Presentation, immediately before Trash when present. They remain in English and cover the plugin workflow with numbered steps and examples.

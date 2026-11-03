@@ -1,0 +1,71 @@
+{
+  "language": "en",
+  "title": "Blog",
+  "lead": "Publish structured articles with editorial authors, topic archives, scheduled releases and moderated discussion.",
+  "sections": [
+    {
+      "title": "Prepare authors and topics",
+      "body": [],
+      "steps": [
+        "Open Blog → Taxonomies and choose authors, categories or tags. Create a clear display name for each needed entry.",
+        "For example, create an editorial author and a “News” category. Edit existing entries instead of creating near-duplicates.",
+        "Remove an entry only after checking articles that use it; catalog revisions are available in History."
+      ]
+    },
+    {
+      "title": "Create and edit an article",
+      "body": [],
+      "steps": [
+        "Open Articles and choose New article. Enter its slug, title, excerpt and author, then select categories and tags.",
+        "Compose structured blocks or select HTML/Mustache explicitly. The shared Visual/Code editor handles authored HTML; switching format does not convert the old blocks automatically.",
+        "Choose existing public images through the media selector or enter an allowed remote URL. Upload new media in Images first and provide alternative text. Set individual SEO/social metadata where needed."
+      ]
+    },
+    {
+      "title": "Preview, publish and schedule",
+      "body": [],
+      "steps": [
+        "Save a draft and open its authenticated preview. Check headings, links, images and the active template before publishing.",
+        "Set the publication state and UTC release time. A published article with a future release time stays unavailable publicly until it is due.",
+        "Review the public article, list, RSS and sitemap once released. Unpublished or removed content is excluded from these public projections."
+      ]
+    },
+    {
+      "title": "Raw articles and authored Mustache blocks",
+      "code": "Bind blog:posts with alias news, limit 3 and an optional category ID.\n\n{{#news.items}}\n  <article>\n    <h2><a href=\"{{href}}\">{{title}}</a></h2>\n    <p>{{excerpt}}</p>\n    {{#tags}}<span>{{.}}</span>{{/tags}}\n  </article>\n{{/news.items}}\n{{^news.items}}<p>No articles yet.</p>{{/news.items}}",
+      "steps": [
+        "blog:posts(limit:1–12, category: optional category ID) returns items: id, title, excerpt, href, image, publishedAt, author (display name), categories and tags (arrays of display names). Only released published articles are included. blog:latest remains available for existing template-owned card formats.",
+        "Add an HTML / Mustache block to an article to reuse the core authoring control and public data bindings. Example with alias news: {{#news.items}}<article><a href=\"{{href}}\">{{title}}</a><p>{{excerpt}}</p></article>{{/news.items}}{{^news.items}}<p>No articles yet.</p>{{/news.items}}. Never add a service that recursively renders the same document. Blog is also a Homepage source for published article bodies; comments, moderation details, credentials and the site frame are excluded."
+      ],
+      "body": []
+    },
+    {
+      "title": "Insert Blog data in other layouts",
+      "body": [],
+      "steps": [
+        "In a compatible HTML/Mustache editor, bind blog:posts as news, limit 3 and optionally a category ID. Use the preceding example to render escaped data.",
+        "For older template-owned components, select blog:latest with a supported format, such as cards. The template owns that format’s HTML/CSS.",
+        "In Homepage source mode, choose a published Blog article to reuse its body. Private comments, moderation and the article’s surrounding site frame are excluded."
+      ],
+      "code": "{{blog:latest limit=\"3\" category=\"\" layout=\"cards\"}}"
+    },
+    {
+      "title": "Configure and moderate discussion",
+      "body": [],
+      "steps": [
+        "Open Blog → Settings to review publication defaults and discussion options. Comments start disabled; enable them only when discussion is intended.",
+        "Open Comments and inspect pending entries. Approve a suitable comment, keep it pending, mark spam or remove it using the available actions.",
+        "Only approved eligible comments are public. Submissions contain no email/IP fields; exports omit comments and moderation records."
+      ]
+    },
+    {
+      "title": "Restore articles and revisions",
+      "body": [],
+      "steps": [
+        "Open History and inspect the revision before restoring the catalog. Resolve concurrent edit conflicts by reloading and reconciling the current version.",
+        "Move an unwanted article to Trash, then open the final Trash item to recover it when needed. Review its publication state after recovery.",
+        "Keep content backups as part of site operations; history and trash are private and are not included in initial production exports."
+      ]
+    }
+  ]
+}

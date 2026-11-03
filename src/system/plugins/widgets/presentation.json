@@ -5,33 +5,39 @@
   "sections": [
     {
       "title": "Template positions",
-      "body": [
+      "steps": [
+        "Open Widgets → New widget. For example, select an available footer position and write a short plain-text message; save and inspect the public template.",
         "Overview lists positional widgets. Create one by selecting a key discovered from the active template manifest, then enter a plain value and description.",
         "Existing records remain preserved when the active template does not declare their positions. Global identity and contact defaults continue to belong to Global Settings."
-      ]
+      ],
+      "body": []
     },
     {
       "title": "Reusable content",
-      "body": [
+      "code": "{{widgets:set key=\"example-highlights\" layout=\"list\"}}\nA plain inline value: {{widgets:value key=\"example-message\" layout=\"text\"}}",
+      "steps": [
         "Open Reusable widgets to create stable keys independent of template positions. Values are plain text. Descriptions can label the content in a rendered set.",
-        "Open Widget sets, create a stable set key, select members and arrange their display order. Insert the set in Homepage or Pages using the shared component picker."
+        "Open Widget sets, create a stable set key, select members and arrange their display order. Insert the set in Homepage or Pages using the shared component picker.",
+        "Edit a reusable record or set from its list. For example, create two records, add them to a set named example-highlights and move a member up or down before saving."
       ],
-      "code": "{{widgets:set key=\"example-highlights\" layout=\"list\"}}\nA plain inline value: {{widgets:value key=\"example-message\" layout=\"text\"}}"
+      "body": []
     },
     {
       "title": "Recovery and safety",
-      "body": [
+      "steps": [
         "Move positional widgets, reusable records or sets to Trash instead of deleting them permanently. Restore them from Trash or restore the catalog from History.",
         "Trashed members are omitted publicly while their references remain recoverable. Exports include live content only. Values never execute HTML, PHP, JavaScript or nested component markers."
-      ]
+      ],
+      "body": []
     },
     {
       "title": "Raw reusable values and sets",
-      "body": [
+      "code": "Bind widgets:records with alias highlights and a live set key.\n\n{{#highlights.items}}\n  <section><h2>{{description}}</h2><p>{{value}}</p></section>\n{{/highlights.items}}\n\nBind widgets:value with alias notice and use {{notice.value}}.",
+      "steps": [
         "widgets:records(key: set key) returns ordered live items with key, value, description. widgets:value(key: reusable widget key) returns a single value. widgets:set remains compatible with template-owned card/list formats. Positional widget keys remain supported. Returned values are plain escaped text and are never reinterpreted as Mustache.",
         "Bind widgets:records with alias highlights and write {{#highlights.items}}<section><h2>{{description}}</h2><p>{{value}}</p></section>{{/highlights.items}}. Bind widgets:value with alias notice and use {{notice.value}}. Reusable sets do not require template location keys; positional widgets still use locations declared by the active template."
       ],
-      "code": "Bind widgets:records with alias highlights and a live set key.\n\n{{#highlights.items}}\n  <section><h2>{{description}}</h2><p>{{value}}</p></section>\n{{/highlights.items}}\n\nBind widgets:value with alias notice and use {{notice.value}}."
+      "body": []
     }
   ]
 }

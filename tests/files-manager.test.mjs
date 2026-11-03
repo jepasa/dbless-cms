@@ -52,7 +52,10 @@ for (const tree of trees) {
         assert.equal(settings[0][2],'Configurações');
         const separator=links.indexOf(settings[0])+1;
         assert.equal(links[separator-1],settings[0],`${id}: configurações imediatamente antes do separador`);
-        assert.ok(links[separator+1][1].endsWith('route=trash'),`${id}: lixeira após o separador`);
+        assert.ok(links[separator+1][1].includes('view=plugin-about'),`${id}: apresentação após configurações`);
+        assert.equal(links[separator+2][0],'<hr>',`${id}: separador antes da lixeira`);
+        assert.ok(links[separator+3][1].endsWith('route=trash'),`${id}: lixeira no final`);
+        assert.equal(links.at(-1),links[separator+3]);
         const url=settings[0][1].replaceAll('&amp;','&');
         assert.ok(url.includes(`plugin=${id}&route=settings`));
         const target=new URL(url,context.base+'/cms-admin/');
@@ -68,7 +71,7 @@ for (const tree of trees) {
       fs.writeFileSync(path.join(directory,'pages/reports.php'),'<?php /** Página sintética de extensão para testar despacho privado. */ echo $context->integrated ? \'<div data-integrated="true">SYNTHETIC PLUGIN REPORT</div>\' : "SYNTHETIC PLUGIN REPORT";');
       for(const locale of ['pt-br','en-us']){const catalogFile=path.join(directory,'languages',locale+'.json');const catalog=JSON.parse(fs.readFileSync(catalogFile));catalog.messages['fm.reports']=locale==='pt-br'?'Relatório próprio':'Own report';fs.writeFileSync(catalogFile,JSON.stringify(catalog));}
       const navigation=await (await request('/cms-admin/')).text();
-      assert.match(navigation,/route=reports[^>]*><img[^>]*class="admin-icon plugin-icon"[^>]*files-manager\.svg[^>]*>Relatório próprio<\/a>/);assert.ok(!navigation.includes('data-plugin-menu="files-manager"'));
+      assert.match(navigation,/route=reports[^>]*>Relatório próprio<\/a>/);assert.match(navigation,/data-plugin-menu="files-manager"[^>]*><summary><img[^>]*files-manager\.svg/);assert.match(navigation,/view=plugin-about&amp;plugin=files-manager/);
       const panel=await request('/cms-admin/?view=plugin-panel&plugin=files-manager&route=reports');assert.equal(panel.status,200);const panelHtml=await panel.text();assert.match(panelHtml,/<div data-integrated="true">SYNTHETIC PLUGIN REPORT<\/div>/);assert.doesNotMatch(panelHtml,/<iframe/);
       const rendered=await request('/cms-admin/?view=plugin&plugin=files-manager&route=reports');assert.equal(rendered.status,200);assert.equal(await rendered.text(),'SYNTHETIC PLUGIN REPORT');
       manifest.navigation.items=[{label:'fm.trash',route:'missing'}];delete manifest.navigation.route;fs.writeFileSync(file,JSON.stringify(manifest));

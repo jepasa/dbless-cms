@@ -92,12 +92,13 @@
       },
       {
         "label": "pages.trash",
-        "route": "trash"
+        "route": "trash",
+        "role": "trash"
       }
     ]
   },
   "configuration": "settings",
-  "presentation": "about.json",
+  "presentation": "presentation.json",
   "contentServices": {
     "list": {
       "api": 1,

@@ -75,10 +75,11 @@
       },
       {
         "label": "homepage.trash",
-        "route": "trash"
+        "route": "trash",
+        "role": "trash"
       }
     ]
   },
   "configuration": false,
-  "presentation": "about.json"
+  "presentation": "presentation.json"
 }

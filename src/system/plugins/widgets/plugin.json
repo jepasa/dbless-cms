@@ -95,7 +95,8 @@
       },
       {
         "label": "widgets.trash",
-        "route": "trash"
+        "route": "trash",
+        "role": "trash"
       }
     ]
   },
@@ -256,5 +257,5 @@
       ]
     }
   },
-  "presentation": "about.json"
+  "presentation": "presentation.json"
 }

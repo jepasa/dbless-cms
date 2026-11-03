@@ -524,6 +524,8 @@
     "pages.editorial.missing": "Página indisponível.",
     "pages.editorial.dependencies": "Há fornecedores de dados indisponíveis. Revise os vínculos antes de publicar.",
     "wysiwyg.dataUnavailable": "Prévia com fornecedores indisponíveis:",
-    "markup.advanced": "Conteúdo dinâmico e integrações"
+    "markup.advanced": "Conteúdo dinâmico e integrações",
+    "catalog.presentation_link": "Apresentação",
+    "catalog.presentation_contents": "Conteúdo do tutorial"
   }
 }
