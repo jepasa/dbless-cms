@@ -6,7 +6,11 @@ require_once __DIR__.'/Model.php';
 require_once __DIR__.'/Delivery.php';
 require_once __DIR__.'/View.php';
 require_once __DIR__.'/Router.php';
-final class FormsPlugin implements PluginInterface,PublicPluginInterface,ContentProviderInterface,ContentOptionsInterface,ContentFormProviderInterface {
+final class FormsPlugin implements PluginInterface,PublicPluginInterface,ContentProviderInterface,ContentOptionsInterface,ContentFormProviderInterface,ContentReferenceInterface {
+  /** Resolve a published declarative form by its slug-shaped stable ID; receive selector/parameters/context, return public definition for the request-scoped Core renderer, never submissions or recipients. */
+  public function reference(string $selector,array $parameters,ContentContext $context): ?array {
+    $id=preg_replace('/^(?:id|slug):/','',$selector);try{return FormsModel::definition(FormsModel::published($context->store,$id));}catch(HttpError $error){if($error->status===404)return null;throw $error;}
+  }
   /** Validate the intentionally empty settings contract; per-form purpose/retention live in definitions, never toggle plugin activation here. */
   public function validateSettings(array $settings,Config $config): void {Schema::validate($settings,['type'=>'object','additionalProperties'=>false,'properties'=>[]]);}
   /** Render declared integrated private route; receive authorized context, return escaped fragment or propagate typed errors. */

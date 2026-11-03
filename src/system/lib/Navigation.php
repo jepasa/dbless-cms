@@ -48,7 +48,7 @@ final class Navigation {
   }
 
   /** Resolve árvore plana para dados escapáveis; recebe itens e parent interno; omite páginas ausentes/rascunhos e grupos vazios; não altera dados. */
-  private function tree(array $items,string $parent=''): array {
+  public function tree(array $items,string $parent=''): array {
     $result=[];
     foreach ($items as $item) {
       if ($item['parent']!==$parent||!$item['enabled']) continue;

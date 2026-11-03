@@ -3,6 +3,13 @@
 declare(strict_types=1);
 namespace DBLESSCMS;
 final class WidgetsStore {
+  /** Validate reusable typed values without executing embedded syntax; receive record, throw 422 on unsafe HTML, invalid JSON or unknown type, no writes. */
+  public static function typedValue(array $record): void {
+    $type=array_key_exists('type',$record)?$record['type']:'text';$value=$record['value']??null;if(!in_array($type,['text','html','json'],true)||!is_string($value)||strlen($value)>12000||!preg_match('//u',$value))throw new HttpError(422,'Invalid widget type/value.','widgets.error.contract');
+    if($type==='html')ContentMarkup::html($value,false);
+    elseif($type==='json'){try{$json=json_decode($value,true,16,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(422,'Invalid widget JSON.','widgets.error.contract');}ContentReferences::json($json);}
+    elseif(!self::text($value,12000,true))throw new HttpError(422,'Invalid widget text.','widgets.error.contract');
+  }
   /** Recebe store compartilhado; não lê nem grava documentos até a operação solicitada. */
   public function __construct(private readonly JsonStore $store) {}
 
@@ -25,8 +32,8 @@ final class WidgetsStore {
     if($data['schema_version']!==1||!is_array($data['widgets'])||count($data['widgets'])>1000) throw new HttpError(422,'Invalid widget catalog.','widgets.error.contract');
     $seen=[];
     foreach($data['widgets'] as $id=>$record){
-      self::fields($record,['id','template','key','value','description','deleted']);
-      if(!is_string($id)||!preg_match('/^[a-z][a-z0-9-]{0,63}$/D',$id)||$record['id']!==$id||!is_string($record['template'])||!Templates::identifier($record['template'])||!is_string($record['key'])||!preg_match('/^[a-z][a-z0-9-]{0,63}$/D',$record['key'])||!self::text($record['value'],12000,true)||!self::text($record['description'],500,true)||!is_bool($record['deleted'])) throw new HttpError(422,'Invalid widget.','widgets.error.contract');
+      if(!is_array($record))throw new HttpError(422,'Invalid widget.','widgets.error.contract');self::fields(array_diff_key($record,['type'=>true]),['id','template','key','value','description','deleted']);self::typedValue($record);
+      if(!is_string($id)||!preg_match('/^[a-z][a-z0-9-]{0,63}$/D',$id)||$record['id']!==$id||!is_string($record['template'])||!Templates::identifier($record['template'])||!is_string($record['key'])||!preg_match('/^[a-z][a-z0-9-]{0,63}$/D',$record['key'])||!self::text($record['description'],500,true)||!is_bool($record['deleted'])) throw new HttpError(422,'Invalid widget.','widgets.error.contract');
       $key=$record['template'].':'.$record['key'];
       if(!$record['deleted']&&isset($seen[$key])) throw new HttpError(422,'Duplicate widget key.','widgets.error.duplicate');
       if(!$record['deleted'])$seen[$key]=true;
@@ -34,8 +41,9 @@ final class WidgetsStore {
     $keys=[];$reusable=$data['reusable']??[];$sets=$data['sets']??[];
     if(!is_array($reusable)||!is_array($sets)||count($reusable)>1000||count($sets)>100)throw new HttpError(422,'Invalid reusable widgets.','widgets.error.contract');
     foreach($reusable as $id=>$record){
-      self::fields($record,['id','key','value','description','deleted']);
-      if(!is_string($id)||!self::identifier($id)||$record['id']!==$id||!is_string($record['key'])||!self::identifier($record['key'])||!self::text($record['value'],12000,true)||!self::text($record['description'],500,true)||!is_bool($record['deleted']))throw new HttpError(422,'Invalid reusable widget.','widgets.error.contract');
+      if(!is_array($record))throw new HttpError(422,'Invalid widget.','widgets.error.contract');self::fields(array_diff_key($record,['type'=>true]),['id','key','value','description','deleted']);
+      self::typedValue($record);
+      if(!is_string($id)||!self::identifier($id)||$record['id']!==$id||!is_string($record['key'])||!self::identifier($record['key'])||!self::text($record['description'],500,true)||!is_bool($record['deleted']))throw new HttpError(422,'Invalid reusable widget.','widgets.error.contract');
       if(!$record['deleted']&&isset($keys[$record['key']]))throw new HttpError(422,'Duplicate reusable key.','widgets.error.duplicate');if(!$record['deleted'])$keys[$record['key']]=true;
     }
     $keys=[];

@@ -16,7 +16,7 @@
       "title": "Write and format the body",
       "body": [],
       "steps": [
-        "In JSON, edit the native structured document and use the Slides insertion control where applicable. Keep the model’s fields and types valid.",
+        "Write direct plugin references in HTML/code. The Core resolves them automatically; existing saved bindings remain compatible.",
         "In HTML/Mustache, use the shared Visual editor for text, headings, lists and links. Use Code for semantic HTML and protected dynamic structures; switch back to inspect the result.",
         "Use Preview to review the current composition in the active template. Preview is private; it does not publish the page."
       ],
@@ -35,9 +35,11 @@
       "title": "Set structure, metadata and sharing defaults",
       "body": [],
       "steps": [
+        "In Publication, enter the editorial author and mark Pending review when the working draft needs review. This name is editorial text, not an administrator login. Explicit publication releases the reviewed snapshot.",
         "Open the properties panel. In Structure and address, set the URL and parent page; use stable IDs for relationships. Example: place “Consulting” under “Our services”.",
         "Set a featured image and alternative text, then write a concise Summary. These values can be reused by listings and social metadata.",
-        "Open SEO and behavior for title, description, canonical, indexing and social overrides. Leave optional overrides empty to retain inherited editorial/global defaults. Advanced options contain model and native document controls."
+        "Open SEO and behavior for title, description, canonical, indexing and social overrides. Leave optional overrides empty to retain inherited editorial/global defaults. Advanced options contain model and native document controls.",
+        "Set Order to arrange siblings in hierarchy view or request pages:records/children with sort order. Choose Page template from the active theme layouts compatible with the current native content. This does not change the global theme."
       ]
     },
     {
@@ -46,15 +48,15 @@
       "steps": [
         "In HTML/Mustache, choose an enabled plugin service, fill its typed parameters and add a unique alias. For example, bind blog:posts as news with limit 3.",
         "Insert the loop below in Code. Variables are escaped data; the receiving HTML/template defines structure and appearance. Use # for lists/sections and ^ for an empty state.",
-        "Use the binding controls to remove or change a binding, then preview. Neither returned values nor documentation examples execute PHP, scripts or nested components. Legacy template-owned component markers remain supported in compatible native content."
+        "Write direct plugin references in HTML/code. The Core resolves them automatically; existing saved bindings remain compatible."
       ],
-      "code": "<section>\n  <h2>Latest articles</h2>\n  {{#news.items}}<article><h3><a href=\"{{href}}\">{{title}}</a></h3><p>{{excerpt}}</p></article>{{/news.items}}\n  {{^news.items}}<p>No articles yet.</p>{{/news.items}}\n</section>"
+      "code": "{{#pages.latest.limit.5.items}}<article><h2>{{title}}</h2><p>{{summary}}</p></article>{{/pages.latest.limit.5.items}}"
     },
     {
       "title": "Publish, schedule and manage the catalog",
       "body": [],
       "steps": [
-        "Save pending edits before using Publish or Schedule. Set the publication date in UTC when scheduling; future snapshots do not become public early.",
+        "Save pending edits before publishing. The UTC publication date can be backdated; a future date schedules release. Publish and Schedule use the same date control. Pending review is never a public state.",
         "Open Overview to search, filter, sort or paginate pages. Edit or duplicate a page from its actions. Configure the page size in Pages → Settings.",
         "Unpublish a page when it should leave the public site. Home and 404 remain protected. A public URL never exposes an unpublished working draft."
       ]
@@ -73,10 +75,22 @@
       "body": [],
       "steps": [
         "Bind pages:records for a paginated listing; set limit, page, sort and direction. Bind pages:details, pages:children or pages:breadcrumbs with an immutable id for a single page, direct children or ancestors.",
-        "Use item fields id, title, summary, url, image.url, image.alt, parentId, createdAt, updatedAt and isCurrent. Only eligible published pages are returned. The older pages:list service remains available with title, text, href and image.",
+        "Use item fields id, title, summary, url, image.url, image.alt, parentId, author, order, createdAt, updatedAt and isCurrent. Author/order come from the published snapshot, not unsaved or private working metadata. The older pages:list service remains available with title, text, href and image.",
         "For example, bind pages:records as directory, limit 6, page 1, sort title, direction asc and render the loop below. Homepage can also use a published Page as a document source without duplicating the site frame."
       ],
-      "code": "{{#directory.items}}\n  <article><h2><a href=\"{{url}}\">{{title}}</a></h2><p>{{summary}}</p></article>\n{{/directory.items}}\n{{^directory.items}}<p>No pages found.</p>{{/directory.items}}"
+      "code": "{{#pages.latest.limit.5.items}}<article><h2>{{title}}</h2><p>{{summary}}</p></article>{{/pages.latest.limit.5.items}}"
+    },
+    {
+      "title": "Direct plugin data and template positions",
+      "body": [
+        "Use pages.<id-or-slug> for one page and pages.latest.limit.20.page.2.items for a paginated collection. Publication time controls descending order; the global content page size caps each page. Item data includes title, summary, url, author, image and literal content. Body strings are escaped and never evaluated as nested templates."
+      ],
+      "steps": [
+        "Use the stable identifier or slug without dots. Explicit id.<value> and slug.<value> selectors disambiguate reserved names.",
+        "Place named query parameters before field paths; use sections (#) and inverted sections (^) for finite iteration and empty states.",
+        "Keep presentation in the receiving layout. Template positions require manifest declarations and source-plugin assignments."
+      ],
+      "code": "{{#pages.latest.limit.5.items}}<article><h2>{{title}}</h2><p>{{summary}}</p></article>{{/pages.latest.limit.5.items}}"
     }
   ]
 }

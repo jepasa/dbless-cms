@@ -93,13 +93,14 @@ final class BlogModel {
     }
     $slugs=[];
     foreach ($data['articles'] as $id=>$article) {
-      self::fields($article,['id','slug','aliases','title','excerpt','cover','coverAlt','author','categories','tags','status','publishedAt','createdAt','updatedAt','deletedAt','featured','noindex','seoTitle','seoDescription','blocks']);
+      self::expect(is_array($article));$article+=['allowComments'=>true];$data['articles'][$id]=$article;
+      self::fields($article,['id','slug','aliases','title','excerpt','cover','coverAlt','author','categories','tags','status','publishedAt','createdAt','updatedAt','deletedAt','featured','noindex','seoTitle','seoDescription','blocks','allowComments']);
       self::expect(self::identifier($id)&&$article['id']===$id&&self::identifier($article['slug']));
       $aliases=self::references($article['aliases'],10);
       foreach (array_merge([$article['slug']],$aliases) as $slug) {self::expect(!isset($slugs[$slug]),'blog.error.slug');$slugs[$slug]=$id;}
       self::text($article['title'],200);self::text($article['excerpt'],1000,true,true);self::media($article['cover']);self::text($article['coverAlt'],300,$article['cover']==='');
       self::text($article['seoTitle'],200,true);self::text($article['seoDescription'],500,true);
-      self::expect(is_bool($article['featured'])&&is_bool($article['noindex'])&&in_array($article['status'],['draft','published'],true));
+      self::expect(is_bool($article['featured'])&&is_bool($article['noindex'])&&is_bool($article['allowComments'])&&in_array($article['status'],['draft','pending','published'],true));
       foreach (['createdAt','updatedAt'] as $key) self::date($article[$key]);
       self::date($article['publishedAt'],true);self::date($article['deletedAt'],true);
       self::expect(is_string($article['author'])&&($article['author']===''||isset($data['authors'][$article['author']])));
@@ -126,9 +127,9 @@ final class BlogModel {
   public static function visible(array $article,?int $now=null): bool {
     return $article['deletedAt']===''&&$article['status']==='published'&&$article['publishedAt']!==''&&strtotime($article['publishedAt'])<=($now??time());
   }
-  /** Derive draft/scheduled/published/deleted for the admin; takes article/clock, returns a state without writes. */
+  /** Derive draft/pending/scheduled/published/deleted for the admin; takes article/clock, returns a state without writes. */
   public static function status(array $article,?int $now=null): string {
-    return $article['deletedAt']!==''?'deleted':($article['status']==='draft'?'draft':(self::visible($article,$now)?'published':'scheduled'));
+    return $article['deletedAt']!==''?'deleted':(in_array($article['status'],['draft','pending'],true)?$article['status']:(self::visible($article,$now)?'published':'scheduled'));
   }
   /** Read text suitable for search/excerpts/reading time; takes article, returns plain text and never interprets markup. */
   public static function bodyText(array $article): string {

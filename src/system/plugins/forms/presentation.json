@@ -14,7 +14,7 @@
     },
     {
       "title": "Embed a functional form",
-      "code": "{{forms:form id=\"contact-example\"}}",
+      "code": "{{forms.contact}}",
       "steps": [
         "Insert this complete block in Homepage, Page or Blog HTML. The core renders the form through a separate narrow interactive contract after validating authored HTML. Variables cannot inject form HTML.",
         "The renderer issues request/session-bound tickets. Private previews disable interactive forms; never copy tokens or forms from an old page into static content."
@@ -23,7 +23,7 @@
     },
     {
       "title": "Read public definition data",
-      "code": "{{inquiry.name}}\n{{#inquiry.fields}}<p>{{label}}</p>{{/inquiry.fields}}",
+      "code": "{{forms.contact}}",
       "steps": [
         "Bind forms:definition with parameter id and an alias such as inquiry. Definition data contains labels and choices only. It never includes responses, recipients, tokens or submission tickets.",
         "Use escaped variables and bounded loops for descriptive presentation; ordinary authored HTML still cannot create form/input elements. Functional forms use the interactive marker."
@@ -47,6 +47,18 @@
         "Open History to review and restore a catalog revision if a definition was changed incorrectly.",
         "Move a form to Trash for recoverable removal. Open the last Trash item to restore it, then review its status and collection settings before reuse."
       ]
+    },
+    {
+      "title": "Direct plugin data and template positions",
+      "body": [
+        "Create a form with a stable slug-shaped ID and configure its field types, labels, required values, purpose and delivery settings. Publish only after review. Insert a standalone forms.<id> reference; the Core renders the form with request-scoped security. Private previews remain inert. No form token or submission becomes a cached data result."
+      ],
+      "steps": [
+        "Use the stable identifier or slug without dots. Explicit id.<value> and slug.<value> selectors disambiguate reserved names.",
+        "Place named query parameters before field paths; use sections (#) and inverted sections (^) for finite iteration and empty states.",
+        "Keep presentation in the receiving layout. Template positions require manifest declarations and source-plugin assignments."
+      ],
+      "code": "{{forms.contact}}"
     }
   ]
 }

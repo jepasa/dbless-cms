@@ -31,7 +31,7 @@
       else if(/^[a-z][a-z0-9-]{0,63}:form\s+id="[a-z][a-z0-9-]{0,47}"$/.test(name)){kind='form';if(++forms>10)throw new SyntaxError('Form marker limit.');}
       else if(name.startsWith('!'))kind='comment';
       else {
-        const match=/^([#^\/]?)(\.|[a-zA-Z][a-zA-Z0-9_-]*(?:\.[a-zA-Z][a-zA-Z0-9_-]*)*)$/.exec(name);if(!match)throw new SyntaxError('Unsupported Mustache syntax at '+position);
+        const match=/^([#^\/]?)(\.|[a-zA-Z][a-zA-Z0-9_-]*(?:\.[a-zA-Z0-9_-]+)*)$/.exec(name);if(!match)throw new SyntaxError('Unsupported Mustache syntax at '+position);
         kind=match[1]||'value';if(kind==='#'||kind==='^'){stack.push(match[2]);if(stack.length>8)throw new SyntaxError('Mustache depth limit.');}
         if(kind==='/'&&stack.pop()!==match[2])throw new SyntaxError('Mismatched Mustache section at '+position);
       }

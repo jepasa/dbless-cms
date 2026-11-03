@@ -293,5 +293,17 @@
     "showcase": "showcase",
     "extras": "home-extras",
     "composition": "homepage-composition"
+  },
+  "mustacheSlots": {
+    "primary-menu": {
+      "plugin": "menu",
+      "location": "header-primary",
+      "description": "Primary navigation assigned in Menu."
+    },
+    "footer-note": {
+      "plugin": "widgets",
+      "location": "footer-note",
+      "description": "Footer note assigned in Widgets."
+    }
   }
 }

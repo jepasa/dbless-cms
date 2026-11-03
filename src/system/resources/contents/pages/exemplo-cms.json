@@ -26,6 +26,13 @@
           "A aparência pública permanece sob responsabilidade do template."
         ],
         "list": []
+      },
+      {
+        "title": "Dados automáticos dos plugins",
+        "body": [
+          "Postagens recentes: {{#blog.latest.limit.3.items}}{{title}}. {{/blog.latest.limit.3.items}}{{^blog.latest.limit.3.items}}Nenhuma postagem disponível.{{/blog.latest.limit.3.items}}"
+        ],
+        "list": []
       }
     ],
     "related": [],

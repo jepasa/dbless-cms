@@ -4,7 +4,11 @@ declare(strict_types=1);
 namespace DBLESSCMS;
 require_once __DIR__.'/Router.php';
 require_once __DIR__.'/Placement.php';
-final class MenuPlugin implements PluginInterface,ContentProviderInterface,ContentOptionsInterface {
+final class MenuPlugin implements PluginInterface,ContentProviderInterface,ContentOptionsInterface,ContentReferenceInterface {
+  /** Resolve a typed menu or assigned template location; receive selector/parameters/context, return public tree omitting private pages, no content writes. */
+  public function reference(string $selector,array $parameters,ContentContext $context): ?array {
+    $navigation=new Navigation($context->store,$context->template,$context->base);if($selector==='@location')return $navigation->location($parameters['key']);$id=preg_replace('/^(?:id|slug):/','',$selector);$menu=(new MenuStore($context->store))->read()['data']['menus'][$id]??null;if($menu===null||$menu['deleted'])return null;return ['id'=>$id,'slug'=>$id,'name'=>$menu['name'],'type'=>$menu['type']??'list','items'=>$navigation->tree($menu['items'])];
+  }
 
   /** List active template menu locations for the authorized picker; receive service/context, return plain key/description pairs without changing assignments. */
   public function contentOptions(string $service,ContentContext $context): array {
@@ -56,7 +60,8 @@ final class MenuPlugin implements PluginInterface,ContentProviderInterface,Conte
           try { $context->store->read($item['page']); }
           catch (HttpError $error) { if ($error->status===404) throw new HttpError(422,'Página indisponível.','menu.error.page');throw $error; }
         }
-        $data['menus'][$id]=['id'=>$id,'name'=>$this->input('name'),'deleted'=>false,'items'=>$items];
+        $type=array_key_exists('contentType',$_POST)?$this->input('contentType',16):($data['menus'][$id]['type']??'list');
+        $data['menus'][$id]=['type'=>$type,'id'=>$id,'name'=>$this->input('name'),'deleted'=>false,'items'=>$items];
         $data=MenuPlacement::apply($context,$data,$id,$_POST);
       } elseif ($operation==='assign') {
         $template=$this->input('template',64);$location=$this->input('location',64);

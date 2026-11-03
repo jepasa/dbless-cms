@@ -1,0 +1,34 @@
+/** Automatic references on isolated source/package fixtures: published projections, global pagination, typed fragments, missing diagnostics and bounded grammar. */
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import {applications,fixture,inspect} from './helpers/extension-media.mjs';
+/** Update one synthetic JSON file; receive fixture-relative path/mutator, write only its temporary copy and propagate errors. */
+function update(c,file,change){const name=path.join(c.contents,file),data=JSON.parse(fs.readFileSync(name));change(data);fs.writeFileSync(name,JSON.stringify(data));}
+for(const application of applications){
+ test(`${application}: automatic newest-first references honor global pagination and public snapshots`,()=>{
+  const c=fixture(application);try{
+   update(c,'site.json',d=>d.settings.contentPageSize=1);
+   const r=inspect(c,`$ctx=new DBLESSCMS\\ContentContext($s,'essencial','','home');$r=new DBLESSCMS\\ContentReferences($ctx);$first=$r->value('blog.latest.limit.2.items');$second=$r->value('blog.latest.limit.2.page.2');$empty=$r->value('blog.latest.limit.2.page.3');$detail=$r->value('blog.designing-with-clarity.title');$explicit=$r->value('blog.slug.designing-with-clarity.title');$html=DBLESSCMS\\ContentMarkup::render(['html'=>'{{#blog.latest.limit.2.items}}<h2>{{title}}</h2>{{/blog.latest.limit.2.items}}{{^blog.latest.limit.2.page.3.items}}<p>Empty</p>{{/blog.latest.limit.2.page.3.items}}'],$ctx);echo json_encode(compact('first','second','empty','detail','explicit','html'));`);
+   assert.equal(r.first.length,1);assert.equal(r.second.total,2);assert.equal(r.second.pageSize,1);assert.equal(r.second.items.length,1);assert.notEqual(r.first[0].id,r.second.items[0].id);assert.deepEqual(r.empty.items,[]);assert.equal(r.detail,r.explicit);const legacy=inspect(c,`echo json_encode(DBLESSCMS\\ContentMarkup::render(['html'=>'{{template.old.items.0.title}}','bindings'=>[['plugin'=>'blog','service'=>'posts','alias'=>'template.old','parameters'=>['limit'=>1,'category'=>'']]]],new DBLESSCMS\\ContentContext($s,'essencial','','home')));`);assert.equal(legacy,r.detail);assert.match(r.html,/<p>Empty<\/p>/);assert.doesNotMatch(r.html,/draft|scheduled/i);
+   const pages=inspect(c,`$r=new DBLESSCMS\\PagePublications($s);$site=$s->read('site')['revision'];$id=$r->change('','create',['snapshot'=>DBLESSCMS\\PageBlueprints::create('blank','Live snapshot','ref-page')],$r->read()['revision'],$site)['id'];$r->change($id,'publish',['publishAt'=>'2020-01-01T00:00:00Z'],$r->read()['revision'],$site);$snap=$r->record($id)['draft'];$snap['document']['meta']['title']='PRIVATE DRAFT';$r->change($id,'save',['snapshot'=>$snap],$r->read()['revision'],$site);$r->change($id,'schedule',['publishAt'=>'2099-01-01T00:00:00Z'],$r->read()['revision'],$site);$refs=new DBLESSCMS\\ContentReferences(new DBLESSCMS\\ContentContext($s,'essencial','','home'));echo json_encode([$refs->value('pages.ref-page.title'),$refs->value('pages.ref-page.publishedAt'),$refs->value('pages.latest.limit.1.items')]);`);
+   assert.equal(pages[0],'Live snapshot');assert.equal(pages[1],'2020-01-01T00:00:00Z');assert.equal(pages[2][0].title,'Live snapshot');
+  }finally{c.close();}
+ });
+ test(`${application}: typed widgets, forms, slides and template positions preserve output boundaries`,()=>{
+  const c=fixture(application);try{
+   update(c,'plugins.json',d=>{d.plugins.forms.enabled=true;});
+   update(c,'widgets/widgets.json',d=>{d.reusable['html-example']={id:'html-example',key:'html-example',type:'html',value:'<p><a href="https://example.test" target="_blank">{{blog.designing-with-clarity.title}}</a></p>',description:'Example',deleted:false};d.widgets['essencial-footer-note'].type='json';d.widgets['essencial-footer-note'].value='{"label":"Typed position"}';d.reusable['json-example']={id:'json-example',key:'json-example',type:'json',value:'{"email":"example@example.test","enabled":false,"count":0}',description:'Example',deleted:false};});
+   const manifest=path.join(c.app,'system/templates/essencial/template.json'),m=JSON.parse(fs.readFileSync(manifest));m.mustacheSlots={'main-menu':{plugin:'menu',location:'header-primary',description:'Header'}};fs.writeFileSync(manifest,JSON.stringify(m));
+   const r=inspect(c,`$ctx=new DBLESSCMS\\ContentContext($s,'essencial','','home',true);$refs=new DBLESSCMS\\ContentReferences($ctx);$html=DBLESSCMS\\ContentMarkup::render(['html'=>'{{widgets.html-example}}<p>{{widgets.json-example.data.email}} {{widgets.json-example.data.count}}</p>{{forms.contact-example}}'],$ctx);$menu=$refs->value('menu.demo-principal.items');$slot=$refs->value('template.main-menu.items');$position=$refs->value('widgets.essencial-footer-note.data.label');$slides=(new DBLESSCMS\\SlidesStore($s))->read()['data']['collections'];$slideKey=array_key_first($slides);$slide=$refs->value('slides.'.$slideKey);echo json_encode(compact('html','menu','slot','slide','position'));`);
+   assert.match(r.html,/noopener noreferrer/);assert.match(r.html,/\{\{blog.designing-with-clarity.title\}\}/);assert.match(r.html,/example@example.test 0/);assert.match(r.html,/disabled in private preview/);assert.ok(r.menu.length);assert.deepEqual(r.menu,r.slot);assert.ok(r.slide.items.length);assert.equal(r.slide.transition.duration,500);assert.equal(r.position,'Typed position');
+  }finally{c.close();}
+ });
+ test(`${application}: invalid parameters/slots and unsafe widget data fail; repeated fields share finite queries`,()=>{
+  const c=fixture(application);try{
+   const r=inspect(c,`$ctx=new DBLESSCMS\\ContentContext($s,'essencial','','home');$refs=new DBLESSCMS\\ContentReferences($ctx);$errors=[];foreach(['blog.latest.limit.0.items','blog.latest.limit.10001.items','blog.latest.limit.2.limit.3.items','blog.latest.unknown.3.items','template.missing.items'] as $path){try{$refs->value($path);$errors[]=200;}catch(DBLESSCMS\\HttpError $e){$errors[]=$e->status;}}$same=[];for($i=0;$i<25;$i++)$same[]=$refs->value('blog.designing-with-clarity.title');$missing=$refs->value('blog.designing-with-clarity.unlisted');$warnings=$refs->warnings();$unsafe=[];(new DBLESSCMS\\Plugins($s))->instance('widgets');foreach([['type'=>'html','value'=>'<script>alert(1)</script>'],['type'=>'json','value'=>'{bad'],['type'=>'unknown','value'=>'x']] as $record){try{DBLESSCMS\\WidgetsStore::typedValue($record);$unsafe[]=200;}catch(DBLESSCMS\\HttpError $e){$unsafe[]=$e->status;}}echo json_encode(compact('errors','same','missing','warnings','unsafe'));`);
+   assert.deepEqual(r.errors,[422,422,422,422,422]);assert.equal(new Set(r.same).size,1);assert.ok(r.same[0]);assert.equal(r.missing,null);assert.ok(r.warnings.some(x=>x.includes('field unavailable')));assert.deepEqual(r.unsafe,[422,422,422]);
+  }finally{c.close();}
+ });
+}

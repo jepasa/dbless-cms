@@ -126,3 +126,34 @@ memoization is used for repeated calls during one render. Never reuse a Componen
 instance across requests. Optional failures yield empty data or the prior valid
 Homepage, with no stale successful response. HTML responses remain no-store.
 See the Cache contract in the plugin development guide for extension obligations.
+
+## Editorial field parity (2.13)
+
+Pages stores optional editorial author, numeric order and private review state per snapshot. Raw records/details/children/breadcrumbs expose only the published author/order; records and children accept `sort: "order"`. Page layouts are limited to declared active-template scripts whose native content contract matches. Publication dates support backdating and future scheduling without changing the global theme. Missing metadata is defaulted in memory, with no GET migration.
+
+Blog adds pending review and per-article `allowComments`, defaulting to true for old catalogs. The global discussion switch and existing moderation remain authoritative; closing an article preserves approved comments while blocking new submissions. Existing author, categories, tags, featured sorting, metadata, revisions and trash remain unchanged. Private/password content, Page comments and pingback/trackback features are separate scope. Blog displays the active rendering template; alternate post formats are conditional on declared template support.
+
+## Automatic references (2.14)
+
+Write references directly in Core HTML/code editors. No plugin/service/alias picker or bindings JSON field is needed. Existing saved bindings are preserved invisibly. Standard sections iterate finite arrays or test presence; inverted sections handle absence. Zero is present. Arbitrary expressions, SWITCH, WHILE, functions and recursive evaluation are not supported.
+
+- `{{blog.my-post.title}}`, `{{pages.about.summary}}`: one published record by ID or slug.
+- `{{#blog.latest.limit.20.page.2.items}}<a href="{{url}}">{{title}}</a>{{/blog.latest.limit.20.page.2.items}}`: newest publication first, ID tie-break. Pages supports the same query. Limit caps total results; page is one-based; global `settings.contentPageSize` (default 12, range 1–100) caps each page. Omit limit for all available items. Out-of-range pages are empty. Metadata: items/total/page/pages/pageSize/hasNext/hasPrevious. Multiple collections use independent explicit page parameters.
+- `{{forms.contact-example}}`: securely rendered published form, configured in Forms. Private previews remain inert; tokens are request-scoped.
+- `{{#slides.highlights.items}}<img src="{{image}}" alt="{{alt}}">{{/slides.highlights.items}}`: published set. The editor owns maximum items, interval, autoplay and transition.effect/duration/orientation. The template implements appearance and motion, respecting reduced motion.
+- `{{#menu.main.items}}<a href="{{href}}">{{label}}</a>{{/menu.main.items}}`: public tree. Nested children sections provide finite submenu levels. Menu defines its navigation type; existing location contracts remain compatible.
+- `{{widgets.contact}}`: text or validated HTML according to the reusable widget type. `.value` accesses text; `.data.email` accesses a JSON field. JSON is not implicitly serialized. Provider strings/HTML are never evaluated again as Mustache.
+
+IDs are technical plugin IDs, not translated labels. IDs/slugs contain no dots. Named parameters are unique and precede fields. Explicit `plugin.id.<value>` / `plugin.slug.<value>` disambiguate query names and identity collisions. Menu/Slides/Forms use one slug-shaped immutable identifier; Widgets uses ID/key; Pages/Blog use ID/slug. Immutable keys cannot be renamed; stale mutable slugs produce preview diagnostics. JSON widget keys start with a letter and use letters/digits/underscore/hyphen; arrays support numeric indexes.
+
+Plugins declare `mustache` with api=1, kind=data|widget|form, closed query parameter schemas and top-level fields, and implement ContentReferenceInterface::reference. Core validates bounded JSON and parameters. No caller selects a PHP method, file or executable expression. Data must exclude drafts/private values. Missing fields/providers produce private preview diagnostics. Maximum 20 distinct queries per request, 100 entries per collection, bounded depth/tokens/output; no persistent rendered cache.
+
+Template positions use `{{template.footer-note.value}}` and require an explicit declaration:
+
+```json
+{"mustacheSlots":{"footer-note":{"plugin":"widgets","location":"footer-note","description":"Footer note"}}}
+```
+
+The matching widgetLocation/menuLocation/slideLocation must exist. Existing source-plugin editors assign content to it. Trusted PHP templates pass a literal fragment to `ContentMarkup::render(['html' => '{{template.footer-note.value}}'], $contentContext)`; Essencial's footer demonstrates it. Never run another pass over assembled HTML or provider output. Direct editorial references require no position declaration.
+
+Widgets HTML uses the editorial allowlist, without scripts/styles/forms. Forms retain their separate interactive renderer, CSRF and request isolation. Remote links receive noopener/noreferrer. Invalid source remains available for correction. Reads never migrate real data. Rolling back after saving new metadata requires matching code and content snapshots; older code may reject newer fields.

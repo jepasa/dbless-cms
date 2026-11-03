@@ -68,7 +68,7 @@ final class BlogView {
     Security::limit($store->config,'blog-comment',5,600);
     $slug=$store->transaction(function() use($store,$id,$name,$body,$trap): string {
       $state=(new Plugins($store))->state('blog');$current=(new BlogStore($store))->read()['data'];
-      if (!$state['enabled']||!$state['settings']['discussion']['enabled']||!isset($current['articles'][$id])||!BlogModel::visible($current['articles'][$id])) throw new HttpError(404,'Article unavailable.','blog.error.missing');
+      if (!$state['enabled']||!$state['settings']['discussion']['enabled']||!isset($current['articles'][$id])||!BlogModel::visible($current['articles'][$id])||!($current['articles'][$id]['allowComments']??true)) throw new HttpError(404,'Article unavailable.','blog.error.missing');
       BlogModel::text($body,$state['settings']['discussion']['maxLength'],false,true);
       if ($trap!=='') return $current['articles'][$id]['slug'];
       $comments=new BlogStore($store,'comments');$snapshot=$comments->read();
@@ -123,7 +123,7 @@ final class BlogView {
       uasort($published,static function(array $a,array $b) use($article): int {
         $aScore=count(array_intersect($article['categories'],$a['categories']))+count(array_intersect($article['tags'],$a['tags']));$bScore=count(array_intersect($article['categories'],$b['categories']))+count(array_intersect($article['tags'],$b['tags']));return ($bScore<=>$aScore)?:strcmp($b['publishedAt'],$a['publishedAt']);
       });
-      $blogModel['related']=array_slice($published,0,3);$blogModel['comments']=[];
+      $blogModel['discussionOpen']=!$model['preview']&&$options['discussion']['enabled']&&($article['allowComments']??true);$blogModel['related']=array_slice($published,0,3);$blogModel['comments']=[];
       if (!$model['preview']&&$options['discussion']['enabled']) foreach ((new BlogStore($store,'comments'))->read()['data']['comments'] as $comment) if ($comment['article']===$article['id']&&$comment['status']==='approved') $blogModel['comments'][]=$comment;
     } else {
       $params=array_filter($model['query'],static fn(string $value,string $key): bool=>$value!==''&&($key!=='page'||$value!=='1'),ARRAY_FILTER_USE_BOTH);

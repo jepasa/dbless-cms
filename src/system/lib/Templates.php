@@ -92,7 +92,7 @@ final class Templates {
         $options=$this->json($id,$definition['schema']); OptionFields::contract($options,$language); Schema::validate($definition['defaults'],$options);
       }
     }
-    Components::layouts($manifest);
+    Components::layouts($manifest);ContentReferences::slots($manifest);
     HomepageLayout::definition($manifest);
     TemplateMarkup::manifest($manifest);
     Widgets::locations($manifest);

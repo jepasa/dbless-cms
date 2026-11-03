@@ -172,6 +172,12 @@
     "pages.duplicateAddress": "Endereço da cópia",
     "pages.contentFormat": "Formato do conteúdo editorial",
     "pages.formatJSON": "JSON",
-    "pages.formatMarkup": "HTML/Mustache"
+    "pages.formatMarkup": "HTML/Mustache",
+    "pages.author": "Autor editorial",
+    "pages.pendingReview": "Pendente de revisão",
+    "pages.state.pending": "Pendente de revisão",
+    "pages.order": "Ordem",
+    "pages.layout": "Template da página",
+    "pages.layoutHelp": "Somente layouts do template ativo compatíveis com o conteúdo atual."
   }
 }

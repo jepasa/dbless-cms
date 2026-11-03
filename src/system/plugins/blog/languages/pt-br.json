@@ -139,6 +139,11 @@
     "blog.url": "URL",
     "blog.dashboard.published": "Artigos publicados",
     "blog.dashboard.pending": "Comentários aguardando moderação",
-    "blog.markup": "HTML / Mustache"
+    "blog.markup": "HTML / Mustache",
+    "blog.pendingReview": "Pendente de revisão",
+    "blog.allowComments": "Permitir comentários neste artigo",
+    "blog.discussionHelp": "Depende de comentários habilitados nas configurações do Blog. Fechar impede novas respostas e preserva as já aprovadas.",
+    "blog.template": "Template",
+    "blog.templateHelp": "Layout Blog do template ativo. Formatos alternativos dependem de suporte declarado pelo template."
   }
 }

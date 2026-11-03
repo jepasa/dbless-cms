@@ -14,7 +14,7 @@
     },
     {
       "title": "Assign and insert",
-      "code": "{{slides:location key=\"home-hero\" layout=\"cards\"}}\n{{slides:home-hero}}",
+      "code": "{{#slides.highlights.items}}<figure><img src=\"{{image}}\" alt=\"{{title}}\"><figcaption>{{text}}</figcaption></figure>{{/slides.highlights.items}}",
       "steps": [
         "Choose a supported template location, presentation type and optional page filter in the editor. Configure autoplay and interval only when desired, then save the published state.",
         "Choose a location discovered from the active template manifest and publish the collection. A location must accept the collection content type.",
@@ -32,12 +32,24 @@
     },
     {
       "title": "Raw slide collections",
-      "code": "Bind slides:data with alias promotion and an active-template location key.\n\n<section>\n  {{#promotion.items}}\n    <figure>\n      <img src=\"{{image}}\" alt=\"{{alt}}\" loading=\"lazy\">\n      <figcaption>{{title}} — {{text}}</figcaption>\n    </figure>\n  {{/promotion.items}}\n  {{^promotion.items}}<p>No slides match this page.</p>{{/promotion.items}}\n</section>",
+      "code": "{{#slides.highlights.items}}<figure><img src=\"{{image}}\" alt=\"{{title}}\"><figcaption>{{text}}</figcaption></figure>{{/slides.highlights.items}}",
       "steps": [
         "slides:data(key: active-template location key) returns name, contentType, type, autoplay, interval and items: id, title, text, image, alt, href, label, attribution, price. Only live published collections and enabled matching items are returned. Template/filter rules still apply. slides:location remains compatible with existing card partials.",
         "Bind slides:data as promotion. Example: {{#promotion.items}}<figure><img src=\"{{image}}\" alt=\"{{alt}}\"><figcaption>{{title}} — {{text}}</figcaption></figure>{{/promotion.items}}. The plugin supplies data; the template supplies accessible carousel controls, CSS and JavaScript. No script may be authored inside the HTML editor."
       ],
       "body": []
+    },
+    {
+      "title": "Direct plugin data and template positions",
+      "body": [
+        "Create a set with a stable slug-shaped ID, add and enable items, choose its content type, maximum displayed slides, interval, transition effect/duration/orientation and publish. The reference returns items and transition settings; the receiving layout supplies the carousel markup, styles and behavior."
+      ],
+      "steps": [
+        "Use the stable identifier or slug without dots. Explicit id.<value> and slug.<value> selectors disambiguate reserved names.",
+        "Place named query parameters before field paths; use sections (#) and inverted sections (^) for finite iteration and empty states.",
+        "Keep presentation in the receiving layout. Template positions require manifest declarations and source-plugin assignments."
+      ],
+      "code": "{{#slides.highlights.items}}<figure><img src=\"{{image}}\" alt=\"{{title}}\"><figcaption>{{text}}</figcaption></figure>{{/slides.highlights.items}}"
     }
   ]
 }

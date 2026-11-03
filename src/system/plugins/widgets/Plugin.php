@@ -4,7 +4,13 @@ declare(strict_types=1);
 namespace DBLESSCMS;
 require_once __DIR__.'/Store.php';
 require_once __DIR__.'/Router.php';
-final class WidgetsPlugin implements PluginInterface,ContentProviderInterface,ContentOptionsInterface {
+final class WidgetsPlugin implements PluginInterface,ContentProviderInterface,ContentOptionsInterface,ContentReferenceInterface {
+  /** Resolve reusable typed text/HTML/JSON by immutable ID or key, or declared positional text; receive selector/parameters/context, return literal data only without recursive expansion. */
+  public function reference(string $selector,array $parameters,ContentContext $context): ?array {
+    $mode=str_contains($selector,':')?explode(':',$selector,2):['',$selector];$record=null;
+    if($selector==='@location')$record=(new Widgets($context->store,$context->template))->record($parameters['key']);else {$catalog=(new WidgetsStore($context->store))->read()['data'];foreach([...array_values($catalog['reusable']??[]),...array_values($catalog['widgets'])] as $item)if(!$item['deleted']&&(!isset($item['template'])||$item['template']===$context->template)&&(($mode[0]!=='slug'&&$item['id']===$mode[1])||($mode[0]!=='id'&&$item['key']===$mode[1]))){$record=$item;break;}}
+    if($record===null)return null;$type=$record['type']??'text';$result=['id'=>$record['id'],'slug'=>$record['key'],'type'=>$type,'description'=>$record['description']];return $result+match($type){'html'=>['html'=>ContentMarkup::html($record['value'],false)],'json'=>['data'=>json_decode($record['value'],true,16,JSON_THROW_ON_ERROR)],default=>['value'=>$record['value']]};
+  }
 
   /** List existing reusable keys or set keys for the authorized insertion UI; receive service/context, return plain labels without exposing values or writing state. */
   public function contentOptions(string $service,ContentContext $context): array {
@@ -46,7 +52,7 @@ final class WidgetsPlugin implements PluginInterface,ContentProviderInterface,Co
         if(!hash_equals($site['revision'],$this->input('site_revision',128)))throw new HttpError(409,'Template changed.','widgets.error.templateChanged');
         $template=$site['data']['template'];$key=$this->input('key');$locations=Widgets::locations($context->store->templates->get($template));
         if(!isset($locations[$key]))throw new HttpError(422,'Unknown position.','widgets.error.binding');
-        $data['widgets'][$id]=['id'=>$id,'template'=>$template,'key'=>$key,'value'=>$this->input('value',12000),'description'=>$this->input('description',500),'deleted'=>false];
+        $type=array_key_exists('contentType',$_POST)?$this->input('contentType',8):($data['widgets'][$id]['type']??'text');$data['widgets'][$id]=['type'=>$type,'id'=>$id,'template'=>$template,'key'=>$key,'value'=>$this->input('value',12000),'description'=>$this->input('description',500),'deleted'=>false];
       }else{
         if(!isset($data['widgets'][$id]))throw new HttpError(404,'Widget unavailable.','widgets.error.missing');
         $data['widgets'][$id]['deleted']=$operation==='trash';
@@ -67,7 +73,7 @@ final class WidgetsPlugin implements PluginInterface,ContentProviderInterface,Co
         elseif(!isset($data[$map][$id])||$data[$map][$id]['deleted']||$data[$map][$id]['key']!==$key)throw new HttpError(409,'Stable key changed.','widgets.error.conflict');
         $record=['id'=>$id,'key'=>$key,'description'=>$this->input('description',500),'deleted'=>false];
         if($isSet){$members=$_POST['members']??[];if(!is_array($members)||!array_is_list($members)||count($members)>20)throw new HttpError(422,'Invalid members.','widgets.error.contract');$record['name']=$this->input('name',120);$record['widgets']=$members;}
-        else $record['value']=$this->input('value',12000);
+        else {$record['value']=$this->input('value',12000);$record['type']=array_key_exists('contentType',$_POST)?$this->input('contentType',8):($data[$map][$id]['type']??'text');}
         $data[$map][$id]=$record;
       }else{if(!isset($data[$map][$id]))throw new HttpError(404,'Unavailable record.','widgets.error.missing');$data[$map][$id]['deleted']=!$recover;}
       return $data;

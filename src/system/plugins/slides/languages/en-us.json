@@ -92,6 +92,15 @@
     "slides.replaces": "Selecting this key replaces the current binding for: {name}.",
     "slides.error.templateChanged": "Site settings or the template changed. Reopen the editor to refresh destinations before saving.",
     "slides.error.pageChanged": "The target page changed. Reopen the editor to refresh markers before saving.",
-    "slides.historyInactive": "Content restoration requires the plugin to be active. Activate it in the Plugins overview."
+    "slides.historyInactive": "Content restoration requires the plugin to be active. Activate it in the Plugins overview.",
+    "slides.maxItems": "Maximum displayed slides",
+    "slides.transitionDuration": "Transition duration (ms)",
+    "slides.transitionEffect": "Transition effect",
+    "slides.transitionOrientation": "Transition orientation",
+    "slides.transition_slide": "Slide",
+    "slides.transition_fade": "Fade",
+    "slides.transition_none": "None",
+    "slides.transition_horizontal": "Horizontal",
+    "slides.transition_vertical": "Vertical"
   }
 }

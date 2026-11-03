@@ -62,7 +62,7 @@ final class GlobalSettings {
     return [
       ['title'=>'global.card.global','groups'=>[
         ['title'=>'global.group.language','fields'=>['siteLocale','adminLocale']],
-        ['title'=>'global.group.presentation','fields'=>['name','slogan','description','baseUrl','canonical']]]],
+        ['title'=>'global.group.presentation','fields'=>['name','slogan','description','baseUrl','canonical','contentPageSize']]]],
       ['title'=>'global.card.identity','groups'=>[
         ['title'=>'global.group.appearance','fields'=>['@template','@theme','favicon','logo','featuredImage']],
         ['title'=>'global.group.media','fields'=>['media.public','media.private']],

@@ -11,5 +11,5 @@ export async function createDraft(page,base,title,slug,body=''){
 /** Save the working form then publish its saved snapshot; receives page, propagates validation/navigation failures. */
 export async function publishDraft(page){
   await Promise.all([page.waitForNavigation(),page.locator('form[action*="editorial-save"] button[type="submit"]:not([form])').click()]);
-  await Promise.all([page.waitForNavigation(),page.locator('button[form="page-publication"]').click()]);
+  await Promise.all([page.waitForNavigation(),page.locator('button[form="page-publication"]:not([formaction])').click()]);
 }

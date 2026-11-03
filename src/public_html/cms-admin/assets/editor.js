@@ -211,7 +211,8 @@
   document.addEventListener('submit',event=>{
     const form=event.target;if(resumed.has(form)){resumed.delete(form);return;}const editors=[...live].filter(editor=>editor.frame&&editor.mode!=='code'&&editor.textarea.form===form&&!editor.wrapper.closest('[hidden]'));
     if(!editors.length)return;event.preventDefault();event.stopImmediatePropagation();const submitter=event.submitter;
-    Promise.all(editors.map(editor=>editor.flush())).then(()=>{for(const editor of editors){editor.update();if(!editor.model){editor.setMode('code');editor.textarea.focus();return;}}resumed.add(form);form.requestSubmit(submitter);}).catch(error=>{for(const editor of editors)editor.status.textContent=error.message;});
+    Promise.all(editors.map(editor=>editor.flush())).then(()=>{for(const editor of editors){editor.update();if(!editor.model){editor.setMode('code');editor.textarea.focus();return;}}// A preview flush resolves immediately; defer resubmission until the native submit dispatch has ended.
+      setTimeout(()=>{resumed.add(form);form.requestSubmit(submitter);},0);}).catch(error=>{for(const editor of editors)editor.status.textContent=error.message;});
   },true);
   window.DBLESSEditor=Object.freeze({version:1,profiles:model.profiles,mount,code,get:textarea=>instances.get(textarea),analyze:(source,options)=>model.analyze(source,options,config.policy)});
   for(const textarea of document.querySelectorAll('textarea[data-editor-options]:not([data-markup-html])'))mount(textarea);
