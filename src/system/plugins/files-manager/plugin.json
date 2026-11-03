@@ -48,13 +48,8 @@
       "title": "fm.history",
       "file": "pages/history.php",
       "requiresEnabled": false,
-      "visibility": "private"
-    },
-    "rights": {
-      "title": "fm.rights",
-      "file": "pages/rights.php",
-      "requiresEnabled": true,
-      "visibility": "private"
+      "visibility": "private",
+      "description": "fm.historyHelp"
     }
   },
   "navigation": {
@@ -63,10 +58,6 @@
       {
         "label": "fm.overview",
         "route": "overview"
-      },
-      {
-        "label": "fm.rights",
-        "route": "rights"
       },
       {
         "separator": true

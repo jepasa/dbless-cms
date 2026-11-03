@@ -22,8 +22,8 @@ final class PluginOptions {
     try {require dirname(__DIR__).'/admin/plugin-options.php';return (string)ob_get_clean();}
     catch (\Throwable $error) {ob_end_clean();throw $error;}
   }
-  /** Renderiza histórico individual de opções; recebe contexto/atributo/modo de ícones do formulário, retorna HTML e propaga falhas de leitura. */
-  public static function history(PluginContext $context,string $attribute,bool $iconOnly=false): string {
+  /** Renderiza histórico individual de opções; recebe contexto/atributo/modo de ícones/descrição opcional das cópias, retorna HTML e propaga falhas de leitura. */
+  public static function history(PluginContext $context,string $attribute,bool $iconOnly=false,string $description=''): string {
     if (!preg_match('/^data-[a-z-]+$/D',$attribute)) throw new \LogicException('Atributo de formulário inválido.');
     $ui=new Language();$ui->select($context->language->locale());
     ob_start();

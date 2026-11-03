@@ -20,22 +20,12 @@
       } catch (error) { status.textContent = error.message; status.classList.add('fm-error'); pending = false; buttons.forEach(button => { button.disabled = false; }); }
     }));
   }
-  const rights = document.querySelector('[data-fm-rights]');
-  if (rights) {
-    rights.querySelectorAll('[data-rights-form]').forEach(form => form.addEventListener('submit', async event => {
-      event.preventDefault(); const button = form.querySelector('button[type="submit"]'), status = rights.querySelector('[data-rights-status]');
-      if (button.disabled) return; button.disabled = true;
-      try { const response = await fetch(form.action, {method: 'POST', credentials: 'same-origin', headers: {Accept: 'application/json'}, body: new FormData(form)}); const result = await response.json(); if (!response.ok) throw new Error(result.error || 'Metadata save failed.'); location.assign(result.redirect); }
-      catch (error) { status.textContent = error.message; status.hidden = false; status.focus(); button.disabled = false; }
-    }));
-    return;
-  }
   const root = document.querySelector('[data-fm]');
   if (!root) return;
   const messages = JSON.parse(root.dataset.messages), icons = JSON.parse(root.dataset.icons);
   const base = new URL(root.dataset.api, location.href), prompt = root.querySelector('[data-prompt]'), preview = root.querySelector('[data-preview]');
   const menu = root.querySelector('[data-context]'), upload = root.querySelector('[data-upload]'), replacement = root.querySelector('[data-replace]');
-  const selectionActions = ['rename','move','download','preview','metadata','replace','delete','restore','purge'];
+  const selectionActions = ['rename','move','download','preview','replace','delete','restore','purge'];
   let scope = 'public', path = '', revision = '', entries = [], selected = null, trash = root.dataset.screen === 'trash';
   let busy = false, generation = 0, page = 1, mode = 'list', sort = 'name', direction = 1, pages = 1, replacementTarget = null, menuOrigin = null;
   const pageSize = Number(root.dataset.pageSize), branches = new Map(), expanded = new Set(['']);
@@ -67,7 +57,7 @@
   function available(name, entry = selected) {
     if (busy || !revision && ['upload','mkdir',...selectionActions].includes(name)) return false;
     if (['restore','purge'].includes(name)) return trash && !!entry;
-    if (selectionActions.includes(name)) return !trash && !!entry && (!['download','replace','preview','metadata'].includes(name) || !entry.directory) && (name !== 'preview' || ['images','videos'].includes(group(entry))) && (name !== 'metadata' || group(entry) === 'images');
+    if (selectionActions.includes(name)) return !trash && !!entry && (!['download','replace','preview'].includes(name) || !entry.directory) && (name !== 'preview' || ['images','videos'].includes(group(entry)));
     if (['upload','mkdir'].includes(name)) return !trash;
     if (name === 'up') return !trash && path !== '';
     return true;
@@ -200,7 +190,6 @@
     if (name === 'mkdir') { const value = await ask(t('newFolder'),t('name')); if (value !== null) return mutate('mkdir',{name:value}); return; }
     if (!entry) return;
     if (name === 'download') { location.href = url('download',{path:entry.path}); return; }
-    if (name === 'metadata') { const target = new URL(base); target.searchParams.set('view','plugin-panel'); target.searchParams.set('route','rights'); target.searchParams.set('scope',scope); target.searchParams.set('path',entry.path); target.searchParams.delete('operation'); location.assign(target); return; }
     if (name === 'preview') { const video = group(entry) === 'videos', media = root.querySelector(video ? '[data-preview-video]' : '[data-preview-image]'); media.hidden = false; if (!video) media.alt = entry.name; media.src = url('preview',{path:entry.path,v:revision}); preview.showModal(); return; }
     if (name === 'replace') { if (await ask(t('replace'),'', '',t('confirmReplace')) !== null) { replacementTarget = {name:entry.name,scope,path,revision}; replacement.accept = '.'+entry.type; replacement.click(); } return; }
     if (name === 'rename') { const value = await ask(t('rename'),t('name'),entry.name); if (value !== null) return mutate(name,{target:entry.name,name:value}); }

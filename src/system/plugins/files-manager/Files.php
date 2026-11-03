@@ -7,6 +7,31 @@ final class ManagedFiles {
   private string $anchor;
   private string $root;
   private string $state;
+  /** Read up to 100 recent private audit events from a bounded tail; receive context, return typed public display fields only, never write, reject links/corruption/I/O failures. */
+  public static function history(PluginContext $context): array {
+    $file=$context->config->data['storage'].'/plugins/files-manager/audit.jsonl'; self::noLinks($file);
+    if (!file_exists($file)) return [];
+    if (!is_file($file)) self::fail('history',503);
+    $stream=fopen($file,'rb'); if ($stream===false) self::fail('history',503);
+    try {
+      if (!flock($stream,LOCK_SH)) self::fail('history',503);
+      $stat=fstat($stream); if ($stat===false) self::fail('history',503);
+      $offset=max(0,$stat['size']-1048576);
+      if (fseek($stream,$offset)!==0) self::fail('history',503);
+      if ($offset>0 && fgets($stream)===false) self::fail('history',503);
+      $bytes=stream_get_contents($stream,1048576); if ($bytes===false) self::fail('history',503);
+      $lines=array_slice(explode("\n",rtrim($bytes,"\n")),-100); $events=[];
+      foreach (array_reverse($lines) as $line) {
+        if ($line==='') continue;
+        try {$event=json_decode($line,true,8,JSON_THROW_ON_ERROR);} catch (\JsonException) {self::fail('history',503);}
+        if (!is_array($event)||!is_string($event['at']??null)||!is_string($event['event']??null)||!is_string($event['scope']??null)) self::fail('history',503);
+        $date=\DateTimeImmutable::createFromFormat(DATE_ATOM,$event['at']);
+        if ($date===false||$date->format(DATE_ATOM)!==$event['at']) self::fail('history',503);
+        $events[]=['at'=>$date->setTimezone(new \DateTimeZone('UTC'))->format(DATE_ATOM),'event'=>in_array($event['event'],['upload','mkdir','rename','move','delete','restore','purge','replace'],true)?$event['event']:'unknown','scope'=>in_array($event['scope'],['public','private'],true)?$event['scope']:'unknown'];
+      }
+      return $events;
+    } finally {flock($stream,LOCK_UN);fclose($stream);}
+  }
   /** Resolve escopo e raízes sem escrita; recebe contexto/escopo; rejeita configurações, symlinks e escapes. */
   public function __construct(private readonly PluginContext $context, private readonly string $scope) {
     if (!in_array($scope,['public','private'],true)) self::fail('scope');

@@ -30,7 +30,7 @@ Escolha o dbless-cms para sites institucionais, portfólios, landing pages e pro
 conteúdo nos quais um CMS baseado em arquivos seja adequado. PHP 8.2+ executa a aplicação;
 Node.js 22 é uma ferramenta de desenvolvimento/exportação, sem dependência no servidor de produção.
 
-Gerencie recursos opcionais e créditos de imagens com controles explícitos e crie formulários acessíveis sem inserir HTML executável no conteúdo. Consulte o [guia de privacidade, Forms e direitos de imagens](docs/privacy-forms-media.md), em inglês, para configuração e limites operacionais.
+Gerencie recursos opcionais com controles explícitos e crie formulários acessíveis sem inserir HTML executável no conteúdo. Créditos de imagens já registrados permanecem compatíveis; a administração de direitos foi retirada. Consulte o [guia de privacidade, Forms e direitos de imagens](docs/privacy-forms-media.md), em inglês, para configuração e limites operacionais.
 
 ## Explore um exemplo completo
 

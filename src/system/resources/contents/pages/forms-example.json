@@ -51,7 +51,7 @@
     }
   },
   "markup": {
-    "html": "<section class=\"section\"><div class=\"container text-flow\"><h1>Forms and image provenance</h1><p>This is demonstration content, not a legal policy or an operating contact channel.</p><h2>Request-scoped form</h2>{{forms:form id=\"contact-example\"}}<p>A separate noncollecting <a href=\"/plugins/forms/form?id=privacy-request-example\">privacy request model</a> demonstrates minimal data and the privacy destination. It requires operator review before use.</p><h2>Accessible image attribution</h2><p>Upload an image using Images, record its author, source and actual license, then approve the rights. Public labels appear beside matching images. Contextual alternative text remains the responsibility of each image placement.</p></div></section>",
+    "html": "<section class=\"section\"><div class=\"container text-flow\"><h1>Forms and accessible images</h1><p>This is demonstration content, not a legal policy or an operating contact channel.</p><h2>Request-scoped form</h2>{{forms:form id=\"contact-example\"}}<p>A separate noncollecting <a href=\"/plugins/forms/form?id=privacy-request-example\">privacy request model</a> demonstrates minimal data and the privacy destination. It requires operator review before use.</p><h2>Accessible image attribution</h2><p>Choose a public image using Images and add contextual alternative text when placing it in content. Existing public attribution records remain readable; image-rights administration is no longer available.</p></div></section>",
     "bindings": []
   }
 }

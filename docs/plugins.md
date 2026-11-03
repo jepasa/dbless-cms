@@ -587,9 +587,20 @@ revision. It retains the destination name/path and matching extension, validates
 new bytes and archives the old bytes in private trash before atomic publication.
 Free the original destination before restoring an archived version: recovery never
 silently overwrites a current file. Changed bytes invalidate the existing public
-rights resolution until explicitly reviewed. No copyright approval is inferred.
+legacy rights resolution. Existing public references remain readable; image-rights administration and its metadata/derivative endpoints have been removed. No copyright approval is inferred.
 Public URLs keep their names; external browser/CDN caches are outside this action's
 control. No live data, date indexes or replacement archives belong in distribution.
 
 Action icons come from the core `Icons` mapping, using addressed local SVG files.
 New admin actions must reuse that mapping and localized title/aria-label labels.
+
+### Images history
+
+History describes the latest recorded file operations (up to 100 from a bounded
+private-log tail), in the selected admin language, with UTC timestamps and storage
+area. Old logs contain hashed targets; the UI does not invent filenames. Restorable
+configuration copies carry a description and explicitly identify that their
+originating action was not recorded. Reads never migrate or create history.
+Image-rights administration is removed, including its route, toolbar/context
+action and write endpoints. Existing private records and read-only public asset
+references remain available for compatibility; no stored data is deleted.
