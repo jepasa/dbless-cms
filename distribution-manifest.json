@@ -740,8 +740,8 @@
     },
     {
       "path": "src/public_html/plugins/homepage/css/homepage.css",
-      "bytes": 3198,
-      "sha256": "9e83293bac2c79b4ca5a804d4114382d185ee45491d404fa9dd0802a3c89243b"
+      "bytes": 3421,
+      "sha256": "b193d329606d2bb50f9c13bc72c16191f6fe7aa5025a37391224e3101bea5293"
     },
     {
       "path": "src/public_html/plugins/homepage/homepage.svg",
@@ -2405,8 +2405,8 @@
     },
     {
       "path": "tests/browser/homepage.mjs",
-      "bytes": 22369,
-      "sha256": "69d922146f60b6874581e12dfc80f2df743c6315187600d1575f774676332627"
+      "bytes": 24442,
+      "sha256": "e6d1a158b2fea2ed16a68b6c8c5c7d8154aab627e7e34a3e9c65335e161233c7"
     },
     {
       "path": "tests/browser/pages.mjs",
