@@ -2550,8 +2550,8 @@
     },
     {
       "path": "tests/files-history.test.mjs",
-      "bytes": 5540,
-      "sha256": "dd5cbfad9e8f0b1e9a82e6e3eef2ce5ec3ee9d2a5600eae6e4fcdd5cae2a83c4"
+      "bytes": 5973,
+      "sha256": "2be48a0f5a4faf53410c7132d80278fb2ccbd3805483aa06b5e309ecbc6704de"
     },
     {
       "path": "tests/files-manager.test.mjs",

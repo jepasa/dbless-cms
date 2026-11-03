@@ -7,6 +7,8 @@ import {root,trees} from './helpers/runtime.mjs';
 import {pluginServer} from './helpers/plugins.mjs';
 /** Extract one escaped form field; receives HTML/name, returns text or fails for unavailable forms. */
 function field(html,name){const value=html.match(new RegExp(`name="${name}" value="([^"]*)"`))?.[1];assert.notEqual(value,undefined);return value.replaceAll('&quot;','"').replaceAll('&amp;','&');}
+/** Replace an existing synthetic regular audit through a no-follow descriptor; receives path/text, writes only the opened file, propagates I/O errors and always closes it. */
+function replaceAudit(file,text){const descriptor=fs.openSync(file,fs.constants.O_WRONLY|fs.constants.O_NOFOLLOW);try{assert.ok(fs.fstatSync(descriptor).isFile());fs.ftruncateSync(descriptor,0);fs.writeFileSync(descriptor,text);}finally{fs.closeSync(descriptor);}}
 test('Images dictionaries remove retired controls and keep matching keys/placeholders',()=>{
   const catalogs=['pt-br','en-us'].map(locale=>JSON.parse(fs.readFileSync(path.join(root,'src/system/plugins/files-manager/languages',locale+'.json'))).messages);
   assert.deepEqual(Object.keys(catalogs[0]).sort(),Object.keys(catalogs[1]).sort());
@@ -29,8 +31,8 @@ for(const tree of trees)test(`${tree}: history describes real operations and rem
     let snapshot=await(await request(api+'list&scope=public&path=')).json();let response=await request(api+'mkdir',new URLSearchParams({csrf_token:csrf,scope:'public',path:'',name:'Synthetic',revision:snapshot.revision}));assert.equal(response.status,200);snapshot=await response.json();response=await request(api+'rename',new URLSearchParams({csrf_token:csrf,scope:'public',path:'',target:'Synthetic',name:'Renamed',revision:snapshot.revision}));assert.equal(response.status,200);
     const before=fs.readFileSync(audit);let html=await(await request(panel+'history')).text();assert.match(html,/Pasta criada\./);assert.match(html,/Arquivo ou pasta renomeado\./);assert.ok(html.indexOf('Arquivo ou pasta renomeado.')<html.indexOf('Pasta criada.'));assert.deepEqual(fs.readFileSync(audit),before);
     response=await request('view=plugin-api&plugin=files-manager&route=settings&operation=settings-save',new URLSearchParams({csrf_token:csrf,revision:field(settings,'revision'),public:'media',private:'media'}));assert.equal(response.status,200);html=await(await request(panel+'history')).text();assert.match(html,/Cópia das configurações preservada/);assert.match(html,/name="backup"/);
-    fs.writeFileSync(audit,'\n'.repeat(1048576)+Array.from({length:120},()=>JSON.stringify({at:'2026-11-03T00:00:00+00:00',event:'<script>legacy</script>',scope:'private',target:'PRIVATE-TARGET-CANARY'})).join('\n')+'\n');html=await(await request(panel+'history')).text();assert.equal((html.match(/Operação registrada; descrição indisponível\./g)||[]).length,100);assert.doesNotMatch(html,/PRIVATE-TARGET-CANARY|<script>legacy/);
-    fs.writeFileSync(audit,'invalid-json\n');assert.equal((await request(panel+'history')).status,503);
+    replaceAudit(audit,'\n'.repeat(1048576)+Array.from({length:120},()=>JSON.stringify({at:'2026-11-03T00:00:00+00:00',event:'<script>legacy</script>',scope:'private',target:'PRIVATE-TARGET-CANARY'})).join('\n')+'\n');html=await(await request(panel+'history')).text();assert.equal((html.match(/Operação registrada; descrição indisponível\./g)||[]).length,100);assert.doesNotMatch(html,/PRIVATE-TARGET-CANARY|<script>legacy/);
+    replaceAudit(audit,'invalid-json\n');assert.equal((await request(panel+'history')).status,503);
     fs.unlinkSync(audit);fs.symlinkSync(path.join(sandbox.temporary,'outside.json'),audit);assert.equal((await request(panel+'history')).status,422);
     assert.doesNotMatch(sandbox.logs(),/PHP (?:Warning|Fatal|Parse)/);
   }finally{await sandbox.close();}
