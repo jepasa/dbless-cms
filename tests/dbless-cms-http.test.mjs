@@ -94,7 +94,7 @@ for(const tree of trees) test(`${tree}: jornada administrativa completa por HTTP
     assert.equal(result.status,409);assert.match(result.body,/Another edit has been saved/);
     result=await request('/cms-admin/?view=site',{action:'save',key:'site',document:JSON.stringify(savedGlobal),revision:newGlobalRevision,site_template:'../escape',csrf_token:csrf});
     assert.equal(result.status,422);
-    const missingTemplate={...savedGlobal,template:'not-installed'};
+    const missingTemplate={...JSON.parse(fs.readFileSync(siteFile)),template:'not-installed'};
     fs.writeFileSync(path.join(temporary,'contents/site.json'),JSON.stringify(missingTemplate));
     assert.equal((await request('/')).status,422);
     result=await request('/cms-admin/?view=site');assert.equal(result.status,200);assert.match(result.body,/active template is unavailable/);

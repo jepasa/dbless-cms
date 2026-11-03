@@ -8,7 +8,7 @@ import { trees,appRoot } from './helpers/runtime.mjs';
 import { installPublicPlugin } from './helpers/public-plugin.mjs';
 
 /** Extrai valor de input escapado; recebe HTML/nome e falha quando o campo necessário está ausente. */
-function field(html,name) {const value=html.match(new RegExp(`name="${name}" value="([^"]*)"`))?.[1];assert.notEqual(value,undefined,name);return value.replaceAll('&amp;','&').replaceAll('&quot;','"');}
+function field(html,name) {const value=html.match(new RegExp(`name="${name}" value="([^"]*)"`))?.[1];assert.notEqual(value,undefined,name);return value.replace(/&(?:amp|quot);/g,entity=>({'&amp;':'&','&quot;':'"'})[entity]);}
 /** Cria cliente autenticado isolado; recebe sandbox, retorna helpers sem seguir redirects e sem acessar servidor real. */
 async function client(sandbox) {
   const siteFile=path.join(sandbox.temporary,'contents/site.json'),site=JSON.parse(fs.readFileSync(siteFile));site.settings.adminLocale='pt-br';fs.writeFileSync(siteFile,JSON.stringify(site));

@@ -6,7 +6,7 @@ import path from 'node:path';
 import {trees} from './helpers/runtime.mjs';
 import {pluginServer} from './helpers/plugins.mjs';
 /** Decode an escaped HTML metadata/form value; receives text, returns literal characters without DOM execution. */
-function decode(value){return value.replaceAll('&quot;','"').replaceAll('&amp;','&').replaceAll('&#039;',"'").replaceAll('&lt;','<').replaceAll('&gt;','>');}
+function decode(value){return value.replace(/&(?:amp|quot|#039|lt|gt);/g,entity=>({'&amp;':'&','&quot;':'"','&#039;':"'",'&lt;':'<','&gt;':'>'})[entity]);}
 for(const tree of trees)test(`${tree}: core media capability cannot expose private files to public authors`,async()=>{
   const sandbox=await pluginServer(tree);let cookie='';
   /** Request only the isolated local app; receives path/form, returns HTTP response retaining the synthetic session. */

@@ -2561,7 +2561,7 @@
     {
       "path": "tests/browser/pages.mjs",
       "bytes": 10515,
-      "sha256": "c859581b45da42631914254f89e1bca128536e364f9d6caa442bbe9d8885553e"
+      "sha256": "2875db2f7991c793e287bee4c6a6027af1a29b8ded58ac25c83c72404308cd3f"
     },
     {
       "path": "tests/browser/pentest.mjs",
@@ -2605,8 +2605,8 @@
     },
     {
       "path": "tests/dbless-cms-http.test.mjs",
-      "bytes": 11567,
-      "sha256": "14e3d1d37bf6eb531caab2ef5fcff259117f83cb725fcb7d86a17a0139a69945"
+      "bytes": 11593,
+      "sha256": "7c91166969f01fdb908543621e7a404978595ea66350d8cde9c95947316b33b4"
     },
     {
       "path": "tests/editor-preview.test.mjs",
@@ -2615,8 +2615,8 @@
     },
     {
       "path": "tests/extension-management.test.mjs",
-      "bytes": 14079,
-      "sha256": "46bdc6e5b42365c459ad079fd7e9ad552edfa4a3560c23d31ae0ad48e5a29b41"
+      "bytes": 14102,
+      "sha256": "89b294e2d0996848a2f8bc0601e964b80bf1729f27adc031f4ba8283ee03e5df"
     },
     {
       "path": "tests/extension-media.test.mjs",
@@ -2695,8 +2695,8 @@
     },
     {
       "path": "tests/media-library.test.mjs",
-      "bytes": 5674,
-      "sha256": "4fd0bc4743a68f7f50c7b4050f6127166565345e8c29b8936e4190b7ec597801"
+      "bytes": 5672,
+      "sha256": "6dff7c4dddb4680fe487883ced274372c1853194e4c3e144910dc1092d862c36"
     },
     {
       "path": "tests/media-rights.test.mjs",
@@ -2725,8 +2725,8 @@
     },
     {
       "path": "tests/plugin-workflows.test.mjs",
-      "bytes": 9964,
-      "sha256": "6bec5d278fadd281b7d51741c1872240de81522eb54814617348b2f95513985e"
+      "bytes": 9987,
+      "sha256": "02302e16b3b301a38410aa4f68a79bd1f9f15429b8581e9b17a2546353be2688"
     },
     {
       "path": "tests/privacy-forms.test.mjs",

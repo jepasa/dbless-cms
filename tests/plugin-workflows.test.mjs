@@ -7,7 +7,7 @@ import {createHash} from 'node:crypto';
 import {pluginServer} from './helpers/plugins.mjs';
 import {trees} from './helpers/runtime.mjs';
 /** Extrai input escapado do formulário; recebe HTML/nome e retorna valor ou falha de contrato. */
-function field(body,name){const match=body.match(new RegExp(`name="${name}"[^>]*value="([^"]*)"`));assert.ok(match,name);return match[1].replaceAll('&amp;','&').replaceAll('&quot;','"');}
+function field(body,name){const match=body.match(new RegExp(`name="${name}"[^>]*value="([^"]*)"`));assert.ok(match,name);return match[1].replace(/&(?:amp|quot);/g,entity=>({'&amp;':'&','&quot;':'"'})[entity]);}
 /** Calcula revisão real de um arquivo sintético; recebe caminho e retorna SHA-256 sem escrita. */
 function revision(file){return createHash('sha256').update(fs.readFileSync(file)).digest('hex');}
 for(const tree of trees)test(`${tree}: histórico e posicionamento integrados funcionam com troca de template e marcador na home`,{timeout:30000},async()=>{
