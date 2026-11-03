@@ -2,12 +2,13 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import {pathToFileURL} from 'node:url';
 import {pluginServer} from '../helpers/plugins.mjs';
 import {trees,root} from '../helpers/runtime.mjs';
 if(!process.env.PLAYWRIGHT_MODULE)throw new Error('Set PLAYWRIGHT_MODULE to an existing local installation.');
 const {chromium}=await import(pathToFileURL(process.env.PLAYWRIGHT_MODULE));
-const evidence=process.env.DBLESS_CMS_BROWSER_EVIDENCE||'/tmp/dbless-images-explorer';fs.mkdirSync(evidence,{recursive:true});
+const evidence=process.env.DBLESS_CMS_BROWSER_EVIDENCE||fs.mkdtempSync(path.join(os.tmpdir(),'dbless-images-explorer-'));fs.mkdirSync(evidence,{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE||'/usr/bin/google-chrome',args:['--no-sandbox']});const results=[];
 try{for(const tree of trees){
   const sandbox=await pluginServer(tree),context=await browser.newContext({viewport:{width:1440,height:1050},acceptDownloads:true}),page=await context.newPage(),errors=[];

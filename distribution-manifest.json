@@ -2475,8 +2475,8 @@
     },
     {
       "path": "tests/browser/files-manager.mjs",
-      "bytes": 20390,
-      "sha256": "94518fe27d45b61b86e0f47221758e6296fe3643f7695664664a81b98d3e1340"
+      "bytes": 20451,
+      "sha256": "61ca893e1790593bf49cea146753e680522744cdf0efefe6dcc89993991ed28c"
     },
     {
       "path": "tests/browser/homepage-conversion.mjs",
@@ -2490,8 +2490,8 @@
     },
     {
       "path": "tests/browser/images-explorer.mjs",
-      "bytes": 13229,
-      "sha256": "f21f2717b6fe9bb4c2a17c34f7f1b7e583fc34bdef3b19e6d73119bdd2d810d9"
+      "bytes": 13290,
+      "sha256": "7dfa5f12d3ee61fdbabf2cf013fdedb2550cbd4e5a0b6aefe2fb671201242026"
     },
     {
       "path": "tests/browser/pages.mjs",

@@ -2,13 +2,14 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { pluginServer } from '../helpers/plugins.mjs';
 import { trees } from '../helpers/runtime.mjs';
 const modulePath = process.env.PLAYWRIGHT_MODULE;
 if (!modulePath) throw new Error('Defina PLAYWRIGHT_MODULE para um módulo Playwright local instalado.');
 const {chromium} = await import(pathToFileURL(modulePath));
-const evidence = process.env.DBLESS_CMS_BROWSER_EVIDENCE || '/tmp/dbless-cms-browser-evidence';
+const evidence = process.env.DBLESS_CMS_BROWSER_EVIDENCE || fs.mkdtempSync(path.join(os.tmpdir(),'dbless-cms-browser-evidence-'));
 fs.mkdirSync(evidence,{recursive:true});
 const browser = await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE || '/usr/bin/google-chrome',args:['--no-sandbox']});
 const results = [];
