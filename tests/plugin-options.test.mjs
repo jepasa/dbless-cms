@@ -40,7 +40,7 @@ for(const tree of trees)test(`${tree}: uploads e navegação possuem configuraç
       const catalog=await request('/cms-admin/?view=plugins'),row=catalog.body.match(new RegExp(`<tr data-extension-id="${id}"[\\s\\S]*?</tr>`))?.[0];assert.ok(row);assert.doesNotMatch(row,/href="[^"]*(?:plugin-settings|route=settings)/);assert.match(row,/disabled title="Esta extensão não declara parâmetros configuráveis/);
     }
     assert.deepEqual(fs.readFileSync(configFile),originalBytes,'GETs e operações retiradas não regravam preferências legadas');
-    const page=await request(screen('pages','new'));assert.equal(page.status,200);assert.match(page.body,/select name="model"/);const native=page.body.match(/<form\b[^>]*action="[^"]*editorial-create[^"]*"[\s\S]*?<\/form>/)?.[0];assert.ok(native);assert.doesNotMatch(native,/<option[^>]* selected/);
+    const page=await request(screen('pages','new'));assert.equal(page.status,200);assert.match(page.body,/select name="model"/);const native=page.body.match(/<form\b[^>]*action="[^"]*editorial-create[^"]*"[\s\S]*?<\/form>/)?.[0];assert.ok(native);const modelSelect=native.match(/<select name="model"[^>]*>[\s\S]*?<\/select>/)?.[0];assert.ok(modelSelect);assert.doesNotMatch(modelSelect,/<option[^>]* selected/);
     const menu=await request(screen('menu','editor'));assert.equal(menu.status,200);assert.doesNotMatch(menu.body,/data-default-new-tab/);
     const slides=await request(screen('slides','editor'));assert.equal(slides.status,200);assert.match(slides.body,/<option value="banner" selected>/);assert.match(slides.body,/name="interval"[^>]*value="6000"/);assert.doesNotMatch(slides.body,/name="autoplay"[^>]*checked/);
     const snapshot=fs.readFileSync(configFile);

@@ -49,11 +49,12 @@
       documentField.value=JSON.stringify(native?value.content:value,null,2)+'\n';documentField.dispatchEvent(new Event('input',{bubbles:true}));documentField.focus();
     }catch{status.textContent=root.dataset.networkError;status.hidden=false;}
   });
+  /** Submit the selected native form action with CSRF/revisions; receive submit events, preserve inputs on failures and follow only server-confirmed navigation. */
   for(const form of root.querySelectorAll('[data-pages-form]'))form.addEventListener('submit',async event=>{
     if(event.defaultPrevented)return;event.preventDefault();status.hidden=true;
     const submit=event.submitter,payload=new FormData(form);if(submit)submit.disabled=true;
     try {
-      const response=await fetch(form.getAttribute('action'),{method:'POST',body:payload,credentials:'same-origin',headers:{Accept:'application/json'}});
+      const response=await fetch(submit?.getAttribute('formaction')||form.getAttribute('action'),{method:'POST',body:payload,credentials:'same-origin',headers:{Accept:'application/json'}});
       if(!response.headers.get('content-type')?.includes('application/json'))throw new Error(root.dataset.networkError);
       const result=await response.json();
       if(!response.ok)throw new Error(result.error||root.dataset.networkError);

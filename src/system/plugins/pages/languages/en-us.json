@@ -172,6 +172,12 @@
     "pages.duplicateAddress": "Address for the duplicate",
     "pages.contentFormat": "Editorial content format",
     "pages.formatJSON": "JSON",
-    "pages.formatMarkup": "HTML/Mustache"
+    "pages.formatMarkup": "HTML/Mustache",
+    "pages.author": "Editorial author",
+    "pages.pendingReview": "Pending review",
+    "pages.state.pending": "Pending review",
+    "pages.order": "Order",
+    "pages.layout": "Page template",
+    "pages.layoutHelp": "Only active-template layouts compatible with the current content are offered."
   }
 }

@@ -2,7 +2,7 @@
   "id": "blog",
   "name": "Blog",
   "description": "Articles, editorial authors, categories, tags, scheduled publication and moderated discussion.",
-  "version": "1.2.0",
+  "version": "1.1.0",
   "api": 1,
   "cmsMajor": 2,
   "entry": "Plugin.php",

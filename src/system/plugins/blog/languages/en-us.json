@@ -139,6 +139,11 @@
     "blog.url": "URL",
     "blog.dashboard.published": "Published articles",
     "blog.dashboard.pending": "Comments awaiting moderation",
-    "blog.markup": "HTML / Mustache"
+    "blog.markup": "HTML / Mustache",
+    "blog.pendingReview": "Pending review",
+    "blog.allowComments": "Allow comments on this article",
+    "blog.discussionHelp": "Requires discussion enabled in Blog settings. Closing prevents new submissions and preserves approved comments.",
+    "blog.template": "Template",
+    "blog.templateHelp": "The active template supplies the Blog layout. Alternate post formats require declared template support."
   }
 }

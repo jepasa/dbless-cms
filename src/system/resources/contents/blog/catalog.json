@@ -82,7 +82,8 @@
           "text": "Explore the public blog archive",
           "url": "/plugins/blog/list"
         }
-      ]
+      ],
+      "allowComments": true
     },
     "content-without-a-database": {
       "id": "content-without-a-database",
@@ -128,7 +129,8 @@
           ],
           "ordered": false
         }
-      ]
+      ],
+      "allowComments": true
     },
     "a-practical-publishing-checklist": {
       "id": "a-practical-publishing-checklist",
@@ -174,7 +176,8 @@
           ],
           "ordered": true
         }
-      ]
+      ],
+      "allowComments": true
     },
     "a-draft-to-make-your-own": {
       "id": "a-draft-to-make-your-own",
@@ -200,7 +203,8 @@
       "noindex": false,
       "seoTitle": "",
       "seoDescription": "",
-      "blocks": []
+      "blocks": [],
+      "allowComments": true
     },
     "a-scheduled-example": {
       "id": "a-scheduled-example",
@@ -231,7 +235,8 @@
           "type": "paragraph",
           "text": "This is a future publication example. Change its UTC date in the article editor to test scheduled release."
         }
-      ]
+      ],
+      "allowComments": true
     },
     "a-restorable-example": {
       "id": "a-restorable-example",
@@ -260,7 +265,8 @@
           "type": "paragraph",
           "text": "Soft deletion preserves an article and its identifiers for deliberate recovery."
         }
-      ]
+      ],
+      "allowComments": true
     }
   },
   "categories": {

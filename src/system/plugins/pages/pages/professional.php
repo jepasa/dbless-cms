@@ -6,6 +6,11 @@ use function DBLESSCMS\e;
 $repository=new PagePublications($context->store);$catalog=$repository->read();$isNew=$route==='new';$row=$isNew?null:$repository->record($key);$siteRevision=$context->store->read('site')['revision'];$sourceRevision=$isNew||isset($catalog['data']['records'][$key])?'':$context->store->read($key,null,true)['revision'];
 $snapshot=$isNew?PageBlueprints::create('blank',$t('pages.titlePlaceholder'),'new-page'):$row['draft'];$pageDocument=$snapshot['document'];
 if($isNew){$snapshot['url']='';foreach(['title','description','image','imageAlt'] as $field)$pageDocument['meta'][$field]='';}
+$editorialData=PagePublications::editorial($snapshot['editorial']??[]);$activeManifest=$context->store->templates->get($context->store->read('site')['data']['template']);$layoutContracts=$context->store->templates->schema($activeManifest['id']);$compatibleLayouts=[];
+foreach($activeManifest['pages'] as $layoutId=>$script){
+  if(in_array($layoutId,['home','404'],true)||!isset($layoutContracts['pages'][$layoutId]))continue;
+  try{\DBLESSCMS\Schema::validate($pageDocument['content'],$layoutContracts['pages'][$layoutId]);$compatibleLayouts[]=$layoutId;}catch(\DBLESSCMS\HttpError $error){if($error->status!==422)throw $error;}
+}
 $markupDefinition=$pageDocument['markup']??['html'=>'','bindings'=>[]];$markupPageKey=$isNew?'home':$key;$markupAdvanced=true;$markupLabel=$t('pages.content');$authored=isset($pageDocument['markup']);
 /** Emit escaped CSRF/catalog/site/source fields; no parameters, outputs hidden controls without mutations. */
 $fields=static function()use($csrf,$catalog,$siteRevision,$sourceRevision,$key):void{foreach(['csrf_token'=>$csrf,'catalog_revision'=>$catalog['revision'],'site_revision'=>$siteRevision,'source_revision'=>$sourceRevision,'key'=>$key] as $name=>$value)echo '<input type="hidden" name="'.e($name).'" value="'.e($value).'">';};
@@ -31,14 +36,18 @@ ob_start(); ?>
 </section>
 <?php $editorialContent=(string)ob_get_clean();ob_start(); ?>
 <details open><summary><?= e($t('pages.publication')) ?></summary>
+<label><?= e($t('pages.author')) ?><input name="page_author" maxlength="200" value="<?= e($editorialData['author']) ?>"></label>
+<label class="editor-checkbox"><input type="checkbox" name="page_review" value="1" <?= $editorialData['review']?'checked':'' ?>><?= e($t('pages.pendingReview')) ?></label>
 <?php if($isNew): ?><p class="muted"><?= e($t('pages.firstSaveHelp')) ?></p><?php else: ?>
 <p data-page-publication-help class="muted" data-normal="<?= e($t('pages.publishSaved')) ?>"><?= e($t('pages.publishSaved')) ?></p>
-<label><?= e($t('pages.scheduleUTC')) ?><input type="datetime-local" name="publish_at" form="page-schedule" required></label>
-<div class="row-actions"><?= $button('history',$t('pages.action.schedule'),'type="submit" form="page-schedule" data-page-publish') ?><?php if($row['published']!==null||$row['scheduled']!==null): ?><?= $button('deactivate',$t('pages.action.unpublish'),'type="submit" form="page-unpublish"') ?><?php endif; ?></div>
+<label><?= e($t('pages.scheduleUTC')) ?><input type="datetime-local" name="publish_at" form="page-publication" step="1" value="<?= e(substr($row['publishAt'],0,19)) ?>"></label>
+<div class="row-actions"><?= $button('history',$t('pages.action.schedule'),'type="submit" form="page-publication" formaction="'.e($context->url('editorial-schedule')).'" data-page-publish') ?><?php if($row['published']!==null||$row['scheduled']!==null): ?><?= $button('deactivate',$t('pages.action.unpublish'),'type="submit" form="page-unpublish"') ?><?php endif; ?><?= $button('uninstall',$t('pages.action.trash'),'type="submit" form="page-trash"') ?></div>
 <?php endif; ?></details>
 <details <?= $isNew?'open':'' ?>><summary><?= e($t('pages.structure')) ?></summary>
 <label><?= e($t('pages.slug')) ?><input name="slug" maxlength="64" pattern="[a-z0-9][a-z0-9\-]{0,63}" value="<?= e($snapshot['url']) ?>" required <?= $isNew?'data-pages-slug':'' ?>></label>
 <label><?= e($t('pages.parent')) ?><select name="parent"><option value=""><?= e($t('pages.noParent')) ?></option><?php foreach($pages as $id=>$item): if((string)$id===$key||!PagePublications::identifier((string)$id))continue; ?><option value="<?= e($id) ?>" <?= ($row['parent']??'')===(string)$id?'selected':'' ?>><?= e($item['data']['meta']['title']) ?></option><?php endforeach; ?></select></label><p class="muted"><?= e($t('pages.urlHelp')) ?></p>
+<label><?= e($t('pages.order')) ?><input type="number" name="page_order" min="-999999" max="999999" step="1" value="<?= $editorialData['order'] ?>" required></label>
+<label><?= e($t('pages.layout')) ?><select name="page_layout" aria-label="<?= e($t('pages.layout')) ?>"><?php foreach($compatibleLayouts as $layoutId): ?><option value="<?= e($layoutId) ?>" <?= $pageDocument['page']===$layoutId?'selected':'' ?>><?= e($activeManifest['name'].' / '.$layoutId) ?></option><?php endforeach; ?></select></label><p class="muted"><?= e($t('pages.layoutHelp')) ?></p>
 </details>
 <details><summary><?= e($t('pages.featuredImage')) ?></summary><label><?= e($t('pages.meta_image')) ?><input name="meta_image" maxlength="2048" data-media-field="image" value="<?= e($pageDocument['meta']['image']) ?>"></label><label><?= e($t('pages.meta_imageAlt')) ?><input name="meta_imageAlt" maxlength="500" value="<?= e($pageDocument['meta']['imageAlt']) ?>"></label></details>
 <details><summary><?= e($t('pages.summary')) ?></summary><label><?= e($t('pages.meta_description')) ?><textarea name="meta_description" maxlength="500" rows="4"><?= e($pageDocument['meta']['description']) ?></textarea></label></details>
@@ -52,9 +61,9 @@ ob_start(); ?>
 <?php endif; ?></details>
 <?php $editorialProperties=(string)ob_get_clean();$editorialPropertiesLabel=$t('pages.properties'); ?>
 <form id="page-working" method="post" action="<?= e($context->url($isNew?'editorial-create':'editorial-save')) ?>" data-pages-form data-page-markup-form data-page-workspace data-unsaved="<?= e($t('pages.unsaved')) ?>">
-<?php $fields(); ?><input type="hidden" name="page_status" value="draft"><input type="hidden" name="meta_keywords" value="<?= e($pageDocument['meta']['keywords']) ?>"><?php if($isNew): ?><input type="hidden" name="compose" value="1"><?php endif; ?>
+<?php $fields(); ?><input type="hidden" name="editorial_fields" value="1"><input type="hidden" name="page_status" value="draft"><input type="hidden" name="meta_keywords" value="<?= e($pageDocument['meta']['keywords']) ?>"><?php if($isNew): ?><input type="hidden" name="compose" value="1"><?php endif; ?>
 <?php require $context->config->root.'/admin/editorial-workspace.php'; ?>
 </form>
-<?php if(!$isNew): foreach(['publication'=>'publish','schedule'=>'schedule','unpublish'=>'unpublish','duplicate'=>'duplicate'] as $formId=>$operation): ?>
-<form id="page-<?= e($formId) ?>" method="post" action="<?= e($context->url('editorial-'.$operation)) ?>" data-pages-form><?php $fields(); ?></form>
+<?php if(!$isNew): foreach(['publication'=>'publish','unpublish'=>'unpublish','duplicate'=>'duplicate','trash'=>'trash'] as $formId=>$operation): ?>
+<form id="page-<?= e($formId) ?>" method="post" action="<?= e($context->url('editorial-'.$operation)) ?>" data-pages-form <?= $operation==='trash'?'data-confirm="'.e($t('editor.confirm_remove')).'"':'' ?>><?php $fields(); ?></form>
 <?php endforeach; endif; ?>

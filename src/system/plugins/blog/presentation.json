@@ -16,15 +16,17 @@
       "title": "Create and edit an article",
       "body": [],
       "steps": [
-        "Open Articles and choose New article. Enter its slug, title, excerpt and author, then select categories and tags.",
+        "Open Blog → Overview and choose New article. Enter its slug, title, excerpt and author, then select categories and tags.",
         "Compose structured blocks or select HTML/Mustache explicitly. The shared Visual/Code editor handles authored HTML; switching format does not convert the old blocks automatically.",
-        "Choose existing public images through the media selector or enter an allowed remote URL. Upload new media in Images first and provide alternative text. Set individual SEO/social metadata where needed."
+        "Choose existing public images through the media selector or enter an allowed remote URL. Upload new media in Images first and provide alternative text. Set individual SEO/social metadata where needed.",
+        "Template shows the active theme and its Blog layout. Alternate post formats depend on declared template support; the editor does not invent executable template paths. History and Trash remain available for revision and recovery."
       ]
     },
     {
       "title": "Preview, publish and schedule",
       "body": [],
       "steps": [
+        "Select Pending review when an article is ready for editorial review. It remains unavailable publicly until explicitly published. Use Featured article to pin it above ordinary items in the default article listing.",
         "Save a draft and open its authenticated preview. Check headings, links, images and the active template before publishing.",
         "Set the publication state and UTC release time. A published article with a future release time stays unavailable publicly until it is due.",
         "Review the public article, list, RSS and sitemap once released. Unpublished or removed content is excluded from these public projections."
@@ -54,6 +56,7 @@
       "body": [],
       "steps": [
         "Open Blog → Settings to review publication defaults and discussion options. Comments start disabled; enable them only when discussion is intended.",
+        "In an article editor, use Allow comments on this article to open or close submissions. Global discussion must also be enabled. Closing an article keeps its approved comments visible and rejects new submissions, including an already-open form.",
         "Open Comments and inspect pending entries. Approve a suitable comment, keep it pending, mark spam or remove it using the available actions.",
         "Only approved eligible comments are public. Submissions contain no email/IP fields; exports omit comments and moderation records."
       ]

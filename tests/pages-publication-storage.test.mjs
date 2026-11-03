@@ -29,7 +29,7 @@ for(const application of applications){
       try{$components->inspect('{{pages:records}}');$raw=200;}catch(DBLESSCMS\\HttpError $e){$raw=$e->status;}
       $unsafe=[];foreach(['<video src="javascript:alert(1)"></video>','<video src="/cms-admin/?view=media-library"></video>','<video onerror="alert(1)"></video>'] as $html){try{DBLESSCMS\\ContentMarkup::html($html);$unsafe[]=200;}catch(DBLESSCMS\\HttpError $e){$unsafe[]=$e->status;}}
       echo json_encode(['records'=>$records,'states'=>$components->states(),'raw'=>$raw,'unsafe'=>$unsafe,'html'=>DBLESSCMS\\ContentMarkup::html('<a href="https://example.test" target="_blank" rel="ugc">Link</a>',false)]);
-    `);assert.ok(result.records.items.length>0);assert.deepEqual(Object.keys(result.records.items[0]),['id','title','summary','url','image','parentId','createdAt','updatedAt','isCurrent']);assert.deepEqual(result.states,{empty:{available:true,empty:true},absent:{available:false,empty:false}});assert.equal(result.raw,422);assert.deepEqual(result.unsafe,[422,422,422]);assert.match(result.html,/rel="ugc noopener noreferrer"/);
+    `);assert.ok(result.records.items.length>0);assert.deepEqual(Object.keys(result.records.items[0]),['id','title','summary','url','image','parentId','author','order','createdAt','updatedAt','isCurrent']);assert.deepEqual(result.states,{empty:{available:true,empty:true},absent:{available:false,empty:false}});assert.equal(result.raw,422);assert.deepEqual(result.unsafe,[422,422,422]);assert.match(result.html,/rel="ugc noopener noreferrer"/);
     }finally{c.close();}
   });
   test(`${path.basename(application)}: changed core and plugin dictionaries retain matching keys and placeholders`,()=>{

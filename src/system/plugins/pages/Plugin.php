@@ -14,11 +14,11 @@ final class PagesPlugin implements PluginInterface,ContentProviderInterface,Cont
   /** Return bounded public editorial projections, never HTML or private working snapshots; receive registered service/typed parameters/context, return paginated data and propagate invalid contracts. */
   private function records(string $service,array $parameters,ContentContext $context): array {
     $repository=new PagePublications($context->store);$catalog=$repository->read()['data']['records'];$items=[];
-    foreach($context->store->pages() as $id=>$snapshot){$page=$snapshot['data'];if(!PagePublications::identifier((string)$id)||$page['status']!=='published')continue;$row=$catalog[$id]??null;$live=$row===null?null:PagePublications::effective($row);$image=$page['meta']['image'];$items[(string)$id]=['id'=>(string)$id,'title'=>$page['meta']['title'],'summary'=>$page['meta']['description'],'url'=>$repository->url((string)$id,$context->base),'image'=>['url'=>$image===''?'':(preg_match('~^https?://~i',$image)?$image:$context->base.'/'.ltrim($image,'/')),'alt'=>$page['meta']['imageAlt']],'parentId'=>$live['parent']??'','createdAt'=>$row['createdAt']??'','updatedAt'=>$live['updatedAt']??'','isCurrent'=>(string)$id===$context->page];}
+    foreach($context->store->pages() as $id=>$snapshot){$page=$snapshot['data'];if(!PagePublications::identifier((string)$id)||$page['status']!=='published')continue;$row=$catalog[$id]??null;$live=$row===null?null:PagePublications::effective($row);$image=$page['meta']['image'];$items[(string)$id]=['id'=>(string)$id,'title'=>$page['meta']['title'],'summary'=>$page['meta']['description'],'url'=>$repository->url((string)$id,$context->base),'image'=>['url'=>$image===''?'':(preg_match('~^https?://~i',$image)?$image:$context->base.'/'.ltrim($image,'/')),'alt'=>$page['meta']['imageAlt']],'parentId'=>$live['parent']??'','author'=>$live['editorial']['author']??'','order'=>$live['editorial']['order']??0,'createdAt'=>$row['createdAt']??'','updatedAt'=>$live['updatedAt']??'','isCurrent'=>(string)$id===$context->page];}
     if($service==='details')$items=isset($items[$parameters['id']])?[$items[$parameters['id']]]:[];
     elseif($service==='children')$items=array_filter($items,static fn(array $item):bool=>$item['parentId']===$parameters['id']);
     elseif($service==='breadcrumbs'){$chain=[];$current=$parameters['id'];while(isset($items[$current])&&count($chain)<12){$chain[]=$items[$current];$current=$items[$current]['parentId'];}$items=array_reverse($chain);}
-    if(in_array($service,['records','children'],true)){usort($items,static fn(array $a,array $b):int=>(strnatcasecmp($a[$parameters['sort']],$b[$parameters['sort']])?:strcmp($a['id'],$b['id']))*($parameters['direction']==='asc'?1:-1));}
+    if(in_array($service,['records','children'],true)){usort($items,static fn(array $a,array $b):int=>(($parameters['sort']==='order'?($a['order']<=>$b['order']):strnatcasecmp($a[$parameters['sort']],$b[$parameters['sort']]))?:strcmp($a['id'],$b['id']))*($parameters['direction']==='asc'?1:-1));}
     $total=count($items);$limit=$parameters['limit']??50;$pages=max(1,(int)ceil($total/$limit));$page=min($pages,$parameters['page']??1);return ['items'=>array_values(array_slice($items,($page-1)*$limit,$limit)),'total'=>$total,'page'=>$page,'pages'=>$pages];
   }
   /** List stable published page IDs for reference selection; receive context, return bounded options without home/404 or draft bodies. */
@@ -85,9 +85,18 @@ final class PagesPlugin implements PluginInterface,ContentProviderInterface,Cont
       else{unset($document['markup']);$native=$this->input($_POST,'native_content',131072);if($native!==''){try{$document['content']=json_decode($native,true,32,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(422,'Invalid native content.','pages.editorial.invalid');}}}
       $seo=[];foreach(PagePublications::seo() as $field=>$default)$seo[$field]=$field==='noindex'?$this->input($_POST,'seo_noindex',1)==='1':$this->input($_POST,'seo_'.$field,2048);
       $input+=['snapshot'=>['url'=>$this->input($_POST,'slug',64),'document'=>$document,'seo'=>$seo],'parent'=>$this->input($_POST,'parent',64),'model'=>$row['model']];
-    }elseif($action==='schedule'){$value=$this->input($_POST,'publish_at',30);$input['publishAt']=strlen($value)===16?$value.':00Z':$value;}
+    }elseif(in_array($action,['publish','schedule'],true)){$value=$this->input($_POST,'publish_at',30);if($value!==''||$action==='schedule')$input['publishAt']=strlen($value)===16?$value.':00Z':(strlen($value)===19?$value.'Z':$value);}
     elseif($action==='restore')$input['backup']=$this->input($_POST,'backup',64);
     elseif($action==='duplicate')$input['url']=$this->input($_POST,'slug',64);
+    if(in_array($action,['create','save'],true)){
+      $existing=$action==='save'?($row['draft']['editorial']??PagePublications::editorial()):PagePublications::editorial();
+      if($this->input($_POST,'editorial_fields',1)==='1'){
+        $order=$this->input($_POST,'page_order',7);if(!preg_match('/^-?(?:0|[1-9][0-9]{0,5})$/D',$order))throw new HttpError(422,'Invalid order.','pages.editorial.invalid');
+        $existing=['author'=>$this->input($_POST,'page_author',200),'order'=>(int)$order,'review'=>$this->input($_POST,'page_review',1)==='1'];
+      }
+      $input['snapshot']['editorial']=PagePublications::editorial($existing);
+      if(array_key_exists('page_layout',$_POST))$input['snapshot']['document']['page']=$this->input($_POST,'page_layout',64);
+    }
     $result=$repository->change($id,$action,$input,$this->input($_POST,'catalog_revision'),$this->input($_POST,'site_revision'));
     return ['redirect'=>$context->base.'/cms-admin/?view=plugin-panel&plugin=pages&route='.($action==='trash'?'trash':'editor').'&key='.rawurlencode($result['id'])];
   }

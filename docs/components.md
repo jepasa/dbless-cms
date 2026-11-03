@@ -126,3 +126,9 @@ memoization is used for repeated calls during one render. Never reuse a Componen
 instance across requests. Optional failures yield empty data or the prior valid
 Homepage, with no stale successful response. HTML responses remain no-store.
 See the Cache contract in the plugin development guide for extension obligations.
+
+## Editorial field parity (2.13)
+
+Pages stores optional editorial author, numeric order and private review state per snapshot. Raw records/details/children/breadcrumbs expose only the published author/order; records and children accept `sort: "order"`. Page layouts are limited to declared active-template scripts whose native content contract matches. Publication dates support backdating and future scheduling without changing the global theme. Missing metadata is defaulted in memory, with no GET migration.
+
+Blog adds pending review and per-article `allowComments`, defaulting to true for old catalogs. The global discussion switch and existing moderation remain authoritative; closing an article preserves approved comments while blocking new submissions. Existing author, categories, tags, featured sorting, metadata, revisions and trash remain unchanged. Private/password content, Page comments and pingback/trackback features are separate scope. Blog displays the active rendering template; alternate post formats are conditional on declared template support.
