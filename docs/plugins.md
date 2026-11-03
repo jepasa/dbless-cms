@@ -562,3 +562,45 @@ The public response boundary accepts only a declared `PublicPluginInterface` imp
 Privacy controls, interactive Forms, public image credits and their boundaries are documented in [Privacy, Forms and image provenance](privacy-forms-media.md).
 
 See [Shared HTML/Mustache and PHP/CSS/JS editor](shared-editor.md) for the reusable core authoring profiles.
+
+## Images explorer (2.10)
+
+Images offers a connected folder tree, sortable Name/Type/Size/Added-on columns,
+thumbnail grid, current-folder search, type filters and a shared icon-only action
+bar/context menu. Every action has a localized tooltip and accessible name. Use
+right-click, Shift+F10, or the visible item actions button. On narrow screens the
+table scrolls inside its container, preserving all column headings.
+
+The optional `browser.pageSize` setting accepts 25, 50 or 100 (default 25). Legacy
+settings saves preserve the current preference. Sorting/filtering precede paging;
+the server still scans the bounded directory and calculates revision hashes.
+Existing limits remain 1,000 entries, 250 MiB per directory and 10 MiB per file.
+
+MP4 videos are checked for MIME, executable markers and bounded ISO-BMFF framing;
+codec playback is browser-dependent. No transcoder or external service is used.
+Image/video previews use authenticated, no-store endpoints in both storage scopes.
+Added dates are recorded privately for new managed items, preserved through moves
+and replacement, and shown as unavailable for untracked legacy files.
+
+Replace requires confirmation, a valid session/CSRF token and a current directory
+revision. It retains the destination name/path and matching extension, validates
+new bytes and archives the old bytes in private trash before atomic publication.
+Free the original destination before restoring an archived version: recovery never
+silently overwrites a current file. Changed bytes invalidate the existing public
+legacy rights resolution. Existing public references remain readable; image-rights administration and its metadata/derivative endpoints have been removed. No copyright approval is inferred.
+Public URLs keep their names; external browser/CDN caches are outside this action's
+control. No live data, date indexes or replacement archives belong in distribution.
+
+Action icons come from the core `Icons` mapping, using addressed local SVG files.
+New admin actions must reuse that mapping and localized title/aria-label labels.
+
+### Images history
+
+History describes the latest recorded file operations (up to 100 from a bounded
+private-log tail), in the selected admin language, with UTC timestamps and storage
+area. Old logs contain hashed targets; the UI does not invent filenames. Restorable
+configuration copies carry a description and explicitly identify that their
+originating action was not recorded. Reads never migrate or create history.
+Image-rights administration is removed, including its route, toolbar/context
+action and write endpoints. Existing private records and read-only public asset
+references remain available for compatibility; no stored data is deleted.

@@ -27,18 +27,15 @@
     {
       "title": "Public data boundaries",
       "body": [
-        "Images does not register a public Mustache content service or document source. Private files, upload listings, paths and administrative controls must not be exposed through editorial bindings.",
+        "The read-only files-manager:asset service preserves previously approved public image references. Image-rights administration is no longer available. Private evidence and originals remain private.",
         "Choose a public image in the authorized image picker or use its validated public URL in an img element. Blog/Slides/Page data can include their already-public image URLs. File-management routes remain protected independently of the shared renderer."
       ]
     },
     {
-      "title": "Image rights and public attribution",
+      "title": "History",
       "body": [
-        "Select an uploaded image in Overview and open Metadata. Record author, source, license, private evidence reference and review decision. Unknown rights never become public domain. Author/source credits are automatically rendered beside approved local images across public HTML; contextual alt is left unchanged.",
-        "Stable asset IDs survive managed rename, move, trash and restore. External filesystem changes invalidate byte approval. Private evidence, originals and parent IDs are never provider output or public distribution data.",
-        "For a licensed private JPG/PNG/WebP, explicitly allow derivatives and publish a new sanitized public copy when optional PHP GD is available. The private original is preserved. Animated files and ICO/GIF conversion are unsupported; provenance remains in the catalog even though technical EXIF/GPS/C2PA is removed. No C2PA signature or ownership claim is authenticated."
-      ],
-      "code": "Bind files-manager:asset with parameter id and an alias such as photo.\n<figure><img src=\"{{photo.src}}\" alt=\"Context-specific description\"><figcaption>{{photo.author}} — {{photo.credit}}</figcaption></figure>"
+        "History describes the latest recorded file operations and labels restorable configuration copies. Old snapshots do not identify their originating action; no action or filename is inferred."
+      ]
     }
   ]
 }

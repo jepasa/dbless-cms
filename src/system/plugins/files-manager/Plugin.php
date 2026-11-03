@@ -12,6 +12,7 @@ final class FilesManager implements PluginInterface,ContentProviderInterface,Con
   /** Valida raízes sem criar diretórios; recebe settings/config; lança erro seguro para caminhos/links/proteções. */
   public function validateSettings(array $settings,Config $config): void {
     Schema::validate($settings,json_decode((string)file_get_contents(__DIR__.'/settings.schema.json'),true,16,JSON_THROW_ON_ERROR));
+    if (!in_array($settings['browser']['pageSize']??25,[25,50,100],true)) throw new HttpError(422,'Use 25, 50 or 100 items per page.','fm.error.pageSize');
     $context=new PluginContext($config,new JsonStore($config),[], $settings,'','',new Language(__DIR__.'/languages'));
     foreach (['public','private'] as $scope) new ManagedFiles($context,$scope);
   }
@@ -22,13 +23,8 @@ final class FilesManager implements PluginInterface,ContentProviderInterface,Con
 
   /** Despacha configuração/arquivos em rotas próprias autenticadas; recebe contexto/operação; retorna JSON/stream ou HttpError sem expor dados privados. */
   public function api(PluginContext $context,string $operation): ?array {
-    if(in_array($operation,['rights-save','rights-copy'],true)){
-      if($context->route!=='rights'||($_SERVER['REQUEST_METHOD']??'GET')!=='POST')throw new HttpError(404,'Media operation unavailable.','error.not_found');
-      $scope=$_POST['scope']??null;$path=$_POST['path']??null;$revision=$_POST['rights_revision']??null;$fileRevision=$_POST['file_revision']??null;$registryRevision=$_POST['registry_revision']??null;
-      if(!is_string($scope)||!is_string($path)||!is_string($revision)||!is_string($fileRevision)||!is_string($registryRevision))throw new HttpError(422,'Invalid media metadata input.','fm.error.rights');
-      $context->store->transaction(function()use($context,$scope,$path,$revision,$fileRevision,$registryRevision,$operation):void{if(!hash_equals($context->store->read('plugins')['revision'],$registryRevision))throw new HttpError(409,'Upload scope changed.','fm.error.revision');$file=(new ManagedFiles($context,$scope))->describe($path);if(!hash_equals($file['sha256'],$fileRevision))throw new HttpError(409,'Image bytes changed.','fm.error.revision');$fields=[];if($operation==='rights-copy'){$name=$_POST['name']??null;if(!is_string($name))throw new HttpError(422,'Invalid copy name.','fm.error.rights');(new ManagedFiles($context,$scope))->publishCopy($path,$name,$revision);return;}foreach(['author','source','license','licenseUrl','credit','evidence','altSuggestion','review'] as $key){$value=$_POST[$key]??'';if(!is_string($value))throw new HttpError(422,'Invalid metadata value.','fm.error.rights');$fields[$key]=$value;}$fields['derivativesAllowed']=($_POST['derivativesAllowed']??'')==='1';(new MediaRights($context->store))->save($file,$fields,$revision);});
-      return ['redirect'=>$context->base.'/cms-admin/?view=plugin-panel&plugin=files-manager&route=rights'];
-    }
+    // Removed administrative rights operations stay unavailable on every route.
+    if (in_array($operation,['rights-save','rights-copy'],true)) throw new HttpError(404,'Operation unavailable.','error.not_found');
     if (in_array($operation,['settings-save','settings-restore','options-restore'],true)) {
       if (!in_array($context->route,['settings','history'],true)||($operation==='settings-save'&&$context->route!=='settings')) throw new HttpError(403,'Rota incompatível.','error.plugin');
       if (($_SERVER['REQUEST_METHOD']??'GET')!=='POST') throw new HttpError(405,'Método inválido.','error.method');
@@ -36,6 +32,8 @@ final class FilesManager implements PluginInterface,ContentProviderInterface,Con
       if (!is_string($revision) || strlen($revision)>128) throw new HttpError(422,'Revisão inválida.','error.revision');
       if ($operation==='settings-save') {
         $settings=PluginOptions::input($_POST,['uploads'=>['public'=>$_POST['public']??null,'private'=>$_POST['private']??null]]);
+        // Legacy clients omit browser options: preserve the effective current preference.
+        if (!array_key_exists('browser',$settings)) $settings['browser']=$context->settings['browser']??['pageSize'=>25];
         (new Plugins($context->store))->saveOptions($context->manifest['id'],$settings,$revision);
       } else {
         $backup=$_POST['backup']??null;

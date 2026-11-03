@@ -191,10 +191,10 @@ retentions and external-system erasure separately.
 
 ## Image rights and public labels
 
-Images is the existing `files-manager` plugin. Select a managed image in Overview
-and choose Metadata, or open Image rights from its sidebar dropdown. Record actual
-author, source URL, license/permission, public license URL, credit, private permission
-reference, suggested description and rights-review status.
+The Images administration no longer offers Image rights, Metadata or sanitized-copy
+operations. Their route and write endpoints are unavailable. Existing private
+records and approved public references are retained for compatibility; removal
+of the administrative feature does not erase attribution or permission records.
 
 Unknown authorship is not public domain. Credits do not replace permission or
 permission from identifiable people; the operator must assess the actual license,
@@ -222,18 +222,12 @@ Bind `files-manager:asset` with an approved public asset ID and alias `photo`:
 The shared public renderer places the approved visible credit beside this image; avoid adding a duplicate figcaption. The result also includes public source/license metadata and dimensions, not evidence,
 private files or private parent identities. Only currently approved bytes are used.
 
-### Publish an explicitly licensed sanitized copy
+### Original media
 
-Uploaded originals are not silently rewritten and may contain EXIF/GPS/C2PA. For a
-private JPG/PNG/WebP with reviewed derivative permission, use Publish sanitized copy
-from its metadata screen. Optional PHP GD decodes/encodes a new public image, strips
-technical metadata and keeps provenance/parent linkage in the private catalog. The
-original stays private and unchanged. The public copy retains visible rights labels.
-
-No new GD dependency is installed automatically. Missing GD, unsupported animated
-content, GIF/ICO conversion, excessive pixel budgets and filename collisions fail
-explicitly. The workflow does not authenticate or re-sign C2PA or certify ownership.
-Review visual output, color/profile effects and license conditions before publication.
+Uploaded originals are not silently rewritten and may contain EXIF/GPS/C2PA.
+The removed administrative workflow no longer creates sanitized copies. Existing
+originals and public copies are preserved. No ownership or C2PA verification is
+inferred from these legacy records.
 
 ## Templates, accessibility and distribution
 

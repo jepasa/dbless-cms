@@ -3,10 +3,35 @@
 declare(strict_types=1);
 namespace DBLESSCMS;
 final class ManagedFiles {
-  private const TYPES=['jpg'=>['image/jpeg'],'jpeg'=>['image/jpeg'],'png'=>['image/png'],'gif'=>['image/gif'],'webp'=>['image/webp'],'ico'=>['image/vnd.microsoft.icon','image/x-icon'],'pdf'=>['application/pdf'],'txt'=>['text/plain']];
+  private const TYPES=['jpg'=>['image/jpeg'],'jpeg'=>['image/jpeg'],'png'=>['image/png'],'gif'=>['image/gif'],'webp'=>['image/webp'],'ico'=>['image/vnd.microsoft.icon','image/x-icon'],'pdf'=>['application/pdf'],'txt'=>['text/plain'],'mp4'=>['video/mp4']];
   private string $anchor;
   private string $root;
   private string $state;
+  /** Read up to 100 recent private audit events from a bounded tail; receive context, return typed public display fields only, never write, reject links/corruption/I/O failures. */
+  public static function history(PluginContext $context): array {
+    $file=$context->config->data['storage'].'/plugins/files-manager/audit.jsonl'; self::noLinks($file);
+    if (!file_exists($file)) return [];
+    if (!is_file($file)) self::fail('history',503);
+    $stream=fopen($file,'rb'); if ($stream===false) self::fail('history',503);
+    try {
+      if (!flock($stream,LOCK_SH)) self::fail('history',503);
+      $stat=fstat($stream); if ($stat===false) self::fail('history',503);
+      $offset=max(0,$stat['size']-1048576);
+      if (fseek($stream,$offset)!==0) self::fail('history',503);
+      if ($offset>0 && fgets($stream)===false) self::fail('history',503);
+      $bytes=stream_get_contents($stream,1048576); if ($bytes===false) self::fail('history',503);
+      $lines=array_slice(explode("\n",rtrim($bytes,"\n")),-100); $events=[];
+      foreach (array_reverse($lines) as $line) {
+        if ($line==='') continue;
+        try {$event=json_decode($line,true,8,JSON_THROW_ON_ERROR);} catch (\JsonException) {self::fail('history',503);}
+        if (!is_array($event)||!is_string($event['at']??null)||!is_string($event['event']??null)||!is_string($event['scope']??null)) self::fail('history',503);
+        $date=\DateTimeImmutable::createFromFormat(DATE_ATOM,$event['at']);
+        if ($date===false||$date->format(DATE_ATOM)!==$event['at']) self::fail('history',503);
+        $events[]=['at'=>$date->setTimezone(new \DateTimeZone('UTC'))->format(DATE_ATOM),'event'=>in_array($event['event'],['upload','mkdir','rename','move','delete','restore','purge','replace'],true)?$event['event']:'unknown','scope'=>in_array($event['scope'],['public','private'],true)?$event['scope']:'unknown'];
+      }
+      return $events;
+    } finally {flock($stream,LOCK_UN);fclose($stream);}
+  }
   /** Resolve escopo e raízes sem escrita; recebe contexto/escopo; rejeita configurações, symlinks e escapes. */
   public function __construct(private readonly PluginContext $context, private readonly string $scope) {
     if (!in_array($scope,['public','private'],true)) self::fail('scope');
@@ -56,9 +81,55 @@ final class ManagedFiles {
     try { $this->path($relative); if (!$directory && !isset(self::TYPES[strtolower(pathinfo($relative,PATHINFO_EXTENSION))])) return false; return true; }
     catch (HttpError) { return false; }
   }
+  /** Read the private added-date index for this root; no migration writes, reject links/corruption and propagate I/O errors. */
+  private function dates(): array {
+    $file=$this->datesFile(); self::noLinks($file);
+    if (!file_exists($file)) return [];
+    if (!is_file($file)) self::fail('io',503);
+    $raw=file_get_contents($file); if ($raw===false || strlen($raw)>8388608) self::fail('io',503);
+    try {$data=json_decode($raw,true,8,JSON_THROW_ON_ERROR);} catch (\JsonException) {self::fail('io',503);}
+    if (!is_array($data)) self::fail('io',503);
+    foreach ($data as $path=>$item) {
+      self::relative((string)$path);
+      if (!is_array($item)||!is_string($item['identity']??null)||!is_string($item['added']??null)||!preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+00:00$/D',$item['added'])) self::fail('io',503);
+    }
+    return $data;
+  }
+  /** Resolve root-specific private index name without writing; only a hash of trusted scope/root enters the path. */
+  private function datesFile(): string {return $this->state.'/dates-'.hash('sha256',$this->scope."\0".$this->root).'.json';}
+  /** Return filesystem identity for an existing regular item; reject stat failure, never infer creation from mtime. */
+  private function identity(string $file): string {$stat=stat($file);if($stat===false)self::fail('io',503);return $stat['dev'].':'.$stat['ino'];}
+  /** Atomically publish an already validated index; receive map, preserve old bytes on failure and never follow links. */
+  private function saveDates(array $dates): void {
+    $file=$this->datesFile();self::noLinks($file);Security::directory($this->state);
+    $temporary=tempnam($this->state,'.dates-');if($temporary===false)self::fail('io',503);
+    try {if(file_put_contents($temporary,JsonStore::encode($dates),LOCK_EX)===false||!chmod($temporary,0600)||!rename($temporary,$file))self::fail('io',503);}
+    finally {if(is_file($temporary))unlink($temporary);}
+  }
+  /** Return tracked descendants relocated to a new prefix; inputs are validated paths/map, no writes or date invention. */
+  private function movedDates(array $dates,string $from,string $to): array {
+    $next=$dates;foreach($dates as $path=>$item){$path=(string)$path;if($path===$from||str_starts_with($path,$from.'/')){unset($next[$path]);$next[$to.substr($path,strlen($from))]=$item;}}return $next;
+  }
+  /** Validate bounded ISO-BMFF framing; receive complete MP4 bytes, require brand/movie/media boxes, reject malformed/trailing data. Does not certify codec playback. */
+  private static function mp4(string $bytes): void {
+    $offset=0;$total=strlen($bytes);$seen=[];
+    while($offset<$total){
+      if($total-$offset<8)self::fail('video');$length=unpack('N',substr($bytes,$offset,4))[1];$type=substr($bytes,$offset+4,4);
+      if($length<8||$length>$total-$offset||!in_array($type,['ftyp','moov','mdat','free','skip','wide','moof','mfra','sidx','styp'],true))self::fail('video');
+      if($offset===0&&$type!=='ftyp')self::fail('video');
+      if($type==='ftyp'&&($length<16||!in_array(substr($bytes,$offset+8,4),['isom','iso2','iso5','iso6','mp41','mp42','avc1','M4V '],true)))self::fail('video');
+      if($type==='moov'){
+        $end=$offset+$length;$cursor=$offset+8;$children=[];
+        while($cursor<$end){if($end-$cursor<8)self::fail('video');$size=unpack('N',substr($bytes,$cursor,4))[1];if($size<8||$size>$end-$cursor)self::fail('video');$children[]=substr($bytes,$cursor+4,4);$cursor+=$size;}
+        if(!in_array('mvhd',$children,true)||!in_array('trak',$children,true))self::fail('video');
+      }
+      $seen[$type]=true;$offset+=$length;
+    }
+    if(!isset($seen['ftyp'],$seen['moov'],$seen['mdat']))self::fail('video');
+  }
   /** Lista diretório e revisão de bytes/identidade imediatos; recebe relativo, retorna JSON sem caminhos privados. */
   public function listing(string $relative): array {
-    $directory=$this->path($relative,false); $entries=[]; $fingerprint=[$this->context->revision,$this->scope,$this->root,$relative];
+    $directory=$this->path($relative,false); $entries=[]; $dates=$this->dates(); $fingerprint=[$this->context->revision,$this->scope,$this->root,$relative];
     if (file_exists($directory) && !is_dir($directory)) self::fail('directory');
     if (is_dir($directory)) {
       $names=scandir($directory); if ($names===false) self::fail('io',503);
@@ -69,12 +140,12 @@ final class ManagedFiles {
         $folder=is_dir($file); if (!$this->visible($rel,$folder)) continue;
         $stat=stat($file); if ($stat===false) self::fail('io',503);
         $fingerprint[]=[$name,$stat['ino'],$stat['mtime'],$stat['ctime'],$stat['size'],$folder?'dir':hash_file('sha256',$file)];
-        $entries[]=['name'=>$name,'path'=>$rel,'directory'=>$folder,'size'=>$folder?0:$stat['size'],'modified'=>gmdate(DATE_ATOM,$stat['mtime'])];
+        $entries[]=['name'=>$name,'path'=>$rel,'directory'=>$folder,'size'=>$folder?0:$stat['size'],'modified'=>gmdate(DATE_ATOM,$stat['mtime']),'added'=>(($dates[$rel]['identity']??null)===$this->identity($file)?($dates[$rel]['added']??null):null),'type'=>$folder?'folder':strtolower(pathinfo($name,PATHINFO_EXTENSION))];
         if (count($entries)>1000) self::fail('quota',413);
       }
     }
     usort($entries,static fn(array $a,array $b): int => ($b['directory']<=>$a['directory']) ?: strnatcasecmp($a['name'],$b['name']));
-    return ['entries'=>$entries,'path'=>$relative,'scope'=>$this->scope,'revision'=>hash('sha256',json_encode($fingerprint,JSON_THROW_ON_ERROR)),'maxBytes'=>10485760];
+    return ['entries'=>$entries,'path'=>$relative,'scope'=>$this->scope,'revision'=>hash('sha256',json_encode($fingerprint,JSON_THROW_ON_ERROR)),'maxBytes'=>10485760,'pageSize'=>$this->context->settings['browser']['pageSize']??25];
   }
   /** Valida árvore inteira antes de mover/excluir; recebe caminho e relativo; retorna quantidade/bytes e rejeita arquivos estranhos. */
   private function tree(string $path,string $relative,int $depth=0): array {
@@ -134,6 +205,7 @@ final class ManagedFiles {
     if (preg_match('/<\?(?:php|=)|<script\b|<html\b/i',$payload)) self::fail('type');
     $scan=$mime==='image/png'?self::pngScan($bytes):$payload;
     if (preg_match('/<svg\b/i',$scan)) self::fail('type');
+    if ($mime==='video/mp4') self::mp4($bytes);
     if ($mime==='text/plain' && (!preg_match('//u',$bytes) || str_contains($bytes,"\0"))) self::fail('type');
     if ($mime==='application/pdf' && !str_starts_with($bytes,'%PDF-')) self::fail('type');
     return $mime;
@@ -161,7 +233,7 @@ final class ManagedFiles {
   public function trash(): array {
     $entries=[];
     foreach (glob($this->state.'/trash/*',GLOB_ONLYDIR) ?: [] as $directory) {
-      try { $item=$this->tombstone(basename($directory)); unset($item['root']); $entries[]=$item; }
+      try { $item=$this->tombstone(basename($directory)); unset($item['root'],$item['dates']);$item['type']=$item['directory']?'folder':strtolower(pathinfo($item['name'],PATHINFO_EXTENSION)); $entries[]=$item; }
       catch (HttpError $error) { if ($error->status!==404) throw $error; }
     }
     return ['entries'=>$entries,'revision'=>hash('sha256',$this->context->revision.json_encode($entries,JSON_THROW_ON_ERROR)),'scope'=>$this->scope];
@@ -191,6 +263,7 @@ final class ManagedFiles {
       if (!hash_equals($current['revision'],$revision)) self::fail('revision',409);
       self::noLinks($this->root); Security::directory($this->root);
       $parent=$this->path($directory); if (!is_dir($parent)) self::fail('directory');
+      $dates=$this->dates();
       $target=$input['target']??''; $name=$input['name']??'';
       if (!is_string($target) || !is_string($name)) self::fail('path');
       if (in_array($operation,['mkdir','upload'],true)) {
@@ -204,16 +277,42 @@ final class ManagedFiles {
         if (count($current['entries'])>=1000 || array_sum(array_column($current['entries'],'size'))+($operation==='upload'?filesize($upload['tmp_name']):0)>262144000) self::fail('quota',413);
         if ($operation==='mkdir') { if (!mkdir($file,0770)) self::fail('io',503); }
         else { if (!move_uploaded_file($upload['tmp_name'],$file)) self::fail('io',503); if (!chmod($file,0640)) self::fail('io',503); }
+        $next=$dates;$next[$relative]=['identity'=>$this->identity($file),'added'=>gmdate(DATE_ATOM)];
+        try{$this->saveDates($next);}catch(\Throwable $error){if($operation==='mkdir')rmdir($file);else unlink($file);throw $error;}
+      } elseif ($operation==='replace') {
+        self::name($target);$relative=$directory===''?$target:$directory.'/'.$target;$file=$this->path($relative);
+        if(!is_file($file))self::fail('type');
+        $upload=$_FILES['file']??null;
+        if(!is_array($upload)||($upload['error']??null)!==UPLOAD_ERR_OK||!is_string($upload['name']??null)||!is_string($upload['tmp_name']??null)||!is_uploaded_file($upload['tmp_name']))self::fail('upload');
+        if(strtolower(pathinfo($upload['name'],PATHINFO_EXTENSION))!==strtolower(pathinfo($target,PATHINFO_EXTENSION)))self::fail('type');
+        $this->mime($upload['tmp_name'],$target);
+        if(array_sum(array_column($current['entries'],'size'))-filesize($file)+filesize($upload['tmp_name'])>262144000)self::fail('quota',413);
+        if(stat(dirname($file))['dev']!==stat($this->state)['dev'])self::fail('filesystem');
+        $id=bin2hex(random_bytes(16));$trashdir=$this->state.'/trash/'.$id;self::noLinks($trashdir);Security::directory($trashdir);
+        $at=gmdate(DATE_ATOM);$added=($dates[$relative]['identity']??null)===$this->identity($file)?($dates[$relative]['added']??null):null;
+        $metadata=['status'=>'replaced','deleted_at'=>$at,'scope'=>$this->scope,'root'=>$this->context->settings['uploads'][$this->scope],'path'=>$relative,'name'=>$target,'directory'=>false,'size'=>filesize($file),'deleted'=>$at,'added'=>$added,'dates'=>array_intersect_key($dates,[$relative=>true])];
+        $temporary=tempnam(dirname($file),'.replacement-');if($temporary===false)self::fail('io',503);$published=false;
+        try{
+          if(!move_uploaded_file($upload['tmp_name'],$temporary)||!chmod($temporary,0640)||file_put_contents($trashdir.'/metadata.json',JsonStore::encode($metadata),LOCK_EX)===false)self::fail('io',503);
+          // Copy the old bytes first, then atomically publish the staged replacement at the original path.
+          if(!copy($file,$trashdir.'/data')||!chmod($trashdir.'/data',fileperms($file)&0777))self::fail('io',503);
+          if(!rename($temporary,$file))self::fail('io',503);$published=true;clearstatcache();
+          $next=$dates;unset($next[$relative]);if($added!==null)$next[$relative]=['identity'=>$this->identity($file),'added'=>$added];$this->saveDates($next);
+        }catch(\Throwable $error){
+          if($published){if(!rename($trashdir.'/data',$file))self::fail('io',503);clearstatcache();if($added!==null)$dates[$relative]=['identity'=>$this->identity($file),'added'=>$added];$this->saveDates($dates);}
+          elseif(is_file($trashdir.'/data'))unlink($trashdir.'/data');
+          if(is_file($trashdir.'/metadata.json'))unlink($trashdir.'/metadata.json');rmdir($trashdir);throw $error;
+        }finally{if(is_file($temporary))unlink($temporary);}
       } elseif (in_array($operation,['rename','move','delete'],true)) {
         self::name($target); $relative=$directory===''?$target:$directory.'/'.$target; $file=$this->path($relative); $this->tree($file,$relative);
         if ($operation==='delete') {
           if (stat(dirname($file))['dev']!==stat($this->state)['dev']) self::fail('filesystem');
           $id=bin2hex(random_bytes(16)); $trashdir=$this->state.'/trash/'.$id; self::noLinks($trashdir); Security::directory($trashdir);
           $deletedAt=gmdate(DATE_ATOM);
-          $metadata=['status'=>'deleted','deleted_at'=>$deletedAt,'scope'=>$this->scope,'root'=>$this->context->settings['uploads'][$this->scope],'path'=>$relative,'name'=>$target,'directory'=>is_dir($file),'size'=>is_file($file)?filesize($file):0,'deleted'=>$deletedAt];
+          $metadata=['status'=>'deleted','deleted_at'=>$deletedAt,'scope'=>$this->scope,'root'=>$this->context->settings['uploads'][$this->scope],'path'=>$relative,'name'=>$target,'directory'=>is_dir($file),'size'=>is_file($file)?filesize($file):0,'deleted'=>$deletedAt,'added'=>(($dates[$relative]['identity']??null)===$this->identity($file)?($dates[$relative]['added']??null):null),'dates'=>array_filter($dates,static fn(string|int $path):bool=>(string)$path===$relative||str_starts_with((string)$path,$relative.'/'),ARRAY_FILTER_USE_KEY)];
           if (file_put_contents($trashdir.'/metadata.json',JsonStore::encode($metadata),LOCK_EX)===false) self::fail('io',503);
           if (!rename($file,$trashdir.'/data')) { unlink($trashdir.'/metadata.json'); rmdir($trashdir); self::fail('io',503); }
-          try{(new MediaRights($this->context->store))->moved($this->scope,$this->context->settings['uploads'][$this->scope],$relative,$relative,$id);}catch(\Throwable $error){if(!rename($trashdir.'/data',$file))self::fail('io',503);unlink($trashdir.'/metadata.json');rmdir($trashdir);throw $error;}
+          try{$this->saveDates(array_diff_key($dates,$metadata['dates']));(new MediaRights($this->context->store))->moved($this->scope,$this->context->settings['uploads'][$this->scope],$relative,$relative,$id);}catch(\Throwable $error){if(!rename($trashdir.'/data',$file))self::fail('io',503);unlink($trashdir.'/metadata.json');rmdir($trashdir);$this->saveDates($dates);throw $error;}
         } else {
           if ($operation==='rename') { self::name($name); $dest=$directory===''?$name:$directory.'/'.$name; }
           else {
@@ -226,7 +325,7 @@ final class ManagedFiles {
           $to=$this->destination($dest);
           if (stat(dirname($file))['dev']!==stat(dirname($to))['dev']) self::fail('filesystem');
           if (!rename($file,$to)) self::fail('io',503);
-          try{(new MediaRights($this->context->store))->moved($this->scope,$this->context->settings['uploads'][$this->scope],$relative,$dest);}catch(\Throwable $error){if(!rename($to,$file))self::fail('io',503);throw $error;}
+          try{$this->saveDates($this->movedDates($dates,$relative,$dest));(new MediaRights($this->context->store))->moved($this->scope,$this->context->settings['uploads'][$this->scope],$relative,$dest);}catch(\Throwable $error){if(!rename($to,$file))self::fail('io',503);$this->saveDates($dates);throw $error;}
         }
       } elseif ($trash) {
         $item=$this->tombstone($target); $trashdir=$this->state.'/trash/'.$target; $data=$trashdir.'/data';
@@ -235,7 +334,7 @@ final class ManagedFiles {
           if (stat(dirname($to))['dev']!==stat($trashdir)['dev']) self::fail('filesystem');
           self::noLinks($data);
           if (!rename($data,$to)) self::fail('io',503);
-          try{(new MediaRights($this->context->store))->moved($this->scope,$this->context->settings['uploads'][$this->scope],'','',null,$target);}catch(\Throwable $error){if(!rename($to,$data))self::fail('io',503);throw $error;}
+          try{$next=array_filter($dates,static fn(string|int $key):bool=>(string)$key!==$item['path']&&!str_starts_with((string)$key,$item['path'].'/'),ARRAY_FILTER_USE_KEY);foreach($item['dates']??[] as $key=>$value)$next[$key]=$value;if(isset($next[$item['path']]))$next[$item['path']]['identity']=$this->identity($to);$this->saveDates($next);(new MediaRights($this->context->store))->moved($this->scope,$this->context->settings['uploads'][$this->scope],'','',null,$target);}catch(\Throwable $error){if(!rename($to,$data))self::fail('io',503);$this->saveDates($dates);throw $error;}
         } else {
           if ($name!==$item['name']) self::fail('confirmation');
           self::noLinks($data); $this->erase($data);
@@ -272,7 +371,8 @@ final class ManagedFiles {
   public function download(string $relative,bool $preview): void {
     $file=$this->path($relative); if (!is_file($file)) self::fail('type');
     $mime=$this->mime($file,basename($file));
-    if ($preview && !str_starts_with($mime,'image/')) self::fail('type');
+    if ($preview && !str_starts_with($mime,'image/') && $mime!=='video/mp4') self::fail('type');
+    header('Cache-Control: private, no-store');
     header('Content-Type: '.$mime); header('X-Content-Type-Options: nosniff');
     header('Content-Disposition: '.($preview?'inline':'attachment').'; filename="download.'.pathinfo($file,PATHINFO_EXTENSION).'"; filename*=UTF-8\'\''.rawurlencode(basename($file)));
     header('Content-Length: '.filesize($file)); session_write_close();

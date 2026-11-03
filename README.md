@@ -29,7 +29,7 @@ Choose dbless-cms for business websites, portfolios, landing pages and content-f
 projects where a file-based CMS fits the job. PHP 8.2+ powers the application; Node.js
 22 is a development/export tool, not a production server dependency.
 
-Manage optional resources and image credits with explicit controls, and build accessible forms without embedding executable HTML in content. See the [privacy, Forms and image-rights guide](docs/privacy-forms-media.md) for configuration and operational boundaries.
+Manage optional resources with explicit controls, and build accessible forms without embedding executable HTML in content. Existing image-credit records remain compatible; rights administration has been removed. See the [privacy, Forms and image-rights guide](docs/privacy-forms-media.md) for configuration and operational boundaries.
 
 ## Explore a complete example
 
@@ -43,7 +43,7 @@ The distribution includes the **Essencial** template and eight ready-to-use plug
 | Pages | Structured pages, drafts, publishing, history and trash |
 | Menu | Hierarchical navigation assigned to locations declared by your template |
 | Slides | Banners, carousels, testimonials, product displays and rotating content |
-| Files Manager | Public/private uploads, recoverable deletion, image provenance and visible credits |
+| Files Manager | Public/private uploads, recoverable deletion and descriptive operation history |
 | Forms | Purpose-driven forms, safe Mustache placement and minimal private delivery receipts |
 
 The example site connects pages, blog articles, menus and slides so you can learn by changing a
