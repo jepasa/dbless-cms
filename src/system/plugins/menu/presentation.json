@@ -14,11 +14,11 @@
     },
     {
       "title": "Choose a location",
-      "code": "{{menu:location key=\"footer-links\" layout=\"list\"}}",
+      "code": "{{#menu.main.items}}<a href=\"{{href}}\">{{label}}</a>{{#children}}<a href=\"{{href}}\">{{label}}</a>{{/children}}{{/menu.main.items}}",
       "steps": [
         "In the menu editor, choose a location from the active template, an allowed navigation type and the intended page filter. Save and review the public destination.",
         "The editor reads locations, permitted types and maximum depth from the active template manifest. Dynamic items and assignments stay in the menu repository.",
-        "Changing templates preserves unsupported assignments and shows a warning. The component picker can insert a public projection of an assigned menu."
+        "Write direct plugin references in HTML/code. The Core resolves them automatically; existing saved bindings remain compatible."
       ],
       "body": []
     },
@@ -31,12 +31,24 @@
     },
     {
       "title": "Full public navigation data",
-      "code": "Bind menu:tree with alias navigation and an active-template location key.\n\n<nav aria-label=\"Example navigation\">\n  <ul>{{#navigation.items}}\n    <li><a href=\"{{href}}\">{{label}}</a>\n      <ul>{{#children}}<li><a href=\"{{href}}\">{{label}}</a></li>{{/children}}</ul>\n    </li>\n  {{/navigation.items}}</ul>\n</nav>",
+      "code": "{{#menu.main.items}}<a href=\"{{href}}\">{{label}}</a>{{#children}}<a href=\"{{href}}\">{{label}}</a>{{/children}}{{/menu.main.items}}",
       "steps": [
         "menu:tree(key: active-template location key) supplies name, type and items with label, href, slug, anchor, newTab and children. Up to five item levels are declared; submenu items use the same fields. Unpublished/private page targets are omitted. menu:location remains a compatible flat-card service.",
         "Bind menu:tree with alias navigation. Write {{#navigation.items}}<li><a href=\"{{href}}\">{{label}}</a>{{#children}}<a href=\"{{href}}\">{{label}}</a>{{/children}}</li>{{/navigation.items}} inside your own nav/ul markup. Layout and behavior belong to your template and authored HTML. Missing location assignments return an empty items list."
       ],
       "body": []
+    },
+    {
+      "title": "Direct plugin data and template positions",
+      "body": [
+        "Create a menu with a stable slug-shaped ID, select its navigation type and edit its items. Direct references return a tree; missing/private pages are omitted. For a hardcoded template position, assign the menu to the declared location in its editor. template.<slot> must be declared in the template manifest."
+      ],
+      "steps": [
+        "Use the stable identifier or slug without dots. Explicit id.<value> and slug.<value> selectors disambiguate reserved names.",
+        "Place named query parameters before field paths; use sections (#) and inverted sections (^) for finite iteration and empty states.",
+        "Keep presentation in the receiving layout. Template positions require manifest declarations and source-plugin assignments."
+      ],
+      "code": "{{#menu.main.items}}<a href=\"{{href}}\">{{label}}</a>{{#children}}<a href=\"{{href}}\">{{label}}</a>{{/children}}{{/menu.main.items}}"
     }
   ]
 }

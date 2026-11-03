@@ -55,7 +55,7 @@ final class MenuStore {
     self::fields($data,['schema_version','menus','assignments']);
     if ($data['schema_version']!==1 || !is_array($data['menus']) || count($data['menus'])>50 || !is_array($data['assignments']) || !array_is_list($data['assignments']) || count($data['assignments'])>200) throw new HttpError(422,'Documento inválido.','menu.error.contract');
     foreach ($data['menus'] as $id=>$menu) {
-      self::fields($menu,['id','name','deleted','items']);
+      if(!is_array($menu))throw new HttpError(422,'Invalid menu.','menu.error.contract');if(array_key_exists('type',$menu)&&!in_array($menu['type'],Navigation::TYPES,true))throw new HttpError(422,'Invalid menu type.','menu.error.contract');self::fields(array_diff_key($menu,['type'=>true]),['id','name','deleted','items']);
       if (!is_string($id) || !self::identifier($id) || $menu['id']!==$id || !self::text($menu['name'],160) || !is_bool($menu['deleted'])) throw new HttpError(422,'Menu inválido.','menu.error.contract');
       self::items($menu['items']);
     }

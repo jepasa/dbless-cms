@@ -73,7 +73,7 @@ final class Slides {
     foreach($this->document['assignments'] as $binding)if($binding['template']===$this->template&&$binding['location']===$key){
       $set=$this->document['collections'][$binding['collection']];
       if($set['deleted']||$set['status']!=='published'||$set['contentType']!==$location['contentType'])return null;
-      $set['items']=array_values(array_filter($set['items'],static fn(array $item): bool=>$item['enabled']));
+      $set['items']=array_slice(array_values(array_filter($set['items'],static fn(array $item): bool=>$item['enabled'])),0,$set['maxItems']??50);
       if($set['items']===[])return null;
       foreach($set['items'] as &$item)if(!$this->imageExists($item['image']))$item['image']='';unset($item);
       $this->resolved++;

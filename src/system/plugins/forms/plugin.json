@@ -2,7 +2,7 @@
   "id": "forms",
   "name": "Forms",
   "description": "Purpose-driven forms with minimal collection, private delivery receipts and safe Mustache composition.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "api": 1,
   "cmsMajor": 2,
   "entry": "Plugin.php",
@@ -208,5 +208,18 @@
         "data"
       ]
     }
+  },
+  "mustache": {
+    "api": 1,
+    "kind": "form",
+    "queries": {},
+    "fields": [
+      "id",
+      "name",
+      "description",
+      "notice",
+      "noticeVersion",
+      "fields"
+    ]
   }
 }

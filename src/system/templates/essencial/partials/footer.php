@@ -35,5 +35,5 @@ $hasContact=$contact['responsible']!==''||$contact['email']!==''||$contact['phon
     </div>
     <div class="footer-bottom"><small>© <?= e(gmdate('Y')) ?> <?= e($siteContent['brand']['name']) ?></small><a class="back-link" href="#main">Voltar ao topo <span aria-hidden="true">↑</span></a></div>
   </div>
-  <?php if($footerNote!==''): ?><p class="container widget-footer-note"><?= \DBLESSCMS\e($footerNote) ?></p><?php endif; ?>
+  <?php if($footerNote!==''): ?><div class="container widget-footer-note"><?= \DBLESSCMS\ContentMarkup::render(['html'=>'{{template.footer-note}}'],new \DBLESSCMS\ContentContext($store,$id,$base_url,$currentPage)) ?></div><?php endif; ?>
 </footer>

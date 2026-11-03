@@ -2,7 +2,7 @@
   "id": "widgets",
   "name": "Widgets",
   "description": "Template-defined key/value content slots.",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "api": 1,
   "cmsMajor": 2,
   "entry": "Plugin.php",
@@ -257,5 +257,19 @@
       ]
     }
   },
-  "presentation": "presentation.json"
+  "presentation": "presentation.json",
+  "mustache": {
+    "api": 1,
+    "kind": "widget",
+    "queries": {},
+    "fields": [
+      "id",
+      "slug",
+      "type",
+      "description",
+      "value",
+      "html",
+      "data"
+    ]
+  }
 }

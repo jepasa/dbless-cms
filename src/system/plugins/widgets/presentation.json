@@ -14,10 +14,10 @@
     },
     {
       "title": "Reusable content",
-      "code": "{{widgets:set key=\"example-highlights\" layout=\"list\"}}\nA plain inline value: {{widgets:value key=\"example-message\" layout=\"text\"}}",
+      "code": "{{widgets.contact.data.email}}",
       "steps": [
         "Open Reusable widgets to create stable keys independent of template positions. Values are plain text. Descriptions can label the content in a rendered set.",
-        "Open Widget sets, create a stable set key, select members and arrange their display order. Insert the set in Homepage or Pages using the shared component picker.",
+        "Write direct plugin references in HTML/code. The Core resolves them automatically; existing saved bindings remain compatible.",
         "Edit a reusable record or set from its list. For example, create two records, add them to a set named example-highlights and move a member up or down before saving."
       ],
       "body": []
@@ -32,12 +32,24 @@
     },
     {
       "title": "Raw reusable values and sets",
-      "code": "Bind widgets:records with alias highlights and a live set key.\n\n{{#highlights.items}}\n  <section><h2>{{description}}</h2><p>{{value}}</p></section>\n{{/highlights.items}}\n\nBind widgets:value with alias notice and use {{notice.value}}.",
+      "code": "{{widgets.contact.data.email}}",
       "steps": [
         "widgets:records(key: set key) returns ordered live items with key, value, description. widgets:value(key: reusable widget key) returns a single value. widgets:set remains compatible with template-owned card/list formats. Positional widget keys remain supported. Returned values are plain escaped text and are never reinterpreted as Mustache.",
         "Bind widgets:records with alias highlights and write {{#highlights.items}}<section><h2>{{description}}</h2><p>{{value}}</p></section>{{/highlights.items}}. Bind widgets:value with alias notice and use {{notice.value}}. Reusable sets do not require template location keys; positional widgets still use locations declared by the active template."
       ],
       "body": []
+    },
+    {
+      "title": "Direct plugin data and template positions",
+      "body": [
+        "Create a reusable widget with an immutable key. Choose Text for escaped text, HTML for validated markup, or JSON for structured values. Reference by record ID or key. Use .value for text, .data.<field> for JSON; a standalone HTML widget reference inserts its validated fragment. Returned text/HTML is never expanded again as Mustache."
+      ],
+      "steps": [
+        "Use the stable identifier or slug without dots. Explicit id.<value> and slug.<value> selectors disambiguate reserved names.",
+        "Place named query parameters before field paths; use sections (#) and inverted sections (^) for finite iteration and empty states.",
+        "Keep presentation in the receiving layout. Template positions require manifest declarations and source-plugin assignments."
+      ],
+      "code": "{{widgets.contact.data.email}}"
     }
   ]
 }

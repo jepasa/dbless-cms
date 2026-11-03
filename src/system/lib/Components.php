@@ -215,6 +215,7 @@ final class Components {
   }
   /** Render a paragraph or full block marker; receive plain body text, return escaped nonrecursive HTML, permitting inline text providers only. */
   public function paragraph(string $text): string {
+    if(preg_match('/\{\{[#^]?[a-zA-Z][a-zA-Z0-9_-]*\.[^{}]+\}\}/',$text)&&!preg_match('/\{\{[^{}]*:/',$text))return ContentMarkup::render(['html'=>'<p>'.e($text).'</p>'],$this->context);
     if(self::parse($text)!==null)return $this->render($text);
     $parts=preg_split('/(\{\{[^{}\r\n]{1,2048}\}\})/',$text,-1,PREG_SPLIT_DELIM_CAPTURE);$html='';
     foreach($parts as $part)$html.=str_starts_with($part,'{{')?$this->render($part,true):e($part);

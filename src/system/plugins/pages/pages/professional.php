@@ -32,7 +32,7 @@ ob_start(); ?>
 <button type="button" role="tab" id="page-format-<?= e($format) ?>" data-page-format="<?= e($format) ?>" aria-controls="page-panel-<?= e($format) ?>" aria-selected="<?= $selected?'true':'false' ?>" tabindex="<?= $selected?'0':'-1' ?>" title="<?= e($t($label)) ?>"><?= e($t($label)) ?></button>
 <?php endforeach; ?></div>
 <div id="page-panel-markup" role="tabpanel" aria-labelledby="page-format-markup" data-page-authored <?= !$authored?'hidden':'' ?>><?php require $context->config->root.'/admin/markup-editor.php'; ?></div>
-<div id="page-panel-json" role="tabpanel" aria-labelledby="page-format-json" data-page-native <?= $authored?'hidden':'' ?>><p class="muted"><?= e($t('pages.nativePreserved')) ?></p><?php $slideLocations=Slides::locations($context->store->templates->get($context->store->read('site')['data']['template']));require __DIR__.'/native-slides.php'; ?><label><?= e($t('pages.native')) ?><textarea data-native-content name="native_content" rows="18" spellcheck="false"><?= e(JsonStore::encode($pageDocument['content'])) ?></textarea></label></div>
+<div id="page-panel-json" role="tabpanel" aria-labelledby="page-format-json" data-page-native <?= $authored?'hidden':'' ?>><p class="muted"><?= e($t('pages.nativePreserved')) ?></p><label><?= e($t('pages.native')) ?><textarea data-native-content name="native_content" rows="18" spellcheck="false"><?= e(JsonStore::encode($pageDocument['content'])) ?></textarea></label></div>
 </section>
 <?php $editorialContent=(string)ob_get_clean();ob_start(); ?>
 <details open><summary><?= e($t('pages.publication')) ?></summary>

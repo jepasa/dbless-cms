@@ -78,6 +78,7 @@
     "menu.noLocations": "The active template declares no menu locations. The menu can be saved without a binding.",
     "menu.replaces": "Selecting this location replaces the current binding for: {name}.",
     "menu.error.templateChanged": "Site settings or the template changed. Reopen the editor to refresh locations before saving.",
-    "menu.historyInactive": "Content restoration requires the plugin to be active. Activate it in the Plugins overview."
+    "menu.historyInactive": "Content restoration requires the plugin to be active. Activate it in the Plugins overview.",
+    "menu.contentType": "Navigation type"
   }
 }

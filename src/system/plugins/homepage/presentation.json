@@ -23,19 +23,19 @@
     },
     {
       "title": "Legacy template-owned components",
-      "code": "{{blog:latest limit=\"3\" category=\"\" layout=\"cards\"}}\n{{widgets:set key=\"example-highlights\" layout=\"list\"}}",
+      "code": "{{#blog.latest.limit.3.items}}<h2>{{title}}</h2>{{/blog.latest.limit.3.items}}",
       "steps": [
-        "In the legacy native editor only, Insert component discovers enabled services, typed parameters and template-owned presentations. Its colon markers remain compatible with earlier content. New HTML mode instead uses explicit data bindings and the variable/loop syntax documented below.",
+        "Write direct plugin references in HTML/code. The Core resolves them automatically; existing saved bindings remain compatible.",
         "Create reusable widgets and ordered sets in Widgets. Their keys do not need template positions. The template still controls every component format."
       ],
       "body": []
     },
     {
       "title": "Publication catalog and raw data",
-      "code": "Binding: {\"plugin\":\"blog\",\"service\":\"posts\",\"alias\":\"news\",\"parameters\":{\"limit\":3,\"category\":\"\"}}\n\n<section>\n  <h1>Latest articles</h1>\n  {{#news.items}}\n    <article><h2><a href=\"{{href}}\">{{title}}</a></h2><p>{{excerpt}}</p></article>\n  {{/news.items}}\n  {{^news.items}}<p>No articles yet.</p>{{/news.items}}\n</section>",
+      "code": "{{#blog.latest.limit.3.items}}<h2>{{title}}</h2>{{/blog.latest.limit.3.items}}",
       "steps": [
         "Create named homepages in Overview / New homepage. Save draft never changes the published snapshot. Publish / schedule copies the saved content to a separate snapshot. Dates are exact UTC seconds; the editor also offers browser-local entry. At request time the newest due enabled snapshot wins, with immutable ID as a deterministic tie-breaker. Future snapshots do not replace the currently effective homepage early. Deactivation/removal returns to the next valid enabled publication. The protected legacy-home baseline preserves the native original homepage and cannot be removed. No cron or render-time writes are required.",
-        "HTML mode accepts semantic HTML, escaped variables, # sections/loops, ^ inverted sections and comments. Add multiple plugin/service bindings, give each a unique alias and insert snippets manually. Plugin results are plain JSON, never HTML or executable helpers. Source mode references a currently published Page or Blog article by stable ID; a missing/unpublished/disabled source falls back to the preceding valid homepage. Source body excludes its own site frame. Metadata always comes from global settings. Preview is authenticated and noindex. Trash recovery does not automatically activate content."
+        "Write direct plugin references in HTML/code. The Core resolves them automatically; existing saved bindings remain compatible."
       ],
       "body": []
     },
@@ -55,6 +55,18 @@
         "Move an ordinary publication to Trash when no longer needed; use the final Trash item to recover it. Recovery does not automatically activate it.",
         "Review and publish recovered content explicitly. Disabling the plugin preserves the published website; private drafts, history and trash are excluded from exports."
       ]
+    },
+    {
+      "title": "Direct plugin data and template positions",
+      "body": [
+        "Write direct plugin references in HTML/code. No binding or insertion selector is required. Existing saved aliases remain compatible, but new content uses automatic references. Use sections for finite collections and inverted sections for empty states."
+      ],
+      "steps": [
+        "Use the stable identifier or slug without dots. Explicit id.<value> and slug.<value> selectors disambiguate reserved names.",
+        "Place named query parameters before field paths; use sections (#) and inverted sections (^) for finite iteration and empty states.",
+        "Keep presentation in the receiving layout. Template positions require manifest declarations and source-plugin assignments."
+      ],
+      "code": "{{#blog.latest.limit.3.items}}<h2>{{title}}</h2>{{/blog.latest.limit.3.items}}"
     }
   ]
 }

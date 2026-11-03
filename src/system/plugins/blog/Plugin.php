@@ -6,7 +6,13 @@ require_once __DIR__.'/Model.php';
 require_once __DIR__.'/Store.php';
 require_once __DIR__.'/Router.php';
 require_once __DIR__.'/View.php';
-final class BlogPlugin implements PluginInterface,PublicPluginInterface,DashboardProviderInterface,ContentProviderInterface,ContentOptionsInterface,ContentDocumentInterface {
+final class BlogPlugin implements PluginInterface,PublicPluginInterface,DashboardProviderInterface,ContentProviderInterface,ContentOptionsInterface,ContentDocumentInterface,ContentReferenceInterface {
+  /** Resolve released posts by ID/slug or bounded newest-first query; receive selector/parameters/context, return public metadata and literal body data, never comments or drafts. */
+  public function reference(string $selector,array $parameters,ContentContext $context): ?array {
+    $catalog=(new BlogStore($context->store))->read()['data'];$articles=BlogModel::published($catalog);uasort($articles,static fn(array $a,array $b):int=>strcmp($b['publishedAt'],$a['publishedAt'])?:strcmp($a['id'],$b['id']));$items=[];$mode=str_contains($selector,':')?explode(':',$selector,2):['',$selector];
+    foreach($articles as $article){if($selector!=='latest'&&!(($mode[0]!=='slug'&&$article['id']===$mode[1])||($mode[0]!=='id'&&$article['slug']===$mode[1])))continue;$item=['id'=>$article['id'],'slug'=>$article['slug'],'title'=>$article['title'],'summary'=>$article['excerpt'],'url'=>BlogView::url($context->base,'article',['slug'=>$article['slug']]),'image'=>BlogView::media($context->base,$article['cover']),'publishedAt'=>$article['publishedAt'],'author'=>$catalog['authors'][$article['author']]['name'],'categories'=>array_map(static fn(string $id):string=>$catalog['categories'][$id]['name'],$article['categories']),'tags'=>array_map(static fn(string $id):string=>$catalog['tags'][$id]['name'],$article['tags'])];if($selector!=='latest')return $item+['content'=>$article['blocks']];$items[]=$item;}
+    return $selector==='latest'?ContentReferences::paginate($items,$parameters,$context->store->read('site')['data']):null;
+  }
 
   /** List only released articles by immutable ID; receive context, return up to 100 plain source options without draft/comment data or writes. */
   public function documents(ContentContext $context): array {$items=[];foreach(BlogModel::published((new BlogStore($context->store))->read()['data']) as $article){$items[]=['id'=>$article['id'],'name'=>$article['title']];if(count($items)>=100)break;}return $items;}

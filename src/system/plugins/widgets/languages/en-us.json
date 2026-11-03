@@ -55,6 +55,10 @@
     "widgets.chooseMember": "Add a widget",
     "widgets.addMember": "Add member",
     "widgets.removeMember": "Remove member",
-    "widgets.noMembers": "No reusable widgets are available. Create one first."
+    "widgets.noMembers": "No reusable widgets are available. Create one first.",
+    "widgets.contentType": "Content type",
+    "widgets.type_text": "Text",
+    "widgets.type_html": "HTML",
+    "widgets.type_json": "JSON"
   }
 }

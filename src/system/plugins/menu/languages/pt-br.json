@@ -78,6 +78,7 @@
     "menu.noLocations": "O template ativo não declara locais de menu. O menu pode ser salvo sem associação.",
     "menu.replaces": "Ao selecionar, substituirá a associação atual de: {name}.",
     "menu.error.templateChanged": "As configurações do site ou o template mudaram. Reabra o editor para atualizar os locais antes de salvar.",
-    "menu.historyInactive": "A restauração do conteúdo exige o plugin ativo. A ativação é feita na Visão Geral de Plugins."
+    "menu.historyInactive": "A restauração do conteúdo exige o plugin ativo. A ativação é feita na Visão Geral de Plugins.",
+    "menu.contentType": "Tipo de navegação"
   }
 }

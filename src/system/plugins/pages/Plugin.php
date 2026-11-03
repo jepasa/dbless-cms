@@ -3,7 +3,16 @@
 declare(strict_types=1);
 namespace DBLESSCMS;
 require_once __DIR__.'/Router.php';
-final class PagesPlugin implements PluginInterface,ContentProviderInterface,ContentOptionsInterface,ContentDocumentInterface {
+final class PagesPlugin implements PluginInterface,ContentProviderInterface,ContentOptionsInterface,ContentDocumentInterface,ContentReferenceInterface {
+  /** Resolve public page identity or newest-first data; receive validated selector/parameters/context, return finite JSON with literal body, never draft markup or rendered recursive HTML. */
+  public function reference(string $selector,array $parameters,ContentContext $context): ?array {
+    $repo=new PagePublications($context->store);$catalog=$repo->read()['data']['records'];$items=[];
+    foreach($context->store->pages() as $id=>$entry){$id=(string)$id;$doc=$entry['data'];if(!PagePublications::identifier($id)||$doc['status']!=='published')continue;$row=$catalog[$id]??null;$live=$row===null?null:PagePublications::effective($row);$date=$live['publishedAt']??'';if($date===''&&$row!==null&&($row['scheduled']===null||$live===$row['scheduled']))$date=$row['publishAt'];$image=$doc['meta']['image'];
+      $items[]=['id'=>$id,'slug'=>$live['url']??$id,'title'=>$doc['meta']['title'],'summary'=>$doc['meta']['description'],'url'=>$repo->url($id,$context->base),'image'=>['url'=>$image===''?'':(preg_match('~^https?://~i',$image)?$image:$context->base.'/'.ltrim($image,'/')),'alt'=>$doc['meta']['imageAlt']],'author'=>$live['editorial']['author']??'','order'=>$live['editorial']['order']??0,'publishedAt'=>$date,'content'=>$doc['content'],'body'=>$doc['markup']['html']??''];
+    }
+    if($selector==='latest'){usort($items,static fn(array $a,array $b):int=>strcmp($b['publishedAt'],$a['publishedAt'])?:strcmp($a['id'],$b['id']));foreach($items as &$item)unset($item['content'],$item['body']);unset($item);return ContentReferences::paginate($items,$parameters,$context->store->read('site')['data']);}
+    $mode=str_contains($selector,':')?explode(':',$selector,2):['',$selector];foreach($items as $item)if(($mode[0]!=='slug'&&$item['id']===$mode[1])||($mode[0]!=='id'&&$item['slug']===$mode[1]))return $item;return null;
+  }
   /** Return no dynamic choices for the public list query; receive service/context, return empty metadata without writes. */
   public function contentOptions(string $service,ContentContext $context): array {if(!in_array($service,['details','children','breadcrumbs'],true))return [];$choices=[];foreach($context->store->pages() as $id=>$snapshot)if(PagePublications::identifier((string)$id)&&$snapshot['data']['status']==='published'&&count($choices)<100)$choices[]=['value'=>(string)$id,'label'=>$snapshot['data']['meta']['title']];return ['id'=>$choices];}
   /** Project only published ordinary pages in stable slug order; receive service/typed parameters/context, return public cards, never include home/404/drafts or metadata secrets. */
@@ -95,7 +104,7 @@ final class PagesPlugin implements PluginInterface,ContentProviderInterface,Cont
         $existing=['author'=>$this->input($_POST,'page_author',200),'order'=>(int)$order,'review'=>$this->input($_POST,'page_review',1)==='1'];
       }
       $input['snapshot']['editorial']=PagePublications::editorial($existing);
-      if(array_key_exists('page_layout',$_POST))$input['snapshot']['document']['page']=$this->input($_POST,'page_layout',64);
+      if(array_key_exists('page_layout',$_POST)){$layout=$this->input($_POST,'page_layout',64);if(in_array($layout,['home','404'],true))throw new HttpError(422,'Reserved page layout.','pages.editorial.invalid');$input['snapshot']['document']['page']=$layout;}
     }
     $result=$repository->change($id,$action,$input,$this->input($_POST,'catalog_revision'),$this->input($_POST,'site_revision'));
     return ['redirect'=>$context->base.'/cms-admin/?view=plugin-panel&plugin=pages&route='.($action==='trash'?'trash':'editor').'&key='.rawurlencode($result['id'])];

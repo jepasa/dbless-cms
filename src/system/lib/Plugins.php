@@ -40,7 +40,7 @@ final class Plugins {
           if (!is_array($manifest['publicSettings']) || !array_is_list($manifest['publicSettings']) || count($manifest['publicSettings'])>50) throw new \RuntimeException('Campos públicos inválidos.');
           foreach ($manifest['publicSettings'] as $key) if (!is_string($key) || !isset($schema['properties'][$key])) throw new \RuntimeException('Campo público sem contrato.');
         }
-        Components::definitions($manifest);ContentForms::definitions($manifest);ContentDocuments::definition($manifest);
+        Components::definitions($manifest);ContentReferences::definitions($manifest);ContentForms::definitions($manifest);ContentDocuments::definition($manifest);
         if(($manifest['presentation']??null)!=='presentation.json')throw new \RuntimeException('Missing required presentation.json declaration.');
         PluginPresentation::read($directory,$manifest['presentation']);
         Schema::validate($manifest['defaults']??null,$schema);

@@ -2,7 +2,7 @@
   "id": "pages",
   "name": "Páginas",
   "description": "Gerenciamento de páginas, rascunhos, publicação e histórico.",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "api": 1,
   "cmsMajor": 2,
   "entry": "Plugin.php",
@@ -731,5 +731,49 @@
   "documentSource": {
     "api": 1,
     "description": "Published ordinary Pages content, without the site frame."
+  },
+  "mustache": {
+    "api": 1,
+    "kind": "data",
+    "queries": {
+      "latest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000,
+            "default": 10000
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000,
+            "default": 1
+          }
+        }
+      }
+    },
+    "fields": [
+      "id",
+      "slug",
+      "title",
+      "summary",
+      "url",
+      "image",
+      "author",
+      "order",
+      "publishedAt",
+      "content",
+      "body",
+      "items",
+      "total",
+      "page",
+      "pages",
+      "pageSize",
+      "hasNext",
+      "hasPrevious"
+    ]
   }
 }

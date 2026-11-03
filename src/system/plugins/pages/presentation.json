@@ -16,7 +16,7 @@
       "title": "Write and format the body",
       "body": [],
       "steps": [
-        "In JSON, edit the native structured document and use the Slides insertion control where applicable. Keep the model’s fields and types valid.",
+        "Write direct plugin references in HTML/code. The Core resolves them automatically; existing saved bindings remain compatible.",
         "In HTML/Mustache, use the shared Visual editor for text, headings, lists and links. Use Code for semantic HTML and protected dynamic structures; switch back to inspect the result.",
         "Use Preview to review the current composition in the active template. Preview is private; it does not publish the page."
       ],
@@ -48,9 +48,9 @@
       "steps": [
         "In HTML/Mustache, choose an enabled plugin service, fill its typed parameters and add a unique alias. For example, bind blog:posts as news with limit 3.",
         "Insert the loop below in Code. Variables are escaped data; the receiving HTML/template defines structure and appearance. Use # for lists/sections and ^ for an empty state.",
-        "Use the binding controls to remove or change a binding, then preview. Neither returned values nor documentation examples execute PHP, scripts or nested components. Legacy template-owned component markers remain supported in compatible native content."
+        "Write direct plugin references in HTML/code. The Core resolves them automatically; existing saved bindings remain compatible."
       ],
-      "code": "<section>\n  <h2>Latest articles</h2>\n  {{#news.items}}<article><h3><a href=\"{{href}}\">{{title}}</a></h3><p>{{excerpt}}</p></article>{{/news.items}}\n  {{^news.items}}<p>No articles yet.</p>{{/news.items}}\n</section>"
+      "code": "{{#pages.latest.limit.5.items}}<article><h2>{{title}}</h2><p>{{summary}}</p></article>{{/pages.latest.limit.5.items}}"
     },
     {
       "title": "Publish, schedule and manage the catalog",
@@ -78,7 +78,19 @@
         "Use item fields id, title, summary, url, image.url, image.alt, parentId, author, order, createdAt, updatedAt and isCurrent. Author/order come from the published snapshot, not unsaved or private working metadata. The older pages:list service remains available with title, text, href and image.",
         "For example, bind pages:records as directory, limit 6, page 1, sort title, direction asc and render the loop below. Homepage can also use a published Page as a document source without duplicating the site frame."
       ],
-      "code": "{{#directory.items}}\n  <article><h2><a href=\"{{url}}\">{{title}}</a></h2><p>{{summary}}</p></article>\n{{/directory.items}}\n{{^directory.items}}<p>No pages found.</p>{{/directory.items}}"
+      "code": "{{#pages.latest.limit.5.items}}<article><h2>{{title}}</h2><p>{{summary}}</p></article>{{/pages.latest.limit.5.items}}"
+    },
+    {
+      "title": "Direct plugin data and template positions",
+      "body": [
+        "Use pages.<id-or-slug> for one page and pages.latest.limit.20.page.2.items for a paginated collection. Publication time controls descending order; the global content page size caps each page. Item data includes title, summary, url, author, image and literal content. Body strings are escaped and never evaluated as nested templates."
+      ],
+      "steps": [
+        "Use the stable identifier or slug without dots. Explicit id.<value> and slug.<value> selectors disambiguate reserved names.",
+        "Place named query parameters before field paths; use sections (#) and inverted sections (^) for finite iteration and empty states.",
+        "Keep presentation in the receiving layout. Template positions require manifest declarations and source-plugin assignments."
+      ],
+      "code": "{{#pages.latest.limit.5.items}}<article><h2>{{title}}</h2><p>{{summary}}</p></article>{{/pages.latest.limit.5.items}}"
     }
   ]
 }

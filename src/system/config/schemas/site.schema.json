@@ -250,6 +250,12 @@
               "maxLength": 240
             }
           }
+        },
+        "contentPageSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 12
         }
       }
     }

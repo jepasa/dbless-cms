@@ -92,6 +92,15 @@
     "slides.replaces": "Ao selecionar, substituirá a associação atual de: {name}.",
     "slides.error.templateChanged": "As configurações do site ou o template mudaram. Reabra o editor para atualizar os destinos antes de salvar.",
     "slides.error.pageChanged": "A página de destino mudou. Reabra o editor para atualizar os marcadores antes de salvar.",
-    "slides.historyInactive": "A restauração do conteúdo exige o plugin ativo. A ativação é feita na Visão Geral de Plugins."
+    "slides.historyInactive": "A restauração do conteúdo exige o plugin ativo. A ativação é feita na Visão Geral de Plugins.",
+    "slides.maxItems": "Máximo de slides exibidos",
+    "slides.transitionDuration": "Duração da transição (ms)",
+    "slides.transitionEffect": "Efeito da transição",
+    "slides.transitionOrientation": "Orientação da transição",
+    "slides.transition_slide": "Deslizamento",
+    "slides.transition_fade": "Dissolver",
+    "slides.transition_none": "Sem transição",
+    "slides.transition_horizontal": "Horizontal",
+    "slides.transition_vertical": "Vertical"
   }
 }
