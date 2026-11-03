@@ -30,7 +30,8 @@ for(const application of applications){
   });
   test(`${application}: preview endpoint requires session, POST and CSRF; invalid input never becomes a login document`,async()=>{
     const f=await server(application);try{
-      const endpoint=f.base+'/cms-admin/?view=editor-preview';let response=await fetch(endpoint);assert.equal(response.status,403);assert.match(response.headers.get('content-type'),/json/);
+      const endpoint=f.base+'/cms-admin/?view=editor-preview';let response=await fetch(endpoint);assert.equal(response.status,403);assert.match(response.headers.get('content-type'),/json/);assert.equal(response.headers.get('access-control-allow-origin'),null);
+      const staticSvg=await fetch(f.base+'/templates/essencial/icons/house.svg',{headers:{Origin:'null'}});assert.equal(staticSvg.status,200);assert.equal(staticSvg.headers.get('access-control-allow-origin'),'*');assert.equal(staticSvg.headers.get('access-control-allow-credentials'),null);
       const login=await fetch(f.base+'/cms-admin/'),cookie=login.headers.get('set-cookie').split(';')[0],html=await login.text(),csrf=html.match(/name="csrf_token" value="([^"]+)"/)[1];
       const auth=await fetch(f.base+'/cms-admin/',{method:'POST',redirect:'manual',headers:{Cookie:cookie},body:new URLSearchParams({action:'login',csrf_token:csrf,username:'editor',password})});assert.equal(auth.status,303);const session=auth.headers.get('set-cookie')?.split(';')[0]||cookie;
       response=await fetch(endpoint,{headers:{Cookie:session}});assert.equal(response.status,405);

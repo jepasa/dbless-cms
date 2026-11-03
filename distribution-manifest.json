@@ -100,8 +100,8 @@
     },
     {
       "path": "docs/shared-editor.md",
-      "bytes": 8701,
-      "sha256": "84dd221fa674553bfa82ebc999ecd64380789febde8325cc269685267e4546f5"
+      "bytes": 9304,
+      "sha256": "20db297fd8cecc94f8c574268e2e9fa7978e11a36a233ea8ded014cff5611d2a"
     },
     {
       "path": "docs/templates.md",
@@ -215,8 +215,8 @@
     },
     {
       "path": "scripts/dev-router.php",
-      "bytes": 1323,
-      "sha256": "efb59d985bc168d7fad1d9557a708cac5aafbc5d291602780eee0e4c3899a179"
+      "bytes": 2173,
+      "sha256": "42423f3d079f13a4868e83ff471a47933224549e5f82ee275a2ef7cfe28f31f2"
     },
     {
       "path": "scripts/generate-admin-favicon.mjs",
@@ -265,8 +265,8 @@
     },
     {
       "path": "src/public_html/.htaccess",
-      "bytes": 1641,
-      "sha256": "70d29b4a9981f7a2f0f207405d53a2fd87a16cc747282313fa8cd7c134236a01"
+      "bytes": 1863,
+      "sha256": "22669db7f80a854cf1d7e9b492958354df35d562c05c1c9cebcb9d8305c217d8"
     },
     {
       "path": "src/public_html/cms-admin/assets/admin.css",
@@ -1385,8 +1385,8 @@
     },
     {
       "path": "src/system/lib/EditorPreview.php",
-      "bytes": 9724,
-      "sha256": "27e2df172c2c0b7fa6e29ffad6f806017704a82c19f9b78183ecc0b8909058c9"
+      "bytes": 9800,
+      "sha256": "95f97d928eb27ad70893b6f737136bf034299b20c431bf39a97493656bc6b4cc"
     },
     {
       "path": "src/system/lib/ErasureLedger.php",
@@ -2370,8 +2370,8 @@
     },
     {
       "path": "tests/browser/authoring-customizations.mjs",
-      "bytes": 14418,
-      "sha256": "0f2543d72b60e40c85b89659a02c8268c0251fbb10da1d71d351e26f1bd90e7d"
+      "bytes": 13727,
+      "sha256": "884d92446a4f61fc6826919fb55d15c310ed0424dd4fede6d77ef8011003d549"
     },
     {
       "path": "tests/browser/blog.mjs",
@@ -2390,8 +2390,8 @@
     },
     {
       "path": "tests/browser/editor-preview.mjs",
-      "bytes": 7677,
-      "sha256": "98c327fc8bf7008de87d0cdbf76858df08028e78e2cc362006fd3f0e55918d92"
+      "bytes": 8253,
+      "sha256": "1ead8d66288a2774b79c21e723929ede8827e9103f582a6e417c9a921f03bcbf"
     },
     {
       "path": "tests/browser/extension-media.mjs",
@@ -2450,8 +2450,8 @@
     },
     {
       "path": "tests/editor-preview.test.mjs",
-      "bytes": 8438,
-      "sha256": "4623859000b0f8d5019a29999af7f6b673e289900af4e659442c76776937228b"
+      "bytes": 8800,
+      "sha256": "0b02a6f46395113c388ddf4186eded099e2ac31a768868b182f7b76abd1aefc6"
     },
     {
       "path": "tests/extension-media.test.mjs",

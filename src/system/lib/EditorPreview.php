@@ -64,7 +64,7 @@ final class EditorPreview {
         if($attribute==='href'&&$tag!=='link'){if(str_starts_with($value,'#'))continue;$node->setAttribute('href','#');$node->removeAttribute('target');continue;}
         $url=str_starts_with($value,'/')?$origin.$value:(preg_match('~^https?://~i',$value)?$value:rtrim($base,'/').'/'.$value);
         $urlParts=parse_url($url);$path=$urlParts['path']??'';$local=is_array($urlParts)&&($urlParts['scheme']??'')===$parts['scheme']&&($urlParts['host']??'')===$parts['host']&&($urlParts['port']??null)===($parts['port']??null)&&!isset($urlParts['user'])&&!isset($urlParts['pass'])&&!isset($urlParts['query']);
-        $allowed=$local&&str_starts_with($path,$prefix.'/')&&!str_contains(rawurldecode($path),'..')&&!str_contains($path,'\\')&&preg_match('~^'.preg_quote($prefix,'~').'/(?:templates|media|customizations|cms-assets)/~D',$path);
+        $allowed=$local&&str_starts_with($path,$prefix.'/')&&!str_contains(rawurldecode($path),'..')&&!str_contains($path,'\\')&&preg_match('~^'.preg_quote($prefix,'~').'/(?:templates|media|customizations|cms-assets|plugins)/~D',$path);
         if(!$allowed){$node->removeAttribute($attribute);if($tag==='script'||$tag==='link')$node->parentNode?->removeChild($node);continue;}
         if($tag==='script'&&!preg_match('/\.js$/D',$path)){$node->parentNode?->removeChild($node);continue;}
         if($tag==='link'&&strtolower($node->getAttribute('rel'))==='stylesheet')$node->setAttribute('data-template-style','');
@@ -75,7 +75,7 @@ final class EditorPreview {
       if($node->hasAttribute('srcset'))$node->removeAttribute('srcset');
     }
     $public=$origin.$prefix;$previewStyle=asset('cms-admin/assets/editor-preview.css',$base);
-    $policy="default-src 'none'; script-src $public/templates/ $public/customizations/ $public/cms-assets/; style-src $previewStyle $public/templates/ $public/customizations/ $public/cms-assets/; img-src $public/templates/ $public/media/ $public/cms-assets/ data:; font-src $public/templates/ $public/media/; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'";
+    $policy="default-src 'none'; script-src $public/templates/ $public/customizations/ $public/cms-assets/ $public/plugins/; style-src $previewStyle $public/templates/ $public/customizations/ $public/cms-assets/ $public/plugins/; img-src $public/templates/ $public/media/ $public/cms-assets/ $public/plugins/ data:; font-src $public/templates/ $public/media/ $public/plugins/; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'";
     $head=$doc->getElementsByTagName('head')->item(0);if($head===null)throw new HttpError(422,'Preview head unavailable.','markup.error');
     $meta=$doc->createElement('meta');$meta->setAttribute('http-equiv','Content-Security-Policy');$meta->setAttribute('content',$policy);$head->insertBefore($meta,$head->firstChild);
     $meta=$doc->createElement('meta');$meta->setAttribute('name','referrer');$meta->setAttribute('content','no-referrer');$head->appendChild($meta);

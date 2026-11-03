@@ -32,4 +32,8 @@
 # Também proteger downloads estáticos de interpretação por sniffing, quando mod_headers estiver disponível.
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options "nosniff"
+    # Anonymous static presentation data only; never grant CORS to PHP, JSON or administrative APIs.
+    <FilesMatch "\.(?:svg|woff2?|ttf|otf)$">
+        Header always set Access-Control-Allow-Origin "*"
+    </FilesMatch>
 </IfModule>
