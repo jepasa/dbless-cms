@@ -1,5 +1,5 @@
 <?php
-/** Validate package-owned SVG icons and 16:9 PNG previews without executing markup or relying on upload plugins. */
+/** Validate package-owned SVG/PNG/ICO media and JPEG containers without executing markup or relying on upload plugins. */
 declare(strict_types=1);
 namespace DBLESSCMS;
 final class ExtensionMedia {
@@ -45,6 +45,27 @@ final class ExtensionMedia {
     }
     if (!$end || $size===null) throw new \RuntimeException('Incomplete PNG.');
     return $size;
+  }
+  /** Validate complete bounded JPEG marker framing and return non-entropy segments for active-payload inspection; receive bytes, reject trailing/truncated data or missing frame/scan, never decode, execute or rewrite pixels. */
+  public static function jpegScan(string $bytes): string {
+    $total=strlen($bytes);$offset=2;$frame=false;$scan=false;$metadata='';
+    if($total<4||$total>12582912||substr($bytes,0,2)!=="\xFF\xD8")throw new \RuntimeException('Invalid JPEG header.');
+    while($offset<$total){
+      $start=$offset;if($bytes[$offset]!=="\xFF")throw new \RuntimeException('Invalid JPEG marker.');
+      while($offset<$total&&$bytes[$offset]==="\xFF")$offset++;
+      if($offset>=$total)throw new \RuntimeException('Truncated JPEG marker.');$marker=ord($bytes[$offset++]);
+      if($marker===0xD9){if(!$frame||!$scan||$offset!==$total)throw new \RuntimeException('Invalid JPEG ending.');return $metadata;}
+      if($marker===0x01)continue;
+      if($marker===0||$marker===0xD8||$marker>=0xD0&&$marker<=0xD7||$offset+2>$total)throw new \RuntimeException('Invalid JPEG segment.');
+      $length=unpack('n',substr($bytes,$offset,2))[1];if($length<2||$length>$total-$offset)throw new \RuntimeException('Truncated JPEG segment.');
+      $end=$offset+$length;$metadata.=substr($bytes,$start,$end-$start);$offset=$end;
+      if($marker>=0xC0&&$marker<=0xCF&&!in_array($marker,[0xC4,0xC8,0xCC],true))$frame=true;
+      if($marker!==0xDA)continue;
+      if(!$frame)throw new \RuntimeException('JPEG scan precedes frame.');$scan=true;
+      // Entropy-coded pixels may contain coincidental ASCII signatures; only real markers terminate the scan.
+      while(true){$next=strpos($bytes,"\xFF",$offset);if($next===false||$next+1>=$total)throw new \RuntimeException('Incomplete JPEG scan.');$code=ord($bytes[$next+1]);if($code===0||$code>=0xD0&&$code<=0xD7){$offset=$next+2;continue;}$offset=$next;break;}
+    }
+    throw new \RuntimeException('Missing JPEG ending.');
   }
   /** Validate a bounded ICO container with contiguous PNG frames; receives confined file, rejects overlap/trailing data and malformed/non-square frames without executing bytes. */
   public static function ico(string $file): void {

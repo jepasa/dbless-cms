@@ -105,8 +105,8 @@
     },
     {
       "path": "docs/templates.md",
-      "bytes": 24961,
-      "sha256": "3d8c025bb49dcaa0a8cfa9e42385bb9f1b95561d89f55c3627906d0adf1dbf9a"
+      "bytes": 25465,
+      "sha256": "a6270da76dbe714ae00fa8b834d3216c7673d568e8ed49d1e2366eff6a397d3f"
     },
     {
       "path": "examples/hello/public_html/plugins/hello/css/hello.css",
@@ -1400,8 +1400,8 @@
     },
     {
       "path": "src/system/lib/ExtensionMedia.php",
-      "bytes": 4671,
-      "sha256": "92b79921efb23614740f0d673dae3372f80adcaeb9e1d18c82fe742138b44275"
+      "bytes": 6648,
+      "sha256": "551a726024be57f518a1073df4030a83f5cf225946920180d5008a124290efce"
     },
     {
       "path": "src/system/lib/Extensions.php",
@@ -1410,8 +1410,8 @@
     },
     {
       "path": "src/system/lib/GlobalSettings.php",
-      "bytes": 8298,
-      "sha256": "c7a7affc56dadb61a6e8eedef8451dd9f31ab43278715c8e70cb6c969faa6056"
+      "bytes": 8384,
+      "sha256": "e6e0bee3c49392ae43ce989726ea69244592875054599c43c372a97d56b31f15"
     },
     {
       "path": "src/system/lib/HomepageLayout.php",
@@ -1430,8 +1430,8 @@
     },
     {
       "path": "src/system/lib/Icons.php",
-      "bytes": 3397,
-      "sha256": "24419e2803ebf28e91db6bf314539e59916a85203f9a09ac72a8b6ff81559104"
+      "bytes": 3434,
+      "sha256": "2a8776e8c124f926ccf37ee9a1014859b2b9c175015899037a4b235876c606bd"
     },
     {
       "path": "src/system/lib/JsonStore.php",
@@ -1670,8 +1670,8 @@
     },
     {
       "path": "src/system/plugins/files-manager/Files.php",
-      "bytes": 23105,
-      "sha256": "9eed1747dcf37ba0ab5525c57b7b3521750a7597284e056f40a46fb603b977ed"
+      "bytes": 23234,
+      "sha256": "730ec19f6009cff503940d0cc0b56ee9b52b22ba2e368e3e19c667e0975428b8"
     },
     {
       "path": "src/system/plugins/files-manager/languages/en-us.json",
@@ -2450,13 +2450,13 @@
     },
     {
       "path": "tests/editor-preview.test.mjs",
-      "bytes": 8053,
-      "sha256": "1720a79ad3da276d3711e30760cfeacd86a29ec49e860751fd68352f46683037"
+      "bytes": 8438,
+      "sha256": "4623859000b0f8d5019a29999af7f6b673e289900af4e659442c76776937228b"
     },
     {
       "path": "tests/extension-media.test.mjs",
-      "bytes": 8511,
-      "sha256": "572e13cdd20aa355c60739d7e6ea2147820f7a138ebad4f9437af3bd058f5e71"
+      "bytes": 11718,
+      "sha256": "99aa32dbe09f0b4d5a1254619d0a729c26479a75080587ba1e74ad42d54eb172"
     },
     {
       "path": "tests/helpers/extension-media.mjs",

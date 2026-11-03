@@ -80,8 +80,8 @@ final class GlobalSettings {
       if($reference==='')continue;self::media($reference);$file=Lifecycle::path($root.'/'.$reference);
       if(!is_file($file)||filesize($file)>12582912)throw new \RuntimeException('Global image unavailable.');
       $bytes=file_get_contents($file);if($bytes===false)throw new \RuntimeException('Global image read failed.');
-      if(preg_match('~<\?(?:php|=)|<\s*(?:script|iframe|object|embed|html)\b~i',$bytes))throw new \RuntimeException('Unsafe global image.');
-      $extension=strtolower(pathinfo($reference,PATHINFO_EXTENSION));
+      $extension=strtolower(pathinfo($reference,PATHINFO_EXTENSION));$scan=in_array($extension,['jpg','jpeg'],true)?ExtensionMedia::jpegScan($bytes):$bytes;
+      if(preg_match('~<\?(?:php|=)|<\s*(?:script|iframe|object|embed|html)\b~i',$scan))throw new \RuntimeException('Unsafe global image.');
       if($extension==='svg')ExtensionMedia::icon($file);
       elseif($extension==='ico')ExtensionMedia::ico($file);
       else {

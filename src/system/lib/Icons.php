@@ -11,7 +11,7 @@ final class Icons {
     if (!preg_match('/^[a-z][a-z0-9-]{0,63}$/D',$file)) throw new \InvalidArgumentException('Ícone desconhecido.');
     if (!in_array($file,self::FILES,true)) throw new \InvalidArgumentException('Ícone desconhecido.');
     if ($template!==null&&!Templates::identifier($template)) throw new \InvalidArgumentException('Template de ícone inválido.');
-    if($template!==null&&$templates!==null){$key='icon'.str_replace(' ','',ucwords(str_replace('-',' ',$file)));$manifest=$templates->get($template);if(isset($manifest['assets']['files'][$key]))return $templates->asset($template,$manifest['assets']['files'][$key],$base);}
+    if($template!==null&&$templates!==null){$key=$file==='link-45deg'?'iconLink45Deg':'icon'.str_replace(' ','',ucwords(str_replace('-',' ',$file)));$manifest=$templates->get($template);if(isset($manifest['assets']['files'][$key]))return $templates->asset($template,$manifest['assets']['files'][$key],$base);}
     return asset(($template===null?'cms-admin/assets':'templates/'.$template).'/icons/'.$file.'.svg',$base);
   }
   /** Retorna imagem SVG decorativa externa; recebe nome/base/classes estáticas/template opcional, não inclui SVG no HTML e propaga ícone desconhecido. */
