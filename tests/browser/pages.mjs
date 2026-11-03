@@ -1,83 +1,44 @@
-/** Jornada real de páginas em cópias sintéticas: dropdown, tabela, criação, lixeira/restauração, idiomas e responsividade. */
+/** Human Pages/media journeys in synthetic installations: model creation, shared selector/editor, draft/public separation, trash/recovery, localization and responsive UI. */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { pathToFileURL } from 'node:url';
-import {applications,server,inspect,password} from '../helpers/extension-media.mjs';
-if (!process.env.PLAYWRIGHT_MODULE) throw new Error('Defina PLAYWRIGHT_MODULE para a instalação local autorizada.');
+import {pathToFileURL} from 'node:url';
+import {browserApplications as applications,server,password} from '../helpers/extension-media.mjs';
+import {createDraft,publishDraft} from './helpers/editorial-pages.mjs';
+if(!process.env.PLAYWRIGHT_MODULE)throw new Error('Authorized local Playwright is required.');
 const {chromium}=await import(pathToFileURL(process.env.PLAYWRIGHT_MODULE));
-const evidence=process.env.DBLESS_CMS_PAGES_EVIDENCE||fs.mkdtempSync(path.join(os.tmpdir(),'dbless-cms-pages-evidence-'));
-fs.mkdirSync(evidence,{recursive:true});
-const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_EXECUTABLE||'/usr/bin/google-chrome',args:['--no-sandbox']});
-const results=[];
-try {
-  for (const [index,application] of applications.entries()) {
-    const tree=index===0?'src':'production';
-    const sandbox=await server(application),context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage(),errors=[];
-    page.on('pageerror',error=>errors.push(error.message));
-    page.on('console',message=>{if(message.type()==='error'&&!/favicon|status of 404/.test(message.text()))errors.push(message.text());});
-    await context.route('**/*',route=>{if(new URL(route.request().url()).origin===sandbox.base)return route.continue();errors.push('External request');return route.abort();});
-    /** Abre item do grupo de páginas pelo drawer/summary visível; recebe rótulo e não modifica estado por API. */
-    async function navigate(label) {
-      await page.locator('body.nav-ready').waitFor();
-      const toggle=page.locator('[data-nav-toggle]');
-      if(await toggle.isVisible()&&await toggle.getAttribute('aria-expanded')==='false')await toggle.click();
-      const menu=page.locator('[data-plugin-menu="pages"]');
-      if(!(await menu.evaluate(node=>node.open)))await menu.locator('summary').click();
-      await menu.getByRole('link',{name:label,exact:true}).click();
-    }
-    /** Envia ação visível e aguarda navegação; recebe locator, sem alterações diretas no conteúdo. */
-    async function submit(locator) {const navigation=page.waitForNavigation();await locator.click();await navigation;}
-    try {
-      inspect(sandbox,"$d=$s->read('site');$d['data']['settings']['adminLocale']='pt-br';$s->save('site',DBLESSCMS\\JsonStore::encode($d['data']),$d['revision']);echo 'true';");
-      await page.goto(sandbox.base+'/cms-admin/');await page.getByLabel('Usuário',{exact:true}).fill('editor');await page.getByLabel('Senha',{exact:true}).fill(password);await submit(page.getByRole('button',{name:'Entrar no painel',exact:true}));
-      // The portable fixture uses only local Essencial assets, retaining the active-default protection.
-      await page.locator('[data-user-menu] > summary').click();await page.locator('[data-user-menu]').getByRole('link',{name:'Templates',exact:true}).click();
-      const activate=page.locator('[data-extension-id="essencial"] button[aria-pressed]');if(!await activate.isDisabled())await submit(activate);else assert.equal(await activate.getAttribute('aria-pressed'),'true');await navigate('Visão Geral');
-      const menu=page.locator('[data-plugin-menu="pages"]'),summary=menu.locator('summary');
-      assert.deepEqual(await menu.locator('a').allTextContents(),['Visão Geral','Nova Página','Histórico','Lixeira']);assert.equal(await menu.locator('hr').count(),2);
-      await summary.focus();await page.keyboard.press('Enter');assert.equal(await menu.evaluate(node=>node.open),false);await page.keyboard.press('Space');assert.ok(await menu.evaluate(node=>node.open));
-      for(const id of ['files-manager']) {
-        const dropdown=page.locator(`[data-plugin-menu="${id}"]`);
-        if(!(await dropdown.evaluate(node=>node.open)))await dropdown.locator('summary').click();
-        await dropdown.getByRole('link',{name:'Configurações',exact:true}).click();
-        assert.equal(new URL(page.url()).searchParams.get('plugin'),id);
-        assert.equal(new URL(page.url()).searchParams.get('route'),'settings');
-        await page.locator(`[data-${id==='files-manager'?'fm-settings':id+'-form'}]`).first().waitFor();
-      }
-      await navigate('Visão Geral');
-      assert.deepEqual(await page.locator('thead th').allTextContents(),['Nome','Descrição','Status','Ação']);
-      assert.equal(await page.locator('.stats-grid,.create-form').count(),0);
-      assert.ok(await page.locator('.row-actions button,.row-actions a').evaluateAll(nodes=>nodes.every(node=>node.textContent.trim()===''&&node.title&&node.getAttribute('aria-label'))));
-      assert.equal(await page.locator('[data-page-id="home"] .danger').isDisabled(),true);assert.equal(await page.locator('[data-page-id="404"] .danger').isDisabled(),true);
-      await page.screenshot({path:path.join(evidence,tree+'-overview-desktop.png'),fullPage:true});
-      await navigate('Lixeira');await page.getByText('Nenhuma página na lixeira.',{exact:true}).waitFor();
-      await navigate('Nova Página');await page.locator('[data-native-editor] > summary').click();const legacy=page.locator('.create-form'),slugField=legacy.getByLabel('Identificador da URL',{exact:true});
-      await slugField.fill('invalid/slug');assert.equal(await slugField.evaluate(node=>node.checkValidity()),false);
-      await slugField.fill('pagina-browser');assert.equal(await slugField.evaluate(node=>node.checkValidity()),true);await legacy.getByRole('combobox',{name:/^Estrutura inicial/}).selectOption('starter-page');await submit(legacy.getByRole('button',{name:'Criar rascunho',exact:true}));
-      assert.equal(new URL(page.url()).searchParams.get('key'),'pagina-browser');
-      await navigate('Visão Geral');const row=page.locator('[data-page-id="pagina-browser"]');await row.getByText('Rascunho',{exact:true}).waitFor();
-      const title=await row.locator('strong').innerText();
-      const popupEvent=page.waitForEvent('popup');await row.getByRole('link',{name:'Visualizar '+title,exact:true}).click();const popup=await popupEvent;await popup.waitForLoadState();assert.equal(new URL(popup.url()).searchParams.get('key'),'pagina-browser');await popup.close();
-      const confirmation=page.waitForEvent('dialog'),clicking=row.locator('.danger').click({noWaitAfter:true});const dialog=await confirmation;assert.equal(dialog.type(),'confirm');const navigation=page.waitForNavigation();await dialog.accept();await clicking;await navigation;
-      await navigate('Lixeira');await page.getByText('pagina-browser',{exact:true}).waitFor();await page.screenshot({path:path.join(evidence,tree+'-trash.png'),fullPage:true});
-      await page.getByRole('link',{name:'Histórico e restauração',exact:true}).click();
-      const restoreDialog=page.waitForEvent('dialog'),restoring=page.getByRole('button',{name:'Restaurar revisão',exact:true}).first().click({noWaitAfter:true});const restore=await restoreDialog;const restored=page.waitForNavigation();await restore.accept();await restoring;await restored;
-      await navigate('Lixeira');await page.getByText('Nenhuma página na lixeira.',{exact:true}).waitFor();
-      await navigate('Visão Geral');assert.equal(await page.locator('[data-page-id="pagina-browser"]').count(),1);
-      for(const width of [320,390,768,1024,1440]) {
-        await page.setViewportSize({width,height:900});await page.evaluate(async()=>{await document.fonts.ready;await new Promise(requestAnimationFrame);});
-        assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`${tree}: overflow ${width}`);
-        await page.screenshot({path:path.join(evidence,`${tree}-overview-${width}.png`),fullPage:true});
-        await navigate('Nova Página');await page.getByRole('heading',{name:'Nova Página',level:1,exact:true}).waitFor();await navigate('Lixeira');await navigate('Visão Geral');
-      }
-      await page.locator('[data-user-menu] > summary').click();await page.locator('[data-user-menu]').getByRole('link',{name:'Configurações',exact:true}).click();await page.locator('[data-admin-locale]').selectOption('en-us');await submit(page.getByRole('button',{name:'Salvar alterações',exact:true}));
-      await navigate('Overview');assert.deepEqual(await menu.locator('a').allTextContents(),['Overview','New Page','History','Trash']);assert.deepEqual(await page.locator('thead th').allTextContents(),['Name','Description','Status','Action']);
-      await navigate('New Page');await page.getByRole('heading',{name:'New Page',level:1,exact:true}).waitFor();await navigate('Trash');await page.getByText('No pages in the trash.',{exact:true}).waitFor();
-      assert.deepEqual(errors,[]);assert.ok(!/PHP (?:Warning|Fatal|Parse)/.test(sandbox.logs()),sandbox.logs());
-      results.push({tree,status:'passed',checks:['dropdown/order/separator/keyboard','shared responsive table/icon actions/protected pages','create draft/preview/trash/history/restore','pt-br/en-us','320/390/768/1024/1440/no overflow','console/CSP']});
-    } catch(error) {await page.screenshot({path:path.join(evidence,tree+'-failure.png'),fullPage:true});throw error;} finally {await context.close();await sandbox.close();}
-  }
-} finally {await browser.close();fs.writeFileSync(path.join(evidence,'results.json'),JSON.stringify(results,null,2)+'\n');}
+const evidence=fs.mkdtempSync(path.join(os.tmpdir(),'dbless-pages-media-')),results=[];
+console.log('Browser evidence: '+evidence);
+const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',args:['--no-sandbox']});
+try{for(const [index,application] of applications.entries()){
+  const fixture=await server(application),context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];
+  page.on('pageerror',error=>errors.push(error.message));await context.route('**/*',route=>new URL(route.request().url()).origin===fixture.base?route.continue():route.abort());
+  const directory=path.join(evidence,String(index));fs.mkdirSync(directory);
+  try{
+    const root=path.join(fixture.app,'public_html/library'),siteFile=path.join(fixture.contents,'site.json'),site=JSON.parse(fs.readFileSync(siteFile));site.settings.media={public:'library',private:'vault'};fs.writeFileSync(siteFile,JSON.stringify(site));fs.mkdirSync(root);fs.mkdirSync(path.join(root,'nested'));
+    const image=fs.readFileSync(path.join(fixture.app,'public_html/templates/essencial/essencial.png'));for(let n=1;n<=28;n++)fs.writeFileSync(path.join(root,'photo-'+String(n).padStart(2,'0')+'.png'),image);fs.writeFileSync(path.join(root,'nested','inside.png'),image);
+    await page.goto(fixture.base+'/cms-admin/');await page.getByLabel('Username',{exact:true}).fill('editor');await page.getByLabel('Password',{exact:true}).fill(password);await Promise.all([page.waitForNavigation(),page.getByRole('button',{name:'Sign in',exact:true}).click()]);
+    // Generate a tiny local video fixture; the journey still selects and publishes it through the visible UI.
+    const recording=await page.evaluate(async()=>{const canvas=document.createElement('canvas');canvas.width=160;canvas.height=90;const stream=canvas.captureStream(10),recorder=new MediaRecorder(stream,{mimeType:'video/mp4'}),chunks=[];recorder.ondataavailable=event=>chunks.push(event.data);const done=new Promise(resolve=>recorder.onstop=resolve);recorder.start();for(let n=0;n<4;n++){canvas.getContext('2d').fillRect(n*20,0,20,90);await new Promise(resolve=>setTimeout(resolve,100));}recorder.stop();await done;stream.getTracks().forEach(track=>track.stop());return Array.from(new Uint8Array(await new Blob(chunks).arrayBuffer()));});fs.writeFileSync(path.join(root,'clip.mp4'),Buffer.from(recording));
+    const id=await createDraft(page,fixture.base,'Media journey','media-journey'),input=page.locator('[name="meta_image"]');await input.locator('..').getByRole('button',{name:'Select local media',exact:true}).click();
+    const picker=page.locator('dialog.media-picker');await picker.getByRole('status').getByText('Page 1 of 2 · 29 items',{exact:true}).waitFor();assert.equal(await picker.getByRole('combobox',{name:'Media area',exact:true}).count(),0);assert.equal(await picker.locator('input[type=file]').count(),0);
+    await picker.getByRole('button',{name:'Next page',exact:true}).click();await picker.getByText('Page 2 of 2 · 29 items',{exact:true}).waitFor();await picker.getByRole('button',{name:'Previous page',exact:true}).click();await picker.getByRole('button',{name:'List',exact:true}).click();assert.equal(await picker.locator('.media-picker-items').getAttribute('data-mode'),'list');
+    await picker.getByRole('combobox',{name:'Sort by',exact:true}).selectOption('size');await picker.getByRole('button',{name:'Reverse order',exact:true}).click();await picker.getByRole('searchbox').fill('photo-28');await picker.getByText('Page 1 of 1 · 1 items',{exact:true}).waitFor();await picker.getByRole('button',{name:/photo-28/}).click();assert.equal(await input.inputValue(),'library/photo-28.png');
+    await input.locator('..').getByRole('button',{name:'Select local media',exact:true}).click();await picker.getByRole('button',{name:/nested/}).click();await picker.getByRole('button',{name:/inside.png/}).waitFor();await picker.getByRole('button',{name:'Parent folder',exact:true}).click();await picker.getByRole('button',{name:/nested/}).waitFor();await page.keyboard.press('Escape');assert.equal(await picker.count(),0);assert.equal(await input.locator('..').getByRole('button').evaluate(button=>button===document.activeElement),true);
+    const editor=page.locator('[data-core-editor]').first();await editor.frameLocator('[data-editor-canvas]').locator('.dbless-canvas').waitFor();await editor.locator('[data-editor-action=paragraph]').click();await editor.frameLocator('[data-editor-canvas]').getByRole('textbox').first().fill('Draft body created visually.');
+    await editor.locator('[data-editor-action=image]').click();const insertion=page.locator('.dbless-editor-dialog');await insertion.getByRole('button',{name:'Select from local repository',exact:true}).click();await picker.getByRole('searchbox').fill('photo-01');await picker.getByRole('button',{name:/photo-01/}).click();await insertion.getByLabel('Alternative text (empty for a decorative image)',{exact:true}).fill('Synthetic local image');await insertion.getByRole('button',{name:'Apply',exact:true}).click();
+    await editor.locator('[data-editor-action=video]').click();await insertion.getByRole('button',{name:'Select from local repository',exact:true}).click();await picker.getByRole('button',{name:'clip.mp4',exact:true}).click();await insertion.getByRole('button',{name:'Apply',exact:true}).click();
+    await editor.locator('[data-editor-action=video]').click();await insertion.getByLabel('Address',{exact:true}).fill('https://media.example.test/clip.mp4');await insertion.getByRole('button',{name:'Apply',exact:true}).click();
+    await editor.locator('[data-editor-action=code]').click();assert.match(await editor.locator('textarea').inputValue(),/Synthetic local image/);assert.match(await editor.locator('textarea').inputValue(),/<video controls preload="metadata"/);
+    await publishDraft(page);const reader=await context.newPage();await reader.goto(fixture.base+'/media-journey');assert.match(await reader.locator('body').innerText(),/Draft body created visually/);assert.equal(await reader.locator('img[alt="Synthetic local image"]').getAttribute('referrerpolicy'),'no-referrer');assert.equal(await reader.locator('video').last().getAttribute('src'),'https://media.example.test/clip.mp4');assert.equal(await reader.locator('video').first().getAttribute('src'),'library/clip.mp4');await reader.waitForFunction(()=>document.querySelector('video').readyState>=1);await reader.close();
+    // A changed working draft cannot alter the public response before an explicit publication.
+    await page.locator('[name="meta_title"]').fill('Unpublished title');await Promise.all([page.waitForNavigation(),page.locator('form[action*="editorial-save"] button[type=submit]').click()]);const publicResponse=await context.request.get(fixture.base+'/media-journey');assert.doesNotMatch(await publicResponse.text(),/<title>Unpublished title/);
+    await page.goto(fixture.base+'/cms-admin/?view=plugin-panel&plugin=pages&route=overview');await page.getByRole('searchbox').fill('Unpublished title');await Promise.all([page.waitForNavigation(),page.locator('form[method=get] button').click()]);const row=page.locator('[data-page-id="'+id+'"]');assert.equal(await row.count(),1);assert.match(await row.innerText(),/Unpublished title/);
+    page.once('dialog',dialog=>dialog.accept());await Promise.all([page.waitForNavigation(),row.locator('.danger').click()]);await page.goto(fixture.base+'/cms-admin/?view=plugin-panel&plugin=pages&route=trash');await Promise.all([page.waitForNavigation(),page.getByRole('button',{name:'Recover as draft',exact:true}).click()]);assert.equal((await context.request.get(fixture.base+'/media-journey')).status(),404);
+    // Review keyboard and actual screenshots in both locales and narrow/desktop layouts.
+    for(const locale of ['en-us','pt-br']){const localized=JSON.parse(fs.readFileSync(siteFile));localized.settings.adminLocale=locale;fs.writeFileSync(siteFile,JSON.stringify(localized));await page.goto(fixture.base+'/cms-admin/?view=plugin-panel&plugin=pages&route=editor&key='+id);for(const width of [390,1440]){await page.setViewportSize({width,height:1000});await page.locator('[name="meta_image"]').locator('..').getByRole('button').click();await page.locator('.media-picker-items button').first().waitFor();await page.locator('dialog.media-picker').getByRole('searchbox').fill('photo');await page.locator('dialog.media-picker [role=status]').getByText(/28/).waitFor();assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));assert.ok(await page.locator('dialog.media-picker').evaluate(dialog=>dialog.scrollWidth<=dialog.clientWidth+1));await page.screenshot({path:path.join(directory,locale+'-selector-'+width+'.png'),fullPage:true});await page.keyboard.press('Escape');await page.screenshot({path:path.join(directory,locale+'-editor-'+width+'.png'),fullPage:true});}}
+    assert.deepEqual(errors,[]);assert.doesNotMatch(fixture.logs(),/PHP (?:Warning|Fatal|Parse)/);results.push({application,status:'passed',checks:['model and immutable identity','global media root','pagination/search/sort/list/grid/folders','public-only modal without uploads','Escape/focus','local image/local playable MP4/remote video','shared editor publication','working draft isolation','catalog search/trash/recovery to draft','en-us/pt-br at 390/1440']});
+  }catch(error){await page.screenshot({path:path.join(directory,'failure.png'),fullPage:true});fs.writeFileSync(path.join(directory,'failure.txt'),String(error)+'\n'+fixture.logs());throw error;}finally{await context.close();await fixture.close();}
+}}finally{await browser.close();fs.writeFileSync(path.join(evidence,'results.json'),JSON.stringify(results,null,2)+'\n');}
 console.log(JSON.stringify(results,null,2));

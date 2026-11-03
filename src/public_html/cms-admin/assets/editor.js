@@ -53,7 +53,7 @@
       this.commands=node('div','','dbless-editor-commands');
       if(!this.options.readOnly){
         const history=this.group('history');history.append(this.button('undo',()=>this.undo(false)),this.button('redo',()=>this.undo(true)));this.commands.append(history);
-        for(const [name,tools] of [['formatting',['bold','italic']],['blocks',['paragraph','heading','list','quote']],['insertion',['link','image']]]){const available=this.options.toolbar.filter(tool=>tools.includes(tool));if(!available.length)continue;const group=this.group(name);for(const tool of available)group.append(this.button(tool,()=>this.tool(tool)));this.commands.append(group);}
+        for(const [name,tools] of [['formatting',['bold','italic']],['blocks',['paragraph','heading','list','quote']],['insertion',['link','image','video']]]){const available=this.options.toolbar.filter(tool=>tools.includes(tool));if(!available.length)continue;const group=this.group(name);for(const tool of available)group.append(this.button(tool,()=>this.tool(tool)));this.commands.append(group);}
       }
       this.toolbar.append(this.commands);this.toolbar.addEventListener('keydown',event=>this.navigate(event));this.toolbar.addEventListener('focusin',event=>{if(event.target.matches('button[data-editor-action]')){this.tabStop=event.target;this.syncToolbar();}});
       this.previewScope=node('label','','dbless-editor-preview-scope');this.previewScope.append(node('span',t('previewScope')));this.scope=node('select');this.scope.setAttribute('aria-label',t('previewScope'));for(const value of ['content','page']){const option=node('option',t(value==='content'?'previewContent':'previewPage'));option.value=value;this.scope.append(option);}this.previewScope.append(this.scope);this.previewScope.hidden=true;this.toolbar.append(this.previewScope);this.scope.addEventListener('change',()=>{if(this.mode==='preview')void this.preview().catch(()=>{});});
@@ -110,7 +110,7 @@
         const response=await fetch(endpoint,{method:'POST',body,credentials:'same-origin',signal:request.signal,cache:'no-store',redirect:'error'}),result=await response.json();
         if(!response.ok||typeof result.html!=='string')throw new Error(t('previewError'));
         if(this.mode!=='preview'||this.previewRequest!==request)return;
-        const frame=node('iframe','','dbless-editor-canvas');frame.dataset.editorPreview='';frame.title=t('preview');frame.height=String(this.options.height);frame.setAttribute('sandbox','allow-scripts');frame.referrerPolicy='no-referrer';frame.srcdoc=result.html;this.previewFrame=frame;this.frame.after(frame);this.status.textContent=t('previewHelp');
+        const frame=node('iframe','','dbless-editor-canvas');frame.dataset.editorPreview='';frame.title=t('preview');frame.height=String(this.options.height);frame.setAttribute('sandbox','allow-scripts');frame.referrerPolicy='no-referrer';frame.srcdoc=result.html;this.previewFrame=frame;this.frame.after(frame);this.status.textContent=result.diagnostics?.length?t('dataUnavailable')+' '+result.diagnostics.join(', '):t('previewHelp');
       }catch(error){if(error.name==='AbortError')return;this.status.textContent=t('previewError')+' '+error.message;throw error;}
     }
     /** Send a validated source model to this opaque frame; no arguments/return, never includes session, provider values or PHP execution results. */
@@ -160,7 +160,7 @@
     /** Apply an explicit toolbar action; receives closed tool name, edits only a chosen source block or delegates safe inline commands. */
     async tool(name){
       if(this.mode!=='visual'||this.options.readOnly)return;await this.flush();
-      if(name==='link'||name==='image'){const value=await this.dialog(name);if(value)this.send('command',{name,value});return;}
+      if(['link','image','video'].includes(name)){const value=await this.dialog(name);if(value){if(name==='video')this.insertMarkup('<video controls preload="metadata" src="'+escape(value.url)+'"></video>');else this.send('command',{name,value});}return;}
       if(['bold','italic'].includes(name)){this.send('command',{name});return;}
       const source=this.textarea.value,block=this.model?.blocks.find(item=>item.id===this.selected);let next;
       if(name==='paragraph')next=source+'\n<p>'+t('newText')+'</p>';
@@ -171,15 +171,17 @@
       }
       if(next!==undefined&&next!==source){model.analyze(next,this.options,config.policy);this.remember(source);this.write(next);this.render();}
     }
-    /** Show an accessible owned link/image dialog; receives kind, returns Promise of safe values/null and never submits the plugin form. */
+    /** Show an accessible owned link/image/video dialog with the core local picker; receives kind, returns Promise of safe values/null and never submits the plugin form. */
     dialog(kind){
       return new Promise(resolve=>{
-        const dialog=node('dialog','','dbless-editor-dialog'),heading=node('h2',t(kind)),urlLabel=node('label',t('url')),url=node('input'),textLabel=node('label',t(kind==='image'?'alt':'linkText')),text=node('input'),error=node('p','','notice error'),actions=node('div','','savebar'),cancel=node('button',t('cancel'),'button-secondary'),apply=node('button',t('apply'),'button-primary');
+        const dialog=node('dialog','','dbless-editor-dialog'),heading=node('h2',t(kind)),urlLabel=node('label',t('url')),url=node('input'),textLabel=node('label',t(kind==='link'?'linkText':'alt')),text=node('input'),error=node('p','','notice error'),actions=node('div','','savebar'),cancel=node('button',t('cancel'),'button-secondary'),apply=node('button',t('apply'),'button-primary');
         url.type='text';url.required=true;url.maxLength=2048;text.maxLength=500;url.id='editor-url-'+(++nextId);urlLabel.htmlFor=url.id;text.id='editor-text-'+nextId;textLabel.htmlFor=text.id;urlLabel.append(url);textLabel.append(text);error.hidden=true;error.setAttribute('role','alert');cancel.type=apply.type='button';actions.append(cancel,apply);dialog.setAttribute('aria-labelledby','editor-dialog-'+nextId);heading.id='editor-dialog-'+nextId;dialog.append(heading,urlLabel,textLabel,error,actions);document.body.append(dialog);
         /** Close only this owned dialog; receives optional value, resolves once and restores focus to its toolbar trigger. */
         function close(value=null){dialog.close();dialog.remove();resolve(value);}
         cancel.addEventListener('click',()=>close());dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
-        apply.addEventListener('click',()=>{try{if(!url.reportValidity())return;model.url(url.value,kind==='image'?'src':'href');if(kind==='image'){const address=new URL(url.value,new URL(config.publicBase,location.href));if(address.origin!==location.origin||address.pathname.includes('/cms-admin/')||url.value.includes('{{'))throw new SyntaxError(t('localImage'));}close(kind==='image'?{url:url.value,alt:text.value}:{url:url.value,text:text.value});}catch(issue){error.hidden=false;error.textContent=t('invalid')+' '+issue.message;}});
+        if(kind!=='link'){const local=node('button',t('localMedia'),'button-secondary');local.type='button';local.addEventListener('click',async()=>{try{const item=await window.DBLESSMedia.open({type:kind});if(item){url.value=item.value?item.value.split('/').map(encodeURIComponent).join('/'):item.url;url.focus();}}catch(issue){error.hidden=false;error.textContent=t('invalid')+' '+issue.message;}});urlLabel.after(local);}
+        if(kind==='video')textLabel.hidden=true;
+        apply.addEventListener('click',()=>{try{if(!url.reportValidity())return;model.url(url.value,kind==='link'?'href':'src');if(kind!=='link'){const address=new URL(url.value,new URL(config.publicBase,location.href));if(url.value.includes('{{')||(address.origin!==location.origin&&address.protocol!=='https:'))throw new SyntaxError(t('remoteMedia'));}close(kind==='link'?{url:url.value,text:text.value}:{url:url.value,alt:text.value});}catch(issue){error.hidden=false;error.textContent=t('invalid')+' '+issue.message;}});
         dialog.showModal();url.focus();
       });
     }

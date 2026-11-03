@@ -13,10 +13,11 @@ final class PluginOptions {
     if (!$value instanceof \stdClass) throw new HttpError(422,'Configuração deve ser um objeto.','error.plugin');
     return json_decode($raw,true,16,JSON_THROW_ON_ERROR);
   }
-  /** Renderiza Campos/JSON; recebe contexto/operação/atributo/help/opções dinâmicas/modo de ícones e retorna HTML; propaga falhas de leitura. */
-  public static function render(PluginContext $context,string $operation,string $attribute,string $help,array $choices=[],bool $iconOnly=false): string {
+  /** Renderiza Campos/JSON; recebe contexto/operação/atributo/help/opções dinâmicas/modo de ícones/campos ocultos e retorna HTML; propaga falhas de leitura. */
+  public static function render(PluginContext $context,string $operation,string $attribute,string $help,array $choices=[],bool $iconOnly=false,array $hidden=[]): string {
     if (!preg_match('/^data-[a-z-]+$/D',$attribute)) throw new \LogicException('Atributo de formulário inválido.');
     $registry=new Plugins($context->store);$schema=$registry->schema($context->manifest['id']);
+    $settings=$context->settings;foreach($hidden as $key){unset($settings[$key],$schema['properties'][$key]);$schema['required']=array_values(array_diff($schema['required']??[],[$key]));}
     $ui=new Language();$ui->select($context->language->locale());
     ob_start();
     try {require dirname(__DIR__).'/admin/plugin-options.php';return (string)ob_get_clean();}

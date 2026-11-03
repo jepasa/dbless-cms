@@ -7,6 +7,7 @@ final class Components {
   private int $resolved=0;
   private array $warnings=[];
   private array $data=[];
+  private array $states=[];
   private static ?\WeakMap $budgets=null;
   /** Receive read context; defer registry/provider loading and never persist component output. */
   public function __construct(private readonly ContentContext $context) {}
@@ -34,7 +35,7 @@ final class Components {
       if(!is_string($name)||!Plugins::identifier($name)||!is_array($service)||count($service)!==6||array_diff(array_keys($service),['api','description','context','parameters','result','formats'])!==[]||($service['api']??null)!==1||!is_string($service['description']??null)||trim($service['description'])===''||strlen($service['description'])>500||preg_match('/[\x00-\x1F\x7F<>]/',$service['description'])||!in_array($service['context']??null,['block','text'],true)||!is_array($service['parameters']??null)||!is_array($service['result']??null)||($service['parameters']['type']??null)!=='object'||($service['result']['type']??null)!=='object')throw new HttpError(422,'Invalid content service.','components.error');
       self::schema($service['parameters']);self::schema($service['result']);
       foreach($service['parameters']['properties'] as $key=>$field)if($key==='layout'||!in_array($field['type'],['string','integer','boolean'],true))throw new HttpError(422,'Unsupported marker parameter.','components.error');
-      if(!is_array($service['formats'])||!array_is_list($service['formats'])||$service['formats']===[]||count($service['formats'])>10||count(array_unique($service['formats'],SORT_REGULAR))!==count($service['formats']))throw new HttpError(422,'Invalid component formats.','components.error');
+      if(!is_array($service['formats'])||!array_is_list($service['formats'])||count($service['formats'])>10||count(array_unique($service['formats'],SORT_REGULAR))!==count($service['formats']))throw new HttpError(422,'Invalid component formats.','components.error');
       foreach($service['formats'] as $format)if(!is_string($format)||!Plugins::identifier($format))throw new HttpError(422,'Invalid component format.','components.error');
       if($service['context']==='text'&&(($service['result']['properties']['value']['type']??null)!=='string'||!in_array('value',$service['result']['required']??[],true)||$service['formats']!==['text']))throw new HttpError(422,'Invalid text component.','components.error');
     }
@@ -62,7 +63,7 @@ final class Components {
   }
   /** Validate/coerce marker parameters and registered layout; receive parsed marker/definition, return typed parameters/format or 422 with no provider call. */
   private static function parameters(array $marker,array $definition): array {
-    $input=$marker['parameters'];$format=$input['layout']??$definition['formats'][0];unset($input['layout']);
+    if($definition['formats']===[])throw new HttpError(422,'Data-only service requires a binding.','components.error');$input=$marker['parameters'];$format=$input['layout']??$definition['formats'][0];unset($input['layout']);
     if(!in_array($format,$definition['formats'],true))throw new HttpError(422,'Unsupported component format.','components.error');
     $result=[];
     foreach($definition['parameters']['properties'] as $key=>$field){
@@ -174,8 +175,10 @@ final class Components {
   }
   /** Build a namespace/alias JSON environment from explicit bindings; receive definitions, return public data only, never parse values as templates or mutate storage. */
   public function environment(array $bindings): array {
-    self::bindingShape($bindings);$result=[];foreach($bindings as $binding){try{$value=$this->data($binding['plugin'],$binding['service'],$binding['parameters'])??[];}catch(HttpError $error){$this->warnings[]=$binding['plugin'].':'.$binding['service'].' (invalid parameters)';$value=[];}$cursor=&$result;$path=explode('.',$binding['alias']);$leaf=array_pop($path);foreach($path as $part){$cursor[$part]??=[];$cursor=&$cursor[$part];}$cursor[$leaf]=$value;unset($cursor);}return $result;
+    self::bindingShape($bindings);$result=[];foreach($bindings as $binding){try{$value=$this->data($binding['plugin'],$binding['service'],$binding['parameters']);}catch(HttpError $error){$this->warnings[]=$binding['plugin'].':'.$binding['service'].' (invalid parameters)';$value=null;}$state=&$this->states;foreach(explode('.',$binding['alias']) as $part){$state[$part]??=[];$state=&$state[$part];}$state=['available'=>$value!==null,'empty'=>$value!==null&&($value===[]||($value['items']??null)===[])];unset($state);$value??=[];$cursor=&$result;$path=explode('.',$binding['alias']);$leaf=array_pop($path);foreach($path as $part){$cursor[$part]??=[];$cursor=&$cursor[$part];}$cursor[$leaf]=$value;unset($cursor);}return $result;
   }
+  /** Expose typed availability separately from empty results; no arguments, returns per-alias state without provider details or errors. */
+  public function states(): array {return $this->states;}
   /** Resolve one allowlisted read-only provider and render a trusted template partial; receive marker, return safe HTML/text or empty with warning; isolate optional provider errors in bounded logs. */
   public function render(string $text,bool $inline=false): string {
     if(($form=ContentForms::parse($text))!==null){if($inline)throw new HttpError(422,'Form requires a block.','markup.error');return ContentForms::render($form,$this->context);}

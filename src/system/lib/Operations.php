@@ -83,7 +83,7 @@ final class Operations {
     $registry->validateDocument($registry->document()['data']);
     $checks['plugins']=true;
     foreach ($registry->all() as $id=>$manifest) if ($registry->state($id)['enabled']&&($manifest['launcher']??'')==='files') {
-      $settings=$registry->state($id)['settings'];$relative=$settings['uploads']['public'];
+      $settings=$registry->state($id)['settings'];$settings['uploads']=MediaLibrary::roots($store);$relative=$settings['uploads']['public'];
       $public=$this->installation.'/public_html'.($relative===''?'':'/'.$relative);Lifecycle::path($public);
       $checks['public_uploads']=is_dir($public)&&is_writable($public);
       $private=$this->config->data['storage'].'/files'.($settings['uploads']['private']===''?'':'/'.$settings['uploads']['private']);Lifecycle::path($private);

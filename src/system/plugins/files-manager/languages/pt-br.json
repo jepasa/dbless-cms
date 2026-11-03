@@ -63,7 +63,7 @@
     "setting.uploads": "Uploads",
     "setting.public": "Público",
     "setting.private": "Privado",
-    "setting.help": "Caminhos relativos. Público: public_html/. Privado: system/storage/files/. Campo vazio utiliza a respectiva raiz.",
+    "setting.help": "A paginação pertence ao gerenciador. As raízes de mídia são definidas nas Configurações Globais.",
     "fm.menu": "Imagens",
     "fm.overview": "Visão Geral",
     "fm.settings": "Configurações",
@@ -121,6 +121,7 @@
     "fm.event.restore": "Arquivo ou pasta restaurado da lixeira.",
     "fm.event.purge": "Item excluído permanentemente da lixeira.",
     "fm.event.replace": "Arquivo substituído; versão anterior arquivada na lixeira.",
-    "fm.event.unknown": "Operação registrada; descrição indisponível."
+    "fm.event.unknown": "Operação registrada; descrição indisponível.",
+    "setting.globalRoots": "Configurar raízes de mídia nas Configurações Globais"
   }
 }

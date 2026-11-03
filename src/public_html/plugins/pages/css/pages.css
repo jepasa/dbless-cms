@@ -2,3 +2,18 @@
 .pages-plugin { min-width: 0; }
 .pages-plugin input[type="checkbox"] { width: auto; }
 .pages-plugin .history-row { flex-wrap: wrap; gap: 12px; }
+
+/* Editorial hierarchy is bounded and uses static classes, never author-supplied inline styles. */
+.pages-plugin .page-depth-0{display:block;padding-inline-start:0px}
+.pages-plugin .page-depth-1{display:block;padding-inline-start:16px}
+.pages-plugin .page-depth-2{display:block;padding-inline-start:32px}
+.pages-plugin .page-depth-3{display:block;padding-inline-start:48px}
+.pages-plugin .page-depth-4{display:block;padding-inline-start:64px}
+.pages-plugin .page-depth-5{display:block;padding-inline-start:80px}
+.pages-plugin .page-depth-6{display:block;padding-inline-start:96px}
+.pages-plugin .page-depth-7{display:block;padding-inline-start:112px}
+.pages-plugin .page-depth-8{display:block;padding-inline-start:128px}
+.pages-plugin .page-depth-9{display:block;padding-inline-start:144px}
+.pages-plugin .page-depth-10{display:block;padding-inline-start:160px}
+.pages-plugin .page-depth-11{display:block;padding-inline-start:176px}
+.pages-plugin .page-depth-12{display:block;padding-inline-start:192px}

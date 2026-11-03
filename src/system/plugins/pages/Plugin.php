@@ -5,10 +5,21 @@ namespace DBLESSCMS;
 require_once __DIR__.'/Router.php';
 final class PagesPlugin implements PluginInterface,ContentProviderInterface,ContentOptionsInterface,ContentDocumentInterface {
   /** Return no dynamic choices for the public list query; receive service/context, return empty metadata without writes. */
-  public function contentOptions(string $service,ContentContext $context): array {return [];}
+  public function contentOptions(string $service,ContentContext $context): array {if(!in_array($service,['details','children','breadcrumbs'],true))return [];$choices=[];foreach($context->store->pages() as $id=>$snapshot)if(PagePublications::identifier((string)$id)&&$snapshot['data']['status']==='published'&&count($choices)<100)$choices[]=['value'=>(string)$id,'label'=>$snapshot['data']['meta']['title']];return ['id'=>$choices];}
   /** Project only published ordinary pages in stable slug order; receive service/typed parameters/context, return public cards, never include home/404/drafts or metadata secrets. */
   public function content(string $service,array $parameters,ContentContext $context): array {
-    if($service!=='list')throw new HttpError(404,'Unknown service.','components.error');$items=[];foreach($context->store->pages() as $id=>$snapshot){$page=$snapshot['data'];if(in_array((string)$id,['home','404'],true)||$page['status']!=='published')continue;$items[]=['title'=>$page['meta']['title'],'text'=>$page['meta']['description'],'href'=>$context->base.'/'.rawurlencode((string)$id),'image'=>$page['meta']['image']===''?'':(preg_match('~^https?://~i',$page['meta']['image'])?$page['meta']['image']:$context->base.'/'.ltrim($page['meta']['image'],'/'))];if(count($items)>=$parameters['limit'])break;}return ['items'=>$items];
+    if(in_array($service,['records','details','children','breadcrumbs'],true))return $this->records($service,$parameters,$context);
+    if($service!=='list')throw new HttpError(404,'Unknown service.','components.error');$items=[];foreach($context->store->pages() as $id=>$snapshot){$page=$snapshot['data'];if(in_array((string)$id,['home','404'],true)||$page['status']!=='published')continue;$items[]=['title'=>$page['meta']['title'],'text'=>$page['meta']['description'],'href'=>(new PagePublications($context->store))->url((string)$id,$context->base),'image'=>$page['meta']['image']===''?'':(preg_match('~^https?://~i',$page['meta']['image'])?$page['meta']['image']:$context->base.'/'.ltrim($page['meta']['image'],'/'))];if(count($items)>=$parameters['limit'])break;}return ['items'=>$items];
+  }
+  /** Return bounded public editorial projections, never HTML or private working snapshots; receive registered service/typed parameters/context, return paginated data and propagate invalid contracts. */
+  private function records(string $service,array $parameters,ContentContext $context): array {
+    $repository=new PagePublications($context->store);$catalog=$repository->read()['data']['records'];$items=[];
+    foreach($context->store->pages() as $id=>$snapshot){$page=$snapshot['data'];if(!PagePublications::identifier((string)$id)||$page['status']!=='published')continue;$row=$catalog[$id]??null;$live=$row===null?null:PagePublications::effective($row);$image=$page['meta']['image'];$items[(string)$id]=['id'=>(string)$id,'title'=>$page['meta']['title'],'summary'=>$page['meta']['description'],'url'=>$repository->url((string)$id,$context->base),'image'=>['url'=>$image===''?'':(preg_match('~^https?://~i',$image)?$image:$context->base.'/'.ltrim($image,'/')),'alt'=>$page['meta']['imageAlt']],'parentId'=>$live['parent']??'','createdAt'=>$row['createdAt']??'','updatedAt'=>$live['updatedAt']??'','isCurrent'=>(string)$id===$context->page];}
+    if($service==='details')$items=isset($items[$parameters['id']])?[$items[$parameters['id']]]:[];
+    elseif($service==='children')$items=array_filter($items,static fn(array $item):bool=>$item['parentId']===$parameters['id']);
+    elseif($service==='breadcrumbs'){$chain=[];$current=$parameters['id'];while(isset($items[$current])&&count($chain)<12){$chain[]=$items[$current];$current=$items[$current]['parentId'];}$items=array_reverse($chain);}
+    if(in_array($service,['records','children'],true)){usort($items,static fn(array $a,array $b):int=>(strnatcasecmp($a[$parameters['sort']],$b[$parameters['sort']])?:strcmp($a['id'],$b['id']))*($parameters['direction']==='asc'?1:-1));}
+    $total=count($items);$limit=$parameters['limit']??50;$pages=max(1,(int)ceil($total/$limit));$page=min($pages,$parameters['page']??1);return ['items'=>array_values(array_slice($items,($page-1)*$limit,$limit)),'total'=>$total,'page'=>$page,'pages'=>$pages];
   }
   /** List stable published page IDs for reference selection; receive context, return bounded options without home/404 or draft bodies. */
   public function documents(ContentContext $context): array {
@@ -21,6 +32,7 @@ final class PagesPlugin implements PluginInterface,ContentProviderInterface,Cont
   /** Valida compatibilidade das opções legadas, sem aplicá-las; recebe settings/config; contrato inválido gera 422 sem escrita. */
   public function validateSettings(array $settings,Config $config): void {
     Schema::validate($settings,json_decode((string)file_get_contents(__DIR__.'/settings.schema.json'),true,8,JSON_THROW_ON_ERROR));
+    if(!in_array($settings['browser']['pageSize']??25,[25,50,100],true))throw new HttpError(422,'Invalid pagination.','error.admin_field');
     $model=$settings['creation']['model']??'';
     if ($model!==''&&(!preg_match('/^[a-z0-9][a-z0-9-]{0,63}$/D',$model)||in_array($model,['404','site','plugins','templates'],true))) throw new HttpError(422,'Modelo inválido.','error.admin_field');
   }
@@ -50,9 +62,31 @@ final class PagesPlugin implements PluginInterface,ContentProviderInterface,Cont
     $meta=[];foreach(['title'=>200,'description'=>500,'keywords'=>2048,'image'=>2048,'imageAlt'=>2048] as $field=>$limit)$meta[$field]=$this->input($post,'meta_'.$field,$limit);
     $authored=['meta'=>$meta,'status'=>$this->input($post,'page_status',20)];if($this->input($post,'markup_enabled',1)==='1')$authored['markup']=ContentMarkup::definition(['html'=>$this->input($post,'html',131072),'bindings'=>$bindings]);return $authored;
   }
+  /** Execute the Pages working/publication lifecycle; receives trusted context/operation and validates bounded submitted fields, propagating CAS/contract errors without partial publication. */
+  private function editorial(PluginContext $context,string $operation): array {
+    $action=substr($operation,10);$allowed=['create','save','publish','schedule','unpublish','trash','recover','restore','duplicate'];
+    if(!in_array($action,$allowed,true)||!in_array($context->route,['new','editor','overview','history','trash'],true))throw new HttpError(404,'Unknown page operation.','error.not_found');
+    $repository=new PagePublications($context->store);$id=$this->input($_POST,'key');$input=['sourceRevision'=>$this->input($_POST,'source_revision')];
+    if($action==='create'){$input['model']=$this->input($_POST,'model');$input['snapshot']=PageBlueprints::create($input['model'],$this->input($_POST,'title',200),$this->input($_POST,'slug',64));$input['parent']=$this->input($_POST,'parent',64);}
+    elseif($action==='save'){
+      $row=$repository->record($id);$document=$row['draft']['document'];$document['meta']=[];
+      foreach(['title'=>200,'description'=>500,'image'=>2048,'imageAlt'=>500] as $field=>$limit)$document['meta'][$field]=$this->input($_POST,'meta_'.$field,$limit);
+      $document['meta']['keywords']=$row['draft']['document']['meta']['keywords'];if($document['meta']['description']==='')$document['meta']['description']=$document['meta']['title'];
+      if($this->input($_POST,'markup_enabled',1)==='1'){$authored=$this->authored($_POST);$document['markup']=$authored['markup'];}
+      else{unset($document['markup']);$native=$this->input($_POST,'native_content',131072);if($native!==''){try{$document['content']=json_decode($native,true,32,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(422,'Invalid native content.','pages.editorial.invalid');}}}
+      $seo=[];foreach(PagePublications::seo() as $field=>$default)$seo[$field]=$field==='noindex'?$this->input($_POST,'seo_noindex',1)==='1':$this->input($_POST,'seo_'.$field,2048);
+      $input+=['snapshot'=>['url'=>$this->input($_POST,'slug',64),'document'=>$document,'seo'=>$seo],'parent'=>$this->input($_POST,'parent',64),'model'=>$row['model']];
+    }elseif($action==='schedule'){$value=$this->input($_POST,'publish_at',30);$input['publishAt']=strlen($value)===16?$value.':00Z':$value;}
+    elseif($action==='restore')$input['backup']=$this->input($_POST,'backup',64);
+    elseif($action==='duplicate')$input['url']=$this->input($_POST,'slug',64);
+    $result=$repository->change($id,$action,$input,$this->input($_POST,'catalog_revision'),$this->input($_POST,'site_revision'));
+    return ['redirect'=>$context->base.'/cms-admin/?view=plugin-panel&plugin=pages&route='.($action==='trash'?'trash':'editor').'&key='.rawurlencode($result['id'])];
+  }
   /** Despacha API privada POST com rota compatível; recebe contexto/operação, retorna redirecionamento JSON ou HttpError sem escrita indevida. */
   public function api(PluginContext $context,string $operation): ?array {
     if (($_SERVER['REQUEST_METHOD']??'GET')!=='POST') throw new HttpError(405,'Método inválido.','error.method');
+    if($operation==='settings-save'&&$context->route==='settings'){$settings=PluginOptions::input($_POST,[]);if(isset($context->settings['creation']))$settings['creation']=$context->settings['creation'];(new Plugins($context->store))->saveOptions('pages',$settings,$this->input($_POST,'revision'));return ['redirect'=>$context->base.'/cms-admin/?view=plugin-panel&plugin=pages&route=settings'];}
+    if(str_starts_with($operation,'editorial-')){if(!(new Plugins($context->store))->state('pages')['enabled'])throw new HttpError(404,'Unavailable page.','error.not_found');return $this->editorial($context,$operation);}
     $routes=['compose-create'=>['new'],'markup-save'=>['editor'],'create'=>['new'],'save'=>['editor'],'remove'=>['overview','editor'],'restore'=>['history']];
     if (!in_array($context->route,$routes[$operation]??[],true)) throw new HttpError(404,'Rota incompatível.','error.not_found');
     if(!(new Plugins($context->store))->state('pages')['enabled'])throw new HttpError(404,'Unavailable page.','error.not_found');

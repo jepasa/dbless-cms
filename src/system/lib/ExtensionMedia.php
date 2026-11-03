@@ -84,4 +84,44 @@ final class ExtensionMedia {
     }
     if ($offset!==$total) throw new \RuntimeException('Trailing ICO data.');
   }
+  /** Validate PNG framing/CRCs and return scan bytes excluding opaque C2PA caBX metadata; receives complete bytes, never rewrites the file, throws 422 on corruption/trailing data, and does not authenticate C2PA claims. */
+  public static function pngScan(string $bytes): string {
+    if (!str_starts_with($bytes,"\x89PNG\r\n\x1a\n")) throw new \RuntimeException('Invalid media container.');
+    $offset=8;$total=strlen($bytes);$scan=substr($bytes,0,8);$header=false;$data=false;$closed=false;$end=false;
+    while ($offset<$total) {
+      if ($total-$offset<12) throw new \RuntimeException('Invalid media container.');
+      $length=unpack('N',substr($bytes,$offset,4))[1];$type=substr($bytes,$offset+4,4);
+      if ($length>$total-$offset-12 || !preg_match('/^[A-Za-z]{4}$/D',$type)) throw new \RuntimeException('Invalid media container.');
+      $payload=substr($bytes,$offset+8,$length);$crc=substr($bytes,$offset+8+$length,4);
+      if (!hash_equals(hash('crc32b',$type.$payload,true),$crc)) throw new \RuntimeException('Invalid media container.');
+      if (!$header && ($type!=='IHDR'||$length!==13)) throw new \RuntimeException('Invalid media container.');
+      if ($type==='IHDR') {if ($header) throw new \RuntimeException('Invalid media container.');$header=true;}
+      if ($type==='IDAT') {if ($closed) throw new \RuntimeException('Invalid media container.');$data=true;} elseif ($data) $closed=true;
+      if ($type==='IEND') {if ($length!==0||!$data||$offset+12!==$total) throw new \RuntimeException('Invalid media container.');$end=true;}
+      if (!in_array($type,['IHDR','PLTE','IDAT','IEND'],true) && ctype_upper($type[0])) throw new \RuntimeException('Invalid media container.');
+      // caBX stores C2PA assertions, including a harmless embedded SVG icon; it is not rendered as SVG by a PNG viewer.
+      if ($type!=='caBX') $scan.=substr($bytes,$offset,$length+12);
+      $offset+=$length+12;
+      if ($end) break;
+    }
+    if (!$end) throw new \RuntimeException('Invalid media container.');
+    return $scan;
+  }
+  /** Validate bounded ISO-BMFF framing; receive complete MP4 bytes, require brand/movie/media boxes, reject malformed/trailing data. Does not certify codec playback. */
+  public static function mp4(string $bytes): void {
+    $offset=0;$total=strlen($bytes);$seen=[];
+    while($offset<$total){
+      if($total-$offset<8)throw new \RuntimeException('Invalid video container.');$length=unpack('N',substr($bytes,$offset,4))[1];$type=substr($bytes,$offset+4,4);
+      if($length<8||$length>$total-$offset||!in_array($type,['ftyp','moov','mdat','free','skip','wide','moof','mfra','sidx','styp'],true))throw new \RuntimeException('Invalid video container.');
+      if($offset===0&&$type!=='ftyp')throw new \RuntimeException('Invalid video container.');
+      if($type==='ftyp'&&($length<16||!in_array(substr($bytes,$offset+8,4),['isom','iso2','iso5','iso6','mp41','mp42','avc1','M4V '],true)))throw new \RuntimeException('Invalid video container.');
+      if($type==='moov'){
+        $end=$offset+$length;$cursor=$offset+8;$children=[];
+        while($cursor<$end){if($end-$cursor<8)throw new \RuntimeException('Invalid video container.');$size=unpack('N',substr($bytes,$cursor,4))[1];if($size<8||$size>$end-$cursor)throw new \RuntimeException('Invalid video container.');$children[]=substr($bytes,$cursor+4,4);$cursor+=$size;}
+        if(!in_array('mvhd',$children,true)||!in_array('trak',$children,true))throw new \RuntimeException('Invalid video container.');
+      }
+      $seen[$type]=true;$offset+=$length;
+    }
+    if(!isset($seen['ftyp'],$seen['moov'],$seen['mdat']))throw new \RuntimeException('Invalid video container.');
+  }
 }

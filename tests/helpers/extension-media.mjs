@@ -10,6 +10,9 @@ export const root=fileURLToPath(new URL('../../',import.meta.url));
 export const password='Synthetic-Media-Password-2026';
 export const applications=[path.join(root,'src'),...(process.env.DBLESS_CMS_PACKAGE_ROOT?[process.env.DBLESS_CMS_PACKAGE_ROOT]:[])];
 
+/** Select browser targets without repeating established source evidence; package-only mode requires an explicit synthetic package path. */
+export const browserApplications=process.env.DBLESS_CMS_BROWSER_PACKAGE_ONLY==='1'?(process.env.DBLESS_CMS_PACKAGE_ROOT?[process.env.DBLESS_CMS_PACKAGE_ROOT]:(()=>{throw new Error('Package-only browser validation requires DBLESS_CMS_PACKAGE_ROOT.');})()):applications;
+
 /** Copy trusted code and initial content into a new fixture; receives application path, returns temporary paths/env/cleanup, propagates I/O and PHP errors. */
 export function fixture(application=applications[0]){
   const temporary=fs.mkdtempSync(path.join(os.tmpdir(),'dbless-extension-media-')),app=path.join(temporary,'src'),contents=path.join(temporary,'contents');

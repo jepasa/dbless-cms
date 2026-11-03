@@ -15,7 +15,7 @@ final class EditorPreview {
       if(!is_array($input)||array_diff(array_keys($input),['html','bindings','page','scope'])||!is_string($input['page']??null)||!preg_match('/^[a-z0-9][a-z0-9-]{0,63}$/D',$input['page']))throw new HttpError(422,'Invalid preview context.','markup.error');
       $scope=$input['scope']??'content';if(!is_string($scope)||!in_array($scope,['content','page'],true))throw new HttpError(422,'Invalid preview scope.','markup.error');
       $definition=ContentMarkup::definition(['html'=>$input['html']??null,'bindings'=>$input['bindings']??null]);
-      return json_encode(['html'=>self::render($store,$definition,$input['page'],$base,$scope)],JSON_THROW_ON_ERROR|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT);
+      return json_encode(['html'=>self::render($store,$definition,$input['page'],$base,$scope),'diagnostics'=>ContentMarkup::diagnostics($store)],JSON_THROW_ON_ERROR|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT);
     }catch(HttpError $error){http_response_code($error->status);return json_encode(['error'=>$error->messageKey],JSON_THROW_ON_ERROR);}
   }
   /** Render a validated buffer in the current template with published complements; receive definition/context, return isolated document, restore session even on failure and never save content. */
@@ -27,10 +27,10 @@ final class EditorPreview {
       $html=App::render($store,$page,true,null,$base,null,null,$definition,$marker);
       $html=(new SiteCustomizations($store))->decorate($html,$base);
     }finally{$_SESSION=$saved;}
-    return self::document($html,$base,$scope,$marker);
+    return self::document($html,$base,$scope,$marker,MediaLibrary::roots($store)['public']);
   }
   /** Normalize a trusted public layout for srcdoc; receive HTML/public base, return a document whose resources are public-only, forms/tokens inert and CSP denies connections/navigation. No fetching or code evaluation. */
-  public static function document(string $html,string $base,string $scope='page',?string $marker=null): string {
+  public static function document(string $html,string $base,string $scope='page',?string $marker=null,string $mediaRoot='media'): string {
     $parts=parse_url($base);if(!is_array($parts)||!isset($parts['scheme'],$parts['host'])||!in_array($parts['scheme'],['http','https'],true)||(isset($parts['user'])||isset($parts['pass'])))throw new HttpError(422,'Invalid public base.','markup.error');
     $origin=$parts['scheme'].'://'.$parts['host'].(isset($parts['port'])?':'.$parts['port']:'');$prefix=rtrim($parts['path']??'','/');
     $previous=libxml_use_internal_errors(true);$doc=new \DOMDocument('1.0','UTF-8');
@@ -64,7 +64,8 @@ final class EditorPreview {
         if($attribute==='href'&&$tag!=='link'){if(str_starts_with($value,'#'))continue;$node->setAttribute('href','#');$node->removeAttribute('target');continue;}
         $url=str_starts_with($value,'/')?$origin.$value:(preg_match('~^https?://~i',$value)?$value:rtrim($base,'/').'/'.$value);
         $urlParts=parse_url($url);$path=$urlParts['path']??'';$local=is_array($urlParts)&&($urlParts['scheme']??'')===$parts['scheme']&&($urlParts['host']??'')===$parts['host']&&($urlParts['port']??null)===($parts['port']??null)&&!isset($urlParts['user'])&&!isset($urlParts['pass'])&&!isset($urlParts['query']);
-        $allowed=$local&&str_starts_with($path,$prefix.'/')&&!str_contains(rawurldecode($path),'..')&&!str_contains($path,'\\')&&preg_match('~^'.preg_quote($prefix,'~').'/(?:templates|media|customizations|cms-assets|plugins)/~D',$path);
+        $mediaTag=in_array($tag,['img','video','source'],true);$sameOrigin=is_array($urlParts)&&($urlParts['host']??'')===$parts['host']&&($urlParts['port']??null)===($parts['port']??null);$remoteMedia=$mediaTag&&!$sameOrigin&&($urlParts['scheme']??'')==='https'&&!isset($urlParts['user'])&&!isset($urlParts['pass']);
+        $allowed=$remoteMedia||($local&&$mediaTag&&str_starts_with($path,$prefix.'/'.$mediaRoot.'/')&&!str_contains(rawurldecode($path),'..'))||$local&&str_starts_with($path,$prefix.'/')&&!str_contains(rawurldecode($path),'..')&&!str_contains($path,'\\')&&preg_match('~^'.preg_quote($prefix,'~').'/(?:templates|media|customizations|cms-assets|plugins)/~D',$path);
         if(!$allowed){$node->removeAttribute($attribute);if($tag==='script'||$tag==='link')$node->parentNode?->removeChild($node);continue;}
         if($tag==='script'&&!preg_match('/\.js$/D',$path)){$node->parentNode?->removeChild($node);continue;}
         if($tag==='link'&&strtolower($node->getAttribute('rel'))==='stylesheet')$node->setAttribute('data-template-style','');
@@ -75,7 +76,7 @@ final class EditorPreview {
       if($node->hasAttribute('srcset'))$node->removeAttribute('srcset');
     }
     $public=$origin.$prefix;$previewStyle=asset('cms-admin/assets/editor-preview.css',$base);
-    $policy="default-src 'none'; script-src $public/templates/ $public/customizations/ $public/cms-assets/ $public/plugins/; style-src $previewStyle $public/templates/ $public/customizations/ $public/cms-assets/ $public/plugins/; img-src $public/templates/ $public/media/ $public/cms-assets/ $public/plugins/ data:; font-src $public/templates/ $public/media/ $public/plugins/; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'";
+    $policy="default-src 'none'; script-src $public/templates/ $public/customizations/ $public/cms-assets/ $public/plugins/; style-src $previewStyle $public/templates/ $public/customizations/ $public/cms-assets/ $public/plugins/; img-src $public https: data:; media-src $public https:; font-src $public/templates/ $public/media/ $public/plugins/; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'";
     $head=$doc->getElementsByTagName('head')->item(0);if($head===null)throw new HttpError(422,'Preview head unavailable.','markup.error');
     $meta=$doc->createElement('meta');$meta->setAttribute('http-equiv','Content-Security-Policy');$meta->setAttribute('content',$policy);$head->insertBefore($meta,$head->firstChild);
     $meta=$doc->createElement('meta');$meta->setAttribute('name','referrer');$meta->setAttribute('content','no-referrer');$head->appendChild($meta);

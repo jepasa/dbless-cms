@@ -5,7 +5,7 @@ use DBLESSCMS\{Security,JsonStore,Icons};
 use function DBLESSCMS\e;
 /** Traduz controles comuns do editor; recebe chave/parâmetros, retorna texto sem efeitos. */
 $label=static fn(string $key,array $parameters=[]): string=>$ui->text($key,$parameters);
-$settings=$context->settings;
+$settings??=$context->settings;
 ?>
 <div class="editor-toolbar"><div class="tabs" aria-label="<?= e($label('editor.mode')) ?>"><button type="button" data-mode="fields" title="<?= e($label('editor.fields')) ?>" aria-label="<?= e($label('editor.fields')) ?>" aria-pressed="true"><?= $iconOnly?Icons::svg('list',$context->base):e($label('editor.fields')) ?></button><button type="button" data-mode="json" title="<?= e($label('editor.json')) ?>" aria-label="<?= e($label('editor.json')) ?>" aria-pressed="false"><?= $iconOnly?Icons::svg('code-slash',$context->base):e($label('editor.json')) ?></button></div></div>
 <form method="post" action="<?= e($context->url($operation)) ?>" class="document-form" <?= $attribute ?>>

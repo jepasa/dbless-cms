@@ -114,6 +114,7 @@ final class Admin {
   public function run(): string {
     if (($this->config->credentials['enabled']??true)!==true) throw new HttpError(404,'Página não encontrada.','error.not_found');
     if (($_GET['view']??'')==='plugin-api') return $this->pluginApi();
+    if (($_GET['view']??'')==='media-library') return MediaLibrary::response($this->config,$this->store,$this->base);
     if (($_GET['view']??'')==='editor-preview') return EditorPreview::response($this->config,$this->store,$this->base);
     $error=null;
     if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
@@ -195,7 +196,7 @@ final class Admin {
     $pages=$authenticated && $effectiveTemplate!==null?$this->store->pages($effectiveTemplate):[];
     $document=null; $revision='';
     if ($authenticated && $view==='site') {
-      $opened=$this->store->read($key,$effectiveTemplate); $editable=$opened['data'];$editable['settings']['cache']=Cache::options($editable['settings']['cache']??[]);$editable['settings']['privacy']=Privacy::settings($editable['settings']['privacy']??[]);$document=JsonStore::encode($editable); $revision=$opened['revision'];
+      $opened=$this->store->read($key,$effectiveTemplate); $editable=$opened['data'];$editable['settings']['media']=MediaLibrary::roots($this->store);$editable['settings']['cache']=Cache::options($editable['settings']['cache']??[]);$editable['settings']['privacy']=Privacy::settings($editable['settings']['privacy']??[]);$document=JsonStore::encode($editable); $revision=$opened['revision'];
       if ($error!==null && ($_POST['action']??'')==='save' && is_string($_POST['document']??null)) $document=$_POST['document'];
       if ($error!==null && is_string($_POST['revision']??null)) $revision=$_POST['revision'];
     }

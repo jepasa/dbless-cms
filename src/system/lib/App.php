@@ -23,6 +23,7 @@ final class App {
         require $store->templates->path($site['template'],'forms',$manifest['forms']['contact']); return;
       }
       $key=strtolower(trim($_GET['page']??'home')); if ($key==='') $key='home';
+      if(PagePublications::identifier($key)){try{$resolved=(new PagePublications($store))->lookup($key);if($resolved!==null&&$resolved['data']['status']==='published'){$destination=(new PagePublications($store))->url($resolved['data']['slug'],$base);if(parse_url($destination,PHP_URL_PATH)!==parse_url($base.'/'.$key,PHP_URL_PATH)){header('Location: '.$destination,true,301);return;}}}catch(HttpError $failure){if($failure->status!==404)throw $failure;}}
       // Reviewed HTML boundary: render validates page data and templates escape editorial fields.
       // nosemgrep: github.php-request-to-raw-output
       echo self::render($store,$key,false,null,$base);
@@ -36,10 +37,10 @@ final class App {
   /** Aplica cabeçalhos por superfície; recebe bool e não retorna; deve ocorrer antes do corpo. */
   public static function headers(bool $admin): void {
     header('Content-Type: text/html; charset=UTF-8'); header('X-Content-Type-Options: nosniff');
-    header('Referrer-Policy: strict-origin-when-cross-origin'); header('X-Frame-Options: SAMEORIGIN');
+    header('Referrer-Policy: same-origin'); header('X-Frame-Options: SAMEORIGIN');
     header("Permissions-Policy: camera=(), microphone=(), geolocation=()");
     $policy=$admin ? "default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'"
-      : "default-src 'self'; style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' https: data:; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'";
+      : "default-src 'self'; style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' https: data:; media-src 'self' https:; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'";
     header('Content-Security-Policy: '.$policy); header('Cache-Control: no-store');
   }
 
@@ -56,7 +57,7 @@ final class App {
   }
 
   /** Render validated page/template; receive store/key/preview/template/base and optional private home draft/editor buffer, return HTML or 404 fallback; reject overrides outside preview and propagate contract/render failures without writes. */
-  public static function render(JsonStore $store,string $key,bool $preview=false,?string $template=null,?string $base=null,?array $override=null,?array $homepagePreview=null,?array $editorMarkup=null,?string $editorPreviewMarker=null): string {
+  public static function render(JsonStore $store,string $key,bool $preview=false,?string $template=null,?string $base=null,?array $override=null,?array $homepagePreview=null,?array $editorMarkup=null,?string $editorPreviewMarker=null,?array $pagePreview=null): string {
     $site=$store->read('site')['data']; $id=$template??$site['template'];
     $manifest=$store->templates->get($id); $missing=false;
     if($editorMarkup!==null){if(!$preview)throw new \InvalidArgumentException('Editor buffer requires private preview.');$editorMarkup=ContentMarkup::definition($editorMarkup);}
@@ -64,6 +65,7 @@ final class App {
     if (!preg_match('/^[a-z0-9][a-z0-9-]{0,63}$/D',$key)) { $key='404'; $missing=true; }
     try { $page=$store->read($key,$id)['data']; }
     catch (HttpError $error) { if ($error->status!==404) throw $error; $page=$store->read('404',$id)['data']; $missing=true; }
+    if($pagePreview!==null){if(!$preview)throw new \InvalidArgumentException('Private page preview required.');$page=$store->document($key,JsonStore::encode($pagePreview),$id);}
     if($override!==null){if(!$preview||$key!=='home')throw new \InvalidArgumentException('Draft override requires homepage preview.');$page=$store->document('home',JsonStore::encode($override),$id);}
     if (!$preview && $page['status']!=='published') { $page=$store->read('404',$id)['data']; $missing=true; }
     if ($missing || $page['slug']==='404') http_response_code(404);
@@ -76,6 +78,7 @@ final class App {
       $globals=$site['settings'];$page['meta']=['title'=>$globals['name'],'description'=>$globals['description'],'keywords'=>$globals['keywords'],'image'=>$globals['image'],'imageAlt'=>$globals['imageAlt']];
     }elseif($homepagePreview!==null)throw new \InvalidArgumentException('Homepage preview requires the home route.');
     $route=['meta'=>$page['meta']]; $settings=$site['settings'];
+    $pageMetadata=(new PagePublications($store))->metadata($page,$base_url,$settings,$preview);
     $publicLocale=SiteLocale::resolve($settings);
     header('Content-Language: '.$publicLocale['tag']);
     $siteContent=GlobalSettings::presentation($site,$store,$id)+['home'=>$page['page']==='home'?$page['content']:[], 'details'=>[$currentPage=>$page['content']]];

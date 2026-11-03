@@ -232,6 +232,24 @@
               "maxLength": 500
             }
           }
+        },
+        "media": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "public",
+            "private"
+          ],
+          "properties": {
+            "public": {
+              "type": "string",
+              "maxLength": 240
+            },
+            "private": {
+              "type": "string",
+              "maxLength": 240
+            }
+          }
         }
       }
     }

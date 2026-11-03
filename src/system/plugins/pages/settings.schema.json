@@ -15,7 +15,23 @@
           "maxLength": 64
         }
       }
+    },
+    "browser": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pageSize"
+      ],
+      "properties": {
+        "pageSize": {
+          "type": "integer",
+          "minimum": 25,
+          "maximum": 100,
+          "title": "pages.pageSize"
+        }
+      },
+      "title": "pages.settings"
     }
   },
-  "$comment": "Contrato de leitura das preferências creation legadas; não possui tela, gravação própria ou efeito nos editores."
+  "$comment": "Optional catalog pagination; legacy creation preferences remain readable but are hidden from current settings."
 }

@@ -24,7 +24,8 @@
     const element=document.createElement(node.tag||'div');element.dataset.dblessOrder=JSON.stringify(Object.keys(node.attrs||{}));
     for(const [key,value] of Object.entries(node.attrs||{})){
       // Preserve URL expressions in the model; the canvas does not request unresolved or remote images.
-      if(key==='src'){element.dataset.dblessSrc=value;if(value.includes('{{'))continue;const url=new URL(value,config.publicBase);if(url.origin!==config.origin||url.pathname.includes('/cms-admin/'))continue;element.setAttribute('src',url.href);continue;}
+      if(key==='poster'){element.dataset.dblessPoster=value;continue;}
+      if(key==='src'){element.dataset.dblessSrc=value;if(value.includes('{{'))continue;const url=new URL(value,config.publicBase);if(node.tag==='video'||node.tag==='source'||url.origin!==config.origin||url.pathname.includes('/cms-admin/'))continue;element.setAttribute('src',url.href);continue;}
       if(key==='href'){element.dataset.dblessHref=value;continue;}
       if(key==='tabindex'||key==='hidden'){element.dataset[key==='hidden'?'dblessHidden':'dblessTabindex']=value;if(config.preview&&key==='hidden')element.setAttribute(key,value);continue;}
       element.setAttribute(key,value);
@@ -45,11 +46,11 @@
     if(current.nodeType!==Node.ELEMENT_NODE)return '';
     if(current.hasAttribute('data-dbless-token'))return escape(current.dataset.dblessToken);
     const attributes=new Map([...current.attributes].filter(attribute=>!attribute.name.startsWith('data-dbless-')&&!['contenteditable','spellcheck'].includes(attribute.name)).map(attribute=>[attribute.name,attribute.value]));
-    for(const [marker,name] of [['data-dbless-href','href'],['data-dbless-src','src'],['data-dbless-hidden','hidden'],['data-dbless-tabindex','tabindex']])if(current.hasAttribute(marker))attributes.set(name,current.getAttribute(marker));
+    for(const [marker,name] of [['data-dbless-href','href'],['data-dbless-src','src'],['data-dbless-poster','poster'],['data-dbless-hidden','hidden'],['data-dbless-tabindex','tabindex']])if(current.hasAttribute(marker))attributes.set(name,current.getAttribute(marker));
     if(current.dataset.dblessDisabled==='0')attributes.delete('disabled');
     const order=JSON.parse(current.dataset.dblessOrder||'[]'),names=[...new Set([...order,...attributes.keys()])].filter(name=>attributes.has(name));
     const tag=current.tagName.toLowerCase(),start='<'+tag+names.map(name=>' '+name+'="'+escape(attributes.get(name),true)+'"').join('')+'>';
-    return ['img','br','hr'].includes(tag)?start:start+[...current.childNodes].map(serializeNode).join('')+'</'+tag+'>';
+    return ['img','br','hr','source'].includes(tag)?start:start+[...current.childNodes].map(serializeNode).join('')+'</'+tag+'>';
   }
   /** Serialize only one edited leaf without resource side effects; receives element, returns HTML/source markers with no editor metadata or URL hydration. */
   function serialize(element){return [...element.childNodes].map(serializeNode).join('');}
@@ -67,11 +68,11 @@
   function command(name,value){
     const block=restore();if(!block)return;const selection=getSelection(),range=selection.getRangeAt(0);if(!block.contains(range.commonAncestorContainer)||crossesToken(range,block))return;
     if(['bold','italic','link'].includes(name)){
-      if(name==='link'){const anchor=range.startContainer.nodeType===Node.ELEMENT_NODE?range.startContainer:range.startContainer.parentElement;const existing=anchor.closest('a');if(existing&&block.contains(existing)){existing.dataset.dblessHref=value.url;existing.setAttribute('href',value.url);remember();commit(block);return;}}
+      if(name==='link'){const anchor=range.startContainer.nodeType===Node.ELEMENT_NODE?range.startContainer:range.startContainer.parentElement;const existing=anchor.closest('a');if(existing&&block.contains(existing)){existing.dataset.dblessHref=value.url;existing.setAttribute('href',value.url);if(/^https?:\/\//i.test(value.url))existing.setAttribute('rel',[...new Set((existing.getAttribute('rel')||'').split(/\s+/).filter(Boolean).concat(['noopener','noreferrer']))].join(' '));remember();commit(block);return;}}
       if(range.collapsed&&name!=='link')return;const element=document.createElement(name==='bold'?'strong':name==='italic'?'em':'a');
-      if(name==='link'){element.dataset.dblessHref=value.url;element.setAttribute('href',value.url);if(value.text&&range.collapsed)element.textContent=value.text;}
+      if(name==='link'){element.dataset.dblessHref=value.url;element.setAttribute('href',value.url);if(/^https?:\/\//i.test(value.url))element.setAttribute('rel','noopener noreferrer');if(value.text&&range.collapsed)element.textContent=value.text;}
       if(!range.collapsed)element.append(range.extractContents());range.insertNode(element);range.selectNodeContents(element);selection.removeAllRanges();selection.addRange(range);
-    }else if(name==='image'){const image=document.createElement('img');image.setAttribute('src',value.url);image.setAttribute('alt',value.alt);range.deleteContents();range.insertNode(image);range.setStartAfter(image);range.collapse(true);selection.removeAllRanges();selection.addRange(range);}
+    }else if(name==='image'){const image=document.createElement('img');image.setAttribute('src',value.url);image.setAttribute('alt',value.alt);image.setAttribute('referrerpolicy','no-referrer');image.dataset.dblessSrc=value.url;if(new URL(value.url,config.publicBase).origin!==config.origin)image.removeAttribute('src');range.deleteContents();range.insertNode(image);range.setStartAfter(image);range.collapse(true);selection.removeAllRanges();selection.addRange(range);}
     remember();commit(block);
   }
   /** Render a new safe model for visual or read-only preview mode; receives payload, replaces canvas, restores no arbitrary HTML, and acknowledges readiness. */

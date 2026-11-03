@@ -103,7 +103,7 @@ function renderGlobalFields(data, parent) {
           for(const [id,text] of Object.entries(options)){const option=document.createElement('option');option.value=id;option.textContent=text;input.append(option);}
         } else if(key==='description'||key==='privacy.contactNotice'){input=document.createElement('textarea');input.rows=4;label.className='wide';}
         else {input=document.createElement('input');input.type=typeof value==='boolean'?'checkbox':typeof value==='number'?'number':['contact.email','privacy.email'].includes(key)?'email':'text';}
-        input.setAttribute('aria-label',translate('global.field.'+key.replace(/^@/,'')));
+        input.setAttribute('aria-label',translate('global.field.'+key.replace(/^@/,'')));if(['logo','featuredImage','image'].includes(key))input.dataset.mediaField='image';
         input.name=({adminLocale:'admin_locale',siteLocale:'site_locale',favicon:'site_favicon'})[key]||key;input.value=key==='adminLocale'&&!Object.hasOwn(languages,String(value))?language.dataset.locale:value??'';
         if(input.type==='checkbox')input.checked=value;
         if(key==='adminLocale')input.dataset.adminLocale='';if(key==='siteLocale')input.dataset.siteLocale='';if(key==='favicon')input.dataset.siteFavicon='';

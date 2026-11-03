@@ -108,7 +108,7 @@
     "demonstrateMenus": true
   },
   "markup": {
-    "html": "<section class=\"section\"><div class=\"container text-flow\">\n  <h1>Public data, your presentation</h1>\n  <p>This editable example uses the same data engine as Homepage and Blog HTML blocks.</p>\n  <section><h2>Latest articles</h2>\n    {{#news.items}}<article><h3><a href=\"{{href}}\">{{title}}</a></h3><p>{{excerpt}}</p><p>{{author}}</p></article>{{/news.items}}\n    {{^news.items}}<p>No articles have been published yet.</p>{{/news.items}}\n  </section>\n  <section><h2>Reusable highlights</h2>{{#highlights.items}}<article><h3>{{description}}</h3><p>{{value}}</p></article>{{/highlights.items}}</section>\n  <nav aria-label=\"Example links\"><ul>{{#navigation.items}}<li><a href=\"{{href}}\">{{label}}</a><ul>{{#children}}<li><a href=\"{{href}}\">{{label}}</a></li>{{/children}}</ul></li>{{/navigation.items}}</ul></nav>\n  <section><h2>Published slides</h2>{{#promotion.items}}<figure><img src=\"{{image}}\" alt=\"{{alt}}\" loading=\"lazy\"><figcaption>{{title}} — {{text}}</figcaption></figure>{{/promotion.items}}{{^promotion.items}}<p>Assign a collection to home-hero to see its public items.</p>{{/promotion.items}}</section>\n  <section><h2>Published pages</h2><ul>{{#directory.items}}<li><a href=\"{{href}}\">{{title}}</a></li>{{/directory.items}}</ul></section>\n</div></section>",
+    "html": "<section class=\"section\"><div class=\"container text-flow\">\n  <h1>Public data, your presentation</h1>\n  <p>This editable example uses the same data engine as Homepage and Blog HTML blocks.</p>\n  <section><h2>Latest articles</h2>\n    {{#news.items}}<article><h3><a href=\"{{href}}\">{{title}}</a></h3><p>{{excerpt}}</p><p>{{author}}</p></article>{{/news.items}}\n    {{^news.items}}<p>No articles have been published yet.</p>{{/news.items}}\n  </section>\n  <section><h2>Reusable highlights</h2>{{#highlights.items}}<article><h3>{{description}}</h3><p>{{value}}</p></article>{{/highlights.items}}</section>\n  <nav aria-label=\"Example links\"><ul>{{#navigation.items}}<li><a href=\"{{href}}\">{{label}}</a><ul>{{#children}}<li><a href=\"{{href}}\">{{label}}</a></li>{{/children}}</ul></li>{{/navigation.items}}</ul></nav>\n  <section><h2>Published slides</h2>{{#promotion.items}}<figure><img src=\"{{image}}\" alt=\"{{alt}}\" loading=\"lazy\"><figcaption>{{title}} — {{text}}</figcaption></figure>{{/promotion.items}}{{^promotion.items}}<p>Assign a collection to home-hero to see its public items.</p>{{/promotion.items}}</section>\n  <section><h2>Published pages</h2><ul>{{#directory.items}}<li><a href=\"{{url}}\">{{title}}</a><p>{{summary}}</p></li>{{/directory.items}}</ul>{{#cms.sources.directory.empty}}<p>No published pages.</p>{{/cms.sources.directory.empty}}{{^cms.sources.directory.available}}<p>Content temporarily unavailable.</p>{{/cms.sources.directory.available}}</section>\n</div></section>",
     "bindings": [
       {
         "plugin": "blog",
@@ -145,10 +145,13 @@
       },
       {
         "plugin": "pages",
-        "service": "list",
+        "service": "records",
         "alias": "directory",
         "parameters": {
-          "limit": 6
+          "limit": 6,
+          "page": 1,
+          "sort": "title",
+          "direction": "asc"
         }
       }
     ]
