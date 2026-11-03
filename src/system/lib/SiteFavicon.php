@@ -19,7 +19,7 @@ final class SiteFavicon {
   }
   /** Resolve chosen favicon or a template default if it was deleted; receives store, returns relative/absolute paths without modifying old settings. */
   public static function resolve(JsonStore $store): array {
-    $site=$store->read('site')['data'];$fallback='templates/'.$site['template'].'/'.$store->templates->get($site['template'])['assets']['files']['favicon'];
+    $site=$store->read('site')['data'];$declared=$store->templates->get($site['template'])['assets']['files']['favicon'];$fallback=str_starts_with($declared,'/media/')?ltrim($declared,'/'):'templates/'.$site['template'].'/'.$declared;
     $relative=$site['settings']['favicon']??$fallback;
     try {$file=self::path($store,$relative);} catch (HttpError) {$relative=$fallback;$file=self::path($store,$relative);}
     return ['relative'=>$relative,'file'=>$file];

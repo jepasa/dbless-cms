@@ -21,7 +21,8 @@ final class Extensions {
       $enabled=$kind==='plugins'?$registry->state($id)['enabled']:$active===$id;
       $rows[$id]=['id'=>$id,'name'=>$labels['name'],'description'=>$labels['description'],'version'=>$manifest['version'],'status'=>isset($incompatible[$id])?'incompatible':($enabled?'active':'inactive'),'enabled'=>$enabled,'configuration'=>$manifest['configuration']??null,'protected'=>$kind==='templates'&&$id===Templates::DEFAULT_ID];
       $rows[$id]['presentation']=$kind==='plugins'&&isset($manifest['presentation']);
-      $rows[$id]['media']=$kind==='templates'?'templates/'.$id.'/'.$manifest['assets']['files']['thumbnail']:'plugins/'.$id.'/'.$manifest['assets']['icon'];
+      $thumbnail=$manifest['assets']['files']['thumbnail']??'';
+      $rows[$id]['media']=$kind==='templates'?(str_starts_with($thumbnail,'/media/')?ltrim($thumbnail,'/'):'templates/'.$id.'/'.$thumbnail):'plugins/'.$id.'/'.$manifest['assets']['icon'];
     }
     foreach ($invalid as $id=>$reason) $rows[$id]=['id'=>$id,'name'=>$id,'description'=>'','version'=>'','status'=>'invalid','enabled'=>false,'configuration'=>null,'protected'=>$kind==='templates'&&$id===Templates::DEFAULT_ID];
     ksort($rows); return $rows;

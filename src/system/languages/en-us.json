@@ -477,6 +477,12 @@
     "wysiwyg.blocks": "Content blocks",
     "wysiwyg.indent": "Indent with Tab",
     "wysiwyg.readOnly": "Read only",
-    "markup.insertSnippet": "Insert block"
+    "markup.insertSnippet": "Insert block",
+    "wysiwyg.previewLoading": "Rendering the active template…",
+    "wysiwyg.previewError": "Preview unavailable. Check content, bindings and session.",
+    "wysiwyg.previewHelp": "Read-only preview with the active template and published CSS/JavaScript. Forms and network connections are disabled.",
+    "wysiwyg.previewScope": "Preview scope",
+    "wysiwyg.previewContent": "Content only",
+    "wysiwyg.previewPage": "Full page"
   }
 }

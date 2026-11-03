@@ -30,3 +30,7 @@
 @media(max-width:600px){.dbless-editor-heading{padding:.55rem;gap:.4rem}.dbless-editor-toolbar .dbless-editor-language{display:none}.dbless-editor .dbless-editor-button{width:40px;height:40px;min-height:40px}.dbless-editor .dbless-editor-mode{width:auto;gap:.35rem;padding-inline:.5rem;font-size:.82rem}.dbless-editor-mode .dbless-editor-icon{width:16px;height:16px}.dbless-editor-commands{padding:.4rem}.dbless-editor-group{margin-inline-end:.3rem;padding-inline-end:.3rem}.dbless-editor-footer{padding:.6rem .7rem}}
 @media(prefers-reduced-motion:reduce){.dbless-editor .dbless-editor-button{transition:none}}
 @media(forced-colors:active){.dbless-editor .dbless-editor-button{border-color:ButtonText}.dbless-editor .dbless-editor-button[aria-pressed=true]{outline:2px solid Highlight;outline-offset:-3px}.dbless-editor-icon{forced-color-adjust:none;background:#fff;border-radius:2px}}
+
+/* Preview scope stays above the canvas, outside editing commands, and remains reachable on narrow screens. */
+.dbless-editor-preview-scope { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: 0; padding: .5rem .85rem; border-top: 1px solid var(--line,#e2e8f0); font-size: .8rem; }
+.dbless-editor-preview-scope select { width: auto; min-width: 0; max-width: 100%; padding: .35rem .6rem; }

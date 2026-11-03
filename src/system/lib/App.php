@@ -55,10 +55,12 @@ final class App {
     return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS']!=='off'?'https://':'http://').$host.($dir==='/'?'':$dir);
   }
 
-  /** Render validated page/template; receive store/key/preview/template/base and optional private home draft, return HTML or 404 fallback; reject overrides outside preview and propagate contract/render failures without writes. */
-  public static function render(JsonStore $store,string $key,bool $preview=false,?string $template=null,?string $base=null,?array $override=null,?array $homepagePreview=null): string {
+  /** Render validated page/template; receive store/key/preview/template/base and optional private home draft/editor buffer, return HTML or 404 fallback; reject overrides outside preview and propagate contract/render failures without writes. */
+  public static function render(JsonStore $store,string $key,bool $preview=false,?string $template=null,?string $base=null,?array $override=null,?array $homepagePreview=null,?array $editorMarkup=null,?string $editorPreviewMarker=null): string {
     $site=$store->read('site')['data']; $id=$template??$site['template'];
     $manifest=$store->templates->get($id); $missing=false;
+    if($editorMarkup!==null){if(!$preview)throw new \InvalidArgumentException('Editor buffer requires private preview.');$editorMarkup=ContentMarkup::definition($editorMarkup);}
+    if($editorPreviewMarker!==null&&($editorMarkup===null||!preg_match('/^[a-f0-9]{32}$/D',$editorPreviewMarker)))throw new \InvalidArgumentException('Invalid private editor slot.');
     if (!preg_match('/^[a-z0-9][a-z0-9-]{0,63}$/D',$key)) { $key='404'; $missing=true; }
     try { $page=$store->read($key,$id)['data']; }
     catch (HttpError $error) { if ($error->status!==404) throw $error; $page=$store->read('404',$id)['data']; $missing=true; }
@@ -67,7 +69,7 @@ final class App {
     if ($missing || $page['slug']==='404') http_response_code(404);
     $base_url=$base??self::base($store); $currentPage=$page['slug'];
     $homepageHtml=null;
-    if($key==='home'&&$override===null){
+    if($key==='home'&&$override===null&&$editorMarkup===null){
       $readContext=new ContentContext($store,$id,$base_url,'home',$preview);
       if($homepagePreview!==null){if(!$preview)throw new \InvalidArgumentException('Homepage draft requires private preview.');$homepageHtml=Homepages::renderBody($homepagePreview,$readContext);}
       else $homepageHtml=(new Homepages($store))->resolve($readContext)['html'];
@@ -83,6 +85,7 @@ final class App {
     $slides=new Slides($store,$id);
     $components=new Components(new ContentContext($store,$id,$base_url,$currentPage,$preview));
     $contentFile=$store->templates->path($id,'pages',$manifest['pages'][$page['page']]);
+    if($editorMarkup!==null)$page['markup']=$editorMarkup;
     if(isset($page['markup'])){$markupDefinition=$page['markup'];$contentFile=__DIR__.'/views/markup.php';}
     if($homepageHtml!==null)$contentFile=__DIR__.'/views/markup.php';
     if($homepageHtml===null&&!isset($page['markup'])&&$page['page']==='home'&&!isset($manifest['homepage'])&&($page['homepage']['sections']??[])!==[]){$nativeContentFile=$contentFile;$contentFile=__DIR__.'/views/homepage.php';}

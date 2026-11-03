@@ -477,6 +477,12 @@
     "wysiwyg.blocks": "Blocos de conteúdo",
     "wysiwyg.indent": "Indentar com Tab",
     "wysiwyg.readOnly": "Somente leitura",
-    "markup.insertSnippet": "Inserir bloco"
+    "markup.insertSnippet": "Inserir bloco",
+    "wysiwyg.previewLoading": "Renderizando o template ativo…",
+    "wysiwyg.previewError": "Prévia indisponível. Verifique conteúdo, vínculos e sessão.",
+    "wysiwyg.previewHelp": "Prévia somente leitura com o template ativo e CSS/JavaScript publicados. Formulários e conexões de rede estão desabilitados.",
+    "wysiwyg.previewScope": "Escopo da prévia",
+    "wysiwyg.previewContent": "Somente conteúdo",
+    "wysiwyg.previewPage": "Página completa"
   }
 }

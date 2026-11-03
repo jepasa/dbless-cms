@@ -114,6 +114,7 @@ final class Admin {
   public function run(): string {
     if (($this->config->credentials['enabled']??true)!==true) throw new HttpError(404,'Página não encontrada.','error.not_found');
     if (($_GET['view']??'')==='plugin-api') return $this->pluginApi();
+    if (($_GET['view']??'')==='editor-preview') return EditorPreview::response($this->config,$this->store,$this->base);
     $error=null;
     if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
       try { $this->post(); }

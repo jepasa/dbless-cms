@@ -1,0 +1,3 @@
+/** Content-only preview keeps template styling and ancestor classes, releasing the removed site navigation's outer column. Full-page preview never loads these scoped rules. */
+body[data-editor-preview-scope="content"] { margin: 0; min-height: 0; }
+body[data-editor-preview-scope="content"] > :not(script) { margin-inline: 0 !important; width: auto !important; max-width: 100%; }
