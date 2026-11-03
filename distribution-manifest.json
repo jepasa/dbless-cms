@@ -1,6 +1,6 @@
 {
   "name": "dbless-cms",
-  "version": "2.8.1",
+  "version": "2.9.0",
   "license": "Apache-2.0",
   "files": [
     {
@@ -100,13 +100,13 @@
     },
     {
       "path": "docs/shared-editor.md",
-      "bytes": 7437,
-      "sha256": "af8397884f4fb2d65acb158da622729dcbdaa7fbefaf9231e100b575539fdf6a"
+      "bytes": 9304,
+      "sha256": "20db297fd8cecc94f8c574268e2e9fa7978e11a36a233ea8ded014cff5611d2a"
     },
     {
       "path": "docs/templates.md",
-      "bytes": 24003,
-      "sha256": "d20f3e510203ca59af2d23a566d4ecd78d976b1036c4e3ed845a7a3c7cadff52"
+      "bytes": 25465,
+      "sha256": "a6270da76dbe714ae00fa8b834d3216c7673d568e8ed49d1e2366eff6a397d3f"
     },
     {
       "path": "examples/hello/public_html/plugins/hello/css/hello.css",
@@ -181,12 +181,12 @@
     {
       "path": "package-lock.json",
       "bytes": 9863,
-      "sha256": "9fc033092d5b8bf73184fb027bd718f325a102a4cb5c9c9209ccd6efffac89ab"
+      "sha256": "440998cd0214f4d81f53921acc908cdd3474db6d253f07cd04e498b8173a0934"
     },
     {
       "path": "package.json",
       "bytes": 1181,
-      "sha256": "c5a47739873f6f3b613f168211f7f14dcda1a8509b0640749ffec4671d95ba7e"
+      "sha256": "d6763d8e6072eb4e9f8a5c292a9ad1210d662597d1c95fac8a51aecd597fa16d"
     },
     {
       "path": "README.md",
@@ -215,8 +215,8 @@
     },
     {
       "path": "scripts/dev-router.php",
-      "bytes": 1323,
-      "sha256": "efb59d985bc168d7fad1d9557a708cac5aafbc5d291602780eee0e4c3899a179"
+      "bytes": 2173,
+      "sha256": "42423f3d079f13a4868e83ff471a47933224549e5f82ee275a2ef7cfe28f31f2"
     },
     {
       "path": "scripts/generate-admin-favicon.mjs",
@@ -265,8 +265,8 @@
     },
     {
       "path": "src/public_html/.htaccess",
-      "bytes": 1641,
-      "sha256": "70d29b4a9981f7a2f0f207405d53a2fd87a16cc747282313fa8cd7c134236a01"
+      "bytes": 1863,
+      "sha256": "22669db7f80a854cf1d7e9b492958354df35d562c05c1c9cebcb9d8305c217d8"
     },
     {
       "path": "src/public_html/cms-admin/assets/admin.css",
@@ -389,14 +389,19 @@
       "sha256": "9b56f610ae14623d505ce6f7ae5db1c932387ca36a83c70f755a197668c7f32b"
     },
     {
+      "path": "src/public_html/cms-admin/assets/editor-preview.css",
+      "bytes": 380,
+      "sha256": "bd7853a17e87e3e8982ce001194c503b7ec26956c3af09ec571bea97e0a55ec6"
+    },
+    {
       "path": "src/public_html/cms-admin/assets/editor.css",
-      "bytes": 5473,
-      "sha256": "33d7ca079cca8bbbdcf825a1418b41f26aa45232678ef1a285c86f7ebe05c676"
+      "bytes": 5885,
+      "sha256": "4cf3c44de848ecf66715c81c0b30f452aab54f2e2a8b22989f0621fc1b8c25a9"
     },
     {
       "path": "src/public_html/cms-admin/assets/editor.js",
-      "bytes": 28503,
-      "sha256": "4e5c1d5a32992d63b8375793d2f772c65ec4a33854f064c6947845a6b03dc73c"
+      "bytes": 31662,
+      "sha256": "6ccca8aa3e7c0d096356fd9f53a1a89c5f5f1a715101a90c8c0d0050f2f7b1d0"
     },
     {
       "path": "src/public_html/cms-admin/assets/favicon.ico",
@@ -1160,8 +1165,8 @@
     },
     {
       "path": "src/system/admin/markup-editor.php",
-      "bytes": 2228,
-      "sha256": "14ac528b7714bd05f4b39a2067f45a4f383809fbad16e869dc8c7dcd10fd53d0"
+      "bytes": 2277,
+      "sha256": "1265ba7aa715f655952ca56e594242fc939259cc8b3012c37db08a3f7c979fa5"
     },
     {
       "path": "src/system/admin/plugin-about.php",
@@ -1200,8 +1205,8 @@
     },
     {
       "path": "src/system/bin/export-contents.php",
-      "bytes": 5823,
-      "sha256": "7a33ea58ac2156ba8e87d3f107576bbe9d86edd91ec65a24d250dca892723d6e"
+      "bytes": 5864,
+      "sha256": "f00802c6396dfbcfbf4e28fd3281b0a282c149fc49ec909e7ebb38805e394afb"
     },
     {
       "path": "src/system/bin/hash-password.php",
@@ -1271,7 +1276,7 @@
     {
       "path": "src/system/config/settings.php",
       "bytes": 479,
-      "sha256": "a073f80ed8197513c997b1d8c0c7a2c28c0af6f1a4a8c28d5d695c103772dbc7"
+      "sha256": "4f94ee5effd6e4b1c4372bed67d9b922121835d09c085a4f0956b20754569a0d"
     },
     {
       "path": "src/system/core.php",
@@ -1280,23 +1285,23 @@
     },
     {
       "path": "src/system/languages/en-us.json",
-      "bytes": 25847,
-      "sha256": "9032bb505c2459a14565dad05e89179ddaae120e4cffee2940bd380e8191eb7e"
+      "bytes": 26280,
+      "sha256": "a5c6fd2249ccd0308acc7ead74e2e9a7fcf63076f6dc5c7a3df75ef724c0fc9c"
     },
     {
       "path": "src/system/languages/pt-br.json",
-      "bytes": 27770,
-      "sha256": "325856137440a920b85d0259c706068fef06891af591d6b6918cc69fc4c02ffe"
+      "bytes": 28238,
+      "sha256": "774a712bf7c74f692c6a71282d274b52ac0abc42935ca0c2ef54792d5aed83f8"
     },
     {
       "path": "src/system/lib/Admin.php",
-      "bytes": 19646,
-      "sha256": "b5d3aa46ccbdb3f5df8993715ab8357e696c934b16b3d503def4008f60f33c08"
+      "bytes": 19766,
+      "sha256": "8420e642281db5d2585ac78c46e2cb875889204e86cfda815c7493faf1bde98e"
     },
     {
       "path": "src/system/lib/App.php",
-      "bytes": 8176,
-      "sha256": "9b3078ec503e26514638817e690cdb152d7245551e7ac4417d0c2a49cb27baa0"
+      "bytes": 8692,
+      "sha256": "b5aa02d57c99414cec4691c4c3b19ed476d855fde3c0239322064db7464ad866"
     },
     {
       "path": "src/system/lib/Cache.php",
@@ -1375,8 +1380,13 @@
     },
     {
       "path": "src/system/lib/Editor.php",
-      "bytes": 2190,
-      "sha256": "da6ce8395ac1c7c230b65b89a04216a0f649726346de7609eda6158b2e91ad3d"
+      "bytes": 2327,
+      "sha256": "5e115794276a906f06533e0d58d6b05695b381ea61b6e1f076951422da075576"
+    },
+    {
+      "path": "src/system/lib/EditorPreview.php",
+      "bytes": 9800,
+      "sha256": "95f97d928eb27ad70893b6f737136bf034299b20c431bf39a97493656bc6b4cc"
     },
     {
       "path": "src/system/lib/ErasureLedger.php",
@@ -1390,18 +1400,18 @@
     },
     {
       "path": "src/system/lib/ExtensionMedia.php",
-      "bytes": 4671,
-      "sha256": "92b79921efb23614740f0d673dae3372f80adcaeb9e1d18c82fe742138b44275"
+      "bytes": 6648,
+      "sha256": "551a726024be57f518a1073df4030a83f5cf225946920180d5008a124290efce"
     },
     {
       "path": "src/system/lib/Extensions.php",
-      "bytes": 8161,
-      "sha256": "9b28e740824ac5826d00420094f01ccf6b6392aaeab4426d5778e60c72a57f95"
+      "bytes": 8256,
+      "sha256": "a62ec9acb09a747baa9768f9141d237f5c6eda2ecea13bfecfe992ab7b017b81"
     },
     {
       "path": "src/system/lib/GlobalSettings.php",
-      "bytes": 8298,
-      "sha256": "c7a7affc56dadb61a6e8eedef8451dd9f31ab43278715c8e70cb6c969faa6056"
+      "bytes": 8384,
+      "sha256": "e6e0bee3c49392ae43ce989726ea69244592875054599c43c372a97d56b31f15"
     },
     {
       "path": "src/system/lib/HomepageLayout.php",
@@ -1420,8 +1430,8 @@
     },
     {
       "path": "src/system/lib/Icons.php",
-      "bytes": 2889,
-      "sha256": "c224f4675beab937a1dbd83e5a8c2bd453f7527075983533af85c79346c1966b"
+      "bytes": 3434,
+      "sha256": "2a8776e8c124f926ccf37ee9a1014859b2b9c175015899037a4b235876c606bd"
     },
     {
       "path": "src/system/lib/JsonStore.php",
@@ -1540,8 +1550,8 @@
     },
     {
       "path": "src/system/lib/SiteFavicon.php",
-      "bytes": 3152,
-      "sha256": "26f4ecb9b1fe2cc998daffbc81829012707b23330c24755fd4870f109dc6e77f"
+      "bytes": 3230,
+      "sha256": "9807263da5695257d0d55532a2ce993da891ef05c5cbfd0500d018d45298c916"
     },
     {
       "path": "src/system/lib/SiteLocale.php",
@@ -1565,8 +1575,8 @@
     },
     {
       "path": "src/system/lib/Templates.php",
-      "bytes": 11997,
-      "sha256": "16c256bd268df9dfe6fe85059df1a19c6872ecee7c09cb02787d94bd35b32330"
+      "bytes": 14227,
+      "sha256": "b9fc20e9083731d980795d904c34aa13602517ba9d7347fce4916b6706d6b445"
     },
     {
       "path": "src/system/lib/views/homepage.php",
@@ -1575,8 +1585,8 @@
     },
     {
       "path": "src/system/lib/views/markup.php",
-      "bytes": 325,
-      "sha256": "e68f1d2b01f5e4a2d358bb0c03a8acc23ba20cd4edf272caf98fc19345be4176"
+      "bytes": 492,
+      "sha256": "7beddb40a9e5ed9abf449e7f376478b40235bf7bdc48459193b9839192a1c0c8"
     },
     {
       "path": "src/system/lib/Widgets.php",
@@ -1660,8 +1670,8 @@
     },
     {
       "path": "src/system/plugins/files-manager/Files.php",
-      "bytes": 23105,
-      "sha256": "9eed1747dcf37ba0ab5525c57b7b3521750a7597284e056f40a46fb603b977ed"
+      "bytes": 23234,
+      "sha256": "730ec19f6009cff503940d0cc0b56ee9b52b22ba2e368e3e19c667e0975428b8"
     },
     {
       "path": "src/system/plugins/files-manager/languages/en-us.json",
@@ -2360,8 +2370,8 @@
     },
     {
       "path": "tests/browser/authoring-customizations.mjs",
-      "bytes": 14418,
-      "sha256": "0f2543d72b60e40c85b89659a02c8268c0251fbb10da1d71d351e26f1bd90e7d"
+      "bytes": 13727,
+      "sha256": "884d92446a4f61fc6826919fb55d15c310ed0424dd4fede6d77ef8011003d549"
     },
     {
       "path": "tests/browser/blog.mjs",
@@ -2375,8 +2385,13 @@
     },
     {
       "path": "tests/browser/core-editor.mjs",
-      "bytes": 22023,
-      "sha256": "f5958843d02f1692a386f02293de149ceb940c0b02cd4a50e59b2dde1b192cbe"
+      "bytes": 22219,
+      "sha256": "e54206bf34bc81f2eeff8109596ecf46d9bbf9c58d2f1ff3524e7ed1b6e0bf0b"
+    },
+    {
+      "path": "tests/browser/editor-preview.mjs",
+      "bytes": 8253,
+      "sha256": "1ead8d66288a2774b79c21e723929ede8827e9103f582a6e417c9a921f03bcbf"
     },
     {
       "path": "tests/browser/extension-media.mjs",
@@ -2434,14 +2449,19 @@
       "sha256": "a69053ac3f84dd7437d3eae2e0782dca4d0ba33665470a17fbb1bb58a9d83d5d"
     },
     {
+      "path": "tests/editor-preview.test.mjs",
+      "bytes": 8800,
+      "sha256": "0b02a6f46395113c388ddf4186eded099e2ac31a768868b182f7b76abd1aefc6"
+    },
+    {
       "path": "tests/extension-media.test.mjs",
-      "bytes": 8259,
-      "sha256": "4bc236c3be308f3167fd2fd11da53a059c58aaa397c954bda05c19db7fb0cf2a"
+      "bytes": 11718,
+      "sha256": "99aa32dbe09f0b4d5a1254619d0a729c26479a75080587ba1e74ad42d54eb172"
     },
     {
       "path": "tests/helpers/extension-media.mjs",
-      "bytes": 6230,
-      "sha256": "e33336c264f2ffe3b075ba1fa1a7e67ee8019a83dc80a216b2c2e8630fc8b3df"
+      "bytes": 6976,
+      "sha256": "876ef51ba82d1c950d072b52c1d86d42aa1f697fb2f5dc465009bebd7ef3076b"
     },
     {
       "path": "tests/helpers/global-settings.mjs",

@@ -11,7 +11,7 @@ const evidence=fs.mkdtempSync(path.join(os.tmpdir(),'dbless-core-editor-browser-
 console.log('Browser evidence: '+evidence);
 const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',args:['--no-sandbox']});
 /** Change the shared editor mode as an administrator; receives owner/mode, waits for the addressed canvas or source to be visible. */
-async function mode(owner,value){await owner.locator('[data-editor-action="'+value+'"]').click();if(value==='code')await owner.locator('textarea').first().waitFor({state:'visible'});else await owner.locator('iframe').waitFor({state:'visible'});}
+async function mode(owner,value){await owner.locator('[data-editor-action="'+value+'"]').click();if(value==='code')await owner.locator('textarea').first().waitFor({state:'visible'});else await owner.locator(value==='preview'?'iframe[data-editor-preview]':'iframe[data-editor-canvas]').waitFor({state:'visible'});}
 try{
   for(const [index,application] of applications.entries()){
     const fixture=await server(application),context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce'}),page=await context.newPage(),errors=[],unresolvedRequests=[];
@@ -20,8 +20,8 @@ try{
     try{
       await page.goto(fixture.base+'/cms-admin/');await page.getByLabel('Username',{exact:true}).fill('editor');await page.getByLabel('Password',{exact:true}).fill(password);await Promise.all([page.waitForNavigation(),page.getByRole('button',{name:'Sign in',exact:true}).click()]);
       await page.goto(fixture.base+'/cms-admin/?view=plugin-panel&plugin=pages&route=new');
-      const owner=page.locator('[data-core-editor]').first(),source=owner.locator('textarea'),frame=owner.frameLocator('iframe');
-      await frame.locator('.dbless-canvas').waitFor();assert.equal(await owner.locator('iframe').getAttribute('sandbox'),'allow-scripts');
+      const owner=page.locator('[data-core-editor]').first(),source=owner.locator('textarea'),frame=owner.frameLocator('iframe[data-editor-canvas]');
+      await frame.locator('.dbless-canvas').waitFor();assert.equal(await owner.locator('iframe[data-editor-canvas]').getAttribute('sandbox'),'allow-scripts');
       await page.waitForFunction(()=>DBLESSEditor.get(document.querySelector('[data-markup-html]')).ready===true);
       // The toolbar is a grouped icon surface; source and keyboard behavior remain intact.
       const toolbar=owner.getByRole('toolbar',{name:'Content editing tools'}),visual=toolbar.getByRole('button',{name:'Visual',exact:true});
@@ -37,7 +37,7 @@ try{
       for(const forged of ['__proto__','00000000-0000-4000-8000-000000000000']){await frame.locator('body').evaluate((element,data)=>parent.postMessage({...data.packet,request:data.request},'*'),{packet:acknowledgement.packet,request:forged});await page.waitForTimeout(30);assert.equal(await page.evaluate(()=>window.__editorAckCompleted),false,'An unknown acknowledgement must not complete an owned flush');}
       await frame.locator('body').evaluate((element,data)=>parent.postMessage({...data.packet,request:data.request},'*'),acknowledgement);
       assert.equal(await page.evaluate(async()=>{await window.__editorAckPromise;const result=window.__editorAckCompleted;delete DBLESSEditor.get(document.querySelector('[data-markup-html]')).send;delete window.__editorAckPromise;delete window.__editorAckCompleted;return result;}),true);
-      await mode(owner,'code');await source.fill('');await mode(owner,'visual');const empty=frame.getByRole('textbox',{name:'Editable content block'}).first();await empty.fill('Plain initial content');await page.waitForFunction(()=>document.querySelector('[data-markup-html]').value==='Plain initial content');await mode(owner,'preview');assert.equal(await frame.getByRole('textbox').count(),0);assert.ok(await frame.locator('link[data-template-style]').count()>0);assert.equal(await source.inputValue(),'Plain initial content');await mode(owner,'code');
+      await mode(owner,'code');await source.fill('');await mode(owner,'visual');const empty=frame.getByRole('textbox',{name:'Editable content block'}).first();await empty.fill('Plain initial content');await page.waitForFunction(()=>document.querySelector('[data-markup-html]').value==='Plain initial content');await mode(owner,'preview');assert.equal(await owner.frameLocator('iframe[data-editor-preview]').getByRole('textbox').count(),0);assert.ok(await owner.frameLocator('iframe[data-editor-preview]').locator('link[data-template-style]').count()>0);assert.equal(await source.inputValue(),'Plain initial content');await mode(owner,'code');
       const original=await source.inputValue();await mode(owner,'code');assert.equal(await source.inputValue(),original);await mode(owner,'visual');await mode(owner,'code');assert.equal(await source.inputValue(),original);
       const untouched="<section class='keep'>\n  <p><a class='link' href='/'>Original &amp; unchanged</a></p>\n</section>";
       await mode(owner,'code');await source.fill(untouched);await mode(owner,'visual');await frame.getByRole('textbox',{name:'Editable content block'}).first().click();await page.evaluate(()=>DBLESSEditor.get(document.querySelector('[data-markup-html]')).flush());assert.equal(await source.inputValue(),untouched,'Selecting a block and flushing without editing must preserve source bytes');await mode(owner,'code');

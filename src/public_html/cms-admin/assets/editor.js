@@ -1,4 +1,4 @@
-/** Shared editor API: inert PHP/CSS/JS source profiles and isolated HTML/Mustache WYSIWYG. Original textarea and source patches remain authoritative; no authored program is executed. */
+/** Shared editor API: inert PHP/CSS/JS source profiles and isolated HTML/Mustache WYSIWYG. Original textarea and source patches remain authoritative; authored programs never execute in the editing canvas; published template resources run only in disposable opaque previews. */
 (() => {
   'use strict';
   const model=window.DBLESSEditorModel,instances=new WeakMap(),live=new Set();let nextId=0;
@@ -56,7 +56,8 @@
         for(const [name,tools] of [['formatting',['bold','italic']],['blocks',['paragraph','heading','list','quote']],['insertion',['link','image']]]){const available=this.options.toolbar.filter(tool=>tools.includes(tool));if(!available.length)continue;const group=this.group(name);for(const tool of available)group.append(this.button(tool,()=>this.tool(tool)));this.commands.append(group);}
       }
       this.toolbar.append(this.commands);this.toolbar.addEventListener('keydown',event=>this.navigate(event));this.toolbar.addEventListener('focusin',event=>{if(event.target.matches('button[data-editor-action]')){this.tabStop=event.target;this.syncToolbar();}});
-      this.wrapper.prepend(this.toolbar);this.frame=node('iframe','','dbless-editor-canvas');this.frame.title=t('canvas');this.frame.setAttribute('sandbox','allow-scripts');this.frame.referrerPolicy='no-referrer';
+      this.previewScope=node('label','','dbless-editor-preview-scope');this.previewScope.append(node('span',t('previewScope')));this.scope=node('select');this.scope.setAttribute('aria-label',t('previewScope'));for(const value of ['content','page']){const option=node('option',t(value==='content'?'previewContent':'previewPage'));option.value=value;this.scope.append(option);}this.previewScope.append(this.scope);this.previewScope.hidden=true;this.toolbar.append(this.previewScope);this.scope.addEventListener('change',()=>{if(this.mode==='preview')void this.preview().catch(()=>{});});
+      this.wrapper.prepend(this.toolbar);this.frame=node('iframe','','dbless-editor-canvas');this.frame.dataset.editorCanvas='';this.frame.title=t('canvas');this.frame.setAttribute('sandbox','allow-scripts');this.frame.referrerPolicy='no-referrer';
       this.channel=Array.from(crypto.getRandomValues(new Uint8Array(16)),value=>value.toString(16).padStart(2,'0')).join('');this.frame.name=this.channel;
       const origin=location.origin,script=new URL(config.script,location.href),style=new URL(config.style,location.href);
       if(script.origin!==origin||style.origin!==origin)throw new TypeError('Editor assets must be local.');
@@ -89,16 +90,32 @@
       try{this.model=model.analyze(this.textarea.value,this.options,config.policy);this.issue=null;this.status.textContent=this.model.tree?.protected||this.model.tokens.some(token=>['#','^','/','form','fragment'].includes(token.kind))?t('protected'):t('valid');return this.model;}
       catch(error){this.issue=error;this.model=null;this.status.textContent=t('invalid')+' '+error.message;return null;}
     }
-    /** Switch an allowed editing mode without normalizing source; receives mode, returns nothing, retains invalid buffers in Code mode. */
-    setMode(mode){
+    /** Switch an allowed editing mode without normalizing source; receives mode, returns a flush/render promise, ignores superseded switches and retains invalid buffers in Code mode. */
+    async setMode(mode){
       if(!['visual','code','preview'].includes(mode)||!this.frame)return;
-      if(mode!=='code'&&!this.update())mode='code';this.mode=mode;this.code.wrapper.hidden=mode!=='code';this.code.label.hidden=mode!=='code';this.frame.hidden=mode==='code';
+      const change=this.modeRequest=(this.modeRequest??0)+1;if(mode==='preview'&&this.mode==='visual')await this.flush();if(change!==this.modeRequest)return;
+      this.clearPreview();if(mode!=='code'&&!this.update())mode='code';this.mode=mode;this.previewScope.hidden=mode!=='preview';this.code.wrapper.hidden=mode!=='code';this.code.label.hidden=mode!=='code';this.frame.hidden=mode!=='visual';
       this.syncToolbar();
-      if(mode!=='code')this.render();else this.textarea.focus();
+      if(mode==='preview')await this.preview();else if(mode==='visual')this.render();else this.textarea.focus();
+    }
+    /** Remove an owned disposable preview and abort its pending fetch; no parameters/return, never touches source or the editing channel. */
+    clearPreview(){this.previewRequest?.abort();this.previewRequest=null;this.previewFrame?.remove();this.previewFrame=null;}
+    /** Resolve the unsaved buffer/bindings through the authenticated read-only renderer; no parameters, returns a promise, reports failures and rejects cross-origin endpoints without saving. */
+    async preview(){
+      this.clearPreview();const request=new AbortController();this.previewRequest=request;this.status.textContent=t('previewLoading');
+      try{
+        const endpoint=new URL(config.preview.endpoint,location.href);if(endpoint.origin!==location.origin)throw new TypeError(t('previewError'));
+        const owner=this.textarea.closest('[data-markup-editor]'),field=owner?.querySelector('[data-markup-bindings-json]'),bindings=field?JSON.parse(field.value):[];
+        const body=new URLSearchParams({csrf_token:config.preview.csrf,document:JSON.stringify({html:this.textarea.value,bindings,page:owner?.dataset.pageKey||'home',scope:this.scope.value})});
+        const response=await fetch(endpoint,{method:'POST',body,credentials:'same-origin',signal:request.signal,cache:'no-store',redirect:'error'}),result=await response.json();
+        if(!response.ok||typeof result.html!=='string')throw new Error(t('previewError'));
+        if(this.mode!=='preview'||this.previewRequest!==request)return;
+        const frame=node('iframe','','dbless-editor-canvas');frame.dataset.editorPreview='';frame.title=t('preview');frame.height=String(this.options.height);frame.setAttribute('sandbox','allow-scripts');frame.referrerPolicy='no-referrer';frame.srcdoc=result.html;this.previewFrame=frame;this.frame.after(frame);this.status.textContent=t('previewHelp');
+      }catch(error){if(error.name==='AbortError')return;this.status.textContent=t('previewError')+' '+error.message;throw error;}
     }
     /** Send a validated source model to this opaque frame; no arguments/return, never includes session, provider values or PHP execution results. */
     render(){
-      if(!this.ready||this.mode==='code')return;const current=this.update();if(!current)return;this.generation++;this.selected=null;
+      if(this.mode==='preview'){void this.preview().catch(()=>{});return;}if(!this.ready||this.mode!=='visual')return;const current=this.update();if(!current)return;this.generation++;this.selected=null;
       const focusId=this.focusAfter;this.focusAfter=null;this.send('render',{focusId,tree:current.tree,readOnly:this.mode==='preview'||this.options.readOnly,preview:this.mode==='preview',styles:config.styles,locale:config.locale,direction:config.direction,origin:location.origin,publicBase:new URL(config.publicBase,location.href).href,labels:config.labels});
     }
     /** Post a closed operation on this instance channel; receives type/payload, returns nothing. */
@@ -122,7 +139,7 @@
         catch{/* Unsupported clipboard markup falls back explicitly to its text/plain representation. */}
         this.send('paste',{id:data.id,nodes,text:data.text});if(!nodes)this.status.textContent=t('pastePlain');return;
       }
-      if(data.type==='history'&&typeof data.redo==='boolean'){this.undo(data.redo);return;}
+      if(data.type==='history'&&this.mode==='visual'&&typeof data.redo==='boolean'){this.undo(data.redo);return;}
       if(data.type!=='patch'||this.mode!=='visual'||this.options.readOnly||typeof data.id!=='string'||typeof data.html!=='string'||data.html.length>131072)return;
       const block=this.model?.blocks.find(item=>item.id===data.id);if(!block)return;
       const source=this.textarea.value,candidate=source.slice(0,block.start)+data.html+source.slice(block.end);if(candidate===source)return;
@@ -168,7 +185,7 @@
     }
     /** Flush queued frame input before a real submit; no arguments, returns a bounded promise or rejects rather than silently losing edits. */
     flush(){
-      if(!this.frame||this.mode==='code'||!this.ready)return Promise.resolve();
+      if(!this.frame||this.mode!=='visual'||!this.ready)return Promise.resolve();
       return new Promise((resolve,reject)=>{
         const request=crypto.randomUUID();
         /** Complete only this lexical promise's exact request; receives a native acknowledgement event, returns nothing and never selects or invokes a callback by message-owned name. */
@@ -184,7 +201,7 @@
     /** Replace source from a trusted plugin integration; receives text, validates size/profile, emits input and preserves invalid HTML for correction. */
     setValue(value){if(typeof value!=='string'||new TextEncoder().encode(value).length>131072)throw new TypeError('Invalid editor source.');this.write(value);if(this.frame){this.update();if(!this.model)this.setMode('code');else this.render();}}
     /** Remove only this editor's UI/listeners and restore its original textarea; no arguments, no normalization, no persistence. */
-    destroy(){this.textarea.removeEventListener('input',this.input);if(this.invalid)this.textarea.removeEventListener('invalid',this.invalid);if(this.listener)window.removeEventListener('message',this.listener);this.code.destroy();this.wrapper.before(this.textarea);this.wrapper.remove();this.textarea.readOnly=this.originalReadOnly;this.textarea.rows=this.originalRows;delete this.textarea.dataset.editorMounted;instances.delete(this.textarea);live.delete(this);}
+    destroy(){this.modeRequest=(this.modeRequest??0)+1;this.clearPreview();this.textarea.removeEventListener('input',this.input);if(this.invalid)this.textarea.removeEventListener('invalid',this.invalid);if(this.listener)window.removeEventListener('message',this.listener);this.code.destroy();this.wrapper.before(this.textarea);this.wrapper.remove();this.textarea.readOnly=this.originalReadOnly;this.textarea.rows=this.originalRows;delete this.textarea.dataset.editorMounted;instances.delete(this.textarea);live.delete(this);}
   }
   /** Mount once, merging explicit options with optional data-editor-options; receives textarea/options, returns an instance or throws before changing the field. */
   function mount(textarea,input={}){if(instances.has(textarea))return instances.get(textarea);const declared=textarea.dataset.editorOptions?JSON.parse(textarea.dataset.editorOptions):{};return new Editor(textarea,{readOnly:textarea.readOnly,...declared,...input});}

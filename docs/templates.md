@@ -438,3 +438,11 @@ Privacy controls, interactive Forms, public image credits and their boundaries a
 ## Editable native Homepage bodies
 
 Templates may provide an opt-in `homepageMarkup` adapter and explicitly declared public `markupFragments` to preserve native HTML while keeping contact forms and plugin output request-scoped. See [Editable native Homepages](homepage-conversion.md) for the manifest fields, Mustache syntax, preview restrictions and revision-checked migration.
+
+## Declared public media
+
+Template `assets.files` image references may explicitly start with `/media/`, for example `"thumbnail": "/media/my-template/my-template.png"`, `"favicon": "/media/my-template/favicon.ico"` and `"iconHouse": "/media/my-template/icons/house.svg"`. Existing relative references remain relative to `public_html/templates/<id>/`. Styles/scripts must remain template-local. Referenced media must be regular files without symbolic links or traversal; thumbnail and favicon retain PNG 16:9 and ICO validation.
+
+Register every bundled image that must survive production export: only declared files are copied, never arbitrary uploads. Pass the template registry as the optional final argument to `Icons::site()` or `Icons::url()` to use declared `iconHouse`, `iconArrowRight` and corresponding icon keys. `Templates::asset()` and `SiteFavicon::url()` resolve these references directly. Keep image licensing/provenance alongside the bundle.
+
+JPEG media inspection validates the complete marker container and scans non-entropy segments for active payloads. Compressed pixel bytes can contain coincidental text signatures; they are not treated as executable text. Trailing data, truncated segments, active metadata, MIME mismatches and oversized dimensions remain rejected. Export and the image manager share this inspection and preserve the original image bytes. Static image hosting and the supplied PHP-entrypoint restrictions remain required.

@@ -66,3 +66,13 @@ Version 2.8.1 uses DBLess-CMS ink/mint colors with segmented Visual/Code/Preview
 Arrow keys (including RTL direction), Home and End move between enabled toolbar controls; Tab leaves the toolbar. Code-only PHP/CSS/JavaScript profiles use the same header, language identifier and compact diagnostic/indentation footer. Groups wrap on small screens without removing controls. Existing language/toolbar/readOnly options and all content/publication/security contracts remain unchanged. No external editor library or icon service is required.
 
 Core metadata provides a closed action-to-icon map from `cms-admin/assets/editor-icons/`; plugins keep using the editor API instead of embedding SVG or depending on toolbar markup. This presentation change does not alter API version 1 or the accepted options.
+
+## Rendered preview
+
+HTML/Mustache Preview sends the current unsaved HTML and bindings to an authenticated, CSRF-protected renderer. It uses the active template layout/options, local images and template CSS/JavaScript, followed by **published** global CSS/JavaScript complements. Unpublished customization drafts are excluded. Relative media addresses use the public hosting base; `{{cms.base}}` supports installations in a subdirectory.
+
+The preview is a disposable opaque-origin iframe, separate from the editing canvas. Leaving Preview destroys it. Its CSP disables connections, nested frames and form submission, and removes live form values. This protects the administrator; features requiring those capabilities are intentionally inert. Inline scripts, external resources and PHP execution are unsupported. Published JavaScript runs only inside the preview and public site. A failed preview does not save or discard the source.
+
+The preview scope selector defaults to **Content only**. This renders only the current buffer within the template content containers, keeping its published CSS/JavaScript but excluding the surrounding navigation/footer. Choose **Full page** to inspect the complete public layout. Changing scope never modifies or saves content.
+
+Opaque previews need anonymous CORS for addressed SVG masks and local web fonts. The supplied development router and Apache rules enable it only for static presentation SVG/font files, without credentials or administrative API access. For Nginx/custom hosting, add `Access-Control-Allow-Origin: *` only to those static file responses and keep PHP/JSON/private endpoints outside that rule; also preserve `X-Content-Type-Options: nosniff`. Never add `allow-same-origin` to the preview iframe to work around resource errors. Public plugin presentation assets are supported by the preview resource policy.

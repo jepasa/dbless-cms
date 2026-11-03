@@ -130,8 +130,9 @@ final class ManagedFiles {
       if ($image===false || $image[0]*$image[1]>40000000 || ($image['mime']??'')!==$mime) self::fail('type');
     }
     $bytes=file_get_contents($file); if ($bytes===false) self::fail('io',503);
-    if (preg_match('/<\?(?:php|=)|<script\b|<html\b/i',$bytes)) self::fail('type');
-    $scan=$mime==='image/png'?self::pngScan($bytes):$bytes;
+    try{$payload=$mime==='image/jpeg'?ExtensionMedia::jpegScan($bytes):$bytes;}catch(\RuntimeException){self::fail('type');}
+    if (preg_match('/<\?(?:php|=)|<script\b|<html\b/i',$payload)) self::fail('type');
+    $scan=$mime==='image/png'?self::pngScan($bytes):$payload;
     if (preg_match('/<svg\b/i',$scan)) self::fail('type');
     if ($mime==='text/plain' && (!preg_match('//u',$bytes) || str_contains($bytes,"\0"))) self::fail('type');
     if ($mime==='application/pdf' && !str_starts_with($bytes,'%PDF-')) self::fail('type');

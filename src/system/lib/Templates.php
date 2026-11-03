@@ -68,6 +68,7 @@ final class Templates {
       if (!is_array($assets[$group]??null) || !array_is_list($assets[$group]) || ($group==='styles' && $assets[$group]===[])) throw new HttpError(422,'Recursos obrigatórios do template inválidos.','error.template_assets');
       foreach ($assets[$group] as $file) {
         if (!is_string($file) || !str_ends_with($file,'.'.$extension)) throw new HttpError(422,'Recursos obrigatórios do template inválidos.','error.template_assets');
+        if(str_starts_with($file,'/'))throw new HttpError(422,'Template programs must remain template-local.','error.template_assets');
         $this->publicPath($id,$file);
       }
     }
@@ -133,8 +134,9 @@ final class Templates {
     return $real;
   }
 
-  /** Resolve recurso local sob public_html/templates/ID; recebe ID/caminho, rejeita traversal/symlinks e usa minificados no pacote. */
+  /** Resolve template-local resource or an explicit /media image; receive ID/path, reject traversal/symlinks, use minified programs in the package and throw 422 without writes. */
   public function publicPath(string $id,string $relative): string {
+    if(str_starts_with($relative,'/media/'))return $this->mediaPath($id,$relative);
     if (!self::identifier($id) || !preg_match('~^[A-Za-z0-9][A-Za-z0-9_.-]*(?:/[A-Za-z0-9][A-Za-z0-9_.-]*)*$~D',$relative) || in_array('assets',explode('/',$relative),true) || preg_match('/\.(?:php[0-9]*|phtml|phar)$/Di',$relative)) throw new HttpError(422,'Recursos obrigatórios do template inválidos.','error.template_assets');
     if (is_file($this->config->root.'/config/production.php') && !preg_match('/\.min\.(css|js)$/D',$relative)) $relative=preg_replace('/\.(css|js)$/D','.min.$1',$relative);
     $base=dirname($this->config->root).'/public_html/templates'; $dir=$base.'/'.$id;
@@ -150,7 +152,26 @@ final class Templates {
 
   /** Retorna URL de recurso validado, respeitando minificação; recebe ID/caminho/base, sem escrita ou execução. */
   public function asset(string $id,string $relative,string $base=''): string {
-    $this->publicPath($id,$relative); return asset('templates/'.$id.'/'.$relative,$base);
+    $this->publicPath($id,$relative); return asset(str_starts_with($relative,'/media/')?ltrim($relative,'/'):'templates/'.$id.'/'.$relative,$base);
+  }
+
+  /** Resolve a manifest-declared image below public media; receive template/path, return regular contained file or 422, rejecting links, executables and traversal without fetching. */
+  private function mediaPath(string $id,string $relative): string {
+    if(!self::identifier($id)||!preg_match('~^/media/[A-Za-z0-9][A-Za-z0-9_.-]*(?:/[A-Za-z0-9][A-Za-z0-9_.-]*)*\.(?:png|jpe?g|gif|webp|avif|svg|ico)$~Di',$relative)||str_contains($relative,'..'))throw new HttpError(422,'Invalid template media.','error.template_assets');
+    $root=dirname($this->config->root).'/public_html';$cursor=$root;
+    try{Lifecycle::path($root);}catch(\RuntimeException){throw new HttpError(422,'Invalid template media.','error.template_assets');}
+    foreach(explode('/',ltrim($relative,'/')) as $part){$cursor.='/'.$part;if(is_link($cursor))throw new HttpError(422,'Invalid template media.','error.template_assets');}
+    $real=realpath($cursor);$media=realpath($root.'/media');
+    if(is_link($root)||$real===false||$media===false||!is_file($real)||!str_starts_with($real,$media.'/'))throw new HttpError(422,'Invalid template media.','error.template_assets');
+    return $real;
+  }
+  /** Export only image files explicitly registered by valid template manifests; receive stage, copy referenced bytes and propagate I/O errors without scanning arbitrary uploads. */
+  public function exportMedia(string $target): void {
+    foreach($this->all() as $id=>$manifest)foreach($manifest['assets']['files'] as $relative){
+      if(!str_starts_with($relative,'/media/'))continue;$source=$this->publicPath($id,$relative);$destination=$target.'/public_html'.$relative;
+      if(!is_dir(dirname($destination))&&!mkdir(dirname($destination),0770,true))throw new \RuntimeException('Template media export directory unavailable.');
+      if(!copy($source,$destination))throw new \RuntimeException('Template media export failed.');
+    }
   }
 
   /** Carrega contrato declarado; recebe ID, retorna mapa validado; contratos inválidos geram 422. */
