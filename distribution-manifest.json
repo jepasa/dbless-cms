@@ -785,8 +785,8 @@
     },
     {
       "path": "src/public_html/plugins/files-manager/css/files-manager.css",
-      "bytes": 9081,
-      "sha256": "aafba6083e54d189f4f9e3e74202ffdaa2fdb901ba25cd234cfcc408cfd79171"
+      "bytes": 9529,
+      "sha256": "a5aefe58497231e8ad08a7f20a6340572b7bff1845f135e5aba49767e9e8e03e"
     },
     {
       "path": "src/public_html/plugins/files-manager/files-manager.svg",
@@ -2477,6 +2477,11 @@
       "path": "tests/browser/files-manager.mjs",
       "bytes": 20451,
       "sha256": "61ca893e1790593bf49cea146753e680522744cdf0efefe6dcc89993991ed28c"
+    },
+    {
+      "path": "tests/browser/files-tree.mjs",
+      "bytes": 6062,
+      "sha256": "136297c32e139624a2a493cf654d749e4a66f9b9bf021ab0332457d6f8b25658"
     },
     {
       "path": "tests/browser/homepage-conversion.mjs",

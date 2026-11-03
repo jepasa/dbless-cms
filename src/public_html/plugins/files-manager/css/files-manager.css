@@ -16,10 +16,13 @@
 .fm-sidebar h2 { margin: 0 8px 12px; font-size: .75rem; color: var(--muted); }
 .fm-sidebar > .fm-action { margin: 14px 8px 0; }
 .fm-sidebar nav ul { list-style: none; margin: 0; padding: 0; }
-.fm-sidebar nav ul ul { margin-inline-start: 18px; padding-inline-start: 14px; border-inline-start: 1px solid var(--line); }
+.fm-sidebar nav ul ul { margin-inline-start: 18px; padding-inline-start: 15px; }
 .fm-sidebar nav li { position: relative; }
-.fm-sidebar nav ul ul > li::before { content: ''; position: absolute; inset-inline-start: -14px; top: 19px; width: 14px; border-top: 1px solid var(--line); }
-.fm-tree-row { display: flex; align-items: center; min-width: 0; gap: 2px; }
+/* Each sibling carries the trunk; the last one ends at its own row, independent of expanded descendants or wrapped labels. */
+.fm-sidebar nav ul ul > li::before { content: ''; position: absolute; inset-inline-start: -15px; top: 0; bottom: 0; border-inline-start: 1px solid var(--line); }
+.fm-sidebar nav ul ul > li:last-child::before { display: none; }
+.fm-sidebar nav ul ul > li > .fm-tree-row::before { content: ''; position: absolute; inset-inline-start: -15px; top: 0; width: 15px; height: 50%; border-inline-start: 1px solid var(--line); border-bottom: 1px solid var(--line); box-sizing: border-box; pointer-events: none; }
+.fm-tree-row { position: relative; display: flex; align-items: center; min-width: 0; gap: 2px; }
 .fm .fm-expand { width: 24px; min-width: 24px; padding: 3px; border: 0; background: transparent; }
 .fm .fm-expand img { width: 14px; height: 14px; flex-basis: 14px; }
 .fm .fm-folder-name { display: inline-flex; gap: 6px; align-items: center; justify-content: flex-start; padding: 7px 5px; border-color: transparent; background: transparent; min-width: 0; overflow-wrap: anywhere; text-align: start; }
