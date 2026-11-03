@@ -98,8 +98,7 @@
     "pages.model.legacy": "Estrutura existente",
     "pages.content": "Conteúdo editorial",
     "pages.layoutData": "Layout e dados",
-    "pages.authored": "Usar HTML/Mustache com o editor compartilhado",
-    "pages.nativePreserved": "Conteúdo nativo permanece preservado. Ative HTML/Mustache somente para usar o corpo autoral.",
+    "pages.nativePreserved": "Cada aba edita um formato independente. Alternar não converte o conteúdo; o formato ativo será salvo.",
     "pages.structure": "Estrutura e endereço",
     "pages.urlHelp": "O identificador interno é permanente. Ao publicar outro endereço, o anterior será redirecionado.",
     "pages.seo": "SEO e compartilhamento",
@@ -170,6 +169,9 @@
     "pages.advanced": "Opções avançadas",
     "pages.applyModel": "Aplicar modelo",
     "pages.replaceModelConfirm": "Substituir o corpo atual por este modelo? As alterações não salvas do corpo serão substituídas.",
-    "pages.duplicateAddress": "Endereço da cópia"
+    "pages.duplicateAddress": "Endereço da cópia",
+    "pages.contentFormat": "Formato do conteúdo editorial",
+    "pages.formatJSON": "JSON",
+    "pages.formatMarkup": "HTML/Mustache"
   }
 }

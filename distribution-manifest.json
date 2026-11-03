@@ -90,8 +90,8 @@
     },
     {
       "path": "docs/pages-media-authoring.md",
-      "bytes": 8152,
-      "sha256": "42e44a79c6d57447621ecab0dad8d888c16f50b9e12e9dd64ce3fccac2563799"
+      "bytes": 8508,
+      "sha256": "bf9800ad846b5872f5620d13c683d23783295bacdb806212dafc186234067f25"
     },
     {
       "path": "docs/plugins.md",
@@ -870,13 +870,13 @@
     },
     {
       "path": "src/public_html/plugins/pages/css/pages.css",
-      "bytes": 3153,
-      "sha256": "6e7100edd3afde402d2d8d38fd20aafca7cf71fa4279ac20d49aebd38d9e9e9a"
+      "bytes": 3799,
+      "sha256": "b59755cb0c529302dd2ca6e67b7aee3f3aa3d4181dff5c64290b0d6be7c69b68"
     },
     {
       "path": "src/public_html/plugins/pages/js/pages.js",
-      "bytes": 5639,
-      "sha256": "934fbbe80095282f843671aeb797546a90f3a048588a6af5e547152c4e114952"
+      "bytes": 7380,
+      "sha256": "aeb81aa22a35a0339cf865605fda8887c1d8a6a905e7af9379f9dd9ee0f112bd"
     },
     {
       "path": "src/public_html/plugins/pages/pages.svg",
@@ -2020,13 +2020,13 @@
     },
     {
       "path": "src/system/plugins/pages/languages/en-us.json",
-      "bytes": 8581,
-      "sha256": "7e0bb0706c0a2b7dda38fc6963acd1bebe656e762fe466662ccfdef329f76524"
+      "bytes": 8661,
+      "sha256": "329d5963ecea7211547bf1f35a38c89027d9fd17e431e0f77c39521d65a74b0e"
     },
     {
       "path": "src/system/plugins/pages/languages/pt-br.json",
-      "bytes": 9281,
-      "sha256": "22abd3d6b3effee32d8a63a3273738ff672986368604d87e776a8beafe8981bb"
+      "bytes": 9357,
+      "sha256": "86ac347305af2914b42af97f362b262dd6a1b29a70e5d99b0dfb31bd1dfd429e"
     },
     {
       "path": "src/system/plugins/pages/pages/compose.php",
@@ -2050,8 +2050,8 @@
     },
     {
       "path": "src/system/plugins/pages/pages/professional.php",
-      "bytes": 9185,
-      "sha256": "1f1f94907735d3bf49c9d5fb13ac60d6a6addac1875f8b8cc18efe965e868cbf"
+      "bytes": 9771,
+      "sha256": "61a41d5fee728582f729295f69ea2b70514c2ce479a67556c8b0457d5bd8b1a6"
     },
     {
       "path": "src/system/plugins/pages/pages/settings.php",
@@ -2570,8 +2570,8 @@
     },
     {
       "path": "tests/browser/pages.mjs",
-      "bytes": 12320,
-      "sha256": "084aff6de37e5e6fdcfc43ba71af8605ad0811b8b9b8ffa243fce7e6519cb8a5"
+      "bytes": 14636,
+      "sha256": "e45c10a1230c0569dd51ec024e7fb3065b3fc167739ff0af1953865755a1e97f"
     },
     {
       "path": "tests/browser/pentest.mjs",

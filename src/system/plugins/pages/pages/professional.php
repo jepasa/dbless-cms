@@ -21,8 +21,13 @@ ob_start(); ?>
 <?php $editorialToolbar=(string)ob_get_clean();ob_start(); ?>
 <section class="panel pages-authoring">
 <label class="page-title-label"><span class="sr-only"><?= e($t('pages.editorialTitle')) ?></span><input class="page-title-input" name="<?= $isNew?'title':'meta_title' ?>" maxlength="200" required placeholder="<?= e($t('pages.titlePlaceholder')) ?>" value="<?= e($pageDocument['meta']['title']) ?>" <?= $isNew?'data-pages-title':'' ?>></label>
-<div data-page-authored <?= !$authored?'hidden':'' ?>><?php require $context->config->root.'/admin/markup-editor.php'; ?></div>
-<div data-page-native <?= $authored?'hidden':'' ?>><p class="muted"><?= e($t('pages.nativePreserved')) ?></p><?php $slideLocations=Slides::locations($context->store->templates->get($context->store->read('site')['data']['template']));require __DIR__.'/native-slides.php'; ?><label><?= e($t('pages.native')) ?><textarea data-native-content name="native_content" rows="18" spellcheck="false"><?= e(JsonStore::encode($pageDocument['content'])) ?></textarea></label></div>
+<input type="checkbox" name="markup_enabled" value="1" data-page-mode hidden <?= $authored?'checked':'' ?>>
+<div class="page-format-tabs" role="tablist" aria-label="<?= e($t('pages.contentFormat')) ?>">
+<?php foreach(['json'=>'pages.formatJSON','markup'=>'pages.formatMarkup'] as $format=>$label): $selected=($format==='markup')===$authored; ?>
+<button type="button" role="tab" id="page-format-<?= e($format) ?>" data-page-format="<?= e($format) ?>" aria-controls="page-panel-<?= e($format) ?>" aria-selected="<?= $selected?'true':'false' ?>" tabindex="<?= $selected?'0':'-1' ?>" title="<?= e($t($label)) ?>"><?= e($t($label)) ?></button>
+<?php endforeach; ?></div>
+<div id="page-panel-markup" role="tabpanel" aria-labelledby="page-format-markup" data-page-authored <?= !$authored?'hidden':'' ?>><?php require $context->config->root.'/admin/markup-editor.php'; ?></div>
+<div id="page-panel-json" role="tabpanel" aria-labelledby="page-format-json" data-page-native <?= $authored?'hidden':'' ?>><p class="muted"><?= e($t('pages.nativePreserved')) ?></p><?php $slideLocations=Slides::locations($context->store->templates->get($context->store->read('site')['data']['template']));require __DIR__.'/native-slides.php'; ?><label><?= e($t('pages.native')) ?><textarea data-native-content name="native_content" rows="18" spellcheck="false"><?= e(JsonStore::encode($pageDocument['content'])) ?></textarea></label></div>
 </section>
 <?php $editorialContent=(string)ob_get_clean();ob_start(); ?>
 <details open><summary><?= e($t('pages.publication')) ?></summary>
@@ -39,7 +44,6 @@ ob_start(); ?>
 <details><summary><?= e($t('pages.summary')) ?></summary><label><?= e($t('pages.meta_description')) ?><textarea name="meta_description" maxlength="500" rows="4"><?= e($pageDocument['meta']['description']) ?></textarea></label></details>
 <details><summary><?= e($t('pages.seo')) ?></summary><p class="muted"><?= e($t('pages.inheritance')) ?></p><?php foreach($snapshot['seo'] as $field=>$value): ?><label <?= $field==='noindex'?'class="editor-checkbox"':'' ?>><?= e($t('pages.seo.'.$field)) ?><input name="seo_<?= e($field) ?>" <?= $field==='noindex'?'type="checkbox" value="1" '.($value?'checked':''):'maxlength="2048" value="'.e($value).'"' ?> <?= $field==='socialImage'?'data-media-field="image"':'' ?>></label><?php endforeach; ?></details>
 <details><summary><?= e($t('pages.advanced')) ?></summary>
-<label class="editor-checkbox"><input type="checkbox" name="markup_enabled" value="1" data-page-mode <?= $authored?'checked':'' ?>><?= e($t('pages.authored')) ?></label><p class="muted"><?= e($t('pages.nativePreserved')) ?></p>
 <?php if($isNew): $models=[];foreach(PageBlueprints::names() as $model)$models[$model]=PageBlueprints::create($model,$t('pages.titlePlaceholder'),'new-page')['document']['markup']['html']; ?>
 <label><?= e($t('pages.model')) ?><select name="model"><?php foreach(PageBlueprints::names() as $model): ?><option value="<?= e($model) ?>"><?= e($t('pages.model.'.$model)) ?></option><?php endforeach; ?></select></label><p class="muted"><?= e($t('pages.modelHelp')) ?></p><?= $button('pages',$t('pages.applyModel'),'type="button" data-page-apply-model data-models="'.e(json_encode($models,JSON_THROW_ON_ERROR)).'" data-confirm="'.e($t('pages.replaceModelConfirm')).'"') ?>
 <?php else: ?>

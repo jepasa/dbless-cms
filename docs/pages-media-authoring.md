@@ -71,3 +71,9 @@ screens. Models require an explicit apply action and confirmation before replaci
 nonempty content. Dynamic bindings and native controls remain available in advanced
 sections. Saving creates/updates a private draft; publishing and scheduling use
 the saved draft and are disabled while the working form has unsaved edits.
+
+The **JSON** and **HTML/Mustache** tabs above the editorial body select its format.
+The latter contains the Core Visual/Code/Preview controls. Switching tabs retains
+both working buffers without converting one format into the other; saving uses
+the active format. Reopening selects the saved format. Arrow keys, Home and End
+move between the format tabs.

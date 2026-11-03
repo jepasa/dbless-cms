@@ -98,8 +98,7 @@
     "pages.model.legacy": "Existing structure",
     "pages.content": "Editorial content",
     "pages.layoutData": "Layout and data",
-    "pages.authored": "Use HTML/Mustache with the shared editor",
-    "pages.nativePreserved": "Native content remains preserved. Enable HTML/Mustache only to use the authored body.",
+    "pages.nativePreserved": "Each tab edits an independent format. Switching does not convert content; the active format is saved.",
     "pages.structure": "Structure and address",
     "pages.urlHelp": "The internal identifier is permanent. Publishing another address redirects the previous one.",
     "pages.seo": "SEO and sharing",
@@ -170,6 +169,9 @@
     "pages.advanced": "Advanced options",
     "pages.applyModel": "Apply model",
     "pages.replaceModelConfirm": "Replace the current body with this model? Unsaved body changes will be replaced.",
-    "pages.duplicateAddress": "Address for the duplicate"
+    "pages.duplicateAddress": "Address for the duplicate",
+    "pages.contentFormat": "Editorial content format",
+    "pages.formatJSON": "JSON",
+    "pages.formatMarkup": "HTML/Mustache"
   }
 }

@@ -9,7 +9,25 @@
   /** Mark only inputs belonging to the working document; receives input event, updates status/publication availability without saving. */
   function markDirty(event){if(event.target.form&&event.target.form!==working)return;dirty=true;if(workState){workState.textContent=workState.dataset.unsaved;workState.dataset.dirty='true';}for(const button of root.querySelectorAll('[data-page-publish]'))button.disabled=true;const help=root.querySelector('[data-page-publication-help]');if(help)help.textContent=working.dataset.unsaved;}
   working?.addEventListener('input',markDirty);working?.addEventListener('change',markDirty);
-  root.querySelector('[data-page-mode]')?.addEventListener('change',event=>{root.querySelector('[data-page-authored]').hidden=!event.target.checked;root.querySelector('[data-page-native]').hidden=event.target.checked;});
+  const formatMode=root.querySelector('[data-page-mode]'),formatTabs=[...root.querySelectorAll('[data-page-format]')];let formatRequest=0;
+  /** Reflect the existing submitted format; no arguments/return, updates panels and ARIA without changing either content buffer. */
+  function reflectFormat(){
+    if(!formatMode)return;
+    root.querySelector('[data-page-authored]').hidden=!formatMode.checked;root.querySelector('[data-page-native]').hidden=formatMode.checked;
+    for(const tab of formatTabs){const selected=(tab.dataset.pageFormat==='markup')===formatMode.checked;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;}
+  }
+  /** Activate the requested tab after flushing visual edits; receives tab element, preserves buffers, reports sync errors and never persists. */
+  async function selectFormat(tab){
+    const request=++formatRequest,next=tab.dataset.pageFormat==='markup';if(next===formatMode.checked)return;
+    try{if(formatMode.checked)await window.DBLESSEditor?.get(root.querySelector('[data-markup-html]'))?.flush();if(request!==formatRequest)return;formatMode.checked=next;formatMode.dispatchEvent(new Event('change',{bubbles:true}));}
+    catch(error){status.textContent=error.message||root.dataset.networkError;status.hidden=false;}
+  }
+  formatMode?.addEventListener('change',reflectFormat);reflectFormat();
+  for(const tab of formatTabs){
+    tab.addEventListener('click',()=>selectFormat(tab));
+    /** Move focus/selection with standard tablist keys; receives keyboard event, prevents scrolling only for handled keys. */
+    tab.addEventListener('keydown',event=>{const index=formatTabs.indexOf(tab),target=event.key==='Home'?0:event.key==='End'?formatTabs.length-1:event.key==='ArrowRight'?(index+1)%formatTabs.length:event.key==='ArrowLeft'?(index+formatTabs.length-1)%formatTabs.length:null;if(target===null)return;event.preventDefault();formatTabs[target].focus();selectFormat(formatTabs[target]);});
+  }
   root.querySelector('[data-page-apply-model]')?.addEventListener('click',async event=>{
     const button=event.currentTarget,field=root.querySelector('[data-markup-html]'),editor=window.DBLESSEditor.get(field);
     try{await editor.flush();if(field.value.trim()&&!window.confirm(button.dataset.confirm))return;const models=JSON.parse(button.dataset.models),choice=root.querySelector('[name="model"]').value;editor.setValue(models[choice]);const mode=root.querySelector('[data-page-mode]');mode.checked=true;mode.dispatchEvent(new Event('change',{bubbles:true}));}catch(error){status.textContent=error.message||root.dataset.networkError;status.hidden=false;}
