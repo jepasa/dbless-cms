@@ -18,6 +18,8 @@ $labels=['privacy'=>$t('privacy.title'),'customizations'=>$t('custom.title'),'pl
 <?php if($authenticated): ?><meta name="dbless-editor" content="<?= e(json_encode(\DBLESSCMS\Editor::config($this->store,$language,$base),JSON_THROW_ON_ERROR)) ?>">
 <link rel="stylesheet" href="<?= e(asset('cms-admin/assets/editor.css',$base)) ?>">
 <script src="<?= e(asset('cms-admin/assets/editor-model.js',$base)) ?>" defer></script>
+<link rel="stylesheet" href="<?= e(asset('cms-admin/assets/media-picker.css',$base)) ?>">
+<script src="<?= e(asset('cms-admin/assets/media-picker.js',$base)) ?>" defer></script>
 <script src="<?= e(asset('cms-admin/assets/editor.js',$base)) ?>" defer></script><?php endif; ?>
 <script src="<?= e(asset('cms-admin/assets/markup.js',$base)) ?>" defer></script>
 <?php if($view==='customizations'): ?><script src="<?= e(asset('cms-admin/assets/vendor/terser.min.js',$base)) ?>" defer></script><script src="<?= e(asset('cms-admin/assets/customizations.js',$base)) ?>" defer></script><?php endif; ?>

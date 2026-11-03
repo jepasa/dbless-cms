@@ -2,7 +2,7 @@
   "id": "pages",
   "name": "Páginas",
   "description": "Gerenciamento de páginas, rascunhos, publicação e histórico.",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "api": 1,
   "cmsMajor": 2,
   "entry": "Plugin.php",
@@ -12,7 +12,11 @@
     "js": "js/pages.js",
     "icon": "pages.svg"
   },
-  "defaults": {},
+  "defaults": {
+    "browser": {
+      "pageSize": 25
+    }
+  },
   "router": "Router.php",
   "routes": {
     "overview": {
@@ -50,6 +54,12 @@
       "file": "pages/workspace.php",
       "requiresEnabled": true,
       "visibility": "private"
+    },
+    "settings": {
+      "title": "pages.settings",
+      "file": "pages/settings.php",
+      "requiresEnabled": false,
+      "visibility": "private"
     }
   },
   "navigation": {
@@ -74,12 +84,19 @@
         "separator": true
       },
       {
+        "label": "pages.settings",
+        "route": "settings"
+      },
+      {
+        "separator": true
+      },
+      {
         "label": "pages.trash",
         "route": "trash"
       }
     ]
   },
-  "configuration": false,
+  "configuration": "settings",
   "presentation": "about.json",
   "contentServices": {
     "list": {
@@ -144,6 +161,524 @@
         "cards",
         "list"
       ]
+    },
+    "records": {
+      "api": 1,
+      "description": "Published page summaries, stable IDs, editorial fields and explicit pagination; never drafts or rendered HTML.",
+      "context": "block",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 12
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000,
+            "default": 1
+          },
+          "sort": {
+            "type": "string",
+            "maxLength": 10,
+            "enum": [
+              "title",
+              "updatedAt"
+            ],
+            "default": "title"
+          },
+          "direction": {
+            "type": "string",
+            "maxLength": 4,
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "default": "asc"
+          }
+        }
+      },
+      "result": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pages"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "title",
+                "summary",
+                "url",
+                "image",
+                "parentId",
+                "createdAt",
+                "updatedAt",
+                "isCurrent"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "title": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "summary": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "url": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "image": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "url",
+                    "alt"
+                  ],
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "maxLength": 2048
+                    },
+                    "alt": {
+                      "type": "string",
+                      "maxLength": 500
+                    }
+                  }
+                },
+                "parentId": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "createdAt": {
+                  "type": "string",
+                  "maxLength": 30
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "maxLength": 30
+                },
+                "isCurrent": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "pages": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          }
+        }
+      },
+      "formats": []
+    },
+    "details": {
+      "api": 1,
+      "description": "One published page summary by immutable ID; content remains structured data.",
+      "context": "block",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 64
+          }
+        }
+      },
+      "result": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pages"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "title",
+                "summary",
+                "url",
+                "image",
+                "parentId",
+                "createdAt",
+                "updatedAt",
+                "isCurrent"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "title": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "summary": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "url": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "image": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "url",
+                    "alt"
+                  ],
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "maxLength": 2048
+                    },
+                    "alt": {
+                      "type": "string",
+                      "maxLength": 500
+                    }
+                  }
+                },
+                "parentId": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "createdAt": {
+                  "type": "string",
+                  "maxLength": 30
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "maxLength": 30
+                },
+                "isCurrent": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "pages": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          }
+        }
+      },
+      "formats": []
+    },
+    "children": {
+      "api": 1,
+      "description": "Published direct children of an immutable page ID, with bounded pagination.",
+      "context": "block",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 12
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000,
+            "default": 1
+          },
+          "sort": {
+            "type": "string",
+            "maxLength": 10,
+            "enum": [
+              "title",
+              "updatedAt"
+            ],
+            "default": "title"
+          },
+          "direction": {
+            "type": "string",
+            "maxLength": 4,
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "default": "asc"
+          }
+        }
+      },
+      "result": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pages"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "title",
+                "summary",
+                "url",
+                "image",
+                "parentId",
+                "createdAt",
+                "updatedAt",
+                "isCurrent"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "title": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "summary": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "url": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "image": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "url",
+                    "alt"
+                  ],
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "maxLength": 2048
+                    },
+                    "alt": {
+                      "type": "string",
+                      "maxLength": 500
+                    }
+                  }
+                },
+                "parentId": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "createdAt": {
+                  "type": "string",
+                  "maxLength": 30
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "maxLength": 30
+                },
+                "isCurrent": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "pages": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          }
+        }
+      },
+      "formats": []
+    },
+    "breadcrumbs": {
+      "api": 1,
+      "description": "Published ancestor summaries in root-to-current order; no recursive rendering.",
+      "context": "block",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 64
+          }
+        }
+      },
+      "result": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pages"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "title",
+                "summary",
+                "url",
+                "image",
+                "parentId",
+                "createdAt",
+                "updatedAt",
+                "isCurrent"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "title": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "summary": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "url": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "image": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "url",
+                    "alt"
+                  ],
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "maxLength": 2048
+                    },
+                    "alt": {
+                      "type": "string",
+                      "maxLength": 500
+                    }
+                  }
+                },
+                "parentId": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "createdAt": {
+                  "type": "string",
+                  "maxLength": 30
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "maxLength": 30
+                },
+                "isCurrent": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "pages": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          }
+        }
+      },
+      "formats": []
     }
   },
   "documentSource": {

@@ -23,7 +23,8 @@ foreach ($templateDocument['templates'] as $id=>$options) {
   if (!isset($store->templates->all()[$id])) { unset($templateDocument['templates'][$id]); continue; }
   \DBLESSCMS\Schema::validate($options,$store->templates->configuration($id)['schema']);
 }
-$site=$store->read('site')['data']; $pages=$store->pages();
+$site=$store->read('site')['data']; $pages=$store->pages();$managed=(new \DBLESSCMS\PagePublications($store))->read()['data']['records'];
+foreach($pages as $key=>$snapshot)if(isset($managed[$key])&&$snapshot['data']['status']!=='published')unset($pages[$key]);
 $languages=new \DBLESSCMS\Language();
 if ($languages->invalid()!==[] || (isset($site['settings']['adminLocale']) && !$languages->available($site['settings']['adminLocale']))) throw new RuntimeException('Dicionários ou idioma padrão inválidos; exportação interrompida.');
 foreach ($store->templates->all() as $manifest) foreach ($pages as $key=>$page) $store->document((string)$key,\DBLESSCMS\JsonStore::encode($page['data']),$manifest['id']);
@@ -68,7 +69,9 @@ $store->templates->exportMedia($target);
 echo count($pages)." páginas sanitizadas.\n";
 
 (new \DBLESSCMS\Homepages($store))->export($target);
+(new \DBLESSCMS\PagePublications($store))->export($target);
 (new \DBLESSCMS\SiteCustomizations($store))->export($target);
 (new \DBLESSCMS\Privacy($store))->export($target);
 (new \DBLESSCMS\MediaRights($store))->export($target);
 if(isset($registry->all()['forms'])){require_once $config->root.'/plugins/forms/Plugin.php';$forms=\DBLESSCMS\FormsModel::repository($store)->read()['data'];$forms['forms']=array_filter($forms['forms'],static fn(array $f):bool=>!$f['deleted']&&$f['status']==='published');\DBLESSCMS\ExtensionDocument::atomic($target.'/system/storage/contents/forms/catalog.json',\DBLESSCMS\ExtensionDocument::encode($forms));}
+\DBLESSCMS\EditorialMedia::export($store,$target);

@@ -25,8 +25,8 @@
       }
       mode.addEventListener('change',updatePlacement);page.addEventListener('change',updatePlacement);editor.elements.namedItem('contentType').addEventListener('change',updatePlacement);updatePlacement();
     }
-    const messages=JSON.parse(editor.dataset.messages),list=editor.querySelector('[data-slide-items]'),dialog=root.querySelector('[data-slide-media]');
-    let items=JSON.parse(editor.dataset.state),dragged='',mediaTarget='',mediaPath='',mediaGeneration=0;
+    const messages=JSON.parse(editor.dataset.messages),list=editor.querySelector('[data-slide-items]');
+    let items=JSON.parse(editor.dataset.state),dragged='';
     /** Traduz controles do plugin; recebe chave e retorna texto administrativo. */
     function t(key){return messages['slides.'+key]||key;}
     /** Cria elemento textual seguro; recebe tag/texto/classe e retorna nó sem inserção automática. */
@@ -37,28 +37,8 @@
     function button(key,callback){const element=node('button',t(key),'button-secondary');element.type='button';element.title=t(key);element.addEventListener('click',callback);return element;}
     /** Reordena item por teclado e restaura foco; recebe índice/deslocamento, sem persistência remota. */
     function move(index,offset){const target=index+offset;if(target<0||target>=items.length)return;[items[index],items[target]]=[items[target],items[index]];render(items[target].id,offset<0?'up':'down');}
-    /** Lista somente escopo público via API autenticada existente; recebe caminho e mantém diálogo aberto em falha. */
-    async function media(path=''){
-      const generation=++mediaGeneration;mediaPath=path;const listing=dialog.querySelector('[data-media-list]'),feedback=dialog.querySelector('[data-media-status]');listing.replaceChildren();feedback.textContent='';dialog.querySelector('[data-media-path]').textContent=path||'/';dialog.querySelector('[data-media-back]').disabled=path==='';
-      try{
-        const endpoint=new URL(editor.dataset.mediaApi,location.href);endpoint.searchParams.set('path',path);
-        const response=await fetch(endpoint,{credentials:'same-origin',headers:{Accept:'application/json'}});if(!response.headers.get('content-type')?.includes('application/json'))throw new Error(t('network'));
-        const result=await response.json();if(!response.ok)throw new Error(result.error||t('network'));if(generation!==mediaGeneration||!dialog.open)return;
-        for(const entry of result.entries.filter(value=>value.directory||/\.(png|jpe?g|webp|gif|avif)$/i.test(value.name))){
-          const choice=node('button');choice.type='button';choice.setAttribute('aria-label',entry.name);
-          if(entry.directory)choice.append(node('span','▰ '+entry.name));
-          else {const image=node('img');const reference=[editor.dataset.mediaRoot,entry.path].filter(Boolean).join('/');image.src=editor.dataset.base+'/'+reference.split('/').map(encodeURIComponent).join('/');image.alt='';image.loading='lazy';choice.append(image,node('span',entry.name));}
-          choice.addEventListener('click',()=>{if(entry.directory){void media(entry.path);return;}const item=items.find(value=>value.id===mediaTarget);if(item){item.image=[editor.dataset.mediaRoot,entry.path].filter(Boolean).join('/');synchronize();render(item.id,'image');}dialog.close();});listing.append(choice);
-        }
-        if(!listing.childElementCount)feedback.textContent=t('noImages');
-      }catch(error){if(generation===mediaGeneration)feedback.textContent=error instanceof Error?error.message:t('network');}
-    }
-    /** Abre seletor público sem acessar raiz privada; recebe item e foca diálogo ou exibe indisponibilidade. */
-    function choose(item){if(!editor.dataset.mediaApi){failure(t('mediaUnavailable'));return;}mediaTarget=item.id;dialog.showModal();void media();}
-    dialog.querySelector('[data-media-close]').addEventListener('click',()=>dialog.close());
-    dialog.querySelector('[data-media-back]').addEventListener('click',()=>void media(mediaPath.split('/').slice(0,-1).join('/')));
-    dialog.querySelector('[data-media-refresh]').addEventListener('click',()=>void media(mediaPath));
-    dialog.addEventListener('close',()=>{mediaGeneration++;editor.querySelector(`[data-item-id="${mediaTarget}"] [data-choose-image]`)?.focus();});
+    /** Select public media through the core modal; receives slide, updates its image field only after selection and preserves data on failure. */
+    async function choose(item){try{const selected=await window.DBLESSMedia.open({type:'image'});if(selected?.value){item.image=selected.value;synchronize();render(item.id,'image');}}catch(error){failure(error.message||t('network'));}}
     /** Constrói campo seguro ligado ao modelo; recebe item/chave/container, sem envio remoto. */
     function field(item,key,parent){
       const label=node('label',t(key)),input=node(key==='text'?'textarea':'input');input.id='slide-'+item.id+'-'+key;input.dataset.itemField=key;label.htmlFor=input.id;

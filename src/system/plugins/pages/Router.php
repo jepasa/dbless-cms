@@ -10,11 +10,13 @@ final class PagesRouter {
     if (in_array($key,['site','plugins','templates'],true)) throw new HttpError(422,'Documento reservado.','error.reserved');
     if ($route==='preview') {
       $template=$_GET['template']??null;if($template!==null&&!is_string($template))throw new HttpError(400,'Template inválido.','error.template');
-      App::headers(false);return App::render($context->store,$key,true,$template,$context->base);
+      App::headers(false);$draft=PagePublications::identifier($key)?(new PagePublications($context->store))->record($key)['draft']['document']:null;return App::render($context->store,$key,true,$template,$context->base,pagePreview:$draft);
     }
     $site=$context->store->read('site');$templates=$context->store->compatibleTemplates();
     $effectiveTemplate=isset($templates[$site['data']['template']])?$site['data']['template']:array_key_first($templates);
     $pages=$effectiveTemplate!==null?$context->store->pages($effectiveTemplate):[];$document=null;$revision='';$history=[];$removed=[];$historyPages=[];$historyEnabled=(new Plugins($context->store))->state('pages')['enabled'];
+    $publicationCatalog=(new PagePublications($context->store))->read();
+    if($route==='history'&&!isset($_GET['key']))$historyPages=array_keys($publicationCatalog['data']['records']);
     if ($route==='editor') {
       $opened=$context->store->read($key,$effectiveTemplate);$document=JsonStore::encode($opened['data']);$revision=$opened['revision'];
       if (($_SERVER['REQUEST_METHOD']??'GET')==='POST'&&($_POST['action']??'')==='save'&&is_string($_POST['document']??null)) $document=$_POST['document'];
@@ -34,7 +36,7 @@ final class PagesRouter {
     }
     if (!isset($context->manifest['routes'][$route])||is_link(__DIR__.'/pages')||is_link(__DIR__.'/pages/workspace.php')) throw new HttpError(404,'Página indisponível.','error.not_found');
     ob_start();
-    try {require __DIR__.'/pages/workspace.php';return (string)ob_get_clean();}
+    try {require __DIR__.'/pages/'.($route==='settings'?'settings.php':'workspace.php');return (string)ob_get_clean();}
     catch(\Throwable $error){ob_end_clean();throw $error;}
   }
 }

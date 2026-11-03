@@ -57,7 +57,7 @@ final class Navigation {
         try { $page=$this->store->read($item['page'],$this->template)['data']; }
         catch (HttpError $error) { if ($error->status===404) continue;throw $error; }
         if ($page['status']!=='published') continue;
-        $slug=$item['page'];$href=$this->base.($slug==='home'?'/':'/'.$slug).($item['kind']==='anchor'?'#'.$item['anchor']:'');
+        $slug=$item['page'];$href=(new PagePublications($this->store))->url($slug,$this->base).($item['kind']==='anchor'?'#'.$item['anchor']:'');
       } elseif ($item['kind']==='url') $href=$item['url'];
       $children=$this->tree($items,$item['id']);
       if ($href===''&&$children===[]) continue;

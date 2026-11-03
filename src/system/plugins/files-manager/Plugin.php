@@ -13,6 +13,7 @@ final class FilesManager implements PluginInterface,ContentProviderInterface,Con
   public function validateSettings(array $settings,Config $config): void {
     Schema::validate($settings,json_decode((string)file_get_contents(__DIR__.'/settings.schema.json'),true,16,JSON_THROW_ON_ERROR));
     if (!in_array($settings['browser']['pageSize']??25,[25,50,100],true)) throw new HttpError(422,'Use 25, 50 or 100 items per page.','fm.error.pageSize');
+    MediaLibrary::validate($settings['uploads']);
     $context=new PluginContext($config,new JsonStore($config),[], $settings,'','',new Language(__DIR__.'/languages'));
     foreach (['public','private'] as $scope) new ManagedFiles($context,$scope);
   }
@@ -32,6 +33,8 @@ final class FilesManager implements PluginInterface,ContentProviderInterface,Con
       if (!is_string($revision) || strlen($revision)>128) throw new HttpError(422,'Revisão inválida.','error.revision');
       if ($operation==='settings-save') {
         $settings=PluginOptions::input($_POST,['uploads'=>['public'=>$_POST['public']??null,'private'=>$_POST['private']??null]]);
+        if(isset($context->store->read('site')['data']['settings']['media'])&&isset($settings['uploads'])&&$settings['uploads']!==$context->settings['uploads'])throw new HttpError(422,'Configure media roots globally.','setting.globalRoots');
+        $settings['uploads']??=$context->settings['uploads'];
         // Legacy clients omit browser options: preserve the effective current preference.
         if (!array_key_exists('browser',$settings)) $settings['browser']=$context->settings['browser']??['pageSize'=>25];
         (new Plugins($context->store))->saveOptions($context->manifest['id'],$settings,$revision);

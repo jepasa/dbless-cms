@@ -76,3 +76,7 @@ The preview is a disposable opaque-origin iframe, separate from the editing canv
 The preview scope selector defaults to **Content only**. This renders only the current buffer within the template content containers, keeping its published CSS/JavaScript but excluding the surrounding navigation/footer. Choose **Full page** to inspect the complete public layout. Changing scope never modifies or saves content.
 
 Opaque previews need anonymous CORS for addressed SVG masks and local web fonts. The supplied development router and Apache rules enable it only for static presentation SVG/font files, without credentials or administrative API access. For Nginx/custom hosting, add `Access-Control-Allow-Origin: *` only to those static file responses and keep PHP/JSON/private endpoints outside that rule; also preserve `X-Content-Type-Options: nosniff`. Never add `allow-same-origin` to the preview iframe to work around resource errors. Public plugin presentation assets are supported by the preview resource policy.
+
+Image/video insertion and public/private selector contracts are documented in
+[Pages and media authoring](pages-media-authoring.md). The default toolbar now
+includes `video`; media selection is provided by Core and has no upload controls.

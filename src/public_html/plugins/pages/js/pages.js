@@ -3,18 +3,22 @@
   'use strict';
   const root=document.querySelector('[data-pages-plugin]');if(!root)return;
   const status=root.querySelector('[data-pages-status]');
+  const title=root.querySelector('[data-pages-title]'),slug=root.querySelector('[data-pages-slug]');let automatic=true,dirty=false;
+  if(title&&slug){slug.addEventListener('input',()=>{automatic=false;});title.addEventListener('input',()=>{if(automatic)slug.value=title.value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,64);});}
+  const working=root.querySelector('[data-page-markup-form]');working?.addEventListener('input',()=>{dirty=true;for(const form of root.querySelectorAll('form[action*="editorial-publish"],form[action*="editorial-schedule"]'))for(const button of form.querySelectorAll('button'))button.disabled=true;});
+  window.addEventListener('beforeunload',event=>{if(dirty){event.preventDefault();event.returnValue='';}});
   /** Insere bloco/marcador selecionado no JSON em edição, após sincronizar campos; não persiste e preserva texto inválido em falha. */
   root.querySelector('[data-insert-page-slide]')?.addEventListener('click',()=>{
-    document.querySelector('[data-mode="json"]').click();
-    const documentField=root.querySelector('[data-document]');
+    document.querySelector('[data-mode="json"]')?.click();
+    const documentField=root.querySelector('[data-native-content]')||root.querySelector('[data-document]');
     try {
-      const value=JSON.parse(documentField.value),location=root.querySelector('[data-page-slide-location]').value;
+      const native=documentField.hasAttribute('data-native-content'),parsed=JSON.parse(documentField.value),value=native?{content:parsed}:parsed,location=root.querySelector('[data-page-slide-location]').value;
       if(root.querySelector('[data-page-slide-method]').value==='block'){
         value.content.blocks??=[];value.content.blocks.push({type:'slides',location});
       }else{
         value.content.sections??=[];value.content.sections.push({title:'',body:['{{slides:'+location+'}}'],list:[]});
       }
-      documentField.value=JSON.stringify(value,null,2)+'\n';documentField.dispatchEvent(new Event('input',{bubbles:true}));documentField.focus();
+      documentField.value=JSON.stringify(native?value.content:value,null,2)+'\n';documentField.dispatchEvent(new Event('input',{bubbles:true}));documentField.focus();
     }catch{status.textContent=root.dataset.networkError;status.hidden=false;}
   });
   for(const form of root.querySelectorAll('[data-pages-form]'))form.addEventListener('submit',async event=>{
@@ -25,7 +29,7 @@
       if(!response.headers.get('content-type')?.includes('application/json'))throw new Error(root.dataset.networkError);
       const result=await response.json();
       if(!response.ok)throw new Error(result.error||root.dataset.networkError);
-      const destination=new URL(result.redirect,location.href);if(destination.origin!==location.origin)throw new Error(root.dataset.networkError);location.assign(destination.href);
+      const destination=new URL(result.redirect,location.href);if(destination.origin!==location.origin)throw new Error(root.dataset.networkError);dirty=false;location.assign(destination.href);
     } catch(error) {status.textContent=error instanceof Error?error.message:root.dataset.networkError;status.hidden=false;status.scrollIntoView({block:'nearest'});if(submit)submit.disabled=false;}
   });
   root.addEventListener('cms-component-insert',event=>{

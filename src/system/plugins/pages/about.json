@@ -1,13 +1,13 @@
 {
   "language": "en",
   "title": "Pages",
-  "lead": "Manage structured site pages with validated content, authenticated preview and recoverable revision history.",
+  "lead": "Create independent working drafts, publish reviewed snapshots and compose layouts from typed public data.",
   "sections": [
     {
       "title": "Create and edit",
       "body": [
-        "Open Pages → Overview, then create a page from an existing model. Use a lowercase unique slug and choose a model supported by the active template.",
-        "Edit content in Fields mode or inspect the readable JSON. Save changes only after checking required metadata and the template contract. Homepage edits are routed to Homepage when that plugin is active."
+        "Create a page from a generic model; duplication is a separate action. The immutable page ID remains stable when a published URL changes.",
+        "Use the shared visual/code editor and media picker. Save draft preserves the live page; publish, unpublish and schedule are explicit actions. SEO and social overrides inherit editorial/global defaults."
       ]
     },
     {
@@ -47,6 +47,13 @@
         "HTML/Mustache content opens in the shared core visual editor. Use Visual for static content, Code for advanced structure and protected dynamic blocks, and Preview for an isolated template-CSS view. Opening or switching modes does not rewrite the original source.",
         "Select content before applying formatting, links or images. Enter creates another paragraph. Bindings discover the enabled plugins; Insert block appends a validated Mustache snippet. Variables, loops, Forms and template fragments keep their existing server-side contracts.",
         "CSS, JavaScript and PHP are separate code-authoring profiles available to plugin developers. PHP is never executed or published by this editor. Global supplemental CSS/JavaScript retain their own draft, validation, history and explicit publishing workflow."
+      ]
+    },
+    {
+      "title": "Shared media and data",
+      "body": [
+        "Global Settings owns public/private repository roots; Images owns uploads. Public page editors can select only public media.",
+        "Pages records, details, children and breadcrumbs services deliver typed data without HTML. Receiver layouts own escaped Mustache variables and loops. Recovering a deleted page or revision produces a draft."
       ]
     }
   ]

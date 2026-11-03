@@ -31,24 +31,10 @@
     try{if(target===form)synchronizeComposition();const response=await fetch(target.action,{method:'POST',body:new FormData(target),credentials:'same-origin',headers:{Accept:'application/json'}}),result=await response.json();if(!response.ok)throw new Error(result.message||result.error||root.dataset.networkError);const destination=new URL(result.redirect,location.href);if(destination.origin!==location.origin)throw new Error(root.dataset.networkError);location.assign(destination.href);}
     catch(error){status.textContent=error.message||root.dataset.networkError;status.hidden=false;status.scrollIntoView({block:'nearest'});button.disabled=false;}
   });
-  const dialog=root.querySelector('[data-homepage-media]');let mediaInput=null,mediaPath='',generation=0;
-  /** List only public Images files from the declared same-origin API; receive path, render safe choices and retain the field on failures without private downloads. */
-  async function browse(path=''){
-    const current=++generation;mediaPath=path;const list=dialog.querySelector('[data-homepage-media-list]'),status=dialog.querySelector('[data-homepage-media-status]');list.replaceChildren();status.textContent='';dialog.querySelector('[data-homepage-media-path]').textContent=path||'/';dialog.querySelector('[data-homepage-media-back]').disabled=path==='';
-    try{
-      const endpoint=new URL(root.dataset.mediaApi,location.href);if(endpoint.origin!==location.origin)throw new Error(text('mediaUnavailable'));endpoint.searchParams.set('path',path);const response=await fetch(endpoint,{credentials:'same-origin',headers:{Accept:'application/json'}}),data=await response.json();if(!response.ok)throw new Error(data.error||text('mediaUnavailable'));if(current!==generation||!dialog.open)return;
-      for(const entry of data.entries.filter(item=>item.directory||/\.(png|jpe?g|webp|gif|avif)$/i.test(item.name))){
-        const button=document.createElement('button');button.type='button';button.className='button-secondary';button.setAttribute('aria-label',entry.name);
-        const reference=[root.dataset.mediaRoot,entry.path].filter(Boolean).join('/');if(!entry.directory){const image=document.createElement('img');image.src=root.dataset.base+'/'+reference.split('/').map(encodeURIComponent).join('/');image.alt='';image.loading='lazy';button.append(image);}const caption=document.createElement('span');caption.textContent=entry.name;button.append(caption);
-        button.addEventListener('click',()=>{if(entry.directory){void browse(entry.path);return;}if(mediaInput){mediaInput.value=reference;mediaInput.dispatchEvent(new Event('input',{bubbles:true}));}dialog.close();});list.append(button);
-      }
-    }catch(error){if(current===generation)status.textContent=error.message||text('mediaUnavailable');}
-  }
-  /** Attach media choices to structured image fields after Fields/JSON changes; no arguments/return, adds only localized buttons and never mutates content until selection. */
-  function mediaControls(){
-    for(const input of root.querySelectorAll('input[data-path]')){const trail=JSON.parse(input.dataset.path);if(!['image','hero','profile','feature','featuredImage'].includes(trail.at(-1))||input.parentElement.querySelector('[data-homepage-pick]'))continue;const button=document.createElement('button');button.type='button';button.className='button-secondary';button.dataset.homepagePick='';button.textContent=text('selectImage');button.addEventListener('click',()=>{if(!root.dataset.mediaApi){const status=root.querySelector('[data-homepage-status]');status.textContent=text('mediaUnavailable');status.hidden=false;return;}mediaInput=input;dialog.showModal();void browse();});input.parentElement.append(button);}
-  }
-  if(dialog&&form){mediaControls();new MutationObserver(mediaControls).observe(root.querySelector('[data-fields]'),{childList:true,subtree:true});dialog.querySelector('[data-homepage-media-close]').addEventListener('click',()=>dialog.close());dialog.querySelector('[data-homepage-media-back]').addEventListener('click',()=>void browse(mediaPath.split('/').slice(0,-1).join('/')));}
+  /** Attach the core public selector to structured legacy fields; no arguments or persistence, preserves standard input synchronization. */
+  function mediaControls(){for(const input of root.querySelectorAll('input[data-path]')){const trail=JSON.parse(input.dataset.path);if(['image','hero','profile','feature','featuredImage'].includes(trail.at(-1)))window.DBLESSMedia.attach(input,'image');}}
+  if(form){mediaControls();new MutationObserver(mediaControls).observe(root.querySelector('[data-fields]'),{childList:true,subtree:true});}
+
 })();
 
 /** Homepage publication tables/editor use the shared data/code controls; preserve entered source and display typed API failures without automatic reloads. */

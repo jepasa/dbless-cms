@@ -16,6 +16,12 @@
     if(items?.type==='array'){const fields=Object.entries(items.items?.properties||{}).filter(([,field])=>['string','integer','boolean'].includes(field.type));return '{{#'+alias+'.items}}\n  <article>\n'+fields.map(([key])=>'    <p>{{'+key+'}}</p>').join('\n')+'\n  </article>\n{{/'+alias+'.items}}\n{{^'+alias+'.items}}<p>—</p>{{/'+alias+'.items}}';}
     return Object.keys(schema.properties||{}).map(key=>'{{'+alias+'.'+key+'}}').join('\n');
   }
+  /** Enumerate typed scalar paths with the required array sections; receives schema/prefix/context, returns insertion snippets without provider calls or HTML rendering. */
+  function schemaFields(schema,prefix,open='',close=''){
+    if(schema.type==='object')return Object.entries(schema.properties||{}).flatMap(([key,value])=>schemaFields(value,prefix?prefix+'.'+key:key,open,close));
+    if(schema.type==='array')return schemaFields(schema.items,'',open+'{{#'+prefix+'}}', '{{/'+prefix+'}}'+close);
+    return [{path:prefix,type:schema.type,source:open+'{{'+(prefix||'.')+'}}'+close}];
+  }
   /** Mount one authoring control; receive root, initialize local metadata/bindings UI and emit change events while preserving invalid JSON for correction. */
   function mount(root){
     if(root.dataset.markupMounted)return;root.dataset.markupMounted='true';const catalog=JSON.parse(root.dataset.catalog||'{}'),labels=JSON.parse(root.dataset.labels||'{}'),html=root.querySelector('[data-markup-html]'),json=root.querySelector('[data-markup-bindings-json]'),container=root.querySelector('[data-markup-bindings]');
@@ -32,7 +38,7 @@
       for(const [index,binding] of values.entries()){
         const entry=catalog[binding.plugin+':'+binding.service],card=node('section','','markup-binding-card'),top=node('div','','dashboard-card-heading'),remove=node('button',t('remove'),'button-secondary');remove.type='button';top.append(node('h4',binding.alias+' · '+binding.plugin+':'+binding.service),remove);remove.addEventListener('click',()=>{const current=bindings();current.splice(index,1);write(current);});card.append(top);
         if(!entry){card.append(node('p',t('unavailable'),'notice'));list.append(card);continue;}
-        const label=node('label',t('code')),area=node('textarea');area.readOnly=true;area.rows=7;area.value=snippet(binding,entry.result);area.dataset.mustacheCode='';label.append(area);card.append(label);const insert=node('button',t('insertSnippet'),'button-secondary');insert.type='button';insert.addEventListener('click',()=>{try{window.DBLESSEditor.get(html).insertMarkup(area.value);status.hidden=true;}catch(error){status.hidden=false;status.textContent=t('invalid')+' '+error.message;}});card.append(insert);const details=node('details'),pre=node('pre');details.append(node('summary',t('fields')),pre);pre.textContent=JSON.stringify(entry.result,null,2);card.append(details);list.append(card);
+        const label=node('label',t('code')),area=node('textarea');area.readOnly=true;area.rows=7;area.value=snippet(binding,entry.result);area.dataset.mustacheCode='';label.append(area);card.append(label);const insert=node('button',t('insertSnippet'),'button-secondary');insert.type='button';insert.addEventListener('click',()=>{try{window.DBLESSEditor.get(html).insertMarkup(area.value);status.hidden=true;}catch(error){status.hidden=false;status.textContent=t('invalid')+' '+error.message;}});card.append(insert);const details=node('details'),pre=node('pre');details.append(node('summary',t('fields')),pre);pre.textContent=JSON.stringify(entry.result,null,2);for(const field of schemaFields(entry.result,binding.alias)){const insertField=node('button',field.source+' · '+field.type,'button-secondary');insertField.type='button';insertField.addEventListener('click',()=>{try{window.DBLESSEditor.get(html).insertMarkup(field.source);}catch(error){status.hidden=false;status.textContent=t('invalid')+' '+error.message;}});details.append(insertField);}card.append(details);list.append(card);
       }
     }
     /** Render typed parameter inputs for a discovered data service, independent of template formats; no arguments/return, no provider calls. */

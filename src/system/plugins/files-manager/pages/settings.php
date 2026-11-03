@@ -12,7 +12,7 @@ $notice=$_SESSION['files-manager-notice']??null;unset($_SESSION['files-manager-n
 <link rel="stylesheet" href="<?= e(asset('cms-admin/assets/admin.css',$context->base)) ?>"><script defer src="<?= e(asset('cms-admin/assets/admin.js',$context->base)) ?>"></script>
 <link rel="stylesheet" href="<?= e(asset('plugins/files-manager/'.$context->manifest['assets']['css'],$context->base)) ?>"><script defer src="<?= e(asset('plugins/files-manager/'.$context->manifest['assets']['js'],$context->base)) ?>"></script></head>
 <body class="plugin-standalone plugin-content"><?php endif; ?>
-<section class="fm fm-settings" data-fm-settings data-network-error="<?= e($t('fm.error.network')) ?>"><div><?php if (!$context->integrated): ?><h1><?= e($t('fm.settings')) ?></h1><?php endif; ?><p data-settings-status role="status" aria-live="polite"><?= $notice==='fm.saved'?e($t('fm.saved')):'' ?></p>
-<?= \DBLESSCMS\PluginOptions::render($context,'settings-save','data-settings-form','setting.help',[],true) ?>
+<section class="fm fm-settings" data-fm-settings data-network-error="<?= e($t('fm.error.network')) ?>"><div><p><a href="<?= e($context->base) ?>/cms-admin/?view=site"><?= e($t('setting.globalRoots')) ?></a></p><?php if (!$context->integrated): ?><h1><?= e($t('fm.settings')) ?></h1><?php endif; ?><p data-settings-status role="status" aria-live="polite"><?= $notice==='fm.saved'?e($t('fm.saved')):'' ?></p>
+<?= \DBLESSCMS\PluginOptions::render($context,'settings-save','data-settings-form','setting.help',[],true,['uploads']) ?>
 </div></section>
 <?php if (!$context->integrated): ?></body></html><?php endif; ?>

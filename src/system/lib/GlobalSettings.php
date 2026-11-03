@@ -23,6 +23,7 @@ final class GlobalSettings {
   /** Validate canonical URLs, public-root media paths and required identity; receives data, throws 422 on unsafe/malformed values, no I/O. */
   public static function validate(array $data): void {
     $s=$data['settings'];
+    if(isset($s['media']))MediaLibrary::validate($s['media']);
     Cache::options($s['cache']??[]);Privacy::settings($s['privacy']??[]);
     if (trim($s['name'])==='') throw new HttpError(422,'Site name is required.','error.metadata');
     foreach (['baseUrl','canonical'] as $key) {
@@ -64,6 +65,7 @@ final class GlobalSettings {
         ['title'=>'global.group.presentation','fields'=>['name','slogan','description','baseUrl','canonical']]]],
       ['title'=>'global.card.identity','groups'=>[
         ['title'=>'global.group.appearance','fields'=>['@template','@theme','favicon','logo','featuredImage']],
+        ['title'=>'global.group.media','fields'=>['media.public','media.private']],
         ['title'=>'global.group.metadata','fields'=>['author','keywords','type','image','imageAlt','imageType','imageWidth','imageHeight']]]],
       ['title'=>'global.card.contact','groups'=>[
         ['title'=>'global.group.address','fields'=>['contact.country','contact.state','contact.city']],

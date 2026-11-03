@@ -47,7 +47,7 @@ for (const tree of trees) {
         assert.ok(dropdown,`${id}: dropdown presente`);
         const links=[...dropdown.matchAll(/<a\b[^>]*href="([^"]*)"[^>]*>([^<]*)<\/a>|<hr>/g)];
         const settings=links.filter(link=>link[1]?.endsWith('route=settings'));
-        assert.equal(settings.length,id==='files-manager'?1:0,`${id}: somente raízes de uploads possuem configuração`);
+        assert.equal(settings.length,['files-manager','pages'].includes(id)?1:0,`${id}: configurações declaradas pelo manifesto`);
         if(id!=='files-manager')continue;
         assert.equal(settings[0][2],'Configurações');
         const separator=links.indexOf(settings[0])+1;

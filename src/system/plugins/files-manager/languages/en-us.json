@@ -63,7 +63,7 @@
     "setting.uploads": "Uploads",
     "setting.public": "Public",
     "setting.private": "Private",
-    "setting.help": "Relative paths. Public: public_html/. Private: system/storage/files/. An empty field uses its root.",
+    "setting.help": "Manager pagination is configured here. Media roots are defined in Global Settings.",
     "fm.menu": "Images",
     "fm.overview": "Overview",
     "fm.settings": "Settings",
@@ -121,6 +121,7 @@
     "fm.event.restore": "File or folder restored from trash.",
     "fm.event.purge": "Item permanently deleted from trash.",
     "fm.event.replace": "File replaced; previous bytes archived in trash.",
-    "fm.event.unknown": "Recorded operation; description unavailable."
+    "fm.event.unknown": "Recorded operation; description unavailable.",
+    "setting.globalRoots": "Configure media roots in Global Settings"
   }
 }

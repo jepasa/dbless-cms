@@ -3,7 +3,7 @@
   'use strict';
   const profiles = Object.freeze({html:{language:'html',visual:true,mustache:false},mustache:{language:'html',visual:true,mustache:true},php:{language:'php',visual:false,mustache:false},css:{language:'css',visual:false,mustache:false},js:{language:'js',visual:false,mustache:false}});
   const blockTags = new Set('div section article aside header footer nav p h1 h2 h3 h4 h5 h6 li dt dd blockquote figcaption td th pre'.split(' '));
-  const voidTags = new Set(['br','hr','img']);
+  const voidTags = new Set(['br','hr','img','source']);
   /** Decode inert attribute/text entities; accepts source text, returns Unicode without interpreting tags or making requests. */
   function decode(value) {
     if(typeof document!=='undefined') {const area=document.createElement('textarea');area.innerHTML=value.replace(/</g,'&lt;');return area.value;}
@@ -15,9 +15,9 @@
     const keys=['language','mustache','visual','readOnly','height','toolbar'];
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(key=>!keys.includes(key)))throw new TypeError('Invalid editor options.');
     const language=input.language??'html';if(!Object.hasOwn(profiles,language))throw new TypeError('Unsupported editor language.');
-    const result={...profiles[language],readOnly:false,height:420,toolbar:['bold','italic','link','image','list','paragraph','heading','quote'],...input};
+    const result={...profiles[language],readOnly:false,height:420,toolbar:['bold','italic','link','image','video','list','paragraph','heading','quote'],...input};
     if(language==='mustache')result.language='html';
-    if(['visual','mustache','readOnly'].some(key=>typeof result[key]!=='boolean')||!Number.isInteger(result.height)||result.height<220||result.height>1200||!Array.isArray(result.toolbar)||result.toolbar.length>12||result.toolbar.some(tool=>!['bold','italic','link','image','list','paragraph','heading','quote'].includes(tool))||new Set(result.toolbar).size!==result.toolbar.length)throw new TypeError('Invalid editor options.');
+    if(['visual','mustache','readOnly'].some(key=>typeof result[key]!=='boolean')||!Number.isInteger(result.height)||result.height<220||result.height>1200||!Array.isArray(result.toolbar)||result.toolbar.length>12||result.toolbar.some(tool=>!['bold','italic','link','image','video','list','paragraph','heading','quote'].includes(tool))||new Set(result.toolbar).size!==result.toolbar.length)throw new TypeError('Invalid editor options.');
     if(result.language!=='html'&&(result.visual||result.mustache))throw new TypeError('Code profiles cannot render content.');return result;
   }
   /** Validate the bounded data-only grammar plus registered marker shapes; receives source/enabled flag, returns tokens or throws an indexed SyntaxError. */
@@ -46,6 +46,7 @@
     if(/[\x00-\x20\x7f]/.test(address)||/[\x00-\x1f\x7f\\]/.test(decoded)||decoded.startsWith('//')||decoded.includes('..'))throw new SyntaxError('Unsafe URL.');
     if(decoded.includes(':')&&!(attribute==='href'?/^(https?:\/\/|mailto:|tel:)/i:/^https?:\/\//i).test(decoded))throw new SyntaxError('Unsupported URL.');
     if(/^https?:\/\//i.test(decoded)){let parsed;try{parsed=new URL(address);}catch{throw new SyntaxError('Invalid URL.');}if(parsed.username||parsed.password)throw new SyntaxError('URL credentials are forbidden.');}
+    if(/(?:^|\/)cms-admin(?:\/|[?]|$)/i.test(decoded)||/(?:^|\/)system(?:\/|$)/i.test(decoded))throw new SyntaxError('Private media cannot be embedded in public content.');
     return value;
   }
   /** Read a quote-aware HTML tag boundary; receives source/start offset, returns exclusive end or throws for unfinished markup. */

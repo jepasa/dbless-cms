@@ -23,8 +23,8 @@
   }
   window.addEventListener('beforeunload',event=>{if(dirty){event.preventDefault();event.returnValue='';}});
   if(editor){
-    let blocks=JSON.parse(editor.dataset.state),mediaPath='',generation=0,mediaSelection=null,mediaFocus=null,mediaBlockIndex=null;
-    const list=editor.querySelector('[data-blog-blocks]'),dialog=root.querySelector('[data-blog-media]');
+    let blocks=JSON.parse(editor.dataset.state);
+    const list=editor.querySelector('[data-blog-blocks]');
     /** Synchronize block JSON without submitting; no arguments/return, does not mutate other fields. */
     function synchronize(){editor.elements.namedItem('blocks').value=JSON.stringify(blocks);}
     /** Create an accessible non-submit control; takes label key/callback, returns a button with translated text/title. */
@@ -66,27 +66,10 @@
       const type=editor.querySelector('[data-block-type]').value;
       blocks.push(type==='markup'?{type,html:'<section>\n  <p>Content</p>\n</section>',bindings:[]}:type==='heading'?{type,text:'',level:2}:type==='image'?{type,src:'',alt:'',caption:''}:type==='list'?{type,items:[],ordered:false}:type==='link'?{type,text:'',url:''}:{type,text:''});dirty=true;render(blocks.length-1);
     });
-    /** List public images through the existing Images API; takes relative path, rejects other origins, ignores stale completions, and keeps errors within the dialog. */
-    async function media(path=''){
-      const current=++generation;mediaPath=path;const listing=dialog.querySelector('[data-media-list]'),feedback=dialog.querySelector('[data-media-status]');listing.replaceChildren();feedback.textContent='';dialog.querySelector('[data-media-path]').textContent=path||'/';dialog.querySelector('[data-media-back]').disabled=path==='';
-      try{
-        const endpoint=new URL(editor.dataset.mediaApi,location.href);if(endpoint.origin!==location.origin)throw new Error(t('network'));endpoint.searchParams.set('path',path);
-        const response=await fetch(endpoint,{credentials:'same-origin',headers:{Accept:'application/json'}});
-        if(!response.headers.get('content-type')?.includes('application/json'))throw new Error(t('network'));const data=await response.json();if(!response.ok)throw new Error(data.error||t('network'));if(current!==generation||!dialog.open)return;
-        for(const entry of data.entries.filter(item=>item.directory||/\.(png|jpe?g|webp|gif|avif)$/i.test(item.name))){
-          const choice=node('button');choice.type='button';choice.setAttribute('aria-label',entry.name);
-          if(entry.directory)choice.append(node('span','▰ '+entry.name));
-          else{const image=node('img');const reference=[editor.dataset.mediaRoot,entry.path].filter(Boolean).join('/');image.src=editor.dataset.base+'/'+reference.split('/').map(encodeURIComponent).join('/');image.alt='';image.loading='lazy';choice.append(image,node('span',entry.name));}
-          choice.addEventListener('click',()=>{if(entry.directory){void media(entry.path);return;}mediaSelection?.([editor.dataset.mediaRoot,entry.path].filter(Boolean).join('/'));dirty=true;dialog.close();});listing.append(choice);
-        }
-        if(!listing.childElementCount)feedback.textContent=t('empty');
-      }catch(error){if(current===generation)feedback.textContent=error instanceof Error?error.message:t('network');}
-    }
-    /** Open the Images selector; takes setter/trigger, focuses the dialog or reports disabled integration, with no private file access. */
-    function chooseImage(setter,trigger){if(!editor.dataset.mediaApi){failure(t('mediaUnavailable'));return;}mediaSelection=setter;mediaFocus=trigger;mediaBlockIndex=trigger.closest('[data-block-index]')?.dataset.blockIndex;dialog.showModal();void media();}
+    /** Select a public image through the core read-only picker; receives setter/trigger, preserves focus, never depends on Images activation. */
+    async function chooseImage(setter,trigger){try{const item=await window.DBLESSMedia.open({type:'image'});if(item?.value){setter(item.value);dirty=true;}}catch(error){failure(error.message);}finally{trigger?.focus();}}
     const cover=editor.querySelector('[data-choose-cover]');cover.addEventListener('click',()=>chooseImage(reference=>{editor.elements.namedItem('cover').value=reference;},cover));
-    dialog.querySelector('[data-media-close]').addEventListener('click',()=>dialog.close());dialog.querySelector('[data-media-back]').addEventListener('click',()=>void media(mediaPath.split('/').slice(0,-1).join('/')));dialog.querySelector('[data-media-refresh]').addEventListener('click',()=>void media(mediaPath));
-    dialog.addEventListener('close',()=>{generation++;if(mediaFocus?.isConnected)mediaFocus.focus();else if(mediaBlockIndex!==undefined)editor.querySelector(`[data-block-index="${mediaBlockIndex}"] [data-block-field="src"]`)?.focus();});render();
+    render();
   }
   for(const form of root.querySelectorAll('[data-blog-form]'))form.addEventListener('submit',async event=>{
     if(event.defaultPrevented)return;event.preventDefault();status.hidden=true;
