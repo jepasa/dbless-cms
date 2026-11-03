@@ -107,7 +107,7 @@
     "pages.previewIllustrative": "Prévia ilustrativa; serviços externos podem apresentar o conteúdo de outra forma.",
     "pages.saveDraft": "Salvar versão de trabalho",
     "pages.publication": "Publicação",
-    "pages.publishSaved": "As ações abaixo utilizam a última versão de trabalho salva.",
+    "pages.publishSaved": "A publicação usa o rascunho salvo. Salve as alterações pendentes antes.",
     "pages.scheduleUTC": "Publicar em (UTC)",
     "pages.draftHelp": "Salvar não modifica a página publicada. Revise e publique explicitamente quando estiver pronta.",
     "pages.restoreDraftHelp": "Restaurar carrega esta cópia na versão de trabalho, preservando a publicação atual.",
@@ -156,6 +156,20 @@
     "pages.seo.socialImageAlt": "Descrição da imagem para compartilhamento",
     "pages.settings": "Configurações",
     "pages.settingsHelp": "Configure a paginação do catálogo de páginas.",
-    "pages.pageSize": "Itens por página"
+    "pages.pageSize": "Itens por página",
+    "pages.backToPages": "Voltar às páginas",
+    "pages.properties": "Propriedades da página",
+    "pages.titlePlaceholder": "Título da página",
+    "pages.saved": "Salvo",
+    "pages.unsavedShort": "Alterações não salvas",
+    "pages.newDraft": "Novo rascunho",
+    "pages.savedPreview": "Prévia do rascunho salvo",
+    "pages.firstSaveHelp": "Salve este rascunho para habilitar publicação e agendamento.",
+    "pages.featuredImage": "Imagem destacada",
+    "pages.summary": "Resumo",
+    "pages.advanced": "Opções avançadas",
+    "pages.applyModel": "Aplicar modelo",
+    "pages.replaceModelConfirm": "Substituir o corpo atual por este modelo? As alterações não salvas do corpo serão substituídas.",
+    "pages.duplicateAddress": "Endereço da cópia"
   }
 }

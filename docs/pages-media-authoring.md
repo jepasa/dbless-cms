@@ -55,3 +55,19 @@ Managed Pages lives in `contents/page-publications/catalog.json`; private histor
 Content export includes authorized published/scheduled snapshots, replacing their working copies in staging. It excludes deleted/unpublished managed pages and private history. Literal local image/video references in exported authored content are copied explicitly from the configured public root after media validation; unrelated uploads and private repositories are never mirrored. Dynamic media comes from the exporting provider's own contract. Missing or unsafe literal media fails export. Remote URLs are retained without fetching.
 
 Templates receive optional `pageMetadata` containing title, description, canonical, robots, socialTitle, socialDescription, image and imageAlt. Essencial implements it. Proprietary templates must implement this presentation contract in their owning repository. Shared changes follow development → validated public distribution → pinned consumer, preserving runtime content and configuration. A public PR awaiting protected-main review is a candidate, not a stable release.
+
+## Pages editorial workspace (2.11.1)
+
+Pages creation and editing share a WordPress-style workspace: a compact action
+bar, prominent title, continuous writing surface and attached properties inspector.
+Geometry and controls follow that editorial organization; colors retain the
+DBLESS-CMS palette. The Core WYSIWYG remains the content editor. This first
+evaluation applies only to Pages; Blog and Homepage retain their existing layouts.
+
+Write content before the first save. Page properties group publication, address
+and parent, featured image, summary, SEO and advanced options. The inspector can
+be toggled from the toolbar and closes with Escape; it starts closed on narrow
+screens. Models require an explicit apply action and confirmation before replacing
+nonempty content. Dynamic bindings and native controls remain available in advanced
+sections. Saving creates/updates a private draft; publishing and scheduling use
+the saved draft and are disabled while the working form has unsaved edits.
