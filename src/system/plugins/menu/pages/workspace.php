@@ -14,7 +14,7 @@ $editing=$data['menus'][$id]??['id'=>'','name'=>'','deleted'=>false,'items'=>[]]
 if ($route==='editor'&&$id!==''&&(!isset($data['menus'][$id])||$editing['deleted'])) throw new HttpError(404,'Menu indisponível.','menu.error.missing');
 $issues=[];$unavailable=[];
 foreach ($data['menus'] as $menu) if (!$menu['deleted']) foreach ($menu['items'] as $item) if (in_array($item['kind'],['page','anchor'],true)&&(!isset($pages[$item['page']])||$pages[$item['page']]['data']['status']!=='published')) $issues[]=$menu['name'].' / '.$item['label'];
-foreach ($data['assignments'] as $binding) {if(!\DBLESSCMS\ContentPlacement::allows($data['menus'][$binding['menu']],'template'))continue;
+foreach ($data['assignments'] as $binding) {if(!\DBLESSCMS\ContentPlacement::allows($data['menus'][$binding['menu']],'template')||array_key_exists('templateKeys',$data['menus'][$binding['menu']]))continue;
   try { Navigation::binding($context->store,$data,$binding); }
   catch (HttpError $error) { if (!in_array($error->status,[404,422],true)) throw $error;$unavailable[]=$binding['template'].' / '.$binding['location']; }
 }
@@ -24,7 +24,8 @@ foreach ($data['assignments'] as $binding) {if(!\DBLESSCMS\ContentPlacement::all
 <p class="notice error" role="alert" data-menu-status hidden></p>
 <?php if ($issues!==[]): ?><p class="notice" role="status"><?= e($t('issues',['items'=>implode(', ',array_unique($issues))])) ?></p><?php endif; ?>
 <?php if ($unavailable!==[]): ?><p class="notice" role="status"><?= e($t('unavailable',['items'=>implode(', ',array_unique($unavailable))])) ?></p><?php endif; ?>
-<?php if ($route==='overview'): $activeId=$context->store->read('site')['data']['template'];$activeLocations=Navigation::locations($context->store->templates->get($activeId));$stale=[];foreach($data['assignments'] as $binding)if(!isset($activeLocations[$binding['location']]))$stale[]=$binding['template'].' / '.$binding['location'];if($stale!==[]): ?><p class="notice" role="status"><?= e($t('placementWarning',['items'=>implode(', ',array_unique($stale))])) ?></p><?php endif;endif; ?>
+<?php if ($route==='overview'): $activeId=$context->store->read('site')['data']['template'];$activeLocations=Navigation::locations($context->store->templates->get($activeId));$stale=[];foreach($data['assignments'] as $binding)if(!array_key_exists('templateKeys',$data['menus'][$binding['menu']])&&!isset($activeLocations[$binding['location']]))$stale[]=$binding['template'].' / '.$binding['location'];if($stale!==[]): ?><p class="notice" role="status"><?= e($t('placementWarning',['items'=>implode(', ',array_unique($stale))])) ?></p><?php endif;endif; ?>
+<?php if($route==='overview'): $activeManifest=$context->store->templates->get($context->store->read('site')['data']['template']);foreach($data['menus'] as $record)foreach(\DBLESSCMS\MenuKeys::warnings($record,$activeManifest,$data['menus']) as $warning): ?><p class="notice" role="status" data-menu-key-warning><?= e($record['name'].': '.$t($warning['key'],$warning['parameters'])) ?></p><?php endforeach;endif; ?>
 <?php if (in_array($route,['overview','trash'],true)): $rows=array_filter($data['menus'],static fn(array $menu): bool=>$menu['deleted']===($route==='trash')); ?>
 
 <?php

@@ -7,12 +7,13 @@
   function failure(message) {status.textContent=message;status.hidden=false;status.scrollIntoView({block:'nearest'});}
   if(editor) {
     const placement=editor.querySelector('[data-menu-placement]'),mode=placement.querySelector('[data-placement-mode]');
-    /** Toggle declared position fields for the persisted delivery channel; keep checked values for switching back, no writes. */
+    /** Toggle portable key fields and empty-selection notice; receive no parameters, preserve selections, perform no writes. */
     function updatePlacement(){
       const template=mode.value==='template';placement.querySelector('[data-template-positions]').hidden=!template;
-      for(const row of placement.querySelectorAll('[data-placement-location]'))row.disabled=!template;
+      for(const row of placement.querySelectorAll('[data-menu-key]'))row.disabled=!template;
+      placement.querySelector('[data-menu-keys-empty]').hidden=!!placement.querySelector('input[name="keys[]"]:checked');
     }
-    mode.addEventListener('change',updatePlacement);updatePlacement();
+    mode.addEventListener('change',updatePlacement);placement.addEventListener('change',updatePlacement);updatePlacement();
     const labels=JSON.parse(editor.dataset.messages),pages=JSON.parse(editor.dataset.pages),list=editor.querySelector('[data-menu-items]');
     let items=JSON.parse(editor.dataset.state),dragged='';
     /** Traduz controle hardcoded do editor; recebe chave, retorna texto do catálogo administrativo. */

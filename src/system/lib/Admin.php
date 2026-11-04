@@ -148,6 +148,7 @@ final class Admin {
       if(!is_string($requestedPlugin))throw new HttpError(400,'Invalid plugin.','error.plugin');
       $definition=$plugins->get($requestedPlugin);if(!isset($definition['presentation']))throw new HttpError(404,'Presentation unavailable.','error.not_found');
       $presentation=PluginPresentation::read($this->config->root.'/plugins/'.$requestedPlugin,$definition['presentation']);
+      $presentation=PluginPresentation::localized($presentation,$plugins->language($requestedPlugin,$this->language->locale()),$requestedPlugin);
     }
     $manager=new Extensions($this->store);
     $extensionRows=$authenticated&&in_array($view,['plugins','templates'],true)?$manager->catalog($view,$this->language->locale()):[];

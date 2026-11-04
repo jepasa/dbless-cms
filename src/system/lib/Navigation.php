@@ -23,15 +23,15 @@ final class Navigation {
     return $locations;
   }
 
-  /** Validate a template-channel binding; receive store/document/binding, throw 422 on channel/destination/type/depth mismatch, without writes. */
+  /** Validate a legacy per-template binding; receive store/document/binding, reject portable records or channel/type/depth mismatch with 422, without writes. */
   public static function binding(JsonStore $store,array $data,array $binding): void {
     $locations=self::locations($store->templates->get($binding['template']));$location=$locations[$binding['location']]??null;
     $menu=$data['menus'][$binding['menu']]??null;
-    if ($location===null||$menu===null||$menu['deleted']||!ContentPlacement::allows($menu,'template')||!in_array($binding['type'],$location['types'],true)||MenuStore::items($menu['items'])>$location['maxDepth']) throw new HttpError(422,'Associação incompatível.','menu.error.binding');
+    if ($location===null||$menu===null||array_key_exists('templateKeys',$menu)||$menu['deleted']||!ContentPlacement::allows($menu,'template')||!in_array($binding['type'],$location['types'],true)||MenuStore::items($menu['items'])>$location['maxDepth']) throw new HttpError(422,'Associação incompatível.','menu.error.binding');
   }
 
-  /** Resolve a template-allowed active location; receive key, return public tree or null, enforce channel/type/depth and propagate storage/contract failures without writes. */
-  public function location(string $key): ?array {
+  /** Resolve portable candidates before legacy location bindings; receive location/optional slot, return compatible tree or null for missing/type/depth/ambiguity, propagate corrupt contracts, no writes. */
+  public function location(string $key,?string $slot=null): ?array {
     $locations=self::locations($this->store->templates->get($this->template));
     if (!isset($locations[$key])) return null;
     if (!$this->loaded) {
@@ -39,14 +39,32 @@ final class Navigation {
       if (isset($registry->all()['menu'])&&$registry->state('menu')['enabled']) $this->document=(new MenuStore($this->store))->read()['data'];
     }
     if ($this->document===null) return null;
+    $aliases=[];foreach(ContentReferences::slots($this->store->templates->get($this->template)) as $name=>$definition)if($definition['plugin']==='menu'&&$definition['location']===$key&&($slot===null||$slot===$name))$aliases[]=$name;
+    $candidates=[];$claimed=false;
+    foreach($this->document['menus'] as $id=>$record){
+      foreach($record['templateKeys']??[] as $entry)if(in_array($entry['key'],$aliases,true))$claimed=true;
+      if($record['deleted']||!ContentPlacement::allows($record,'template'))continue;
+      foreach($record['templateKeys']??[] as $binding)if(in_array($binding['key'],$aliases,true))$candidates[$id.':'.$binding['type']]=[$record,$binding['type']];
+    }
+    if($candidates!==[]){
+      if(count($candidates)!==1)return null;[$menu,$type]=array_values($candidates)[0];
+      if(!in_array($type,$locations[$key]['types'],true)||MenuStore::items($menu['items'])>$locations[$key]['maxDepth'])return null;
+      return ['name'=>$menu['name'],'type'=>$type,'items'=>$this->tree($menu['items'])];
+    }
+    if($claimed)return null;
     foreach ($this->document['assignments'] as $binding) if ($binding['template']===$this->template&&$binding['location']===$key) {
       $menu=$this->document['menus'][$binding['menu']];
-      if ($menu['deleted']||!ContentPlacement::allows($menu,'template')||!in_array($binding['type'],$locations[$key]['types'],true)||MenuStore::items($menu['items'])>$locations[$key]['maxDepth']) return null;
+      if (array_key_exists('templateKeys',$menu)||$menu['deleted']||!ContentPlacement::allows($menu,'template')||!in_array($binding['type'],$locations[$key]['types'],true)||MenuStore::items($menu['items'])>$locations[$key]['maxDepth']) return null;
       return ['name'=>$menu['name'],'type'=>$binding['type'],'items'=>$this->tree($menu['items'])];
     }
     return null;
   }
 
+  /** Resolve one declared portable Menu slot; receive technical key, return compatible public tree or null for absent/foreign positions, without writes. */
+  public function slot(string $key): ?array {
+    $slot=ContentReferences::slots($this->store->templates->get($this->template))[$key]??null;
+    return $slot===null||$slot['plugin']!=='menu'?null:$this->location($slot['location'],$key);
+  }
   /** Resolve árvore plana para dados escapáveis; recebe itens e parent interno; omite páginas ausentes/rascunhos e grupos vazios; não altera dados. */
   public function tree(array $items,string $parent=''): array {
     $result=[];

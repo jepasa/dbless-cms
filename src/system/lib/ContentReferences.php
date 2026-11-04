@@ -7,6 +7,7 @@ final class ContentReferences {
   private array $cache=[];
   private array $warnings=[];
   private array $missing=[];
+  private array $knownMenuKeys=[];
   private static ?\WeakMap $budgets=null;
   /** Receive immutable render context, discover trusted manifests without executing providers or writing state. */
   public function __construct(private readonly ContentContext $context) {$this->registry=new Plugins($context->store);}
@@ -36,7 +37,7 @@ final class ContentReferences {
   /** Parse a qualified reference using only declared named parameters; receive path, return normalized provider/query/field path or null for lexical data; reject malformed parameters. */
   private function parse(string $path): ?array {
     $parts=explode('.',$path);$plugin=array_shift($parts);$selector=array_shift($parts);$manifest=$this->registry->all()[$plugin]??null;
-    if($plugin==='template'){$slots=self::slots($this->context->store->templates->get($this->context->template));$slot=$slots[$selector??'']??null;if($slot===null)throw new HttpError(422,'Undeclared template position.','markup.error');return [$slot['plugin'],'@location',['key'=>$slot['location']],$parts];}
+    if($plugin==='template'){$slots=self::slots($this->context->store->templates->get($this->context->template));$slot=$slots[$selector??'']??null;if($slot===null){if($selector!==null&&($this->knownMenuKeys[$selector]??=MenuKeys::known($this->context->store,$selector)))return ['menu','@slot',['slot'=>$selector],$parts];throw new HttpError(422,'Undeclared template position.','markup.error');}return $slot['plugin']==='menu'?['menu','@slot',['slot'=>$selector],$parts]:[$slot['plugin'],'@location',['key'=>$slot['location']],$parts];}
     if($manifest===null||!isset($manifest['mustache'])){if($selector!==null&&$plugin!=='cms')$this->warnings[]=$plugin.' (unavailable)';return null;}if($selector===null)throw new HttpError(422,'Missing reference selector.','markup.error');
     if(in_array($selector,['id','slug'],true)){$identity=array_shift($parts);if($identity===null)throw new HttpError(422,'Missing reference identity.','markup.error');return [$plugin,$selector.':'.$identity,[],$parts];}
     $query=$manifest['mustache']['queries'][$selector]??null;$parameters=[];

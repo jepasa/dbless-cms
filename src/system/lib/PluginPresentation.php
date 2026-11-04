@@ -1,8 +1,17 @@
 <?php
-/** Per-plugin English capability and usage documents; bounded escaped JSON, no Markdown engine or plugin PHP execution. */
+/** Per-plugin canonical English documents and dictionary-backed admin projection; bounded escaped JSON, no Markdown engine or plugin PHP execution. */
 declare(strict_types=1);
 namespace DBLESSCMS;
 final class PluginPresentation {
+  /** Project an opted-in tutorial through complete plugin dictionary keys; receive validated data/language/plugin ID, return localized text without changing code or storage; missing keys fail explicitly. */
+  public static function localized(array $data,Language $language,string $id): array {
+    $prefix=$id.'.presentation.';if(!$language->has($prefix.'title'))return $data;
+    foreach(['title','lead'] as $field)$data[$field]=$language->text($prefix.$field);
+    foreach($data['sections'] as $index=>&$section){
+      $section['title']=$language->text($prefix.'sections.'.$index.'.title');
+      foreach(['body','steps'] as $field)foreach($section[$field] as $position=>&$text)$text=$language->text($prefix.'sections.'.$index.'.'.$field.'.'.$position);unset($text);
+    }unset($section);$data['language']=$language->locale();return $data;
+  }
   /** Read the required adjacent presentation.json tutorial; receive trusted package root/path, return validated English content or 422/404; reject links/ancestor traversal and oversized inputs. */
   public static function read(string $root,string $relative): array {
     if($relative!=='presentation.json')throw new HttpError(422,'Invalid presentation path.','error.plugin');

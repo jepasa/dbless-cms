@@ -450,3 +450,7 @@ JPEG media inspection validates the complete marker container and scans non-entr
 ## Menu and Slides delivery channels
 
 Declare every new assignable position in `mustacheSlots` with its plugin, existing typed location and description. For example: `"hero": {"plugin":"slides","location":"home-hero","description":"Hero slides"}`. Select that position in Slides using Template key; layouts can read `template.hero.items`. The associated `slideLocations` or `menuLocations` entry remains the type/format authority. One record uses either template positions or direct plugin references after an explicit mode save. Missing legacy declarations remain readable, but cannot be selected as new destinations. Preserve orphaned bindings during template changes.
+
+## Template-independent Menu assignment
+
+For portable Menu reuse, declare the same mustacheSlots Menu key in every compatible template, even if its menuLocations target differs. The record stores only the key and presentation type. Missing keys or incompatible format/depth do not cause public rendering errors; the panel reports notices. Do not fabricate undeclared positions or silently pick another menu. Legacy per-template assignments are retained for records without portable keys; no rendering-time migration.
