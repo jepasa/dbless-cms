@@ -890,8 +890,8 @@
     },
     {
       "path": "src/public_html/plugins/menu/js/menu.js",
-      "bytes": 21651,
-      "sha256": "70d9a68755439f2985e5b9929ca9fcaad680ca9085eba01695e6c1e3922c667e"
+      "bytes": 21711,
+      "sha256": "c95e4fad59f3c70f0960186285d5717c116efc486720dc04f094e1c8e44d0f1e"
     },
     {
       "path": "src/public_html/plugins/menu/menu.svg",
@@ -1625,8 +1625,8 @@
     },
     {
       "path": "src/system/lib/MenuStore.php",
-      "bytes": 12816,
-      "sha256": "f9e3449ce052793cff943d69a9cf34c2b1acbfdf7efc68f65d38b8aac3337c6b"
+      "bytes": 12842,
+      "sha256": "dcf7b1962dfad1bef85dd241e3928b77bf9d184191bdf3ecc1d2f631f85ac245"
     },
     {
       "path": "src/system/lib/MenuTargets.php",
@@ -2665,8 +2665,8 @@
     },
     {
       "path": "tests/browser/menu-editor.mjs",
-      "bytes": 12696,
-      "sha256": "6c6d25629d257d2dfc98cb81f9cceed445ef06f00ae341dd06d50b388fb58e13"
+      "bytes": 12968,
+      "sha256": "58e112bded54433c8025b3474c543cdf459e022051e3a8ed2468dcc730d21cec"
     },
     {
       "path": "tests/browser/menu-keys.mjs",
@@ -2850,8 +2850,8 @@
     },
     {
       "path": "tests/menu-editor.test.mjs",
-      "bytes": 4007,
-      "sha256": "cf2e69e8329a5b33ef8b98e3eb388c12c0f0238734bfb93c6c025b6e178b2591"
+      "bytes": 4348,
+      "sha256": "a01ec6ad1e1097f7cc095d6f5f820d6ae863925c0ca055c92224bac105da063c"
     },
     {
       "path": "tests/menu-keys.test.mjs",
