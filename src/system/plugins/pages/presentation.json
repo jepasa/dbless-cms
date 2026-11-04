@@ -8,7 +8,7 @@
       "body": [],
       "steps": [
         "Open Pages → New page. Enter a title, for example “Our services”, and choose a generic model when a starting structure is useful. Duplication is a separate action in Overview.",
-        "Choose JSON or HTML/Mustache in the tabs above the editorial body. Each tab retains an independent buffer; switching does not convert content. Only the active format is saved.",
+        "JSON and HTML/Mustache are synchronized views of one document. Edit html in JSON or use the visual/code editor; bindings and the original structured content are preserved. Invalid JSON blocks switching and saving without discarding the buffer.",
         "Use Save draft. The immutable page ID remains stable when its URL changes; a working draft does not replace an existing published snapshot."
       ]
     },
@@ -91,6 +91,17 @@
         "Keep presentation in the receiving layout. Template positions require manifest declarations and source-plugin assignments."
       ],
       "code": "{{#pages.latest.limit.5.items}}<article><h2>{{title}}</h2><p>{{summary}}</p></article>{{/pages.latest.limit.5.items}}"
+    },
+    {
+      "title": "Edit one document through JSON or HTML",
+      "body": [
+        "The JSON document contains html, bindings and content. html is the canonical editorial source in both tabs; content preserves native fields and is not a second rendering source. Existing native pages receive portable semantic HTML on opening, with no storage changes until an explicit save. Native Slides blocks and existing component markers remain live source references, without saving rendered plugin output. Unsupported custom block types require an explicit authored layout."
+      ],
+      "steps": [
+        "Switch to JSON to edit the html string or preserved data. Valid JSON updates the HTML editor; HTML and visual edits update the same JSON document.",
+        "Correct invalid JSON before switching or saving. The invalid buffer remains available and cannot overwrite saved content.",
+        "Save a draft, reopen either tab and inspect the same content. Publish only after saving; the public page uses the saved html while Mustache resolves at request time."
+      ]
     }
   ]
 }

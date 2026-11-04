@@ -1,7 +1,7 @@
 <?php
 /** Unified Pages creation/editing: Core editorial shell and WYSIWYG, opt-in properties, immutable publication contracts and no writes during render. */
 declare(strict_types=1);
-use DBLESSCMS\{PagePublications,PageBlueprints,JsonStore,Icons,Slides};
+use DBLESSCMS\{PagePublications,PageBlueprints,PageEditorDocument,JsonStore,Icons,Slides};
 use function DBLESSCMS\e;
 $repository=new PagePublications($context->store);$catalog=$repository->read();$isNew=$route==='new';$row=$isNew?null:$repository->record($key);$siteRevision=$context->store->read('site')['revision'];$sourceRevision=$isNew||isset($catalog['data']['records'][$key])?'':$context->store->read($key,null,true)['revision'];
 $snapshot=$isNew?PageBlueprints::create('blank',$t('pages.titlePlaceholder'),'new-page'):$row['draft'];$pageDocument=$snapshot['document'];
@@ -11,7 +11,7 @@ foreach($activeManifest['pages'] as $layoutId=>$script){
   if(in_array($layoutId,['home','404'],true)||!isset($layoutContracts['pages'][$layoutId]))continue;
   try{\DBLESSCMS\Schema::validate($pageDocument['content'],$layoutContracts['pages'][$layoutId]);$compatibleLayouts[]=$layoutId;}catch(\DBLESSCMS\HttpError $error){if($error->status!==422)throw $error;}
 }
-$markupDefinition=$pageDocument['markup']??['html'=>'','bindings'=>[]];$markupPageKey=$isNew?'home':$key;$markupAdvanced=true;$markupLabel=$t('pages.content');$authored=isset($pageDocument['markup']);
+$editorDocument=PageEditorDocument::open($pageDocument);$markupDefinition=['html'=>$editorDocument['html'],'bindings'=>$editorDocument['bindings']];$markupPageKey=$isNew?'home':$key;$markupAdvanced=true;$markupLabel=$t('pages.content');$authored=isset($pageDocument['markup']);
 /** Emit escaped CSRF/catalog/site/source fields; no parameters, outputs hidden controls without mutations. */
 $fields=static function()use($csrf,$catalog,$siteRevision,$sourceRevision,$key):void{foreach(['csrf_token'=>$csrf,'catalog_revision'=>$catalog['revision'],'site_revision'=>$siteRevision,'source_revision'=>$sourceRevision,'key'=>$key] as $name=>$value)echo '<input type="hidden" name="'.e($name).'" value="'.e($value).'">';};
 /** Produce one canonical translated icon command; receives icon/label and trusted static attributes, returns escaped control markup without effects. */
@@ -26,13 +26,14 @@ ob_start(); ?>
 <?php $editorialToolbar=(string)ob_get_clean();ob_start(); ?>
 <section class="panel pages-authoring">
 <label class="page-title-label"><span class="sr-only"><?= e($t('pages.editorialTitle')) ?></span><input class="page-title-input" name="<?= $isNew?'title':'meta_title' ?>" maxlength="200" required placeholder="<?= e($t('pages.titlePlaceholder')) ?>" value="<?= e($pageDocument['meta']['title']) ?>" <?= $isNew?'data-pages-title':'' ?>></label>
-<input type="checkbox" name="markup_enabled" value="1" data-page-mode hidden <?= $authored?'checked':'' ?>>
+<input type="checkbox" data-page-mode hidden <?= $authored?'checked':'' ?>>
+<input type="hidden" name="markup_enabled" value="1">
 <div class="page-format-tabs" role="tablist" aria-label="<?= e($t('pages.contentFormat')) ?>">
 <?php foreach(['json'=>'pages.formatJSON','markup'=>'pages.formatMarkup'] as $format=>$label): $selected=($format==='markup')===$authored; ?>
 <button type="button" role="tab" id="page-format-<?= e($format) ?>" data-page-format="<?= e($format) ?>" aria-controls="page-panel-<?= e($format) ?>" aria-selected="<?= $selected?'true':'false' ?>" tabindex="<?= $selected?'0':'-1' ?>" title="<?= e($t($label)) ?>"><?= e($t($label)) ?></button>
 <?php endforeach; ?></div>
 <div id="page-panel-markup" role="tabpanel" aria-labelledby="page-format-markup" data-page-authored <?= !$authored?'hidden':'' ?>><?php require $context->config->root.'/admin/markup-editor.php'; ?></div>
-<div id="page-panel-json" role="tabpanel" aria-labelledby="page-format-json" data-page-native <?= $authored?'hidden':'' ?>><p class="muted"><?= e($t('pages.nativePreserved')) ?></p><label><?= e($t('pages.native')) ?><textarea data-native-content name="native_content" rows="18" spellcheck="false"><?= e(JsonStore::encode($pageDocument['content'])) ?></textarea></label></div>
+<div id="page-panel-json" role="tabpanel" aria-labelledby="page-format-json" data-page-native <?= $authored?'hidden':'' ?>><p class="muted"><?= e($t('pages.nativePreserved')) ?></p><label><?= e($t('pages.documentJSON')) ?><textarea data-native-content data-page-document name="editor_document" rows="18" spellcheck="false"><?= e(JsonStore::encode($editorDocument)) ?></textarea></label></div>
 </section>
 <?php $editorialContent=(string)ob_get_clean();ob_start(); ?>
 <details open><summary><?= e($t('pages.publication')) ?></summary>
@@ -60,7 +61,7 @@ ob_start(); ?>
 <label><?= e($t('pages.duplicateAddress')) ?><input name="slug" form="page-duplicate" maxlength="64" pattern="[a-z0-9][a-z0-9\-]{0,63}" required></label><?= $button('pages',$t('pages.action.duplicate'),'type="submit" form="page-duplicate"') ?>
 <?php endif; ?></details>
 <?php $editorialProperties=(string)ob_get_clean();$editorialPropertiesLabel=$t('pages.properties'); ?>
-<form id="page-working" method="post" action="<?= e($context->url($isNew?'editorial-create':'editorial-save')) ?>" data-pages-form data-page-markup-form data-page-workspace data-unsaved="<?= e($t('pages.unsaved')) ?>">
+<form id="page-working" method="post" action="<?= e($context->url($isNew?'editorial-create':'editorial-save')) ?>" data-pages-form data-page-markup-form data-page-workspace data-document-invalid="<?= e($t('pages.documentInvalid')) ?>" data-unsaved="<?= e($t('pages.unsaved')) ?>">
 <?php $fields(); ?><input type="hidden" name="editorial_fields" value="1"><input type="hidden" name="page_status" value="draft"><input type="hidden" name="meta_keywords" value="<?= e($pageDocument['meta']['keywords']) ?>"><?php if($isNew): ?><input type="hidden" name="compose" value="1"><?php endif; ?>
 <?php require $context->config->root.'/admin/editorial-workspace.php'; ?>
 </form>

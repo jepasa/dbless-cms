@@ -292,7 +292,8 @@
     "contact": "contact-form",
     "showcase": "showcase",
     "extras": "home-extras",
-    "composition": "homepage-composition"
+    "composition": "homepage-composition",
+    "menu-examples": "menu-examples"
   },
   "mustacheSlots": {
     "primary-menu": {
