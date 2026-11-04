@@ -39,7 +39,7 @@
         "Open the properties panel. In Structure and address, set the URL and parent page; use stable IDs for relationships. Example: place “Consulting” under “Our services”.",
         "Set a featured image and alternative text, then write a concise Summary. These values can be reused by listings and social metadata.",
         "Open SEO and behavior for title, description, canonical, indexing and social overrides. Leave optional overrides empty to retain inherited editorial/global defaults. Advanced options contain model and native document controls.",
-        "Set Order to arrange siblings in hierarchy view or request pages:records/children with sort order. Choose Page template from the active theme layouts compatible with the current native content. This does not change the global theme."
+        "Set Order in the editor and sort the flat catalog by its Order heading or request pages:records/children with sort order. Choose Page template from the active theme layouts compatible with the current native content. This does not change the global theme."
       ]
     },
     {
@@ -101,6 +101,18 @@
         "Switch to JSON to edit the html string or preserved data. Valid JSON updates the HTML editor; HTML and visual edits update the same JSON document.",
         "Correct invalid JSON before switching or saving. The invalid buffer remains available and cannot overwrite saved content.",
         "Save a draft, reopen either tab and inspect the same content. Publish only after saving; the public page uses the saved html while Mustache resolves at request time."
+      ]
+    },
+    {
+      "title": "Search, sort and paginate the overview",
+      "body": [
+        "The overview uses shared CMS table controls. Search and status/type filters are at the top; Clear resets filters. Click a column heading to select ascending or descending order; the active arrow identifies the current ordering."
+      ],
+      "steps": [
+        "Use the icon controls and their translated tooltips. Search, clear and ordering restart at page one; page navigation preserves the selected filters and order.",
+        "The seven-position pager stays visible below the scrollable table. Ellipsis buttons open upward menus containing earlier or later pages outside the three displayed numbers. Use the keyboard or a page button to navigate.",
+        "Read the total results, displayed range/count and page totals below the pager. Unavailable directions and empty catalogs retain disabled controls.",
+        "Every page is an independent row. Parent identifies its relationship; click a parent name to filter its direct children. Parent relationships and the Order field remain available in creation/editing; there is no tree-view toggle."
       ]
     }
   ]

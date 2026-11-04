@@ -50,6 +50,17 @@
         "Keep presentation in the receiving layout. Template positions require manifest declarations and source-plugin assignments."
       ],
       "code": "{{widgets.contact.data.email}}"
+    },
+    {
+      "title": "Search, sort and paginate the overview",
+      "body": [
+        "The overview uses shared CMS table controls. Search and status/type filters are at the top; Clear resets filters. Click a column heading to select ascending or descending order; the active arrow identifies the current ordering."
+      ],
+      "steps": [
+        "Use the icon controls and their translated tooltips. Search, clear and ordering restart at page one; page navigation preserves the selected filters and order.",
+        "The seven-position pager stays visible below the scrollable table. Ellipsis buttons open upward menus containing earlier or later pages outside the three displayed numbers. Use the keyboard or a page button to navigate.",
+        "Read the total results, displayed range/count and page totals below the pager. Unavailable directions and empty catalogs retain disabled controls."
+      ]
     }
   ]
 }

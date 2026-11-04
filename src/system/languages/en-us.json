@@ -516,6 +516,20 @@
     "catalog.presentation_link": "Presentation",
     "catalog.presentation_contents": "Tutorial contents",
     "markup.automaticHelp": "Write references such as {{blog.my-post.title}} and sections directly in the content. See each plugin Presentation for examples.",
-    "global.field.contentPageSize": "Content items per page"
+    "global.field.contentPageSize": "Content items per page",
+    "table.search": "Search",
+    "table.status": "Status",
+    "table.all": "All statuses",
+    "table.clear": "Clear filters",
+    "table.sortAscending": "Sort {column} ascending",
+    "table.sortDescending": "Sort {column} descending",
+    "table.previous": "Previous page",
+    "table.next": "Next page",
+    "table.earlier": "Earlier pages",
+    "table.later": "Later pages",
+    "table.page": "Page {page}",
+    "table.summary": "{start}–{end} of {total} results · Page {page} of {pages} · {count} shown",
+    "table.pagination": "Pagination",
+    "table.unavailable": "Unavailable page"
   }
 }

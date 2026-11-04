@@ -56,6 +56,17 @@
         "A public editor can select only public media. Private media is available only to a selector whose receiving context is authorized as private.",
         "For public layout data, use public media URLs from the selected content services. The legacy files-manager:asset service only exposes previously approved public references; no image-rights administration screen is provided."
       ]
+    },
+    {
+      "title": "Search, sort and paginate the overview",
+      "body": [
+        "Images keeps filesystem folders and list/grid views. Search/type controls and the shared seven-position pager apply to the current folder results. List view sorts through column headings; grid view retains its sort selector."
+      ],
+      "steps": [
+        "Use the icon controls and their translated tooltips. Search, clear and ordering restart at page one; page navigation preserves the selected filters and order.",
+        "The seven-position pager stays visible below the scrollable table. Ellipsis buttons open upward menus containing earlier or later pages outside the three displayed numbers. Use the keyboard or a page button to navigate.",
+        "Read the total results, displayed range/count and page totals below the pager. Unavailable directions and empty catalogs retain disabled controls."
+      ]
     }
   ]
 }

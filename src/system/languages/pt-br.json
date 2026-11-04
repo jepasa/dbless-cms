@@ -516,6 +516,20 @@
     "catalog.presentation_link": "Apresentação",
     "catalog.presentation_contents": "Conteúdo do tutorial",
     "markup.automaticHelp": "Insira referências como {{blog.meu-artigo.title}} e seções diretamente no conteúdo. Exemplos estão em Apresentação de cada plugin.",
-    "global.field.contentPageSize": "Itens de conteúdo por página"
+    "global.field.contentPageSize": "Itens de conteúdo por página",
+    "table.search": "Pesquisar",
+    "table.status": "Estado",
+    "table.all": "Todos os estados",
+    "table.clear": "Limpar filtros",
+    "table.sortAscending": "Ordenar {column} em ordem crescente",
+    "table.sortDescending": "Ordenar {column} em ordem decrescente",
+    "table.previous": "Página anterior",
+    "table.next": "Próxima página",
+    "table.earlier": "Páginas anteriores",
+    "table.later": "Páginas seguintes",
+    "table.page": "Página {page}",
+    "table.summary": "{start}–{end} de {total} resultados · Página {page} de {pages} · {count} exibidos",
+    "table.pagination": "Paginação",
+    "table.unavailable": "Página indisponível"
   }
 }

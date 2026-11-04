@@ -13,6 +13,7 @@ $labels=['privacy'=>$t('privacy.title'),'customizations'=>$t('custom.title'),'pl
 <link rel="icon" type="image/x-icon" href="<?= e(asset('cms-admin/assets/favicon.ico',$base)) ?>">
 <link rel="stylesheet" href="<?= e(asset('cms-admin/assets/admin.css',$base)) ?>">
 <script src="<?= e(asset('cms-admin/assets/admin.js',$base)) ?>" defer></script>
+<?= \DBLESSCMS\AdminTable::assets($base) ?>
 <script src="<?= e(asset('cms-admin/assets/components.js',$base)) ?>" defer></script>
 <script src="<?= e(asset('cms-admin/assets/editorial-workspace.js',$base)) ?>" defer></script>
 <link rel="stylesheet" href="<?= e(asset('cms-admin/assets/markup.css',$base)) ?>">

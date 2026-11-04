@@ -93,7 +93,6 @@
     "fm.descending": "Decrescente",
     "fm.previous": "Página anterior",
     "fm.next": "Próxima página",
-    "fm.page": "Página {page} de {pages} · {count} itens",
     "fm.noResults": "Nenhum resultado para os filtros.",
     "fm.expand": "Expandir {name}",
     "fm.collapse": "Recolher {name}",
@@ -122,6 +121,8 @@
     "fm.event.purge": "Item excluído permanentemente da lixeira.",
     "fm.event.replace": "Arquivo substituído; versão anterior arquivada na lixeira.",
     "fm.event.unknown": "Operação registrada; descrição indisponível.",
-    "setting.globalRoots": "Configurar raízes de mídia nas Configurações Globais"
+    "setting.globalRoots": "Configurar raízes de mídia nas Configurações Globais",
+    "fm.clear": "Limpar filtros",
+    "fm.searchAction": "Pesquisar"
   }
 }
