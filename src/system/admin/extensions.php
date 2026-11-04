@@ -5,10 +5,14 @@ use function DBLESSCMS\e;
 use function DBLESSCMS\asset;
 use DBLESSCMS\Icons;
 ?>
-<?php if($view==='templates'): ?><div class="editor-toolbar"><a class="button-secondary" href="?view=customizations"><?= e($t('custom.title')) ?></a></div><?php endif; ?>
-<section class="panel extension-panel">
+<?php
+$columns=[];foreach(['name','description','status'] as $key)$columns[$key]=['label'=>$t('catalog.'.$key),'value'=>static fn(array $row):string=>$key==='status'?$t('catalog.'.$row[$key]):$row[$key]];$columns['actions']=['label'=>$t('catalog.actions')];$states=[];foreach(['active','inactive','invalid','incompatible'] as $state)$states[$state]=$t('catalog.'.$state);
+$catalogTable=new \DBLESSCMS\AdminTable($extensionRows,$columns,['view'=>$view],$language->locale(),$base,['states'=>$states,'state'=>static fn(array $row):string=>$row['status']]);$extensionRows=$catalogTable->rows;
+?>
+<section class="panel extension-panel overview-catalog" data-overview-catalog="<?= e($view) ?>">
+<?= $catalogTable->toolbar($view==='templates'?\DBLESSCMS\AdminTable::action($base.'/cms-admin/?view=customizations','code-slash',$t('custom.title'),$base):'') ?>
 <div class="table-scroll"><table class="extension-table"><caption class="sr-only"><?= e($labels[$view]) ?></caption>
-<thead><tr><?php foreach (['name','description','status','actions'] as $column): ?><th scope="col"><?= e($t('catalog.'.$column)) ?></th><?php endforeach; ?></tr></thead>
+<thead><tr><?= $catalogTable->headings() ?></tr></thead>
 <tbody><?php foreach ($extensionRows as $row):
   $healthy=in_array($row['status'],['active','inactive'],true);
   $toggle=$row['enabled']?'deactivate':'activate';
@@ -32,5 +36,5 @@ use DBLESSCMS\Icons;
 </div></td></tr>
 <?php endforeach; ?></tbody></table></div>
 <?php if ($extensionRows===[]): ?><p class="empty-state"><?= e($t('catalog.empty')) ?></p><?php endif; ?>
-</section>
+<?= $catalogTable->footer() ?></section>
 <p class="muted"><?= e($t($view==='templates'?'catalog.templates_policy':'catalog.plugins_policy')) ?></p>

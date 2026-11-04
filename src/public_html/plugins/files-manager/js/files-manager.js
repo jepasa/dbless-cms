@@ -71,11 +71,10 @@
       if (selectionActions.includes(name)) button.hidden = ['restore','purge'].includes(name) !== trash;
       if (['grid','list'].includes(name)) button.setAttribute('aria-pressed',String(mode === name));
     });
-    root.querySelectorAll('[data-scope], [data-filter], [data-type-filter], [data-sort], [data-direction], [data-column-sort], .fm-file-name, .fm-folder-name, .fm-expand, .fm-name-cell > input').forEach(node => { node.disabled = busy; });
+    root.querySelectorAll('[data-scope], [data-filter-clear], [data-file-filters] button[type=submit], [data-filter], [data-type-filter], [data-sort], [data-direction], [data-column-sort], .fm-file-name, .fm-folder-name, .fm-expand, .fm-name-cell > input').forEach(node => { node.disabled = busy; });
     root.querySelector('[data-selected]').textContent = selected ? t('selected',{name:selected.name}) : t(trash ? 'trash' : 'files');
     root.querySelectorAll('[data-id]').forEach(row => { const active = !!selected && row.dataset.id === id(selected); row.classList.toggle('fm-selected',active); row.querySelector('input').checked = active; });
-    root.querySelector('[data-page="previous"]').disabled = busy || page <= 1;
-    root.querySelector('[data-page="next"]').disabled = busy || page >= pages;
+    const pager=root.querySelector('[data-catalog-pager]');if(pager._pager&&pager._pager.busy!==busy)window.DBLESSPager.render(pager,{...pager._pager,busy});
   }
   /** Select an existing entry and refresh availability without replacing focused nodes. */
   function select(entry) { selected = entry; controls(); }
@@ -150,7 +149,7 @@
       (mode === 'list' ? list : grid).append(row);
     }
     const empty = root.querySelector('[data-empty]'); empty.hidden = filtered.length !== 0; empty.textContent = t(entries.length ? 'noResults' : trash ? 'trashEmpty' : 'empty');
-    root.querySelector('[data-page-info]').textContent = t('page',{page,pages,count:filtered.length}); root.querySelector('[data-sort]').value = sort;
+    const pager=root.querySelector('[data-catalog-pager]');window.DBLESSPager.render(pager,{...(pager._pager||JSON.parse(pager.dataset.pager)),page,pages,total:filtered.length,count:visible.length,start:filtered.length?(page-1)*pageSize+1:0,end:filtered.length?(page-1)*pageSize+visible.length:0,busy});root.querySelector('[data-grid-sort]').hidden=mode!=='grid';root.querySelector('[data-sort]').value=sort;
     const arrow = root.querySelector('[data-direction]'); arrow.replaceChildren(icon(direction === 1 ? 'sort-up' : 'sort-down')); arrow.title = t(direction === 1 ? 'ascending' : 'descending'); arrow.setAttribute('aria-label',arrow.title);
     root.querySelectorAll('[data-column]').forEach(column => { const active = column.dataset.column === sort; column.setAttribute('aria-sort',active ? direction === 1 ? 'ascending' : 'descending' : 'none'); const mark = column.querySelector('[data-sort-icon]'); mark.replaceChildren(); if (active) mark.append(icon(direction === 1 ? 'sort-up' : 'sort-down')); });
     controls();
@@ -233,7 +232,9 @@
   root.querySelector('[data-sort]').addEventListener('change',event => { sort = event.target.value; page = 1; render(); });
   root.querySelector('[data-direction]').addEventListener('click',() => { direction *= -1; page = 1; render(); });
   root.querySelectorAll('[data-column-sort]').forEach(button => button.addEventListener('click',() => { if (sort === button.dataset.columnSort) direction *= -1; else { sort = button.dataset.columnSort; direction = 1; } page = 1; render(); }));
-  root.querySelectorAll('[data-page]').forEach(button => button.addEventListener('click',() => { page += button.dataset.page === 'next' ? 1 : -1; selected = null; render(); }));
+  root.querySelector('[data-catalog-pager]').addEventListener('cms-page-change',event=>{if(busy)return;page=event.detail.page;selected=null;render();});
+  root.querySelector('[data-file-filters]').addEventListener('submit',event=>{event.preventDefault();page=1;render();});
+  root.querySelector('[data-filter-clear]').addEventListener('click',()=>{root.querySelector('[data-filter]').value='';root.querySelector('[data-type-filter]').value='allTypes';page=1;render();});
   upload.addEventListener('change',() => uploadFiles([...upload.files])); replacement.addEventListener('change',() => { if (replacementTarget) uploadFiles([...replacement.files].slice(0,1),replacementTarget); });
   const zone = root.querySelector('[data-dropzone]'); zone.addEventListener('dragover',event => { if (!busy && !trash && event.dataTransfer.types.includes('Files')) { event.preventDefault(); zone.classList.add('fm-dragover'); } }); zone.addEventListener('dragleave',() => zone.classList.remove('fm-dragover')); zone.addEventListener('drop',event => { event.preventDefault(); zone.classList.remove('fm-dragover'); uploadFiles([...event.dataTransfer.files]); });
   zone.addEventListener('contextmenu',event => { if (event.target.closest('[data-id]')) return; event.preventDefault(); select(null); openMenu(zone,event); });

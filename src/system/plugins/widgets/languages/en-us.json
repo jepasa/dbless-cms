@@ -59,6 +59,7 @@
     "widgets.contentType": "Content type",
     "widgets.type_text": "Text",
     "widgets.type_html": "HTML",
-    "widgets.type_json": "JSON"
+    "widgets.type_json": "JSON",
+    "widgets.unavailable": "Unavailable in the active template"
   }
 }

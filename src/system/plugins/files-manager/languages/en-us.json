@@ -93,7 +93,6 @@
     "fm.descending": "Descending",
     "fm.previous": "Previous page",
     "fm.next": "Next page",
-    "fm.page": "Page {page} of {pages} · {count} items",
     "fm.noResults": "No results for these filters.",
     "fm.expand": "Expand {name}",
     "fm.collapse": "Collapse {name}",
@@ -122,6 +121,8 @@
     "fm.event.purge": "Item permanently deleted from trash.",
     "fm.event.replace": "File replaced; previous bytes archived in trash.",
     "fm.event.unknown": "Recorded operation; description unavailable.",
-    "setting.globalRoots": "Configure media roots in Global Settings"
+    "setting.globalRoots": "Configure media roots in Global Settings",
+    "fm.clear": "Clear filters",
+    "fm.searchAction": "Search"
   }
 }

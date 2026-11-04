@@ -36,7 +36,7 @@ for (const tree of trees) {
       const {request,action}=await client(sandbox);
       const site=()=>JSON.parse(fs.readFileSync(path.join(sandbox.temporary,'contents/site.json')));
       const table=await request('/cms-admin/?view=templates');assert.equal(table.status,200,table.body);
-      assert.match(table.body,/icon-person-fill/);assert.match(table.body,/<table class="extension-table"/);assert.match(table.body,/Nome<\/th>/);assert.match(table.body,/Descrição<\/th>/);assert.match(table.body,/Padrão protegido/);
+      assert.match(table.body,/icon-person-fill/);assert.match(table.body,/<table class="extension-table"/);assert.match(table.body,/class="catalog-sort"[^>]*>Nome<[^>]*class="admin-icon/);assert.match(table.body,/class="catalog-sort"[^>]*>Descrição<[^>]*class="admin-icon/);assert.match(table.body,/Padrão protegido/);
       const sidebar=table.body.match(/<aside id="admin-navigation"[\s\S]*?<\/aside>/)[0];assert.doesNotMatch(sidebar,/href="\?view=(site|templates)"/);
       assert.match(table.body,/data-user-menu[\s\S]*view=site[\s\S]*view=plugins[\s\S]*view=templates[\s\S]*<hr>[\s\S]*name="action" value="logout"/);
       const old=field(table.body,'revision'),csrf=field(table.body,'csrf_token');

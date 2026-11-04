@@ -19,12 +19,18 @@ $issues=[];foreach($data['widgets'] as $record)if(!$record['deleted']&&($record[
 <p class="notice error" role="alert" data-widget-status hidden></p>
 <?php if($issues!==[]): ?><p class="notice" role="status"><?= e($t('placementWarning',['items'=>implode(', ',$issues)])) ?></p><?php endif; ?>
 <?php if(in_array($route,['overview','trash'],true)): $rows=array_filter($data['widgets'],static fn(array $record):bool=>$record['deleted']===($route==='trash')); ?>
-<?php if($route==='overview'): ?><p><a class="button-primary" href="<?= e($url('editor')) ?>"><?= e($t('new')) ?></a></p><?php endif; ?>
-<section class="panel extension-panel"><div class="table-scroll"><table class="extension-table"><thead><tr><?php foreach(['key','value','description','template','actions'] as $column): ?><th scope="col"><?= e($t($column)) ?></th><?php endforeach; ?></tr></thead><tbody>
+
+<?php
+$columns=['key'=>['label'=>$t('key'),'value'=>static fn(array $row):string=>$row['key']],'value'=>['label'=>$t('value'),'value'=>static fn(array $row):string=>$row['value']],'description'=>['label'=>$t('description'),'value'=>static fn(array $row):string=>$row['description']],'template'=>['label'=>$t('template'),'value'=>static fn(array $row):string=>$row['template']]];$columns['actions']=['label'=>$t('actions')];
+$catalogTable=new \DBLESSCMS\AdminTable($rows,$columns,['view'=>'plugin-panel','plugin'=>$context->manifest['id'],'route'=>$route],$context->language->locale(),$context->base,['states'=>['active'=>$t('active'),'unavailable'=>$t('unavailable')],'state'=>static fn(array $row):string=>$row['template']===$template&&isset($locations[$row['key']])?'active':'unavailable']);$rows=$catalogTable->rows;
+$catalogActions=$route==='overview'?\DBLESSCMS\AdminTable::action($url('editor'),'create',$t('new'),$context->base):'';
+?>
+<section class="panel extension-panel overview-catalog" data-overview-catalog="widgets">
+<?= $catalogTable->toolbar($catalogActions) ?><div class="table-scroll"><table class="extension-table"><thead><tr><?= $catalogTable->headings() ?></tr></thead><tbody>
 <?php foreach($rows as $record): ?><tr data-widget-id="<?= e($record['id']) ?>"><td data-label="<?= e($t('key')) ?>"><strong><?= e($record['key']) ?></strong></td><td class="widget-value" data-label="<?= e($t('value')) ?>"><?= e($record['value']) ?></td><td data-label="<?= e($t('description')) ?>"><?= e($record['description']) ?></td><td data-label="<?= e($t('template')) ?>"><?= e($record['template']) ?></td><td data-label="<?= e($t('actions')) ?>"><div class="row-actions">
 <?php if(!$record['deleted']): ?><a class="icon-button" href="<?= e($url('editor',$record['id'])) ?>" title="<?= e($t('edit')) ?>" aria-label="<?= e($t('edit')) ?>"><?= Icons::svg('edit',$context->base) ?></a><?php endif; ?>
 <form method="post" action="<?= e($context->url($record['deleted']?'recover':'trash')) ?>" data-widget-form <?= !$record['deleted']?'data-confirm="'.e($t('confirmDelete')).'"':'' ?>><input type="hidden" name="revision" value="<?= e($revision) ?>"><input type="hidden" name="csrf_token" value="<?= e($csrf) ?>"><input type="hidden" name="id" value="<?= e($record['id']) ?>"><button class="icon-button" type="submit" title="<?= e($t($record['deleted']?'recover':'delete')) ?>" aria-label="<?= e($t($record['deleted']?'recover':'delete')) ?>"><?= Icons::svg($record['deleted']?'history':'uninstall',$context->base) ?></button></form>
-</div></td></tr><?php endforeach; ?></tbody></table></div><?php if($rows===[]): ?><p class="empty-state"><?= e($t($route==='trash'?'emptyTrash':'empty')) ?></p><?php endif; ?></section>
+</div></td></tr><?php endforeach; ?></tbody></table></div><?php if($rows===[]): ?><p class="empty-state"><?= e($t($route==='trash'?'emptyTrash':'empty')) ?></p><?php endif; ?><?= $catalogTable->footer() ?></section>
 <?php if($route==='trash'):require __DIR__.'/library-trash.php';endif; ?>
 <?php elseif($route==='editor'): ?>
 <p class="muted"><?= e($t('help')) ?></p>

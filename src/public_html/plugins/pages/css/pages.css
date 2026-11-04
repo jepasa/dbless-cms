@@ -3,21 +3,6 @@
 .pages-plugin input[type="checkbox"] { width: auto; }
 .pages-plugin .history-row { flex-wrap: wrap; gap: 12px; }
 
-/* Editorial hierarchy is bounded and uses static classes, never author-supplied inline styles. */
-.pages-plugin .page-depth-0{display:block;padding-inline-start:0px}
-.pages-plugin .page-depth-1{display:block;padding-inline-start:16px}
-.pages-plugin .page-depth-2{display:block;padding-inline-start:32px}
-.pages-plugin .page-depth-3{display:block;padding-inline-start:48px}
-.pages-plugin .page-depth-4{display:block;padding-inline-start:64px}
-.pages-plugin .page-depth-5{display:block;padding-inline-start:80px}
-.pages-plugin .page-depth-6{display:block;padding-inline-start:96px}
-.pages-plugin .page-depth-7{display:block;padding-inline-start:112px}
-.pages-plugin .page-depth-8{display:block;padding-inline-start:128px}
-.pages-plugin .page-depth-9{display:block;padding-inline-start:144px}
-.pages-plugin .page-depth-10{display:block;padding-inline-start:160px}
-.pages-plugin .page-depth-11{display:block;padding-inline-start:176px}
-.pages-plugin .page-depth-12{display:block;padding-inline-start:192px}
-
 /* WordPress editor proportions and flat inspector, scoped to Pages; only colors come from the CMS theme. */
 .pages-plugin .pages-authoring{width:100%;max-width:none;margin:0;padding:40px 32px;min-height:620px;border:0;border-radius:0;box-shadow:none}
 .pages-plugin .page-title-label{display:grid;gap:0;margin-bottom:28px;font-weight:600}.pages-plugin .page-title-input{font-size:clamp(28px,2.5vw,40px);line-height:1.2;font-weight:600;letter-spacing:-.025em;padding:0;border:0;border-radius:0;background:transparent}
