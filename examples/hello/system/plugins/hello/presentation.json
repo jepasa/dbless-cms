@@ -11,7 +11,8 @@
       "steps": [
         "Open the plugin catalog and enable Hello.",
         "Open its sidebar overview, then inspect the public welcome route linked there."
-      ]
+      ],
+      "id": "install"
     },
     {
       "title": "Configure and inspect the contracts",
@@ -19,7 +20,8 @@
       "steps": [
         "Open the plugin settings and change the public greeting. Save and review the public route.",
         "Inspect the supplied manifest, router and page scripts when adapting this example. Keep private values out of publicSettings."
-      ]
+      ],
+      "id": "configure"
     }
   ]
 }

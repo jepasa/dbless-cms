@@ -530,6 +530,8 @@
     "table.page": "Página {page}",
     "table.summary": "{start}–{end} de {total} resultados · Página {page} de {pages} · {count} exibidos",
     "table.pagination": "Paginação",
-    "table.unavailable": "Página indisponível"
+    "table.unavailable": "Página indisponível",
+    "catalog.presentation_fallback_missing": "Este tutorial não foi fornecido em {locale}; a versão inglesa canônica está sendo exibida.",
+    "catalog.presentation_fallback_invalid": "A tradução do tutorial para {locale} está indisponível ou inválida; a versão inglesa canônica está sendo exibida."
   }
 }

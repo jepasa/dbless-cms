@@ -1,52 +1,174 @@
 {
   "language": "en",
-  "title": "Menu",
-  "lead": "Create reusable navigation trees and deliver them through portable template keys or direct Mustache data.",
+  "title": "Menu — presentation and complete usage tutorial",
+  "lead": "Build reusable navigation trees with a classic two-column editor, then deliver data through a stable Menu key or a declared template key. This tutorial walks through every current authoring, composition, delivery and recovery feature; the receiving layout owns the HTML and appearance.",
   "sections": [
     {
-      "title": "Create and edit",
-      "body": [],
+      "title": "Create and select a menu",
+      "body": [
+        "Menu is a reusable navigation-data manager. The editor follows the classic WordPress arrangement, while DBLESS-CMS keeps its own colors, security and rendering contracts.",
+        "A menu contains a name, an immutable ID/key and an ordered tree of items. Its items are independent of the parent relationships in Pages. Creating a menu does not add it automatically to a public layout."
+      ],
       "steps": [
-        "Select an existing menu or create one. Enter its name; the suggested stable ID/key can be adjusted before the first save. Renaming a saved menu never changes its key.",
-        "Use the left source panels to search published Pages and Blog posts, select several entries and add them together. Custom links, anchors and groups have their own panel; source choices are shown in pages of 25.",
-        "Expand an item to edit its label, destination, enabled/new-tab options or parent. Drag complete branches vertically to reorder and horizontally to nest, or use keyboard/touch icon controls. Up to five levels and 100 items are supported.",
-        "Removing a parent opens a choice: delete the entire branch or promote its children. Cancel preserves every item. Save and reopen to confirm; the receiving layout controls appearance."
-      ]
+        "Open Menu, then New Menu. To edit an existing record, use the menu selector above the workspace or the Edit icon in Overview.",
+        "Enter a descriptive name, for example Main navigation. The editor suggests main-navigation as the ID/key. Correct this key before the first save if necessary; use a lowercase letter followed by lowercase letters, digits or hyphens, up to 48 characters.",
+        "After saving, the key is read-only. Renaming the menu changes its visible name without changing references or item destinations. A duplicate key is rejected rather than replacing another menu.",
+        "Use the two columns: Add menu items supplies content on the left; Menu structure organizes the chosen items on the right. Nothing is stored until Save changes succeeds."
+      ],
+      "id": "create"
+    },
+    {
+      "title": "Add Pages and Blog posts",
+      "body": [
+        "Sources list only published Pages and currently released Blog posts. Source choosers show 25 entries per page; search filters the available ID and title. Selections are retained while changing search text or source pages.",
+        "A menu link does not copy the source content. Page destinations follow the Pages address contract; Blog destinations store the immutable post ID and resolve its current released URL. The Blog catalog is bounded to 500 posts."
+      ],
+      "steps": [
+        "Expand Pages on the left. Search for the desired title or ID and select one or several checkboxes.",
+        "Use the previous/next source-page icons when more than 25 matches are available. The selected counter includes choices retained outside the currently displayed source page.",
+        "Click Add selected items. The complete selection is appended together; an addition that would exceed the 100-item limit is rejected without inserting a partial selection.",
+        "Expand Blog posts and repeat the operation to add articles. Draft, future, deleted or unavailable posts are not offered; a disabled Blog provider exposes no source choices.",
+        "The last added card opens for editing. Changing a source title later does not replace the menu label: edit that label explicitly when desired."
+      ],
+      "id": "sources"
+    },
+    {
+      "title": "Add custom links, anchors and groups",
+      "body": [
+        "Custom links, anchors and groups supplies targets that are not selected directly from the content lists. A group is a non-clickable parent for a submenu; an empty group is omitted from public navigation.",
+        "The navigation label is authored content. HTML, scripts and active URL schemes are not accepted as menu labels or destinations."
+      ],
+      "steps": [
+        "Expand Custom links, anchors and groups and choose the target type.",
+        "For External URL, enter a label and an absolute HTTP/HTTPS address, mailto address or tel destination. Use the Pages chooser for normal internal page links.",
+        "For Anchor, select a published Page and enter its existing anchor ID without the # character, for example contact. The receiving page must actually contain that anchor.",
+        "For Submenu group, enter only the label. Add the group, then place child items under it in Menu structure.",
+        "Click Add item to append the custom target. Alternatively, use the Add item icon above the structure to create a blank card and fill its fields there."
+      ],
+      "id": "custom-targets"
+    },
+    {
+      "title": "Build and edit the menu structure",
+      "body": [
+        "Cards are collapsed when a saved menu is reopened. Indentation represents parent/child relationships, not a separate list or automatic page hierarchy.",
+        "Moving a parent transports its entire branch. A menu accepts at most 100 items and five levels; an individual receiving template may support fewer levels and report a compatibility notice."
+      ],
+      "steps": [
+        "Expand a card with its disclosure icon. Edit Label, Target type, Parent item and the destination fields shown for that type.",
+        "Use Enabled to include an item. Disabling a parent omits its complete branch from public output. Open in a new tab is off by default; the receiving layout must apply the corresponding target and safe rel attributes.",
+        "Drag a card vertically to reorder it. Drag it horizontally relative to another card to nest it or return it toward the root. Drop indicators show the intended placement.",
+        "For keyboard or touch operation, use Move up, Move down, Indent and Outdent. The Parent item field offers an explicit alternative. Descendants and parents that would create a cycle or sixth level are unavailable.",
+        "Removing a leaf changes only the editor buffer. Removing a parent opens a dialog: delete the entire branch, or remove the parent and promote its children. Cancel keeps all items.",
+        "Review the structure and use Save changes. Removing a menu item never deletes its Page, Blog post or remote destination."
+      ],
+      "id": "structure"
     },
     {
       "title": "Choose a delivery channel",
-      "body": [],
-      "steps": [
-        "Template key selects portable keys from installed manifests, without selecting or binding a template. Each key has its own presentation format.",
-        "Any template declaring the same typed Menu key can receive the menu, even when it maps that key to another physical location.",
-        "Mustache key exposes menu.ID-or-slug data without destination fields. Saved template keys remain inactive and preserved; template mode blocks direct ID/slug references."
-      ]
-    },
-    {
-      "title": "Compatibility and safe switching",
-      "body": [],
-      "steps": [
-        "Missing keys or unsupported format/depth produce an admin warning and unavailable public menu data. They do not prevent saving or produce a public compatibility error.",
-        "Unavailable keys remain editable for future templates. Claiming a key replaces its other active portable owner in the same revision-checked save; history preserves recovery.",
-        "Legacy per-template bindings are retained. Saving through this editor adopts portable keys; reads never migrate existing content."
-      ]
-    },
-    {
-      "title": "Render the public tree",
-      "body": [],
-      "steps": [
-        "The reference example is generated automatically from the stable menu key or selected template keys. Copy it into a receiving layout: menu.ID-or-slug.items in Mustache mode or template.key.items for declared positions. No manual binding registration is needed.",
-        "Items contain label, href, slug, anchor, newTab and children. Blog links store immutable post IDs and follow the current published slug. Draft, scheduled, disabled or removed sources do not become public. Use finite sections/inverted sections, safe links and layout-owned formatting."
+      "body": [
+        "Template key and Mustache key are exclusive delivery channels. Both use Mustache syntax in a receiving layout, but their namespaces distinguish a menu identity from a template position.",
+        "Menu supplies JSON-compatible data. HTML structure, classes, responsive behavior and submenu interaction belong to the receiving template or authored layout. No manual binding registration is required for automatic references."
       ],
-      "code": "{{#menu.main.items}}<a href=\"{{href}}\">{{label}}</a>{{#children}}<a href=\"{{href}}\">{{label}}</a>{{/children}}{{/menu.main.items}}"
+      "steps": [
+        "Expand Menu settings and delivery below the structure.",
+        "Choose the navigation type for direct data, such as List or Navbar. Template keys may each specify their own supported presentation format.",
+        "Choose Mustache key when a Page, Blog article or another compatible authored layout should request this menu by ID/key. No destination field is required.",
+        "Choose Template key when an installed template declares a Menu position. Select the required portable keys and formats; no Template selector or template-specific ID is stored on the menu.",
+        "Read the generated reference example and use Copy reference example. The example follows the stable menu key or the selected template keys automatically.",
+        "Switching channels preserves inactive template selections. Direct menu references are unavailable in Template key mode; saved position assignments are inactive in Mustache key mode."
+      ],
+      "id": "delivery"
     },
     {
-      "title": "Overview and recovery",
-      "body": [],
+      "title": "Compose a layout with direct Mustache data",
+      "body": [
+        "For a menu saved as main-navigation in Mustache key mode, menu.main-navigation.items exposes its root items. Explicit menu.id.main-navigation and menu.slug.main-navigation selectors are also supported; Menu currently uses the same stable value for its ID and readable key.",
+        "The editor disambiguates a key literally named id or slug with an explicit ID selector. The data fields are id, slug, name, type and items. Each item contains label, href, slug, anchor, newTab and children.",
+        "Normal variables are escaped. Sections iterate finite arrays or conditionally render values; inverted sections provide the empty/false alternative. Values returned by a plugin are never interpreted again as Mustache code."
+      ],
       "steps": [
-        "Search and clear filters with the icon controls. Column headers change ordering; the pager preserves filters and shows result/page totals.",
-        "Use Trash for recoverable removal and History to restore earlier catalogs. Concurrent changes are rejected without overwriting the saved catalog."
-      ]
+        "Create the menu, add its items, select Mustache key and save it with the key main-navigation.",
+        "Open a compatible Page or Blog HTML/Mustache editor and insert the example below into the desired authored layout. Replace main-navigation with the actual saved key.",
+        "Use href sections for links and inverted href sections for group labels. Use newTab sections for target=_blank links, with noopener noreferrer. This example includes one submenu level.",
+        "Repeat a children section explicitly for further levels when needed, up to the supported depth. Recursive partials, executable helpers, arbitrary IF/SWITCH/WHILE programs and eval are not supported.",
+        "Save or publish the receiving content through its own editorial workflow, then open the public page and follow a link. The layout, not Menu, controls the final appearance."
+      ],
+      "code": "<nav aria-label=\"Main navigation\">\n  <ul>\n    {{#menu.main-navigation.items}}\n    <li>\n      {{#href}}\n        {{#newTab}}<a href=\"{{href}}\" target=\"_blank\" rel=\"noopener noreferrer\">{{label}}</a>{{/newTab}}\n        {{^newTab}}<a href=\"{{href}}\" rel=\"noopener noreferrer\">{{label}}</a>{{/newTab}}\n      {{/href}}\n      {{^href}}<span>{{label}}</span>{{/href}}\n      {{#children}}\n      <ul><li>\n        {{#href}}{{#newTab}}<a href=\"{{href}}\" target=\"_blank\" rel=\"noopener noreferrer\">{{label}}</a>{{/newTab}}{{^newTab}}<a href=\"{{href}}\" rel=\"noopener noreferrer\">{{label}}</a>{{/newTab}}{{/href}}\n        {{^href}}<span>{{label}}</span>{{/href}}\n      </li></ul>\n      {{/children}}\n    </li>\n    {{/menu.main-navigation.items}}\n  </ul>\n  {{^menu.main-navigation.items}}<p>No navigation items are available.</p>{{/menu.main-navigation.items}}\n</nav>",
+      "id": "mustache-layout"
+    },
+    {
+      "title": "Connect declared template keys",
+      "body": [
+        "A template declares static, typed Menu locations and mustacheSlots in its own manifest. A portable key can map to a different physical location in another template; the menu is not bound to one template name.",
+        "The JSON below is a manifest fragment, not a complete template package. Merge it into a valid manifest whose registered menu partial and files already exist. Technical keys are identifiers, not translated labels."
+      ],
+      "steps": [
+        "In the receiving template, declare the typed Menu location and its corresponding mustacheSlots entry. The location must support the chosen format and depth.",
+        "In Menu settings and delivery, select Template key, enable primary-menu and choose a format supported by the receiving location.",
+        "Save the menu. Claiming a key replaces another active portable owner of that key in the same revision-checked save; it does not delete the other menu.",
+        "In a compatible authored layout, iterate template.primary-menu.items. A template may also consume the same registered position through its native Menu partial.",
+        "Activate another valid installed template declaring the same key to reuse the menu. A missing or incompatible declaration produces a private notice and unavailable data, without a public compatibility exception."
+      ],
+      "code": "{\n  \"menuLocations\": {\n    \"header-primary\": {\n      \"name\": \"Primary navigation\",\n      \"description\": \"Main site navigation\",\n      \"types\": [\n        \"navbar\",\n        \"list\"\n      ],\n      \"defaultType\": \"navbar\",\n      \"maxDepth\": 5\n    }\n  },\n  \"mustacheSlots\": {\n    \"primary-menu\": {\n      \"plugin\": \"menu\",\n      \"location\": \"header-primary\",\n      \"description\": \"Primary navigation data\"\n    }\n  }\n}",
+      "id": "template-keys"
+    },
+    {
+      "title": "Read compatibility and source notices",
+      "body": [
+        "Unavailable selections are preserved for deliberate correction. Reads never rewrite saved menus or migrate legacy assignments.",
+        "A missing simple qualified reference remains escaped literal text; a missing collection does not iterate, and its inverted section can display a fallback. Use section-based layouts when optional data may be absent."
+      ],
+      "steps": [
+        "Review notices in Overview or the editor for missing template keys, unsupported presentation formats, excessive receiving-template depth or ambiguous locations.",
+        "Select a compatible key/format or activate a compatible template. Saving is still allowed for template availability issues; malformed data, authorization and revision failures remain actual errors.",
+        "If a linked Blog post becomes draft, future, deleted, missing or its provider is disabled, its public branch is omitted. Existing unavailable Blog references remain editable and can be saved without inventing a replacement.",
+        "New unavailable Blog references are rejected. For a Page destination that has been permanently removed, select a valid replacement before saving when its original record can no longer be resolved.",
+        "Legacy per-template assignments and inactive portable keys remain available for supported reads and recovery. Saving through the current editor adopts the portable-key contract without changing content on GET."
+      ],
+      "id": "availability"
+    },
+    {
+      "title": "Save safely and reuse a menu",
+      "body": [
+        "Save changes commits the menu catalog with session authorization, CSRF, revision checks, locking and history. It does not publish Pages or Blog posts. Public navigation reflects the successfully saved Menu data through its selected channel.",
+        "The revision covers the catalog, so another editor saving any menu can invalidate an older open form. A failed operation leaves the current browser buffer available."
+      ],
+      "steps": [
+        "Review the name/key, structure, destination options and delivery channel, then use Save changes and wait for the successful reload.",
+        "Reopen the menu and expand a card to confirm the saved values. Rename the display name if needed; its stable references remain unchanged.",
+        "When changing menus or leaving with unsaved changes, use the browser confirmation to keep editing or discard the buffer. Source selections alone are not saved menu items until added.",
+        "If a conflict occurs, preserve the intended changes, reload the current catalog and reapply them against the new revision. A stale form cannot silently overwrite another edit.",
+        "Reuse a Mustache menu in multiple compatible layouts, or a Template key menu in any receiving template declaring its selected portable keys."
+      ],
+      "id": "saving"
+    },
+    {
+      "title": "Search the overview and navigate results",
+      "body": [
+        "Overview lists saved menus and uses the shared table controls. The editor source chooser and the Overview table are separate lists with different purposes."
+      ],
+      "steps": [
+        "Open Overview and enter a search term. Use the status filter when applicable, then Search; Clear resets the filter controls.",
+        "Select a sortable column header to choose that column and toggle ascending or descending order. The arrow identifies the active direction.",
+        "Use the centered seven-position pager below the results. Previous/next move one page; the ellipsis controls open upward menus of pages outside the adjacent page window. Unavailable controls remain visible and disabled.",
+        "Read the result range, total, page count and displayed count in the footer. The footer follows the complete table in normal page flow.",
+        "Use Edit on the desired row or create another menu. Unavailable destination notices should be reviewed before relying on the public navigation."
+      ],
+      "id": "overview"
+    },
+    {
+      "title": "Recover removed menus and catalog revisions",
+      "body": [
+        "Trash removes a menu reversibly while preserving its assignments. History restores a previous menu catalog, not just one card or one menu. Restoring a catalog can therefore affect all menus and their bindings."
+      ],
+      "steps": [
+        "In Overview, use Move to trash on the target menu and confirm. Its public data becomes unavailable through the relevant channels.",
+        "Open Trash, select Restore menu and verify the recovered content and delivery keys. Source content is not copied or recreated by this operation.",
+        "Open History to inspect the available previous catalog revisions. Choose a known revision and confirm only after accounting for its effects on other menus.",
+        "After restoring, review Overview notices, reopen affected menus and test the receiving layouts. Restored key collisions or unavailable templates require explicit correction; ambiguous data is not guessed.",
+        "Presentation remains readable even when Menu is disabled. Restore/write actions still require the plugin and the normal administrative authorization checks."
+      ],
+      "id": "recovery"
     }
   ]
 }

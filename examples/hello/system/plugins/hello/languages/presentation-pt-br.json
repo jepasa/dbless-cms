@@ -1,0 +1,27 @@
+{
+  "language": "pt-br",
+  "title": "Hello",
+  "lead": "Um pequeno plugin confiável que demonstra rotas privadas e públicas.",
+  "sections": [
+    {
+      "id": "install",
+      "title": "Instalar e abrir o exemplo",
+      "body": [
+        "Instale os diretórios privados e públicos completos do exemplo em conjunto."
+      ],
+      "steps": [
+        "Abra o catálogo de plugins e habilite o Hello.",
+        "Abra sua Visão Geral no sidebar e consulte a rota pública de boas-vindas indicada ali."
+      ]
+    },
+    {
+      "id": "configure",
+      "title": "Configurar e consultar os contratos",
+      "body": [],
+      "steps": [
+        "Abra as configurações do plugin e altere a saudação pública. Salve e confira a rota pública.",
+        "Consulte o manifesto, o router e os scripts fornecidos ao adaptar o exemplo. Mantenha valores privados fora de publicSettings."
+      ]
+    }
+  ]
+}

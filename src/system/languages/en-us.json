@@ -530,6 +530,8 @@
     "table.page": "Page {page}",
     "table.summary": "{start}–{end} of {total} results · Page {page} of {pages} · {count} shown",
     "table.pagination": "Pagination",
-    "table.unavailable": "Unavailable page"
+    "table.unavailable": "Unavailable page",
+    "catalog.presentation_fallback_missing": "This tutorial is not provided in {locale}; the canonical English version is displayed.",
+    "catalog.presentation_fallback_invalid": "The tutorial translation for {locale} is unavailable or invalid; the canonical English version is displayed."
   }
 }

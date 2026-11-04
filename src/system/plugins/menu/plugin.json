@@ -2,7 +2,7 @@
   "id": "menu",
   "name": "Menu",
   "description": "Gestão de menus e submenus dos templates públicos.",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "api": 1,
   "cmsMajor": 2,
   "entry": "Plugin.php",
@@ -386,5 +386,8 @@
       "type",
       "items"
     ]
+  },
+  "presentationLocales": {
+    "pt-br": "languages/presentation-pt-br.json"
   }
 }

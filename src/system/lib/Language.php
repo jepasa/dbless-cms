@@ -8,14 +8,14 @@ final class Language {
   private string $selected = 'pt-br';
   public bool $fallback = false;
 
-  /** Recebe diretório privado opcional; descobre arquivos regulares, rejeita inválidos e falha se a base não existir. */
+  /** Recebe diretório privado opcional; descobre dicionários regulares, reserva presentation-LOCALE.json para tutoriais, rejeita inválidos e falha se a base não existir. */
   public function __construct(?string $directory = null) {
     $directory ??= dirname(__DIR__) . '/languages';
     if (is_link($directory) || !is_dir($directory)) throw new \RuntimeException('Diretório de idiomas indisponível.');
     $base = $this->load($directory . '/pt-br.json');
     $this->catalogs['pt-br'] = $base;
     foreach (glob($directory . '/*.json') ?: [] as $file) {
-      if (basename($file) === 'pt-br.json') continue;
+      if (basename($file) === 'pt-br.json' || preg_match('/^presentation-[a-z]{2,3}(?:-[a-z0-9]{2,8})*\.json$/D',basename($file))) continue;
       try {
         $catalog = $this->load($file);
         $keys = array_keys($catalog['messages']); $required = array_keys($base['messages']);
