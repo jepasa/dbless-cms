@@ -42,14 +42,14 @@ final class SlidesStore {
       $seen[$item['id']]=true;
     }
   }
-  /** Valida documento completo sem consultar templates; recebe dados e retorna cópia ou 422. */
+  /** Validate bounded collections, optional delivery modes and bindings; receive data, return unchanged validated data or 422, without template I/O or writes. */
   public static function validate(array $data): array {
     self::fields($data,['schema_version','collections','assignments']);
     if ($data['schema_version']!==1||!is_array($data['collections'])||count($data['collections'])>50||!is_array($data['assignments'])||!array_is_list($data['assignments'])||count($data['assignments'])>200) throw new HttpError(422,'Documento inválido.','slides.error.contract');
     foreach($data['collections'] as $id=>$set) {
-      if(!is_array($set))throw new HttpError(422,'Invalid collection.','slides.error.contract');$extra=array_intersect_key($set,array_flip(['maxItems','transition']));self::fields(array_diff_key($set,$extra),['id','name','contentType','status','deleted','autoplay','interval','items']);
+      if(!is_array($set))throw new HttpError(422,'Invalid collection.','slides.error.contract');$extra=array_intersect_key($set,array_flip(['maxItems','transition','insertionMode']));self::fields(array_diff_key($set,$extra),['id','name','contentType','status','deleted','autoplay','interval','items']);
       if (!is_string($id)||!self::identifier($id)||$set['id']!==$id||!self::text($set['name'],160)||!in_array($set['contentType'],self::CONTENT_TYPES,true)||!in_array($set['status'],['draft','published'],true)||!is_bool($set['deleted'])||!is_bool($set['autoplay'])||!is_int($set['interval'])||$set['interval']<3000||$set['interval']>30000) throw new HttpError(422,'Conjunto inválido.','slides.error.contract');
-      Schema::validate($extra,['type'=>'object','additionalProperties'=>false,'properties'=>['maxItems'=>['type'=>'integer','minimum'=>1,'maximum'=>50],'transition'=>['type'=>'object','additionalProperties'=>false,'required'=>['effect','duration','orientation'],'properties'=>['effect'=>['enum'=>['slide','fade','none']],'duration'=>['type'=>'integer','minimum'=>0,'maximum'=>5000],'orientation'=>['enum'=>['horizontal','vertical']]]]]]);
+      Schema::validate($extra,['type'=>'object','additionalProperties'=>false,'properties'=>['insertionMode'=>['enum'=>['template','mustache']],'maxItems'=>['type'=>'integer','minimum'=>1,'maximum'=>50],'transition'=>['type'=>'object','additionalProperties'=>false,'required'=>['effect','duration','orientation'],'properties'=>['effect'=>['enum'=>['slide','fade','none']],'duration'=>['type'=>'integer','minimum'=>0,'maximum'=>5000],'orientation'=>['enum'=>['horizontal','vertical']]]]]]);
       self::items($set['items']);
     }
     $seen=[];

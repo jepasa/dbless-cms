@@ -13,7 +13,7 @@ if(!is_string($id)||($id!==''&&!SlidesStore::identifier($id)))throw new HttpErro
 $editing=$data['collections'][$id]??['id'=>'','name'=>'','contentType'=>'banner','status'=>'draft','deleted'=>false,'autoplay'=>false,'interval'=>6000,'items'=>[]];
 if($route==='editor'&&$id!==''&&(!isset($data['collections'][$id])||$editing['deleted']))throw new HttpError(404,'Conjunto indisponível.','slides.error.missing');
 $issues=[];$missingMedia=[];
-foreach($data['assignments'] as $binding){try{Slides::binding($context->store,$data,$binding);}catch(HttpError $error){if(!in_array($error->status,[404,422],true))throw $error;$issues[]=$binding['template'].' / '.$binding['location'];}}
+foreach($data['assignments'] as $binding){if(!\DBLESSCMS\ContentPlacement::allows($data['collections'][$binding['collection']],'template'))continue;try{Slides::binding($context->store,$data,$binding);}catch(HttpError $error){if(!in_array($error->status,[404,422],true))throw $error;$issues[]=$binding['template'].' / '.$binding['location'];}}
 $resolver=new Slides($context->store,'essencial');
 foreach($data['collections'] as $set)if(!$set['deleted'])foreach($set['items'] as $item)if($item['image']!==''&&!$resolver->imageExists($item['image']))$missingMedia[]=$set['name'].' / '.$item['title'];
 ?>

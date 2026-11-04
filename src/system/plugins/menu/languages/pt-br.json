@@ -72,13 +72,19 @@
     "options.newTab": "Abrir novos links em nova aba por padrão",
     "menu.contentHistory": "Histórico de conteúdo",
     "menu.placementTitle": "Local de exibição",
-    "menu.placementHelp": "Os locais e formatos são definidos pelo template ativo. Marque onde este menu deve aparecer; uma seleção pode substituir o menu atualmente associado. Vínculos de outros templates são preservados.",
+    "menu.placementHelp": "As chaves do template vêm do manifesto ativo. Referências Mustache não exigem campos de destino.",
     "menu.useLocation": "Exibir neste local",
     "menu.placementWarning": "Vínculos preservados que não pertencem aos locais atuais: {items}. O conteúdo continua editável; revise a localização no template ativo.",
-    "menu.noLocations": "O template ativo não declara locais de menu. O menu pode ser salvo sem associação.",
+    "menu.noLocations": "O manifesto ativo não declara posições compatíveis para este plugin. Utilize Mustache ou declare uma posição tipada em mustacheSlots.",
     "menu.replaces": "Ao selecionar, substituirá a associação atual de: {name}.",
     "menu.error.templateChanged": "As configurações do site ou o template mudaram. Reabra o editor para atualizar os locais antes de salvar.",
     "menu.historyInactive": "A restauração do conteúdo exige o plugin ativo. A ativação é feita na Visão Geral de Plugins.",
-    "menu.contentType": "Tipo de navegação"
+    "menu.contentType": "Tipo de navegação",
+    "menu.placementMode": "Forma de inserção",
+    "menu.byKey": "Chave do template",
+    "menu.byMustache": "Chave de Mustache",
+    "menu.exclusiveHelp": "Ao salvar, os canais tornam-se exclusivos. Chave do template bloqueia referências diretas ao plugin; Chave de Mustache desativa os vínculos de template, preservando-os para reutilização.",
+    "menu.legacyPlacement": "O uso legado é preservado até salvar este registro. O salvamento adota o canal exclusivo selecionado; revise as publicações que utilizam o outro canal.",
+    "menu.error.positionRequired": "Selecione uma posição declarada no template ou escolha Chave de Mustache."
   }
 }

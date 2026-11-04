@@ -16,9 +16,9 @@
       "title": "Choose a location",
       "code": "{{#menu.main.items}}<a href=\"{{href}}\">{{label}}</a>{{#children}}<a href=\"{{href}}\">{{label}}</a>{{/children}}{{/menu.main.items}}",
       "steps": [
-        "In the menu editor, choose a location from the active template, an allowed navigation type and the intended page filter. Save and review the public destination.",
-        "The editor reads locations, permitted types and maximum depth from the active template manifest. Dynamic items and assignments stay in the menu repository.",
-        "Write direct plugin references in HTML/code. The Core resolves them automatically; existing saved bindings remain compatible."
+        "Select Template key as the insertion method and choose a matching position from the active manifest. The menu is available only through that channel after saving.",
+        "Select Mustache key for direct menu.<id-or-slug> data without destination fields. Template assignments remain preserved but inactive.",
+        "Save and reopen to confirm the chosen mode. A site/template revision conflict requires refreshing destinations before retrying."
       ],
       "body": []
     },
@@ -60,6 +60,18 @@
         "All result rows and the seven-position pager scroll together with the page. The pager follows the complete table or grid without covering any result; only wide tables scroll horizontally. Ellipsis buttons open upward menus containing earlier or later pages outside the three displayed numbers. Use the keyboard or a page button to navigate.",
         "Read the total results, displayed range/count and page totals below the pager. Unavailable directions and empty catalogs retain disabled controls."
       ]
+    },
+    {
+      "title": "Exclusive delivery channels",
+      "steps": [
+        "Template key exposes this record only through its assigned template positions. Direct menu.<id-or-slug> references are unavailable.",
+        "Mustache key exposes typed data through menu.<id-or-slug>.<field>; render items with standard sections in the receiving layout. Template assignments are preserved but inactive.",
+        "Legacy records retain previous access until saved with an explicit mode. Review existing publications before saving the selected channel. Missing simple references appear as literal text; missing collections do not iterate."
+      ],
+      "body": [
+        "Delivery mode is stored on the record and checked by all read channels."
+      ],
+      "code": "{{#menu.navigation.items}}<a href=\"{{href}}\">{{label}}</a>{{/menu.navigation.items}}"
     }
   ]
 }

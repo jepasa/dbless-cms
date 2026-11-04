@@ -23,14 +23,14 @@ final class Navigation {
     return $locations;
   }
 
-  /** Confere associação contra template instalado; recebe store/documento/vínculo e lança 422 para destino/tipo/profundidade inválidos, sem escrita. */
+  /** Validate a template-channel binding; receive store/document/binding, throw 422 on channel/destination/type/depth mismatch, without writes. */
   public static function binding(JsonStore $store,array $data,array $binding): void {
     $locations=self::locations($store->templates->get($binding['template']));$location=$locations[$binding['location']]??null;
     $menu=$data['menus'][$binding['menu']]??null;
-    if ($location===null||$menu===null||$menu['deleted']||!in_array($binding['type'],$location['types'],true)||MenuStore::items($menu['items'])>$location['maxDepth']) throw new HttpError(422,'Associação incompatível.','menu.error.binding');
+    if ($location===null||$menu===null||$menu['deleted']||!ContentPlacement::allows($menu,'template')||!in_array($binding['type'],$location['types'],true)||MenuStore::items($menu['items'])>$location['maxDepth']) throw new HttpError(422,'Associação incompatível.','menu.error.binding');
   }
 
-  /** Resolve uma localização ativa para nome/tipo/árvore públicos ou null para navegação nativa; recebe chave, não grava e propaga erros reais de leitura/contrato. */
+  /** Resolve a template-allowed active location; receive key, return public tree or null, enforce channel/type/depth and propagate storage/contract failures without writes. */
   public function location(string $key): ?array {
     $locations=self::locations($this->store->templates->get($this->template));
     if (!isset($locations[$key])) return null;
@@ -41,7 +41,7 @@ final class Navigation {
     if ($this->document===null) return null;
     foreach ($this->document['assignments'] as $binding) if ($binding['template']===$this->template&&$binding['location']===$key) {
       $menu=$this->document['menus'][$binding['menu']];
-      if ($menu['deleted']||!in_array($binding['type'],$locations[$key]['types'],true)||MenuStore::items($menu['items'])>$locations[$key]['maxDepth']) return null;
+      if ($menu['deleted']||!ContentPlacement::allows($menu,'template')||!in_array($binding['type'],$locations[$key]['types'],true)||MenuStore::items($menu['items'])>$locations[$key]['maxDepth']) return null;
       return ['name'=>$menu['name'],'type'=>$binding['type'],'items'=>$this->tree($menu['items'])];
     }
     return null;

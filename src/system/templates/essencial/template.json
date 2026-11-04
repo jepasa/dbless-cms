@@ -305,6 +305,61 @@
       "plugin": "widgets",
       "location": "footer-note",
       "description": "Footer note assigned in Widgets."
+    },
+    "slides-home-hero": {
+      "plugin": "slides",
+      "location": "home-hero",
+      "description": "Slides position: Banners de demonstração"
+    },
+    "slides-home-products": {
+      "plugin": "slides",
+      "location": "home-products",
+      "description": "Slides position: Produtos de demonstração"
+    },
+    "slides-home-testimonials": {
+      "plugin": "slides",
+      "location": "home-testimonials",
+      "description": "Slides position: Depoimentos ilustrativos"
+    },
+    "slides-home-announcements": {
+      "plugin": "slides",
+      "location": "home-announcements",
+      "description": "Slides position: Faixa de avisos"
+    },
+    "slides-home-logos": {
+      "plugin": "slides",
+      "location": "home-logos",
+      "description": "Slides position: Marcas de exemplo"
+    },
+    "slides-page-showcase": {
+      "plugin": "slides",
+      "location": "page-showcase",
+      "description": "Slides position: Banner em páginas dinâmicas"
+    },
+    "menu-footer-links": {
+      "plugin": "menu",
+      "location": "footer-links",
+      "description": "Menu position: Navegação complementar no rodapé."
+    },
+    "menu-demo-navbar": {
+      "plugin": "menu",
+      "location": "demo-navbar",
+      "description": "Menu position: Exemplo Navbar na página de recursos."
+    },
+    "menu-demo-sidebar": {
+      "plugin": "menu",
+      "location": "demo-sidebar",
+      "description": "Menu position: Exemplo Sidebar na página de recursos."
+    },
+    "menu-demo-list": {
+      "plugin": "menu",
+      "location": "demo-list",
+      "description": "Menu position: Exemplo Lista na página de recursos."
+    },
+    "menu-demo-dropdown": {
+      "plugin": "menu",
+      "location": "demo-dropdown",
+      "description": "Menu position: Exemplo Dropdown na página de recursos."
     }
   }
 }
