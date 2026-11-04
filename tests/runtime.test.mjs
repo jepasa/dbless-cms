@@ -31,6 +31,8 @@ for(const [tree,application] of trees){
     const context=fixture(application);
     try {
       assert.deepEqual(fs.readdirSync(path.join(context.application,'system/templates')),['essencial']);
+      // These are distribution-owned new-install examples; existing consumers intentionally retain their earlier seeds.
+      const initial=JSON.parse(fs.readFileSync(path.join(context.temporary,'contents/plugins.json')));assert.equal(initial.plugins.posts.enabled,true);assert.equal(initial.plugins.pages,undefined);assert.equal(initial.plugins.blog,undefined);
       const site=JSON.parse(fs.readFileSync(path.join(context.temporary,'contents/site.json')));assert.equal(site.template,'essencial');
       for(const file of fs.readdirSync(path.join(context.temporary,'contents/pages'))){const data=JSON.parse(fs.readFileSync(path.join(context.temporary,'contents/pages',file)));for(const reference of media(data))assert.ok(fs.existsSync(path.join(context.application,'public_html',reference)),reference);const response=request(context,{query:{page:data.slug}});assert.equal(response.status,data.slug==='404'?404:200,response.body);assert.doesNotMatch(response.body,/jepasaDotCom|<svg\b|cdn\.jsdelivr|fonts\.googleapis/);}
       const output=php(context,"require $argv[1].'/system/bootstrap.php';$s=new DBLESSCMS\\JsonStore(new DBLESSCMS\\Config());$p=new DBLESSCMS\\Plugins($s);foreach((new DBLESSCMS\\MenuStore($s))->read()['data']['assignments'] as $b)DBLESSCMS\\Navigation::binding($s,(new DBLESSCMS\\MenuStore($s))->read()['data'],$b);$slides=(new DBLESSCMS\\SlidesStore($s))->read()['data'];foreach($slides['assignments'] as $b)DBLESSCMS\\Slides::binding($s,$slides,$b);echo json_encode([array_keys($s->compatibleTemplates()),array_keys($p->all()),$p->invalid()]);");

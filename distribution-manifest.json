@@ -3005,8 +3005,8 @@
     },
     {
       "path": "tests/posts-consolidation.test.mjs",
-      "bytes": 12660,
-      "sha256": "0c32822ebe5e3f5d75a730f0b7048f50babf137e71f51d49fbdef528063de148"
+      "bytes": 13365,
+      "sha256": "eee1fd6a83a95032b8bd3a7af9a726ccfcbbeeeddc7d46c6c7365e431cc484f3"
     },
     {
       "path": "tests/posts-http.test.mjs",
@@ -3035,8 +3035,8 @@
     },
     {
       "path": "tests/runtime.test.mjs",
-      "bytes": 10034,
-      "sha256": "ffc9fcc25e1d09ac428929687009c7dec33e1bc10b8011595fbcf575dfd543b3"
+      "bytes": 10398,
+      "sha256": "393e9bded81cfc79593c483d88e4f55f084a4cf8c86e794ef67d73b97240241a"
     },
     {
       "path": "tests/semgrep/http-input.php",
