@@ -2555,8 +2555,8 @@
     },
     {
       "path": "tests/blog.test.mjs",
-      "bytes": 23478,
-      "sha256": "bdfcc79092ee8ebe601d023034605101fcbc754eb348e437e3ab77626b3e0632"
+      "bytes": 23797,
+      "sha256": "0307f48aa7028e618c2a45377afc203f4fce6dd5993b76b970e9f698609dbb3d"
     },
     {
       "path": "tests/browser/admin-brand.mjs",

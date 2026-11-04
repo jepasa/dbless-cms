@@ -14,10 +14,12 @@ function client(base){
   let cookie='';
   return async (route,options={})=>{const response=await fetch(base+route,{...options,redirect:'manual',headers:{...(cookie?{Cookie:cookie}:{}),...options.headers}});for(const header of response.headers.getSetCookie())if(header.startsWith('DBLESSCMSSESSID='))cookie=header.split(';')[0];return response;};
 }
+/** Fully consume a status/header-only HTTP response before fixture teardown; receives its promise, returns the same Response, and propagates network/body failures without suppressing assertions. */
+async function drain(pending){const response=await pending;await response.arrayBuffer();return response;}
 /** Extract a required opaque CSRF/revision hex input; takes HTML/name, returns its raw 64-character value without entity decoding, or fails the assertion. */
 function field(html,name){const match=html.match(new RegExp('name="'+name+'"[^>]*value="([^"]*)"'));assert.ok(match,name);assert.match(match[1],/^[a-f0-9]{64}$/);return match[1];}
 /** Authenticate normally using the login form; takes request callback, returns its session CSRF and asserts the redirect. */
-async function login(request){const html=await (await request('/cms-admin/')).text();const response=await request('/cms-admin/',{method:'POST',body:new URLSearchParams({action:'login',csrf_token:field(html,'csrf_token'),username:'editor',password})});assert.equal(response.status,303);return field(await (await request('/cms-admin/?view=plugin-panel&plugin=blog&route=editor')).text(),'csrf_token');}
+async function login(request){const html=await (await request('/cms-admin/')).text();const response=await request('/cms-admin/',{method:'POST',body:new URLSearchParams({action:'login',csrf_token:field(html,'csrf_token'),username:'editor',password})});await response.arrayBuffer();assert.equal(response.status,303);return field(await (await request('/cms-admin/?view=plugin-panel&plugin=blog&route=editor')).text(),'csrf_token');}
 
 for(const application of applications){
   test(`${application}: blog contracts reject unsafe content, bad references, duplicate slugs and invalid schedules`,()=>{
@@ -76,11 +78,9 @@ for(const application of applications){
   test(`${application}: public templates receive only visible articles while authenticated preview remains explicit`,()=>{
     const context=fixture(application);
     try{
-      for(const template of ['essencial','jepasaDotCom']){
+      for(const template of fs.readdirSync(path.join(context.app,'system/templates'))){
         const partial=path.join(context.app,'system/templates',template,'partials/blog.php');
-        let descriptor;
-        try{descriptor=fs.openSync(partial,fs.constants.O_WRONLY|fs.constants.O_TRUNC|fs.constants.O_NOFOLLOW);}
-        catch(error){if(error.code==='ENOENT'&&template==='jepasaDotCom')continue;throw error;}
+        const descriptor=fs.openSync(partial,fs.constants.O_WRONLY|fs.constants.O_TRUNC|fs.constants.O_NOFOLLOW);
         try{fs.writeFileSync(descriptor,"<?php /** Synthetic projection observer: print only validated opaque IDs to verify least-data delivery. */ echo DBLESSCMS\\e(implode(',',array_keys($blogModel['catalog']['articles'])));");}
         finally{fs.closeSync(descriptor);}
       }
@@ -103,20 +103,20 @@ for(const application of applications){
     const sandbox=await server(application),request=client(sandbox.base);
     try{
       const list=await request('/plugins/blog/list');assert.equal(list.status,200);const html=await list.text();assert.match(html,/Designing with clarity/);assert.doesNotMatch(html,/A draft to make your own|A scheduled example|A restorable example|<svg\b/);
-      for(const slug of ['a-draft-to-make-your-own','a-scheduled-example','a-restorable-example','missing'])assert.equal((await request('/plugins/blog/article?slug='+slug)).status,404,slug);
-      assert.equal((await request('/plugins/blog/editor')).status,404);assert.equal((await request('/plugins/blog/article?slug[]=bad')).status,400);assert.equal((await request('/plugins/blog/list?page=0')).status,400);assert.equal((await request('/plugins/blog/list?page=9999')).status,404);
-      const search=await request('/plugins/blog/list?q=database');assert.equal(search.status,200);assert.equal(search.headers.get('x-robots-tag'),'noindex, follow');
+      for(const slug of ['a-draft-to-make-your-own','a-scheduled-example','a-restorable-example','missing'])assert.equal((await drain(request('/plugins/blog/article?slug='+slug))).status,404,slug);
+      assert.equal((await drain(request('/plugins/blog/editor'))).status,404);assert.equal((await drain(request('/plugins/blog/article?slug[]=bad'))).status,400);assert.equal((await drain(request('/plugins/blog/list?page=0'))).status,400);assert.equal((await drain(request('/plugins/blog/list?page=9999'))).status,404);
+      const search=await drain(request('/plugins/blog/list?q=database'));assert.equal(search.status,200);assert.equal(search.headers.get('x-robots-tag'),'noindex, follow');
       const article=await request('/plugins/blog/article?slug=designing-with-clarity');const body=await article.text();assert.equal(article.status,200);assert.match(body,/itemtype="https:\/\/schema.org\/BlogPosting"/);assert.match(body,/og:type" content="article"/);assert.match(body,/article:published_time/);assert.match(body,/<span itemprop="name">Editorial Team<\/span>/);assert.match(body,/itemprop="position" content="2"/);assert.match(body,/&lt;sample&gt;/);assert.doesNotMatch(body,/<sample>/);assert.ok(!body.includes('Join the conversation'));
       for(const route of ['feed','sitemap']){const response=await request('/plugins/blog/'+route);assert.equal(response.status,200);assert.match(response.headers.get('content-type'),/xml/);const xml=await response.text();assert.match(xml,/designing-with-clarity/);assert.doesNotMatch(xml,/a-draft-to-make-your-own|a-scheduled-example|a-restorable-example/);}
       const previewPath='/cms-admin/?view=plugin&plugin=blog&route=preview&id=a-draft-to-make-your-own';assert.doesNotMatch(await (await request(previewPath)).text(),/Authenticated preview/);
-      const csrf=await login(request);const integratedPreview=await request('/cms-admin/?view=plugin-panel&plugin=blog&route=preview&id=a-draft-to-make-your-own');assert.equal(integratedPreview.status,303);assert.equal(integratedPreview.headers.get('location'),sandbox.base+previewPath);const preview=await request(previewPath);assert.equal(preview.status,200);assert.match(preview.headers.get('x-robots-tag'),/noindex/);assert.match(await preview.text(),/Authenticated preview/);
-      assert.equal((await request('/cms-admin/?view=plugin-api&plugin=blog&route=editor&operation=save',{method:'POST',body:new URLSearchParams({csrf_token:'forged'})})).status,403);
-      assert.equal((await request('/cms-admin/?view=plugin-api&plugin=blog&route=overview&operation=save',{method:'POST',body:new URLSearchParams({csrf_token:csrf})})).status,404);
-      inspect(sandbox,boot+"$b->mutate($b->read()['revision'],static function($d){$a=&$d['articles']['designing-with-clarity'];$a['aliases'][]=$a['slug'];$a['slug']='a-clearer-design';return $d;});echo 'true';");const old=await request('/plugins/blog/article?slug=designing-with-clarity');assert.equal(old.status,301);assert.equal(old.headers.get('location'),sandbox.base+'/plugins/blog/article?slug=a-clearer-design');
-      for(const id of ['essencial',...(fs.existsSync(path.join(sandbox.app,'system/templates/jepasaDotCom'))?['jepasaDotCom']:[])]){
+      const csrf=await login(request);const integratedPreview=await drain(request('/cms-admin/?view=plugin-panel&plugin=blog&route=preview&id=a-draft-to-make-your-own'));assert.equal(integratedPreview.status,303);assert.equal(integratedPreview.headers.get('location'),sandbox.base+previewPath);const preview=await request(previewPath);assert.equal(preview.status,200);assert.match(preview.headers.get('x-robots-tag'),/noindex/);assert.match(await preview.text(),/Authenticated preview/);
+      assert.equal((await drain(request('/cms-admin/?view=plugin-api&plugin=blog&route=editor&operation=save',{method:'POST',body:new URLSearchParams({csrf_token:'forged'})}))).status,403);
+      assert.equal((await drain(request('/cms-admin/?view=plugin-api&plugin=blog&route=overview&operation=save',{method:'POST',body:new URLSearchParams({csrf_token:csrf})}))).status,404);
+      inspect(sandbox,boot+"$b->mutate($b->read()['revision'],static function($d){$a=&$d['articles']['designing-with-clarity'];$a['aliases'][]=$a['slug'];$a['slug']='a-clearer-design';return $d;});echo 'true';");const old=await drain(request('/plugins/blog/article?slug=designing-with-clarity'));assert.equal(old.status,301);assert.equal(old.headers.get('location'),sandbox.base+'/plugins/blog/article?slug=a-clearer-design');
+      for(const id of fs.readdirSync(path.join(sandbox.app,'system/templates'))){
         inspect(sandbox,"$d=$s->read('site');$d['data']['template']='"+id+"';$s->save('site',DBLESSCMS\\JsonStore::encode($d['data']),$d['revision']);echo 'true';");const response=await request('/plugins/blog/article?slug=a-clearer-design');assert.equal(response.status,200);const markup=await response.text();assert.match(markup,/og:type" content="article"/);assert.match(markup,/rel="canonical" href="[^"]*plugins\/blog\/article\?slug=a-clearer-design"/);
       }
-      inspect(sandbox,"$p=new DBLESSCMS\\Plugins($s);$state=$p->state('blog');$p->save('blog',false,$state['settings'],$p->document()['revision']);echo 'true';");assert.equal((await request('/plugins/blog/list')).status,404);assert.equal((await request('/cms-admin/?view=plugin-panel&plugin=blog&route=settings')).status,200);
+      inspect(sandbox,"$p=new DBLESSCMS\\Plugins($s);$state=$p->state('blog');$p->save('blog',false,$state['settings'],$p->document()['revision']);echo 'true';");assert.equal((await drain(request('/plugins/blog/list'))).status,404);assert.equal((await drain(request('/cms-admin/?view=plugin-panel&plugin=blog&route=settings'))).status,200);
       assert.doesNotMatch(sandbox.logs(),/PHP (?:Warning|Fatal|Parse)/);
     }finally{await sandbox.close();}
   });
@@ -126,17 +126,17 @@ for(const application of applications){
       inspect(sandbox,"$p=new DBLESSCMS\\Plugins($s);$state=$p->state('blog');$state['settings']['discussion']['enabled']=true;$p->saveOptions('blog',$state['settings'],$p->document()['revision']);echo 'true';");
       const html=await (await reader('/plugins/blog/article?slug=designing-with-clarity')).text(),token=field(html,'csrf_token');
       const values={article:'designing-with-clarity',name:'Synthetic Reader',body:'A useful example, thank you.',consent:'1',csrf_token:token,website:''};
-      assert.equal((await reader('/plugins/blog/comment',{method:'POST',body:new URLSearchParams({...values,csrf_token:'forged'})})).status,403);
-      assert.equal((await reader('/plugins/blog/comment',{method:'POST',headers:{Origin:'https://outside.test'},body:new URLSearchParams(values)})).status,403);
-      assert.equal((await reader('/plugins/blog/comment',{method:'POST',body:new URLSearchParams({...values,consent:'0'})})).status,422);
+      assert.equal((await drain(reader('/plugins/blog/comment',{method:'POST',body:new URLSearchParams({...values,csrf_token:'forged'})}))).status,403);
+      assert.equal((await drain(reader('/plugins/blog/comment',{method:'POST',headers:{Origin:'https://outside.test'},body:new URLSearchParams(values)}))).status,403);
+      assert.equal((await drain(reader('/plugins/blog/comment',{method:'POST',body:new URLSearchParams({...values,consent:'0'})}))).status,422);
       const submitted=await reader('/plugins/blog/comment',{method:'POST',body:new URLSearchParams(values)});assert.equal(submitted.status,303);assert.match(submitted.headers.get('location'),/submitted=1#comments$/);
       assert.doesNotMatch(await (await reader('/plugins/blog/article?slug=designing-with-clarity')).text(),/A useful example, thank you\./);
       const comments=JSON.parse(fs.readFileSync(path.join(sandbox.contents,'blog/comments.json')));const item=Object.values(comments.comments)[0];assert.equal(item.status,'pending');assert.deepEqual(Object.keys(item).sort(),['article','body','createdAt','id','name','status'].sort());
-      assert.equal((await reader('/plugins/blog/comment',{method:'POST',body:new URLSearchParams(values)})).status,409);
+      assert.equal((await drain(reader('/plugins/blog/comment',{method:'POST',body:new URLSearchParams(values)}))).status,409);
       const csrf=await login(admin),moderation=await (await admin('/cms-admin/?view=plugin-panel&plugin=blog&route=comments')).text();
       const result=await admin('/cms-admin/?view=plugin-api&plugin=blog&route=comments&operation=moderate',{method:'POST',body:new URLSearchParams({csrf_token:csrf,revision:field(moderation,'revision'),id:item.id,status:'approved'})});assert.equal(result.status,200);assert.match(await (await reader('/plugins/blog/article?slug=designing-with-clarity')).text(),/A useful example, thank you\./);
-      for(let index=0;index<3;index++)assert.equal((await reader('/plugins/blog/comment',{method:'POST',body:new URLSearchParams({...values,body:'Honeypot '+index,website:'bot'})})).status,303);
-      assert.equal((await reader('/plugins/blog/comment',{method:'POST',body:new URLSearchParams({...values,body:'Over quota'})})).status,429);assert.equal(Object.keys(JSON.parse(fs.readFileSync(path.join(sandbox.contents,'blog/comments.json'))).comments).length,1);
+      for(let index=0;index<3;index++)assert.equal((await drain(reader('/plugins/blog/comment',{method:'POST',body:new URLSearchParams({...values,body:'Honeypot '+index,website:'bot'})}))).status,303);
+      assert.equal((await drain(reader('/plugins/blog/comment',{method:'POST',body:new URLSearchParams({...values,body:'Over quota'})}))).status,429);assert.equal(Object.keys(JSON.parse(fs.readFileSync(path.join(sandbox.contents,'blog/comments.json'))).comments).length,1);
       assert.doesNotMatch(sandbox.logs(),/PHP (?:Warning|Fatal|Parse)/);
     }finally{await sandbox.close();}
   });
