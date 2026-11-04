@@ -1,23 +1,9 @@
 {
-  "id": "pages",
-  "name": "Páginas",
-  "description": "Gerenciamento de páginas, rascunhos, publicação e histórico.",
-  "version": "1.5.0",
-  "api": 1,
-  "cmsMajor": 2,
-  "entry": "Plugin.php",
-  "class": "DBLESSCMS\\PagesPlugin",
-  "assets": {
-    "css": "css/pages.css",
-    "js": "js/pages.js",
-    "icon": "pages.svg"
-  },
   "defaults": {
     "browser": {
       "pageSize": 25
     }
   },
-  "router": "Router.php",
   "routes": {
     "overview": {
       "title": "nav.pages",
@@ -62,43 +48,7 @@
       "visibility": "private"
     }
   },
-  "navigation": {
-    "label": "nav.pages",
-    "items": [
-      {
-        "label": "pages.overview",
-        "route": "overview"
-      },
-      {
-        "label": "pages.new",
-        "route": "new"
-      },
-      {
-        "separator": true
-      },
-      {
-        "label": "nav.history",
-        "route": "history"
-      },
-      {
-        "separator": true
-      },
-      {
-        "label": "pages.settings",
-        "route": "settings"
-      },
-      {
-        "separator": true
-      },
-      {
-        "label": "pages.trash",
-        "route": "trash",
-        "role": "trash"
-      }
-    ]
-  },
   "configuration": "settings",
-  "presentation": "presentation.json",
   "contentServices": {
     "list": {
       "api": 1,
@@ -775,5 +725,6 @@
       "hasNext",
       "hasPrevious"
     ]
-  }
+  },
+  "router": "Router.php"
 }

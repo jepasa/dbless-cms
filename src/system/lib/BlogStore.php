@@ -1,10 +1,19 @@
 <?php
-/** Blog persistence: fixed private paths, bounded JSON, shared CMS lock, compare-and-swap, atomic publication and recoverable history. */
+/** Shared Posts article/comment persistence: fixed private paths, bounded JSON, shared CMS lock, compare-and-swap, atomic publication and recoverable history. */
 declare(strict_types=1);
+/** Shared CMS services and validated extension integration.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
+/** Persist fixed article/comment documents under the shared writer lock while preserving recoverable native history. */
 final class BlogStore {
   /** Bind a shared JsonStore and fixed document kind; takes services/catalog|comments, performs no I/O, rejects programmer errors. */
-  public function __construct(private readonly JsonStore $store,private readonly string $kind='catalog') {
+  public function __construct(
+    /** @var JsonStore Shared private paths, revisions and writer-lock authority. */
+    private readonly JsonStore $store,
+    /** @var string Fixed native document kind, restricted to catalog or comments. */
+    private readonly string $kind='catalog'
+  ) {
     if (!in_array($kind,['catalog','comments'],true)) throw new \InvalidArgumentException('Unknown blog document.');
   }
   /** Validate fixed paths and every ancestor without following links; takes history flag, returns directory or HTTP 503. */
@@ -24,6 +33,7 @@ final class BlogStore {
   }
   /** Decode a bounded private document; takes bytes, returns validated data, rejecting corruption with 422. */
   private function decode(string $raw): array {
+    // Validate every read, including retained sources; adoption never grants trust to stored JSON.
     BlogModel::expect(strlen($raw)<=BlogModel::LIMIT);
     try {$data=json_decode($raw,true,24,JSON_THROW_ON_ERROR);}catch (\JsonException) {throw new HttpError(422,'Invalid blog JSON.','blog.error.contract');}
     BlogModel::expect(is_array($data));return $this->validate($data);
@@ -34,12 +44,18 @@ final class BlogStore {
     $raw=file_get_contents($file,false,null,0,BlogModel::LIMIT+1);
     if ($raw===false) throw new HttpError(503,'Blog read failed.','blog.error.storage');return $raw;
   }
+  /** Project public article sources through their preserved activation and owned snapshots; receive validated native catalog, return safe overlay without altering source bytes or hiding adopted records. */
+  private function projection(array $data): array {
+    $previous=(new Plugins($this->store))->document()['data']['plugins']['blog']['enabled']??true;
+    if(!$previous)$data['articles']=[];
+    return (new Posts($this->store))->blogCatalog($data);
+  }
   /** Read catalog/revision; optional original flag bypasses read-only Posts overlays, no writes, absent document means an empty installation, corruption remains an explicit error. */
   public function read(bool $original=false): array {
     $file=$this->directory().'/'.$this->kind.'.json';
     if (is_link($file)) throw new HttpError(503,'Unsafe blog storage.','blog.error.storage');
-    if (!file_exists($file)) {$data=$this->kind==='catalog'?BlogModel::emptyCatalog():['schema_version'=>1,'comments'=>[]];if(!$original&&$this->kind==='catalog')$data=(new Posts($this->store))->blogCatalog($data);return ['data'=>$data,'revision'=>hash('sha256','')];}
-    $raw=$this->bytes($file);$data=$this->decode($raw);if(!$original&&$this->kind==='catalog')$data=(new Posts($this->store))->blogCatalog($data);return ['data'=>$data,'revision'=>hash('sha256',$raw)];
+    if (!file_exists($file)) {$data=$this->kind==='catalog'?BlogModel::emptyCatalog():['schema_version'=>1,'comments'=>[]];if(!$original&&$this->kind==='catalog')$data=$this->projection($data);return ['data'=>$data,'revision'=>hash('sha256','')];}
+    $raw=$this->bytes($file);$data=$this->decode($raw);if(!$original&&$this->kind==='catalog')$data=$this->projection($data);return ['data'=>$data,'revision'=>hash('sha256',$raw)];
   }
   /** Publish bytes using same-directory secure temporary file and rename; takes fixed path/bytes, cleans temporary on all failures, raises 503. */
   private function atomic(string $file,string $raw): void {

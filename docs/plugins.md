@@ -19,13 +19,15 @@ inside its configuration page. A Configure action exists only when the plugin ha
 functional configuration screen.
 
 The sidebar is built from each enabled plugin's manifest. Dropdown items open integrated
-pages, not nested iframes. Pages, Menu and Slides provide editor/history/trash workflows.
+pages, not nested iframes. Posts, Menu and Slides provide editor/history/trash workflows.
 Files Manager additionally provides upload-root settings. Open it from its sidebar
 dropdown; the topbar contains the public-site link and account menu. History is its own route.
 Uninstalling archives private code and retains content/assets for recovery; take a backup
 before installing, removing or replacing any extension.
 
-### Pages
+### Pages compatibility inside Posts
+
+The `pages` identifier below is a preserved internal adapter, not an installed plugin. New authoring uses [Posts](publications.md); old APIs retain their guarded contracts.
 
 Use New Page, choose a model supported by the active template, edit fields or structured
 JSON, save a draft and preview it before publishing. Required home/404 pages remain
@@ -261,119 +263,11 @@ global site favicon by their path relative to public_html, regardless of the pub
 root configured for Images. Private storage never supplies a public favicon.
 
 
-## 12. Run the bundled Blog
+## 12. Manage publications with Posts
 
-The Blog plugin (`blog`, API 1, version 1.0.0) is included with DBLESS-CMS 2.1.0.
-New installations include generic example articles and editorial profiles. Existing
-installations keep their content; install the plugin code and addressed public assets,
-then enable it in the plugin catalog. The optional CLI equivalent is:
+Posts (`posts`, API 1) is the single bundled editorial plugin. Pages and Blog packages were retired in 2.21.0 after incorporating their functionality. See [Unified publications](publications.md) for post types, friendly routes, groups/tags, authoring, scheduling, search, discussion and preserved legacy URLs/providers/APIs.
 
-```bash
-php src/system/plugins/blog/install.php --enable
-```
-
-This command merges only Blog activation/defaults under the installation's lifecycle
-and content locks. It never installs examples over existing content, changes credentials
-or enables other plugins. An existing installation can start with an empty blog.
-
-### Write and publish
-
-Open **Blog → New article**. Set a descriptive title and URL slug, summary, author,
-category/tag references and optional cover with meaningful alternative text. Create
-editorial profiles and topics under **Categories, tags and authors**. Author profiles
-are bylines, not administrator accounts. Categories support up to five levels without
-cycles; an entry cannot be removed while any article or child category references it.
-
-Build the body using paragraph, h2/h3 heading, quotation, local image/caption, ordered
-or unordered list, link and code blocks. The Images selector reuses the authenticated
-public library and its configured upload root. Private files never become image choices.
-Images may also be entered as paths relative to `public_html`; UTF-8 names and spaces
-accepted by Images are preserved and URL-encoded when rendered. External media is not
-fetched. Code is displayed as escaped literal text; raw HTML, scripts and embeds are
-not article markup. The editor supports keyboard reordering and preserves entered
-values after network, validation or revision errors.
-
-Save as a draft, or select Published. An empty publication date publishes immediately;
-a future **UTC** time schedules publication. Visibility is calculated on each request,
-so no cron task is necessary. The server clock must be correct. Saved previews require
-an authenticated session and return `noindex`; they are never public token links.
-Duplicating an article produces a new draft. Soft deletion reserves its slug for recovery.
-Changing a slug keeps up to ten previous slugs and redirects visible aliases with 301.
-
-### Read and discover
-
-The public surface uses the existing plugin front controller:
-
-| Route | Purpose |
-| --- | --- |
-| `/plugins/blog/list` | Search, category/tag/author filters and bounded pagination |
-| `/plugins/blog/article?slug=designing-with-clarity` | Article, topic links, author profile, contents index and related reading |
-| `/plugins/blog/feed` | RSS 2.0 with stable article IDs and canonical URLs |
-| `/plugins/blog/sitemap` | XML sitemap for the blog archive and visible indexable articles |
-| `/plugins/blog/comment` | Protected comment POST only |
-
-List parameters are `q`, `category`, `tag`, `author` and `page`. Category archives include
-child categories; search is literal Unicode matching, not arbitrary regular expressions.
-The newest articles are ordered deterministically, with featured articles first on the
-unfiltered archive. Reading time uses the configured words-per-minute rate.
-
-The public projection excludes drafts, future schedules and trashed articles. Feed and
-sitemap also exclude articles marked noindex. Saved previews and searches emit noindex.
-Article layouts include canonical, Open Graph article timestamps, Twitter metadata and
-semantic BlogPosting microdata. Canonical URLs use Global Settings; no external request
-is needed. Add the Blog sitemap URL to the hosting site's discovery configuration when
-deploying; this plugin does not rewrite unrelated robots files or page sitemaps.
-
-### Configure only functional preferences
-
-**Blog → Settings** uses the same Fields/JSON editor as Global Settings. It controls
-blog title/description, articles per page (1–50), RSS limit (1–100), reading speed (80–500
-words/minute), moderated comments and maximum comment bytes (100–4000). Activation stays
-in the main plugin catalog. **History** is a separate dropdown route above Settings;
-it contains editorial, moderation and plugin-option recovery, all revision checked.
-
-### Moderate discussion
-
-Comments are **off by default**. When enabled, readers submit a name, plain-text message
-and consent to their eventual publication. No email address or commenter IP is stored
-inside the comment document. The CMS rate limiter maintains its separate private state.
-Every comment starts pending; only approved comments on currently visible articles are
-rendered. Administrators can approve, return to moderation, mark spam, move to trash
-and restore to pending. Removing an article hides its comments without deleting them.
-
-The form uses the core session/CSRF/origin/body controls, a separate quota of five
-submissions per ten minutes, a honeypot and duplicate detection. These controls do not
-promise complete spam prevention. There is no mail notification or third-party moderation
-service. Review comments and privacy obligations appropriate to the actual installation;
-comments and their histories are retained until deliberately managed, not silently purged.
-
-### Storage, export and scale
-
-`<contents-root>/blog/catalog.json` stores articles/categories/tags/authors;
-`<contents-root>/blog/comments.json` is separate. Both are private, UTF-8, indented JSON
-with schema version 1, closed typed fields and SHA-256 revisions. Writes use the CMS
-transaction, secure same-directory temporary files, fsync/rename, a revision-only audit
-and up to twenty private backups per document in `<storage-root>/blog-history/`.
-
-The catalog is limited to 500 articles, 100 categories, 200 tags, 50 authors and 4 MiB;
-an article has at most 100 blocks and 64 KiB of block JSON. Comments are limited to
-1000 entries/4 MiB. Limits fail explicitly; they are not an unlimited-scale promise.
-Queries run in memory. A materially larger workload needs a separately designed storage
-adapter or retention strategy, rather than raising limits without measurement.
-
-Production export keeps the validated non-trashed editorial catalog **private**, including
-drafts/schedules for continued editing. Only the public projection is readable through
-public routes. It copies explicitly referenced regular raster images with extension,
-MIME and dimension checks; it rejects traversal, symlinks and forbidden payloads. It does
-not copy arbitrary uploads, comments, histories, sessions, credentials or installed state.
-Backups/upgrades must preserve existing private content and uploaded media as documented
-in the template deployment guide. A first-install export must not overwrite an existing
-site's editorial repository.
-
-Portable verification is in `tests/blog.test.mjs` and `tests/browser/blog.mjs`. Run
-`npm run verify`; the browser test accepts `PLAYWRIGHT_MODULE` pointing to an authorized
-local Playwright installation and creates private unpredictable evidence directories.
-All fixtures contain synthetic data; never run editor/upload tests on a live site.
+New installations enable Posts. Existing configuration is projected without GET migration; an explicit owner settings save records subsequent choices. `php src/system/bin/install-posts.php --enable` offers optional explicit CLI activation and preserves content/history/comments/credentials. Publication and discussion options belong to **Posts → Types and settings**. Comments require CSRF, consent and server-side moderation, and remain pending until approval. No independent Pages/Blog activation or uninstall operation is available.
 
 ## Global settings and Widgets
 
@@ -447,15 +341,14 @@ public function dashboard(\DBLESSCMS\PluginContext $context): array {
 
 All indicators from the same plugin are rendered inside one Dashboard card, grouped
 by the manifest plugin ID rather than its display name. Labels and measured values
-remain distinct within that card. Pages groups published pages and drafts; Blog
-groups published articles and pending comments. Disabled, empty or failed providers
+remain distinct within that card. Posts groups published publications, drafts and pending comments. Disabled, empty or failed providers
 do not create empty cards or partial metrics. Providers return data, never card HTML.
 
 Declare the label in every plugin dictionary. Return at most eight records with
 `label` followed by a nonnegative integer `value`. No HTML, personal data, network
 calls or writes; no placeholder statistics. The core escapes labels/values and
 isolates provider failures with an unavailable warning. Providers are trusted PHP,
-not sandboxed or forcibly time-limited. Blog demonstrates published articles and
+not sandboxed or forcibly time-limited. Posts demonstrates published articles and
 comments awaiting moderation; scheduled articles are counted only when released.
 
 `settings.cache` is optional and accepts `enabled` (false), `development` (false),
@@ -655,4 +548,10 @@ Older plugins without presentationLocales or section IDs remain compatible, incl
 
 Posts unifies the Pages/Blog workspace with configurable publication types, literal URL prefixes, groups/tags and public search. It uses the optional `replacesNavigation` manifest list (at most eight plugin IDs), effective only while the replacement plugin is enabled. This hides sidebar entries without deleting routes/providers. See [Publications](publications.md) for activation, explicit adoption, capabilities, filters, compatibility and export.
 
-Optional `dependencies` declares at most eight installed plugin package IDs. Dependency declarations do not enable packages or fetch/install code. Uninstalling a package required by another installed plugin is rejected under the shared lock; remove the dependent plugin first. Posts declares the existing Pages/Blog compatibility packages and reuses their editor integration, rendering and moderation. No external dependency is introduced.
+Optional `dependencies` declares at most eight installed plugin package IDs. Dependency declarations do not enable packages or fetch/install code. Uninstalling a package required by another installed plugin is rejected under the shared lock; remove the dependent plugin first. Posts owns its editor integration, rendering and moderation. Pages and Blog are retired package identifiers resolved through validated internal `compatibilityAliases`, without separate installation, activation or catalog entries. The distribution contains no Pages/Blog plugin directories. Shared article/comment data readers remain in the Core so content reading does not depend on an installed administrative package.
+
+## Source documentation
+
+New or changed code documents its Structural Elements with the language's native DocBlocks/docstrings: File-level/Page-level, Namespace/Module-level when declared, Class/Interface/Trait-level, Function/Method-level and Property/Constant-level. Keep documentation next to the element and describe its purpose, responsibility, types/contracts, parameters, return value, effects and errors as applicable. Promoted properties also require property documentation. Keep comments accurate when behavior changes.
+
+Use Inline/Internal Comments, Inline Comments and Block Comments for decisions, invariants, compatibility, security boundaries and non-obvious flow. Explain why the code exists or why an alternative is unsafe; avoid restating obvious statements. This documentation supports human maintenance without requiring unrelated mass rewrites. JSON and other formats without comments use their schema or associated guide; never insert comments into those documents.

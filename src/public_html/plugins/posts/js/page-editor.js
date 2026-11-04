@@ -1,4 +1,4 @@
-/** Pages: documento único JSON/HTML, sincronização do Core editor e API privada com CSRF/revisão; falhas preservam os buffers. */
+/** Posts-owned editorial runtime: single JSON/HTML document, Core editor synchronization and guarded CSRF/revision submissions; failures preserve buffers. */
 (() => {
   'use strict';
   const root=document.querySelector('[data-pages-plugin]');if(!root)return;

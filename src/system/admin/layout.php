@@ -26,8 +26,8 @@ $labels=['privacy'=>$t('privacy.title'),'customizations'=>$t('custom.title'),'pl
 <script src="<?= e(asset('cms-admin/assets/markup.js',$base)) ?>" defer></script>
 <?php if($view==='customizations'): ?><script src="<?= e(asset('cms-admin/assets/vendor/terser.min.js',$base)) ?>" defer></script><script src="<?= e(asset('cms-admin/assets/customizations.js',$base)) ?>" defer></script><?php endif; ?>
 <?php if ($panelAssets!==null): ?>
-<link rel="stylesheet" href="<?= e(asset('plugins/'.$panelId.'/'.$panelAssets['css'],$base)) ?>">
-<script src="<?= e(asset('plugins/'.$panelId.'/'.$panelAssets['js'],$base)) ?>" defer></script>
+<link rel="stylesheet" href="<?= e(asset('plugins/'.$plugins->owner($panelId).'/'.$panelAssets['css'],$base)) ?>">
+<script src="<?= e(asset('plugins/'.$plugins->owner($panelId).'/'.$panelAssets['js'],$base)) ?>" defer></script>
 <?php endif; ?></head>
 <body data-admin-language="<?= e(json_encode($language->clientMessages(), JSON_THROW_ON_ERROR)) ?>" data-languages="<?= e(json_encode(array_map(static fn(array $item): string => $item['name'], $language->all()), JSON_THROW_ON_ERROR)) ?>" data-template-options="<?= e(json_encode(array_map(static fn(array $item): string => $item['name'], $templates), JSON_THROW_ON_ERROR)) ?>" data-locale="<?= e($language->locale()) ?>" class="cms-admin<?= !$authenticated?' auth-screen':'' ?>">
 <a class="skip-link" href="#workspace"><?= e($t('common.skip')) ?></a>
@@ -41,12 +41,12 @@ $labels=['privacy'=>$t('privacy.title'),'customizations'=>$t('custom.title'),'pl
 <a class="dashboard-link" href="?view=dashboard" <?= $view==='dashboard'?'aria-current="page"':'' ?>><?= Icons::svg('house',$base) ?><?= e($t('nav.dashboard')) ?></a>
 <?php foreach ($pluginMenus as $menuId=>$menu): ?>
 <?php if ($menu['dropdown']): ?>
-<details class="sidebar-dropdown" data-plugin-menu="<?= e($menuId) ?>" <?= (($view==='plugin-panel'&&$panelId===$menuId)||($view==='plugin-about'&&$requestedPlugin===$menuId))?'open':'' ?>><summary><img class="admin-icon plugin-icon" src="<?= e($plugins->icon($menuId,$base)) ?>" width="24" height="24" alt="" aria-hidden="true"><?= e($menu['label']) ?><span class="dropdown-chevron" aria-hidden="true">⌄</span></summary><div class="sidebar-submenu">
+<details class="sidebar-dropdown" data-plugin-menu="<?= e($menuId) ?>" <?= (($view==='plugin-panel'&&$plugins->owner($panelId)===$menuId)||($view==='plugin-about'&&$requestedPlugin===$menuId))?'open':'' ?>><summary><img class="admin-icon plugin-icon" src="<?= e($plugins->icon($menuId,$base)) ?>" width="24" height="24" alt="" aria-hidden="true"><?= e($menu['label']) ?><span class="dropdown-chevron" aria-hidden="true">⌄</span></summary><div class="sidebar-submenu">
 <?php endif; ?>
 <?php foreach ($menu['items'] as $item): if (isset($item['separator'])): ?><hr><?php elseif(isset($item['presentation'])): ?>
 <a href="?view=plugin-about&amp;plugin=<?= e($menuId) ?>" <?= $view==='plugin-about'&&$requestedPlugin===$menuId?'aria-current="page"':'' ?>><?= e($t('catalog.presentation_link')) ?></a>
 <?php else: ?>
-<a href="?view=plugin-panel&amp;plugin=<?= e($menuId) ?>&amp;route=<?= e($item['route']) ?>" <?= $view==='plugin-panel'&&$panelId===$menuId&&$panelRoute['id']===$item['route']?'aria-current="page"':'' ?>><?php if (!$menu['dropdown']): ?><img class="admin-icon plugin-icon" src="<?= e($plugins->icon($menuId,$base)) ?>" width="24" height="24" alt="" aria-hidden="true"><?php endif; ?><?= e($item['label']) ?></a>
+<a href="?view=plugin-panel&amp;plugin=<?= e($menuId) ?>&amp;route=<?= e($item['route']) ?>" <?= $view==='plugin-panel'&&$plugins->owner($panelId)===$menuId&&$panelRoute['id']===$item['route']?'aria-current="page"':'' ?>><?php if (!$menu['dropdown']): ?><img class="admin-icon plugin-icon" src="<?= e($plugins->icon($menuId,$base)) ?>" width="24" height="24" alt="" aria-hidden="true"><?php endif; ?><?= e($item['label']) ?></a>
 <?php endif; endforeach; ?>
 <?php if ($menu['dropdown']): ?></div></details><?php endif; ?>
 <?php endforeach; ?></nav>

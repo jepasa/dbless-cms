@@ -1,7 +1,11 @@
 <?php
 /** Roteador Pages: catálogo, editor, histórico e prévia com serviços privados e nenhuma rota de negócio na moldura. */
 declare(strict_types=1);
+/** Trusted Posts implementation and retained internal contracts.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
+/** Render retained page bookmarks and special home/404 editors without restoring an independent Pages package. */
 final class PagesRouter {
   /** Prepara dados da rota autorizada e renderiza HTML; recebe contexto, propaga erros seguros e não grava conteúdo. */
   public static function render(PluginContext $context): string {

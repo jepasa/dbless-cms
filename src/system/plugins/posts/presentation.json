@@ -88,7 +88,7 @@
       "id": "discussion",
       "title": "Moderate discussion",
       "body": [
-        "Page discussion stays disabled. Article discussion requires the existing global Blog setting and the publication option. Submitted comments remain pending until moderation. Existing comment IDs/endpoints/history are preserved."
+        "Page discussion stays disabled. Article discussion uses the global Posts option in Types and settings and the individual publication option. Comments remain pending until moderation; existing IDs, URLs and history are preserved."
       ],
       "steps": [
         "Enable discussion only when intended; review incoming comments in Comments."
@@ -102,6 +102,16 @@
       ],
       "steps": [
         "Validate a synthetic export before distributing code; preserve the independent installation state."
+      ]
+    },
+    {
+      "id": "consolidation",
+      "title": "Package consolidation",
+      "body": [
+        "Posts incorporates Pages and Blog, whose packages and old assets are removed. Existing URLs, references and APIs use internal adapters; the retired plugins do not appear in the catalog and have no independent activation. Content, history and comments remain preserved. Old settings are combined during reads until an explicit Posts save."
+      ],
+      "steps": [
+        "Manage publication/discussion in Types and settings, moderate in Comments and access home/404 in Special pages."
       ]
     }
   ]

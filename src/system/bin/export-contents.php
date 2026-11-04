@@ -15,7 +15,7 @@ $pluginDocument=$store->read('plugins')['data'];
 $registry=new \DBLESSCMS\Plugins($store);
 if ($registry->invalid()!==[]) throw new RuntimeException('Manifesto de plugin inválido.');
 foreach ($pluginDocument['plugins'] as $id=>$state) {
-  if (!isset($registry->all()[$id]) && !$state['enabled']) { unset($pluginDocument['plugins'][$id]); continue; }
+  if (!isset($registry->available()[$id]) && !$state['enabled']) { unset($pluginDocument['plugins'][$id]); continue; }
   $registry->get($id); \DBLESSCMS\Schema::validate($state['settings'],$registry->schema($id));
 }
 $templateDocument=$store->read('templates')['data'];
@@ -54,9 +54,9 @@ $slideDirectory=$target.'/system/storage/contents/slides';
 if(!mkdir($slideDirectory,0770,true)&&!is_dir($slideDirectory))throw new RuntimeException('Destino de slides indisponível.');
 $slideBytes=\DBLESSCMS\SlidesStore::encode(\DBLESSCMS\SlidesStore::validate($slides));
 if(file_put_contents($slideDirectory.'/slides.json',$slideBytes)!==strlen($slideBytes))throw new RuntimeException('Exportação de slides incompleta.');
-if (isset($registry->all()['blog'])) {
-  require_once $config->root.'/plugins/blog/Plugin.php';
-  require_once $config->root.'/plugins/blog/Export.php';
+if (isset($registry->available()['blog'])) {
+  $registry->instance('blog');
+  require_once $config->root.'/plugins/posts/compatibility/blog/Export.php';
   \DBLESSCMS\BlogExport::run($store,$target);
 }
 if (isset($registry->all()['widgets'])) {

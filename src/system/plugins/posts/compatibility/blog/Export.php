@@ -1,7 +1,11 @@
 <?php
 /** Blog production export: validated private editorial catalog and explicitly referenced local raster media; no comments, history, credentials or implicit directory mirroring. */
 declare(strict_types=1);
+/** Trusted Posts implementation and retained internal contracts.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
+/** Export the validated native article source while excluding adopted duplicates, private comments and history. */
 final class BlogExport {
   /** Export one sanitized installation catalog; takes source store/trusted new staging root, writes private catalog and referenced raster assets, raises on malformed/unsafe/missing files. */
   public static function run(JsonStore $store,string $target): void {

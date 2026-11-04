@@ -11,7 +11,7 @@ $card=static function(array $item) use($catalog,$publication,$base_url): void { 
   <div class="blog-card-content"><p class="blog-eyebrow"><?php if ($item['featured']): ?><span>Featured</span> · <?php endif; ?><time datetime="<?= e($item['publishedAt']) ?>"><?= e(substr($item['publishedAt'],0,10)) ?></time></p><h2><a href="<?= e(BlogView::url($base_url,'article',['slug'=>$item['slug']])) ?>"><?= e($item['title']) ?></a></h2><p><?= e($item['excerpt']) ?></p><p class="blog-meta"><?= e($catalog['authors'][$item['author']]['name']??'') ?> <span aria-hidden="true">·</span> <?= BlogModel::readingTime($item,$publication['readingSpeed']) ?> min read</p><a class="blog-read" href="<?= e(BlogView::url($base_url,'article',['slug'=>$item['slug']])) ?>">Read article <span class="sr-only"><?= e($item['title']) ?></span><span aria-hidden="true"> ↗</span></a></div>
 </article>
 <?php }; ?>
-<?php if (!isset($manifest['partials']['blog'])): ?><link rel="stylesheet" href="<?= e(\DBLESSCMS\asset('plugins/blog/css/public.css',$base_url)) ?>"><?php endif; ?>
+<?php if (!isset($manifest['partials']['blog'])): ?><link rel="stylesheet" href="<?= e(\DBLESSCMS\asset('plugins/posts/css/article-public.css',$base_url)) ?>"><?php endif; ?>
 <section class="blog" aria-label="<?= e($publication['title']) ?>"><div class="blog-container">
 <?php if ($blogModel['kind']==='list'): ?>
 <header class="blog-hero"><p class="blog-eyebrow">Journal &amp; ideas</p><h1><?= e($page['meta']['title']) ?></h1><p class="blog-lead"><?= e($page['meta']['description']) ?></p><div class="blog-links"><a href="<?= e(BlogView::url($base_url,'feed')) ?>">RSS feed</a><a href="<?= e(BlogView::url($base_url,'sitemap')) ?>">Sitemap</a></div></header>

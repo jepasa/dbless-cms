@@ -1,11 +1,15 @@
 <?php
 /** Private Blog router: declared workspace routes, isolated saved preview and local URL generation without arbitrary file resolution. */
 declare(strict_types=1);
+/** Trusted Posts implementation and retained internal contracts.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
+/** Resolve retained private article bookmarks exclusively through declared Posts-owned routes. */
 final class BlogRouter {
   /** Build an internal administration URL; takes context/route/query, returns a local URL without changing state. */
   public static function url(PluginContext $context,string $route,array $query=[]): string {
-    return $context->base.'/cms-admin/?'.http_build_query(['view'=>'plugin-panel','plugin'=>'blog','route'=>$route]+$query);
+    return $context->base.'/cms-admin/?'.http_build_query(['view'=>'plugin-panel','plugin'=>$context->manifest['id'],'route'=>$route]+$query);
   }
   /** Render declared private workspace or authenticated saved preview; takes context, returns HTML, propagates errors and never resolves user filenames. */
   public static function render(PluginContext $context): string {

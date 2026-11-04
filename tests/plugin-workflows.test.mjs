@@ -21,12 +21,12 @@ for(const tree of trees)test(`${tree}: history and exclusive placement work with
     /** Envia API com CSRF real; recebe plugin/rota/operação/campos, retorna resposta HTTP sem redirects automáticos. */
     async function api(plugin,route,operation,values){const post=new URLSearchParams({csrf_token:csrf,...values});return request(`/cms-admin/?view=plugin-api&plugin=${plugin}&route=${route}&operation=${operation}`,post);}
     const panel=await request('/cms-admin/');
-    for(const id of ['files-manager','pages','menu','slides']){
+    for(const id of ['files-manager','posts','menu','slides']){
       const dropdown=panel.body.match(new RegExp(`data-plugin-menu="${id}"[^>]*>[\\s\\S]*?</details>`))?.[0];assert.ok(dropdown);
       assert.match(dropdown,/\<hr>\s*<a[^>]*route=history[^>]*>Histórico<\/a>\s*<hr>/);
       assert.doesNotMatch(dropdown,/route=locations/);
-      const settings=await request(screen(id,'settings'));assert.equal(settings.status,['files-manager','pages'].includes(id)?200:404);if(id==='files-manager')assert.doesNotMatch(settings.body,/id="plugin-options-history"|name="backup"/);
-      const history=await request(screen(id,'history'));assert.equal(history.status,200);assert.equal(history.body.includes('id="plugin-options-history"'),id==='files-manager');
+      const settings=await request(screen(id,'settings'));assert.equal(settings.status,['files-manager','posts'].includes(id)?200:404);if(id==='files-manager')assert.doesNotMatch(settings.body,/id="plugin-options-history"|name="backup"/);
+      const history=await request(screen(id,'history'));assert.equal(history.status,200);assert.equal(history.body.includes('id="plugin-options-history"'),['files-manager','posts'].includes(id));
     }
     for(const id of ['menu','slides'])assert.equal((await request(screen(id,'locations'))).status,303);
     const menuFile=path.join(sandbox.temporary,'contents/menu/menus.json');let menu=JSON.parse(fs.readFileSync(menuFile));

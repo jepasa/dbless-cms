@@ -1,16 +1,29 @@
 <?php
 /** Shared component registry/parser/resolver: manifest discovery, typed read-only providers, template-owned presentation and bounded nonrecursive markers. */
 declare(strict_types=1);
+/** Shared CMS services and validated extension integration.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
+/** Resolve trusted content services within one read context, enforcing output contracts and finite request budgets. */
 final class Components {
+  /** @var Plugins|null Lazy trusted registry for the current render context. */
   private ?Plugins $plugins=null;
+  /** @var int Number of markers attempted by this resolver, including unavailable values. */
   private int $resolved=0;
+  /** @var list<string> Private diagnostics collected without altering public source data. */
   private array $warnings=[];
+  /** @var array<string,mixed> Request-local validated service results, including cached misses. */
   private array $data=[];
+  /** @var array<string,mixed> Binding availability/empty states projected into the reserved cms.sources namespace. */
   private array $states=[];
+  /** @var \WeakMap<JsonStore,int>|null Shared per-store request budgets; weak keys avoid retaining completed contexts. */
   private static ?\WeakMap $budgets=null;
   /** Receive read context; defer registry/provider loading and never persist component output. */
-  public function __construct(private readonly ContentContext $context) {}
+  public function __construct(
+    /** @var ContentContext Immutable trusted read context; no persistence is performed by construction. */
+    private readonly ContentContext $context
+  ) {}
   /** Validate a closed bounded data schema using only the supported subset; receive schema/depth, throw 422 on unknown keywords/types or unsafe limits, no I/O. */
   public static function schema(array $schema,int $depth=0): void {
     $allowed=['type','properties','required','additionalProperties','items','maxItems','maxLength','minimum','maximum','enum','default'];
@@ -84,7 +97,7 @@ final class Components {
   /** List enabled declared services with template-supported formats; return metadata for the insertion UI without executing PHP providers. */
   public function catalog(): array {
     $result=[];$layouts=self::layouts($this->context->store->templates->get($this->context->template));
-    foreach($this->registry()->all() as $id=>$manifest)if($this->registry()->state($id)['enabled'])foreach(self::definitions($manifest) as $service=>$definition){
+    foreach($this->registry()->available() as $id=>$manifest)if($this->registry()->state($id)['enabled'])foreach(self::definitions($manifest) as $service=>$definition){
       $formats=$definition['context']==='text'?['text']:array_values(array_intersect($definition['formats'],array_keys($layouts[$id.':'.$service]??[])));
       $result[$id.':'.$service]=['plugin'=>$id,'service'=>$service,'name'=>$manifest['name'],'description'=>$definition['description'],'parameters'=>$definition['parameters'],'formats'=>$formats,'context'=>$definition['context']];
     }
@@ -109,7 +122,7 @@ final class Components {
   /** Validate known marker parameters even for inactive providers; return diagnostic code for unknown/disabled/unsupported references, never load a provider. */
   public function inspect(string $text): ?string {
     if(ContentForms::parse($text)!==null)return ContentForms::inspect($text,$this->context);
-    $marker=self::parse($text);if($marker===null)return null;$id=$marker['plugin'];$service=$marker['service'];$manifest=$this->registry()->all()[$id]??null;
+    $marker=self::parse($text);if($marker===null)return null;$id=$marker['plugin'];$service=$marker['service'];$manifest=$this->registry()->available()[$id]??null;
     if($manifest===null||!isset($manifest['contentServices'][$service]))return $id.':'.$service.' (unavailable)';
     if($marker['legacy']){
       if(!$this->registry()->state($id)['enabled'])return 'slides:location (inactive)';
@@ -136,7 +149,7 @@ final class Components {
   public function validate(array $document): array {
     $markers=self::markers($document);if(count($markers)+count($document['content']['blocks']??[])>20)throw new HttpError(422,'Too many components.','components.error');$warnings=[];
     foreach($markers as $entry){
-      $marker=$entry['marker'];$parsed=self::parse($marker);$definition=$this->registry()->all()[$parsed['plugin']]['contentServices'][$parsed['service']]??null;
+      $marker=$entry['marker'];$parsed=self::parse($marker);$definition=$this->registry()->available()[$parsed['plugin']]['contentServices'][$parsed['service']]??null;
       if($entry['inline']&&$definition!==null&&$definition['context']!=='text')throw new HttpError(422,'Block marker requires its own paragraph.','components.error');
       if(($warning=$this->inspect($marker))!==null)$warnings[]=$warning;
     }
@@ -153,7 +166,7 @@ final class Components {
   }
   /** Discover active typed public services regardless of template layout support; return only manifest metadata without executing providers. */
   public function dataCatalog(): array {
-    $result=[];foreach($this->registry()->all() as $id=>$manifest)if($this->registry()->state($id)['enabled'])foreach(self::definitions($manifest) as $service=>$definition)$result[$id.':'.$service]=['plugin'=>$id,'service'=>$service,'name'=>$manifest['name'],'description'=>$definition['description'],'parameters'=>$definition['parameters'],'result'=>$definition['result'],'formats'=>$definition['formats'],'context'=>$definition['context']];return $result;
+    $result=[];foreach($this->registry()->available() as $id=>$manifest)if($this->registry()->state($id)['enabled'])foreach(self::definitions($manifest) as $service=>$definition)$result[$id.':'.$service]=['plugin'=>$id,'service'=>$service,'name'=>$manifest['name'],'description'=>$definition['description'],'parameters'=>$definition['parameters'],'result'=>$definition['result'],'formats'=>$definition['formats'],'context'=>$definition['context']];return $result;
   }
   /** Apply defaults and validate typed service parameters; receive native JSON values/definition, return normalized values or 422 without I/O. */
   private static function nativeParameters(array $parameters,array $definition): array {
@@ -161,7 +174,7 @@ final class Components {
   }
   /** Validate binding parameters against registered schemas even for disabled providers; receive bindings, return private diagnostics, never execute PHP or drop unknown references. */
   public function validateBindings(array $bindings): array {
-    self::bindingShape($bindings);$warnings=[];foreach($bindings as $binding){$code=$binding['plugin'].':'.$binding['service'];$manifest=$this->registry()->all()[$binding['plugin']]??null;$definition=$manifest['contentServices'][$binding['service']]??null;
+    self::bindingShape($bindings);$warnings=[];foreach($bindings as $binding){$code=$binding['plugin'].':'.$binding['service'];$manifest=$this->registry()->available()[$binding['plugin']]??null;$definition=$manifest['contentServices'][$binding['service']]??null;
       if($definition===null){$warnings[]=$code.' (unavailable)';continue;}self::nativeParameters($binding['parameters'],$definition);if(!$this->registry()->state($binding['plugin'])['enabled'])$warnings[]=$code.' (inactive)';
     }return array_values(array_unique($warnings));
   }

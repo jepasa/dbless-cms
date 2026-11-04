@@ -1,8 +1,13 @@
 <?php
 /** Blog contracts and pure editorial queries: bounded typed content, immutable references and publication evaluated against an explicit UTC clock. */
 declare(strict_types=1);
+/** Shared CMS services and validated extension integration.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
+/** Validate and query the historical article/comment format independently of installed editorial packages. */
 final class BlogModel {
+  /** @var int Maximum encoded native catalog/comment size in bytes (4 MiB). */
   public const LIMIT=4194304;
   /** Reject a contract violation; takes a condition and error key, returns nothing or raises HTTP 422 without echoing submitted content. */
   public static function expect(bool $valid,string $key='blog.error.contract'): void {

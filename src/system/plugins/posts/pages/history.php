@@ -13,3 +13,7 @@ foreach($repository->repository()->history() as $backup):$prior=$repository->rep
 <form method="post" action="<?= e($context->url('restore-source')) ?>" data-pages-form data-confirm="<?= e($t('confirm')) ?>"><?php $hidden($id); ?><button class="button-secondary"><?= e($t('restore')) ?> · <?= e($t('source')) ?></button></form>
 <a class="text-link" href="<?= e($context->base.'/cms-admin/?'.http_build_query(['view'=>'plugin-panel','plugin'=>$row['source']['plugin'],'route'=>'history']+($row['source']['plugin']==='pages'?['key'=>$row['source']['id']]:[]))) ?>"><?= e($t('nativeHistory')) ?></a>
 <?php endif;endif; ?></section>
+<?php $comments=new \DBLESSCMS\BlogStore($context->store,'comments');$commentRevision=$comments->read()['revision']; ?>
+<section class="panel"><h2><?= e($context->language->text('blog.commentHistory')) ?></h2>
+<?php foreach($comments->history() as $backup): ?><form method="post" action="<?= e($context->url('comments-restore')) ?>" class="history-row" data-pages-form data-confirm="<?= e($t('confirm')) ?>"><input type="hidden" name="csrf_token" value="<?= e(\DBLESSCMS\Security::token()) ?>"><input type="hidden" name="revision" value="<?= e($commentRevision) ?>"><input type="hidden" name="backup" value="<?= e($backup) ?>"><span><?= e($backup) ?></span><button class="button-secondary"><?= e($t('restore')) ?></button></form><?php endforeach; ?></section>
+<?= \DBLESSCMS\PluginOptions::history($context,'data-pages-form',true) ?>

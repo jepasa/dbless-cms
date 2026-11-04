@@ -1,14 +1,18 @@
 <?php
 /** Public publication dispatch and template integration: finite search/archives, current canonical routes and saved previews; never migrates storage or executes author code. */
 declare(strict_types=1);
+/** Shared CMS services and validated extension integration.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
+/** Render authorized publication routes and discovery results through existing template and markup contracts. */
 final class PostsView {
   /** Serve owned friendly routes before legacy rendering; receive store/path/base, emit validated HTML/redirect and return true, false if unowned, 404 for unavailable or unreleased-only destinations. */
   public static function dispatch(JsonStore $store,string $path,string $base): bool {
-    $repository=new Posts($store);$registry=new Plugins($store);if(!isset($registry->all()['posts']))return false;$data=$repository->read()['data'];$enabled=isset($registry->all()['posts'])&&$registry->state('posts')['enabled'];if(!$enabled&&$data['records']===[])return false;
+    $repository=new Posts($store);$registry=new Plugins($store);if(!isset($registry->available()['posts']))return false;$data=$repository->read()['data'];$enabled=isset($registry->available()['posts'])&&$registry->state('posts')['enabled'];if(!$enabled&&$data['records']===[])return false;
     if(isset($data['routeAliases'][$path])){if(($_SERVER['REQUEST_METHOD']??'GET')!=='GET')throw new HttpError(405,'Method not allowed.','error.method');$alias=$data['routeAliases'][$path];$prefix=$alias['kind']==='search'?$data['searchPath']:PostTypes::prefix($data['types'][$alias['type']]);$destination=$prefix===null?'plugins/blog/list':($prefix===''?$data['searchPath'].'?type='.rawurlencode($alias['type']):$prefix);$query=[];foreach(['q','type','group','tags','page'] as $key)if(isset($_GET[$key])&&is_string($_GET[$key])&&strlen($_GET[$key])<=1024)$query[$key]=$_GET[$key];if($query!==[])$destination.=(str_contains($destination,'?')?'&':'?').http_build_query($query,'','&',PHP_QUERY_RFC3986);header('Location: '.rtrim($base,'/').'/'.$destination,true,301);return true;}
     $archive=null;$owned=$path===$data['searchPath'];foreach($data['types'] as $type){$prefix=PostTypes::prefix($type);if($prefix!==null&&$prefix!==''){if($path===$prefix){$archive=$type['id'];$owned=true;}elseif(str_starts_with($path,$prefix.'/'))$owned=true;}}
-    if($path===$data['searchPath']||$archive!==null){if(($_SERVER['REQUEST_METHOD']??'GET')!=='GET')throw new HttpError(405,'Method not allowed.','error.method');echo self::listing($store,$base,$archive);return true;}
+    if(($path===$data['searchPath']&&$repository->publicSearchPath($data)===$path)||$archive!==null){if(($_SERVER['REQUEST_METHOD']??'GET')!=='GET')throw new HttpError(405,'Method not allowed.','error.method');echo self::listing($store,$base,$archive);return true;}
     foreach($repository->records($data) as $row){$live=Posts::effective($row);$match=false;
       foreach(['draft','published','scheduled'] as $which)if($row[$which]!==null&&$path===PostTypes::route($data['types'],$row[$which]))$match=true;
       if(in_array($path,$row['aliases'],true)||($row['source']['plugin']==='pages'&&$path===$row['source']['id']))$match=true;
@@ -31,10 +35,10 @@ final class PostsView {
   /** Render public search or one type archive in the active layout; receive store/base/optional fixed type, return escaped HTML with only public projections and no admin dictionaries. */
   public static function listing(JsonStore $store,string $base,?string $type=null): string {
     $repository=new Posts($store);$data=$repository->read()['data'];$query=Posts::filters($_GET);if($type!==null)$query['type']=$type;
-    $postsModel=$repository->search($query,$base);$postsTerms=$repository->terms($data);$postsTypes=$data['types'];$postsSearch=$data['searchPath'];$postsArchive=$type;
+    $postsModel=$repository->search($query,$base);$postsTerms=$repository->terms($data);$postsTypes=$data['types'];$postsSearch=$repository->publicSearchPath($data);$postsArchive=$type;
     $site=$store->read('site')['data'];$id=$site['template'];$manifest=$store->templates->get($id);$base_url=$base;$currentPage='posts';$settings=$site['settings'];$publicLocale=SiteLocale::resolve($settings);header('Content-Language: '.$publicLocale['tag']);
     $publicCopy=self::copy($publicLocale['tag']);$title=$type===null?$publicCopy['search']:($data['types'][$type]['plural']?:$publicCopy[$type==='page'?'pages':'articles']);$description=$publicCopy['lead'];
-    $page=['slug'=>'posts','status'=>'published','page'=>'starter-page','meta'=>['title'=>$title,'description'=>$description,'image'=>'','imageAlt'=>''],'content'=>[]];$route=['meta'=>$page['meta']];$pageMetadata=['title'=>$title,'description'=>$description,'canonical'=>rtrim($settings['canonical'],'/').'/'.($type===null?$data['searchPath']:PostTypes::prefix($data['types'][$type])),'robots'=>$type===null||$query['q']!==''?'noindex, follow':'index, follow'];$contentMetadata=$pageMetadata+['type'=>'website','publishedAt'=>'','updatedAt'=>'','feed'=>$base.'/plugins/posts/feed'];
+    $page=['slug'=>'posts','status'=>'published','page'=>'starter-page','meta'=>['title'=>$title,'description'=>$description,'image'=>'','imageAlt'=>''],'content'=>[]];$route=['meta'=>$page['meta']];$pageMetadata=['title'=>$title,'description'=>$description,'canonical'=>rtrim($settings['canonical'],'/').'/'.($type===null?$postsSearch:PostTypes::prefix($data['types'][$type])),'robots'=>$type===null||$query['q']!==''?'noindex, follow':'index, follow'];$contentMetadata=$pageMetadata+['type'=>'website','publishedAt'=>'','updatedAt'=>'','feed'=>$base.'/plugins/posts/feed'];
     if(str_starts_with($pageMetadata['robots'],'noindex'))header('X-Robots-Tag: '.$pageMetadata['robots']);
     $siteContent=GlobalSettings::presentation($site,$store,$id)+['home'=>[],'details'=>['posts'=>[]]];$widgets=new Widgets($store,$id);$templateSettings=isset($manifest['configuration'])?(new Extensions($store))->options($id)['values']:[];$navigation=new Navigation($store,$id,$base);$slides=new Slides($store,$id);
     $contentFile=isset($manifest['partials']['posts'])?$store->templates->path($id,'partials',$manifest['partials']['posts']):$store->config->root.'/plugins/posts/pages/public.php';

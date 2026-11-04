@@ -1,7 +1,11 @@
 <?php
 /** Posts private routing and localized fragment preparation; no arbitrary script resolution, migration during GET or duplicate editor runtime. */
 declare(strict_types=1);
+/** Trusted Posts implementation and retained internal contracts.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
+/** Prepare declared Posts administration fragments and authenticated previews using shared Core editor services. */
 final class PostsRouter {
   /** Build local administration navigation; receive context/declared route/query, return URL without effects. */
   public static function url(PluginContext $context,string $route,array $query=[]): string {return $context->base.'/cms-admin/?'.http_build_query(['view'=>$route==='preview'?'plugin':'plugin-panel','plugin'=>'posts','route'=>$route]+$query);}

@@ -1,17 +1,4 @@
 {
-  "id": "blog",
-  "name": "Blog",
-  "description": "Articles, editorial authors, categories, tags, scheduled publication and moderated discussion.",
-  "version": "1.2.0",
-  "api": 1,
-  "cmsMajor": 2,
-  "entry": "Plugin.php",
-  "class": "DBLESSCMS\\BlogPlugin",
-  "assets": {
-    "css": "css/blog.css",
-    "js": "js/blog.js",
-    "icon": "blog.svg"
-  },
   "defaults": {
     "publication": {
       "title": "Journal",
@@ -25,7 +12,6 @@
       "maxLength": 2000
     }
   },
-  "router": "Router.php",
   "routes": {
     "overview": {
       "title": "blog.overview",
@@ -122,49 +108,6 @@
       ],
       "maxBodyBytes": 16384
     }
-  },
-  "navigation": {
-    "label": "blog.name",
-    "items": [
-      {
-        "label": "blog.overview",
-        "route": "overview"
-      },
-      {
-        "label": "blog.new",
-        "route": "editor"
-      },
-      {
-        "label": "blog.taxonomies",
-        "route": "taxonomies"
-      },
-      {
-        "label": "blog.comments",
-        "route": "comments"
-      },
-      {
-        "separator": true
-      },
-      {
-        "label": "blog.history",
-        "route": "history"
-      },
-      {
-        "separator": true
-      },
-      {
-        "label": "blog.settings",
-        "route": "settings"
-      },
-      {
-        "separator": true
-      },
-      {
-        "label": "blog.trash",
-        "route": "trash",
-        "role": "trash"
-      }
-    ]
   },
   "configuration": "settings",
   "publicSettings": [
@@ -341,7 +284,6 @@
       ]
     }
   },
-  "presentation": "presentation.json",
   "documentSource": {
     "api": 1,
     "description": "Released Blog articles, without site frame or comments."
@@ -389,5 +331,6 @@
       "hasNext",
       "hasPrevious"
     ]
-  }
+  },
+  "router": "Router.php"
 }

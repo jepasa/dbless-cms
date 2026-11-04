@@ -1,4 +1,4 @@
-/** Posts-specific identity suggestions; shared editorial synchronization, validation and CSRF submission remain in the canonical Pages/Core runtime. */
+/** Posts-specific identity suggestions; shared editorial synchronization, validation and CSRF submission remain in the canonical Posts/Core runtime. */
 (() => {
   'use strict';
   document.addEventListener('DOMContentLoaded', () => {

@@ -19,9 +19,11 @@ export function pluginSandbox(tree) {
   return {temporary, application};
 }
 
-/** Inicia PHP efêmero sem mail e com sessões sintéticas; recebe árvore, retorna servidor/base/contexto/cleanup assíncrono. */
-export async function pluginServer(tree) {
-  const context = pluginSandbox(tree), socket = net.createServer(); socket.listen(0,'127.0.0.1'); await once(socket,'listening');
+/** Inicia PHP efêmero sem mail e com sessões sintéticas; recebe árvore e inicializador confiável opcional anterior ao servidor, retorna contexto/cleanup; falhas removem somente a fixture. */
+export async function pluginServer(tree,beforeStart=null) {
+  const context = pluginSandbox(tree);
+  try{if(beforeStart!==null)beforeStart(context);}catch(error){fs.rmSync(context.temporary,{recursive:true,force:true});throw error;}
+  const socket = net.createServer(); socket.listen(0,'127.0.0.1'); await once(socket,'listening');
   const port = socket.address().port; await new Promise(resolve => socket.close(resolve));
   const base = `http://127.0.0.1:${port}`;
   // Produção resolve URLs pela origem canônica: a cópia sintética deve apontar somente ao servidor efêmero.

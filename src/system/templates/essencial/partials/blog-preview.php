@@ -3,7 +3,7 @@
 declare(strict_types=1);
 use function DBLESSCMS\e;
 $blogRegistry=new \DBLESSCMS\Plugins($store);
-if (!isset($blogRegistry->all()['blog'])||!$blogRegistry->state('blog')['enabled']) return;
+if (!isset($blogRegistry->available()['blog'])||!$blogRegistry->state('blog')['enabled']) return;
 $blogRegistry->instance('blog');$latest=\DBLESSCMS\BlogView::latest($store);
 ?>
 <section class="blog blog-preview" id="journal"><div class="blog-container"><header class="blog-hero"><p class="blog-eyebrow">Blog in action</p><h2>Ideas made to be shared.</h2><p class="blog-lead">Discover structured articles, editorial authors and topic archives. Drafts, schedules and moderation remain under your control in the administration panel.</p><div class="blog-links"><a href="<?= e(\DBLESSCMS\BlogView::url($base_url)) ?>">Explore the journal ↗</a><a href="<?= e(\DBLESSCMS\BlogView::url($base_url,'feed')) ?>">RSS feed</a></div></header><div class="blog-grid">

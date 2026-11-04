@@ -1,7 +1,11 @@
 <?php
 /** Declarative publication types: literal route policies, bounded capabilities and immutable built-in identities; no dynamic code registration. */
 declare(strict_types=1);
+/** Shared CMS services and validated extension integration.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
+/** Constrain publication capabilities and literal routing policies without evaluating dynamic configuration as code. */
 final class PostTypes {
   /** Raise a localized publication contract error; receive key/status, never return or mutate storage. */
   public static function fail(string $key='invalid',int $status=422): never {throw new HttpError($status,'Publication operation unavailable.','posts.error.'.$key);}

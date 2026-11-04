@@ -29,7 +29,7 @@ for (const tree of trees) {
       fs.writeFileSync(path.join(folder,'bad-route/plugin.json'),JSON.stringify({...manifest,id:'bad-route',navigation:{label:'fm.menu',items:[{label:'fm.trash',route:'https://outside.invalid'}]}}));
       const result=spawnSync('php',['-r',`require $argv[1].'/system/bootstrap.php'; $p=new DBLESSCMS\\Plugins(new DBLESSCMS\\JsonStore(new DBLESSCMS\\Config())); echo json_encode([array_keys($p->all()),array_keys($p->invalid()),$p->state('other'),$p->navigation('en-us')]);`,context.application],{env:environment(context.temporary),encoding:'utf8'});
       assert.equal(result.status,0,result.stderr); assert.equal(result.stderr,'');
-      const [valid,invalid,state,menus]=JSON.parse(result.stdout); assert.deepEqual(valid,['blog','files-manager','forms','homepage','menu','other','pages','posts','slides','widgets']);assert.deepEqual(invalid,['bad-class','bad-route','bad-schema','broken']);assert.equal(state.enabled,false);assert.equal(menus.other.label,'Images');assert.deepEqual(menus.other.items[1],{separator:true});assert.ok(!menus.other.items.some(item=>item.route==='rights'));
+      const [valid,invalid,state,menus]=JSON.parse(result.stdout); assert.deepEqual(valid,['files-manager','forms','homepage','menu','other','posts','slides','widgets']);assert.deepEqual(invalid,['bad-class','bad-route','bad-schema','broken']);assert.equal(state.enabled,false);assert.equal(menus.other.label,'Images');assert.deepEqual(menus.other.items[1],{separator:true});assert.ok(!menus.other.items.some(item=>item.route==='rights'));
     } finally {fs.rmSync(context.temporary,{recursive:true,force:true});}
   });
   test(`${tree}: sidebar e roteador aceitam página própria declarada sem mudança no núcleo`,{timeout:15000},async()=>{
@@ -42,12 +42,12 @@ for (const tree of trees) {
       const login=await (await request('/cms-admin/')).text();
       assert.equal((await request('/cms-admin/',new URLSearchParams({action:'login',username:'editor',password:'Synthetic-DBLESS-CMS-password-2026',csrf_token:field(login,'csrf_token')}))).status,303);
       const sidebar=await (await request('/cms-admin/')).text();
-      for(const id of ['files-manager','menu','pages','slides']) {
+      for(const id of ['files-manager','menu','posts','slides']) {
         const dropdown=sidebar.match(new RegExp(`data-plugin-menu="${id}"[^>]*>[\\s\\S]*?</details>`))?.[0];
         assert.ok(dropdown,`${id}: dropdown presente`);
         const links=[...dropdown.matchAll(/<a\b[^>]*href="([^"]*)"[^>]*>([^<]*)<\/a>|<hr>/g)];
         const settings=links.filter(link=>link[1]?.endsWith('route=settings'));
-        assert.equal(settings.length,['files-manager','pages'].includes(id)?1:0,`${id}: configurações declaradas pelo manifesto`);
+        assert.equal(settings.length,['files-manager','posts'].includes(id)?1:0,`${id}: configurações declaradas pelo manifesto`);
         if(id!=='files-manager')continue;
         assert.equal(settings[0][2],'Configurações');
         const separator=links.indexOf(settings[0])+1;

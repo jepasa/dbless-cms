@@ -1,12 +1,14 @@
 <?php
-/** Blog API 1 adapter: authenticated editorial operations and a separate declared public surface; business logic remains inside the plugin. */
+/** Posts-owned article compatibility adapter: authenticated legacy editorial operations, public providers and moderated discussion, without an independent package. */
 declare(strict_types=1);
+/** Trusted Posts implementation and retained internal contracts.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
-require_once __DIR__.'/Model.php';
-require_once __DIR__.'/Store.php';
 require_once __DIR__.'/Router.php';
 require_once __DIR__.'/View.php';
-final class BlogPlugin implements PluginInterface,PublicPluginInterface,DashboardProviderInterface,ContentProviderInterface,ContentOptionsInterface,ContentDocumentInterface,ContentReferenceInterface {
+/** Preserve historical article APIs and providers inside Posts without a separately installed or activated Blog package. */
+final class PostsArticleAdapter implements PluginInterface,PublicPluginInterface,DashboardProviderInterface,ContentProviderInterface,ContentOptionsInterface,ContentDocumentInterface,ContentReferenceInterface {
   /** Resolve released posts by ID/slug or bounded newest-first query; receive selector/parameters/context, return public metadata and literal body data, never comments or drafts. */
   public function reference(string $selector,array $parameters,ContentContext $context): ?array {
     $catalog=(new BlogStore($context->store))->read()['data'];$articles=BlogModel::published($catalog);uasort($articles,static fn(array $a,array $b):int=>strcmp($b['publishedAt'],$a['publishedAt'])?:strcmp($a['id'],$b['id']));$items=[];$mode=str_contains($selector,':')?explode(':',$selector,2):['',$selector];

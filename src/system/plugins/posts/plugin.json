@@ -2,7 +2,7 @@
   "id": "posts",
   "name": "Publications",
   "description": "Unified pages, articles, custom types, taxonomies and public search.",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "api": 1,
   "cmsMajor": 2,
   "entry": "Plugin.php",
@@ -15,6 +15,20 @@
   "defaults": {
     "browser": {
       "pageSize": 25
+    },
+    "publication": {
+      "title": "Journal",
+      "description": "Ideas, practical guides and stories worth sharing.",
+      "pageSize": 9,
+      "feedLimit": 20,
+      "readingSpeed": 200
+    },
+    "discussion": {
+      "enabled": false,
+      "maxLength": 2000
+    },
+    "creation": {
+      "model": ""
     }
   },
   "router": "Router.php",
@@ -111,6 +125,40 @@
       "methods": [
         "GET"
       ]
+    },
+    "list": {
+      "title": "blog.list",
+      "file": "pages/public.php",
+      "requiresEnabled": true,
+      "visibility": "public",
+      "methods": [
+        "GET"
+      ]
+    },
+    "article": {
+      "title": "blog.article",
+      "file": "pages/public.php",
+      "requiresEnabled": true,
+      "visibility": "public",
+      "methods": [
+        "GET"
+      ]
+    },
+    "comment": {
+      "title": "blog.comment",
+      "file": "pages/public.php",
+      "requiresEnabled": true,
+      "visibility": "public",
+      "methods": [
+        "POST"
+      ],
+      "maxBodyBytes": 16384
+    },
+    "special": {
+      "title": "posts.specialPages",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
     }
   },
   "navigation": {
@@ -141,8 +189,18 @@
         "route": "comments"
       },
       {
+        "label": "posts.specialPages",
+        "route": "special"
+      },
+      {
+        "separator": true
+      },
+      {
         "label": "posts.history",
         "route": "history"
+      },
+      {
+        "separator": true
       },
       {
         "label": "posts.settings",
@@ -158,10 +216,6 @@
       }
     ]
   },
-  "replacesNavigation": [
-    "pages",
-    "blog"
-  ],
   "configuration": "settings",
   "presentation": "presentation.json",
   "presentationLocales": {
@@ -419,8 +473,31 @@
     "api": 1,
     "description": "Published publication bodies, without draft/private state."
   },
-  "dependencies": [
-    "pages",
-    "blog"
+  "compatibilityAliases": {
+    "pages": {
+      "directory": "compatibility/pages",
+      "assets": {
+        "css": "css/page-editor.css",
+        "js": "js/page-editor.js"
+      }
+    },
+    "blog": {
+      "directory": "compatibility/blog",
+      "assets": {
+        "css": "css/article.css",
+        "js": "js/article.js"
+      }
+    }
+  },
+  "activationFallback": {
+    "from": [
+      "pages",
+      "blog"
+    ],
+    "untilSetting": "publication"
+  },
+  "publicSettings": [
+    "publication",
+    "discussion"
   ]
 }

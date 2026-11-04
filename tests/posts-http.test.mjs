@@ -6,6 +6,25 @@ import path from 'node:path';
 import {applications,server,inspect,password} from './helpers/extension-media.mjs';
 /** Extract one required hidden control from trusted synthetic HTML; receive document/name, return attribute bytes or fail without logging credentials. */
 function field(html,name){const match=html.match(new RegExp('name="'+name+'"[^>]*value="([^"]*)"'));assert.ok(match,name);return match[1];}
+for(const application of applications)test(`${path.basename(application)}: canonical Posts settings and moderation work without either retired package`,async()=>{
+ const c=await server(application);let cookie='';
+ /** Send one loopback request while retaining only this fixture's session; receive URL/options, return unfollowed response, propagate network failures. */
+ async function request(url,options={}){const response=await fetch(c.base+url,{...options,redirect:'manual',headers:{...(cookie?{Cookie:cookie}:{}),...options.headers}});for(const value of response.headers.getSetCookie())if(value.startsWith('DBLESSCMSSESSID='))cookie=value.split(';')[0];return response;}
+ try{
+  const login=await(await request('/cms-admin/')).text();const signed=await request('/cms-admin/',{method:'POST',body:new URLSearchParams({action:'login',username:'editor',password,csrf_token:field(login,'csrf_token')})});await signed.arrayBuffer();assert.equal(signed.status,303);
+  const options=await(await request('/cms-admin/?view=plugin-panel&plugin=posts&route=settings')).text();assert.match(options,/operation=options-save/);assert.doesNotMatch(options,/\/plugins\/(?:pages|blog)\/(?:css|js)\//);
+  const state=inspect(c,`$p=new DBLESSCMS\\Plugins($s);echo json_encode([$p->state('posts')['settings'],$p->document()['revision']]);`);state[0].discussion.enabled=true;
+  const values={csrf_token:field(options,'csrf_token'),revision:state[1],document:JSON.stringify(state[0])};
+  const saved=await request('/cms-admin/?view=plugin-api&plugin=posts&route=settings&operation=options-save',{method:'POST',body:new URLSearchParams(values)});assert.equal(saved.status,200);assert.match((await saved.json()).redirect,/plugin=posts&route=settings/);
+  cookie='';const article=await request('/plugins/posts/article?slug=designing-with-clarity');assert.equal(article.status,200);const body=await article.text();const submitted=await request('/plugins/posts/comment',{method:'POST',body:new URLSearchParams({csrf_token:field(body,'csrf_token'),article:'designing-with-clarity',name:'Synthetic reader',body:'CONSOLIDATED-MODERATION-CANARY',consent:'1',website:''})});await submitted.arrayBuffer();assert.equal(submitted.status,303);
+  const pending=inspect(c,`(new DBLESSCMS\\Plugins($s))->instance('posts');$b=new DBLESSCMS\\BlogStore($s,'comments');$d=$b->read();echo json_encode([array_values($d['data']['comments'])[0],$d['revision']]);`);assert.equal(pending[0].status,'pending');
+  const unauthorized=await request('/cms-admin/?view=plugin-api&plugin=posts&route=comments&operation=moderate',{method:'POST',body:new URLSearchParams({csrf_token:field(body,'csrf_token'),id:pending[0].id,status:'approved',revision:pending[1]})});await unauthorized.arrayBuffer();assert.equal(unauthorized.status,403);
+  const auth=await(await request('/cms-admin/')).text();const signedAgain=await request('/cms-admin/',{method:'POST',body:new URLSearchParams({action:'login',username:'editor',password,csrf_token:field(auth,'csrf_token')})});await signedAgain.arrayBuffer();
+  const comments=await(await request('/cms-admin/?view=plugin-panel&plugin=posts&route=comments')).text();assert.match(comments,/operation=moderate/);assert.match(comments,/CONSOLIDATED-MODERATION-CANARY/);
+  const approved=await request('/cms-admin/?view=plugin-api&plugin=posts&route=comments&operation=moderate',{method:'POST',body:new URLSearchParams({csrf_token:field(comments,'csrf_token'),id:pending[0].id,status:'approved',revision:pending[1]})});assert.equal(approved.status,200);assert.match((await approved.json()).redirect,/plugin=posts&route=comments/);assert.match(await(await request('/plugins/posts/article?slug=designing-with-clarity')).text(),/CONSOLIDATED-MODERATION-CANARY/);
+  for(const surface of ['system','public_html'])for(const id of ['pages','blog'])assert.equal(fs.existsSync(path.join(c.app,surface,'plugins',id)),false);
+ }finally{await c.close();}
+});
 for(const application of applications)test(`${path.basename(application)}: publication HTTP preserves aliases, blocks private snapshots and enforces session/CSRF/site/source CAS`,async()=>{
  const c=await server(application);let cookie='';
  /** Request only this loopback fixture and retain its session cookie; receive relative URL/options, return response without following redirects. */

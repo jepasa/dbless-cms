@@ -1,15 +1,21 @@
 <?php
 /** Unified publication repository: read-only legacy projections, explicit CAS adoption, bounded snapshots/taxonomies, route reservation and private recoverable history. */
 declare(strict_types=1);
+/** Shared CMS services and validated extension integration.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
+/** Own unified publication snapshots and explicit adoption while projecting legacy sources without writes during reads. */
 final class Posts {
+  /** @var Plugins|null Lazily discovered registry used only for read-time availability and route policy. */
   private ?Plugins $registry=null;
   /** Bind trusted private store without I/O or mutation. */
-  public function __construct(private readonly JsonStore $store) {}
-  /** Resolve the existing trusted Blog adapter after validating package discovery; no input, return availability, never install or enable a plugin. */
-  private function blog(): bool {
-    if(class_exists(BlogStore::class,false)&&class_exists(BlogModel::class,false))return true;$registry=$this->registry??=new Plugins($this->store);if(!isset($registry->all()['blog']))return false;$registry->instance('blog');return true;
-  }
+  public function __construct(
+    /** @var JsonStore Shared private persistence and configuration authority; never supplied by request paths. */
+    private readonly JsonStore $store
+  ) {}
+  /** Load shared article data contracts independently from installed UI packages; no input, return availability through trusted Core autoload, without enabling plugins or writing data. */
+  private function blog(): bool {return class_exists(BlogStore::class)&&class_exists(BlogModel::class);}
   /** Build the bounded private catalog primitive; no inputs, return repository with trusted 8 MiB limit and complete validation, no writes. */
   public function repository(): ExtensionDocument {
     return new ExtensionDocument($this->store,'posts/catalog.json',['schema_version'=>1,'searchPath'=>'search','routeAliases'=>[],'types'=>PostTypes::defaults(),'groups'=>[],'tags'=>[],'authors'=>[],'records'=>[]],fn(array $data):array=>$this->validate($data),true,8388608);
@@ -42,7 +48,8 @@ final class Posts {
   /** Validate one closed working/public snapshot; receive snapshot/native ID/types, return void or 422 without provider execution or writes. */
   private function snapshot(array $value,string $sourceId,array $types): void {
     $keys=['type','slug','document','seo','author','authorId','order','parent','groups','tags','featured','allowComments','publishedAt','blocks','authored','slugAliases','review'];
-    if(count($value)!==count($keys)||array_diff(array_keys($value),$keys)||!isset($types[$value['type']??''])||(!is_string($value['slug']??null)||!PagePublications::identifier($value['slug']))||!is_array($value['document']??null)||!is_array($value['seo']??null)||!is_int($value['order'])||abs($value['order'])>999999||!is_bool($value['featured'])||!is_bool($value['allowComments'])||!is_bool($value['authored'])||!is_bool($value['review']))PostTypes::fail();
+    if(array_diff($keys,array_keys($value))||array_diff(array_keys($value),[...$keys,'releaseAt'])||!isset($types[$value['type']??''])||(!is_string($value['slug']??null)||!PagePublications::identifier($value['slug']))||!is_array($value['document']??null)||!is_array($value['seo']??null)||!is_int($value['order'])||abs($value['order'])>999999||!is_bool($value['featured'])||!is_bool($value['allowComments'])||!is_bool($value['authored'])||!is_bool($value['review']))PostTypes::fail();
+    if(array_key_exists('releaseAt',$value))PagePublications::date($value['releaseAt']);
     if($types[$value['type']]['kind']==='page'&&$value['allowComments'])PostTypes::fail();
     PostTypes::text($value['author']);foreach(['authorId','parent'] as $key)if(!is_string($value[$key])||($value[$key]!==''&&!PagePublications::identifier($value[$key])))PostTypes::fail();
     foreach(['groups','tags','slugAliases'] as $key){if(!is_array($value[$key])||!array_is_list($value[$key])||count($value[$key])>50)PostTypes::fail();foreach($value[$key] as $id)if(!is_string($id)||!PagePublications::identifier($id))PostTypes::fail();if(count(array_unique($value[$key]))!==count($value[$key]))PostTypes::fail();}
@@ -72,6 +79,7 @@ final class Posts {
   }
   /** Convert a native Page snapshot without changing its source bytes or inventing dates; receive snapshot, return unified working data without provider execution. */
   private static function pageSnapshot(array $snapshot): array {
+    // The editorial date remains distinct from releaseAt, which gates scheduled visibility.
     return ['type'=>'page','slug'=>$snapshot['url'],'document'=>$snapshot['document'],'seo'=>$snapshot['seo'],'author'=>$snapshot['editorial']['author']??'','authorId'=>'','order'=>$snapshot['editorial']['order']??0,'parent'=>$snapshot['parent']??'','groups'=>[],'tags'=>[],'featured'=>false,'allowComments'=>false,'publishedAt'=>$snapshot['publishedAt']??'','blocks'=>null,'authored'=>true,'slugAliases'=>[],'review'=>$snapshot['editorial']['review']??false];
   }
   /** Convert a native Blog article into inert editor data while retaining its complete typed blocks; receive validated article, return snapshot, no writes. */
@@ -84,7 +92,7 @@ final class Posts {
   public function records(?array $data=null): array {
     $data??=$this->read()['data'];$rows=[];$pageRepository=new PagePublications($this->store);$pageCatalog=$pageRepository->read(true);$pages=$this->store->pages(null,false);
     foreach(array_unique([...array_keys($pages),...array_keys($pageCatalog['data']['records'])]) as $key){$key=(string)$key;if(!PagePublications::identifier($key))continue;$id=self::identity('pages',$key);if(isset($data['records'][$id]))continue;
-      $row=$pageRepository->record($key,true);$rows[$id]=['id'=>$id,'source'=>['plugin'=>'pages','id'=>$key],'createdAt'=>$row['createdAt'],'updatedAt'=>$row['updatedAt'],'deletedAt'=>$row['deletedAt'],'aliases'=>$row['aliases'],'draft'=>self::pageSnapshot($row['draft']),'published'=>$row['published']===null?null:self::pageSnapshot($row['published']),'scheduled'=>$row['scheduled']===null?null:self::pageSnapshot($row['scheduled']),'sourceRevision'=>$pageCatalog['revision'].':'.($pages[$key]['revision']??'')];
+      $row=$pageRepository->record($key,true);$scheduled=$row['scheduled']===null?null:self::pageSnapshot($row['scheduled'])+['releaseAt'=>$row['publishAt']];if($scheduled!==null&&$scheduled['publishedAt']==='')$scheduled['publishedAt']=$row['publishAt'];$rows[$id]=['id'=>$id,'source'=>['plugin'=>'pages','id'=>$key],'createdAt'=>$row['createdAt'],'updatedAt'=>$row['updatedAt'],'deletedAt'=>$row['deletedAt'],'aliases'=>$row['aliases'],'draft'=>self::pageSnapshot($row['draft']),'published'=>$row['published']===null?null:self::pageSnapshot($row['published']),'scheduled'=>$scheduled,'sourceRevision'=>$pageCatalog['revision'].':'.($pages[$key]['revision']??'')];
     }
     $blog=$this->legacyBlog();foreach($blog['data']['articles'] as $article){$id=self::identity('blog',$article['id']);if(isset($data['records'][$id]))continue;$snapshot=self::articleSnapshot($article);$published=$article['status']==='published';$future=$published&&strtotime($article['publishedAt'])>time();$snapshot['document']['status']='draft';
       $rows[$id]=['id'=>$id,'source'=>['plugin'=>'blog','id'=>$article['id']],'createdAt'=>$article['createdAt'],'updatedAt'=>$article['updatedAt'],'deletedAt'=>$article['deletedAt']===''?null:$article['deletedAt'],'aliases'=>[],'draft'=>$snapshot,'published'=>$published&&!$future?$snapshot:null,'scheduled'=>$future?$snapshot:null,'sourceRevision'=>$blog['revision']];
@@ -105,9 +113,11 @@ final class Posts {
     foreach(['page-publications/catalog.json','blog/catalog.json','plugins.json'] as $relative){$file=Lifecycle::path($contents.'/'.$relative);$sources[$relative]=is_file($file)?hash_file('sha256',$file):'';}ksort($sources);return hash('sha256',JsonStore::encode($sources));
   }
   /** Select a due published snapshot; receive record/optional UTC clock, return authorized snapshot or null without writing a transition. */
-  public static function effective(array $row,?int $now=null): ?array {if($row['deletedAt']!==null)return null;return $row['scheduled']!==null&&strtotime($row['scheduled']['publishedAt'])<=($now??time())?$row['scheduled']:$row['published'];}
+  public static function effective(array $row,?int $now=null): ?array {if($row['deletedAt']!==null)return null;return $row['scheduled']!==null&&strtotime(self::release($row['scheduled']))<=($now??time())?$row['scheduled']:$row['published'];}
+  /** Resolve a snapshot's release gate independently from retained editorial publication time; receive snapshot, return UTC text without writes. Older own snapshots use publishedAt. */
+  public static function release(array $snapshot): string {return $snapshot['releaseAt']??$snapshot['publishedAt'];}
   /** Describe private editorial status; receive row, return closed state key without effects. */
-  public static function status(array $row): string {return $row['deletedAt']!==null?'deleted':($row['scheduled']!==null&&strtotime($row['scheduled']['publishedAt'])>time()?'scheduled':(self::effective($row)!==null?'published':(($row['draft']['review']??false)?'pending':'draft')));}
+  public static function status(array $row): string {return $row['deletedAt']!==null?'deleted':($row['scheduled']!==null&&strtotime(self::release($row['scheduled']))>time()?'scheduled':(self::effective($row)!==null?'published':(($row['draft']['review']??false)?'pending':'draft')));}
   /** Find an existing projected record by immutable identity; receive ID, return row or 404, no writes. */
   public function record(string $id): array {return $this->records()[$id]??throw new HttpError(404,'Publication unavailable.','posts.error.missing');}
   /** Resolve an adopted native source only; receive plugin/ID, return own record or null, avoiding legacy projection recursion. */
@@ -139,7 +149,7 @@ final class Posts {
     return ['items'=>$private?$items:array_slice($items,($page-1)*$size,$size),'total'=>$total,'page'=>$page,'pages'=>$pages,'pageSize'=>$size,'hasNext'=>$page<$pages,'hasPrevious'=>$page>1&&$pages>0,'query'=>$q];
   }
   /** Preserve explicit source activation for unadopted content; receive row, return visibility policy without mutations; adopted content belongs to Posts. */
-  public function sourceEnabled(array $row,?array $data=null): bool {$data??=$this->read()['data'];if(isset($data['records'][$row['id']]))return true;$registry=$this->registry??=new Plugins($this->store);return isset($registry->all()[$row['source']['plugin']])&&$registry->state($row['source']['plugin'])['enabled'];}
+  public function sourceEnabled(array $row,?array $data=null): bool {$data??=$this->read()['data'];if(isset($data['records'][$row['id']]))return true;$registry=$this->registry??=new Plugins($this->store);$source=$row['source']['plugin'];if($source==='pages')return true;$previous=$registry->document()['data']['plugins'][$source]['enabled']??true;return $previous&&isset($registry->available()[$source])&&$registry->state($source)['enabled'];}
   /** Reserve canonical, pending and alias destinations, plus legacy/static namespaces; receive proposed data, throw 409 on collisions before any write. */
   private function relationships(array $data): void {
     $terms=$this->terms($data);foreach(['groups'=>100,'tags'=>200,'authors'=>50] as $kind=>$maximum)if(count($terms[$kind])>$maximum)PostTypes::fail('term');foreach($terms['groups'] as $id=>$group){$seen=[$id];$parent=$group['parent'];while($parent!==''){if(in_array($parent,$seen,true)||!isset($terms['groups'][$parent])||$terms['groups'][$parent]['deleted']||count($seen)>=5)PostTypes::fail('term');$seen[]=$parent;$parent=$terms['groups'][$parent]['parent'];}}
@@ -165,12 +175,12 @@ final class Posts {
   public function pageCatalog(array $records): array {
     $data=$this->read()['data'];$terms=$data['records']===[]?[]:$this->terms($data);foreach($data['records'] as $row){if($row['source']['plugin']==='blog')continue;$key=$row['source']['plugin']==='pages'?$row['source']['id']:$row['id'];$snap=self::effective($row)??$row['draft'];if($data['types'][$snap['type']]['kind']!=='page'){unset($records[$key]);continue;}$snapshots=[];
       foreach(['draft','published','scheduled'] as $which){$value=$row[$which];$snapshots[$which]=$value===null?null:['url'=>$value['slug'],'document'=>$value['document'],'seo'=>$value['seo'],'parent'=>$value['parent'],'publishedAt'=>$value['publishedAt'],'updatedAt'=>$row['updatedAt'],'editorial'=>['author'=>$value['authorId']!==''?($terms['authors'][$value['authorId']]['name']??''):$value['author'],'order'=>$value['order'],'review'=>$value['review']]];}
-      $records[$key]=['id'=>$key,'parent'=>$row['draft']['parent'],'model'=>'legacy','createdAt'=>$row['createdAt'],'updatedAt'=>$row['updatedAt'],'deletedAt'=>$row['deletedAt'],'publishAt'=>$row['scheduled']['publishedAt']??$row['published']['publishedAt']??'','aliases'=>array_values(array_filter($row['aliases'],static fn(string $path):bool=>!str_contains($path,'/'))),...$snapshots];
+      $records[$key]=['id'=>$key,'parent'=>$row['draft']['parent'],'model'=>'legacy','createdAt'=>$row['createdAt'],'updatedAt'=>$row['updatedAt'],'deletedAt'=>$row['deletedAt'],'publishAt'=>$row['scheduled']!==null?self::release($row['scheduled']):($row['published']['publishedAt']??''),'aliases'=>array_values(array_filter($row['aliases'],static fn(string $path):bool=>!str_contains($path,'/'))),...$snapshots];
     }return $records;
   }
   /** Reserve active unified namespaces and stored identities for native writers; receive literal path and optional same-source exemption, return bool without projecting native sources or writing state. */
   public function reserved(string $path,string $plugin='',string $source=''): bool {
-    $data=$this->read()['data'];$registry=$this->registry??=new Plugins($this->store);$active=isset($registry->all()['posts'])&&$registry->state('posts')['enabled'];if($active||$data['records']!==[]){if($path===$data['searchPath']||isset($data['routeAliases'][$path]))return true;foreach($data['types'] as $type){$prefix=PostTypes::prefix($type);if($prefix!==null&&$prefix!==''&&($path===$prefix||str_starts_with($path,$prefix.'/')))return true;}}
+    $data=$this->read()['data'];$registry=$this->registry??=new Plugins($this->store);$active=isset($registry->available()['posts'])&&$registry->state('posts')['enabled'];if($active||$data['records']!==[]){if($path===$data['searchPath']||isset($data['routeAliases'][$path]))return true;foreach($data['types'] as $type){$prefix=PostTypes::prefix($type);if($prefix!==null&&$prefix!==''&&($path===$prefix||str_starts_with($path,$prefix.'/')))return true;}}
     foreach($data['records'] as $row){if($row['source']['plugin']===$plugin&&$row['source']['id']===$source)continue;if($path===$row['id']||in_array($path,$row['aliases'],true))return true;foreach(['draft','published','scheduled'] as $which)if($row[$which]!==null&&PostTypes::route($data['types'],$row[$which])===$path)return true;}return false;
   }
   /** Translate a unified snapshot into the preserved Blog model; receive row/snapshot, return native typed article, with immutable compatibility ID and no storage changes. */
@@ -204,28 +214,42 @@ final class Posts {
   }
   /** Validate the current route configuration before activation; no input/output or writes, collision errors propagate. */
   public function validateRoutes(): void {$this->relationships($this->read()['data']);}
+  /** Resolve the public search address without claiming a conflicting legacy URL; receive optional validated catalog, return friendly or reserved endpoint path, propagate non-collision failures and never write. */
+  public function publicSearchPath(?array $data=null): string {
+    // Inherited activation must not take over a pre-existing page; the reserved route stays reachable.
+    $data??=$this->read()['data'];$path=$data['searchPath'];$fallback='plugins/posts/search';
+    try{$file=Lifecycle::path(dirname($this->store->config->root).'/public_html/'.$path);}catch(\RuntimeException){return $fallback;}
+    if(file_exists($file)||is_link($file))return $fallback;
+    foreach($data['types'] as $type)if(PostTypes::prefix($type)===$path)return $fallback;
+    foreach($this->records($data) as $row){
+      if(in_array($path,$row['aliases'],true)||$row['source']['plugin']==='pages'&&$row['source']['id']===$path)return $fallback;
+      foreach(['draft','published','scheduled'] as $which){$snapshot=$row[$which];if($snapshot===null)continue;if(PostTypes::route($data['types'],$snapshot)===$path)return $fallback;
+        foreach($snapshot['slugAliases'] as $alias){$candidate=$snapshot;$candidate['slug']=$alias;if(PostTypes::route($data['types'],$candidate)===$path)return $fallback;}
+      }
+    }return $path;
+  }
   /** Commit one explicit lifecycle/configuration/term operation with own/site/legacy CAS; receive action/ID/input/revisions, return ID/revision or 409/422/503, preserving original files. */
   public function change(string $action,string $id,array $input,string $revision,string $siteRevision,string $sourceRevision): array {
     return $this->store->transaction(function()use($action,&$id,$input,$revision,$siteRevision,$sourceRevision):array{
       if(!hash_equals($this->store->read('site')['revision'],$siteRevision)||!hash_equals($this->sourceRevision(),$sourceRevision))PostTypes::fail('conflict',409);
       $result=$this->repository()->change($revision,function(array $data)use($action,&$id,$input):array{
         $old=$data;$rows=$this->records($data);$now=gmdate('Y-m-d\TH:i:s\Z');
-        if($action==='type-save'){$type=$input['type'];$id=$type['id'];$data['types'][$id]=$type;if(isset($old['types'][$id])){$prior=PostTypes::prefix($old['types'][$id]);$after=PostTypes::prefix($type);if($prior!==null&&$prior!==''&&$prior!==$after)$data['routeAliases'][$prior]=['kind'=>'archive','type'=>$id];if($after!==null)unset($data['routeAliases'][$after]);}if(isset($old['types'][$id])&&$old['types'][$id]['kind']!==$type['kind'])foreach($rows as $row)foreach(['draft','published','scheduled'] as $which)if(($row[$which]['type']??'')===$id)PostTypes::fail('inUse',409);PostTypes::validate($data['types']);foreach($rows as $key=>$row){$live=self::effective($row);if($live!==null){$before=PostTypes::route($old['types'],$live);$after=PostTypes::route($data['types'],$live);if($before!==$after&&!str_contains($before,'?')){$row['aliases']=array_values(array_unique([...$row['aliases'],$before]));$data['records'][$key]=$row;}}}}
+        if($action==='type-save'){$type=$input['type'];$id=$type['id'];$data['types'][$id]=$type;if(isset($old['types'][$id])){$prior=PostTypes::prefix($old['types'][$id]);$after=PostTypes::prefix($type);if($prior!==null&&$prior!==''&&$prior!==$after)$data['routeAliases'][$prior]=['kind'=>'archive','type'=>$id];if($after!==null)unset($data['routeAliases'][$after]);}if(isset($old['types'][$id])&&$old['types'][$id]['kind']!==$type['kind'])foreach($rows as $row)foreach(['draft','published','scheduled'] as $which)if(($row[$which]['type']??'')===$id)PostTypes::fail('inUse',409);PostTypes::validate($data['types']);foreach($rows as $key=>$row){$live=self::effective($row);if($live!==null&&$this->sourceEnabled($row,$old)){$before=PostTypes::route($old['types'],$live);$after=PostTypes::route($data['types'],$live);if($before!==$after&&!str_contains($before,'?')){$row['aliases']=array_values(array_unique([...$row['aliases'],$before]));$data['records'][$key]=$row;}}}}
         elseif($action==='type-remove'){if(in_array($id,['page','article'],true)||!isset($data['types'][$id]))PostTypes::fail('inUse',409);foreach($rows as $row)foreach(['draft','published','scheduled'] as $which)if(($row[$which]['type']??'')===$id)PostTypes::fail('inUse',409);foreach($data['routeAliases'] as $path=>$target)if($target['kind']==='archive'&&$target['type']===$id)unset($data['routeAliases'][$path]);unset($data['types'][$id]);}
-        elseif($action==='settings'){$next=PostTypes::path($input['searchPath']);if($next!==$data['searchPath']&&($data['records']!==[]||(new Plugins($this->store))->state('posts')['enabled']))$data['routeAliases'][$data['searchPath']]=['kind'=>'search','type'=>''];unset($data['routeAliases'][$next]);$data['searchPath']=$next;}
+        elseif($action==='settings'){$next=PostTypes::path($input['searchPath']);if($next!==$data['searchPath']&&($data['records']!==[]||(new Plugins($this->store))->state('posts')['enabled'])&&$this->publicSearchPath($old)===$old['searchPath'])$data['routeAliases'][$data['searchPath']]=['kind'=>'search','type'=>''];unset($data['routeAliases'][$next]);$data['searchPath']=$next;}
         elseif(in_array($action,['term-save','term-remove'],true)){$kind=$input['kind'];if(!in_array($kind,['groups','tags','authors'],true)||!PostTypes::identifier($id))PostTypes::fail();$terms=$this->terms($data);
           if($action==='term-save'){$entry=$input['term'];if(($input['original']??'')===''&&isset($terms[$kind][$id]))PostTypes::fail('collision',409);$data[$kind][$id]=$entry;}
           else{if(!isset($terms[$kind][$id]))PostTypes::fail('missing',404);foreach($rows as $row)foreach(['draft','published','scheduled'] as $which){$snap=$row[$which];if($snap!==null&&($kind==='authors'?$snap['authorId']===$id:in_array($id,$snap[$kind],true)))PostTypes::fail('inUse',409);}if($kind==='groups')foreach($terms['groups'] as $entry)if($entry['parent']===$id)PostTypes::fail('inUse',409);$data[$kind][$id]=$terms[$kind][$id];$data[$kind][$id]['deleted']=true;}
         }else{
           if($action==='create'){$id='pub-'.bin2hex(random_bytes(12));$row=['id'=>$id,'source'=>['plugin'=>'posts','id'=>$id],'createdAt'=>$now,'updatedAt'=>$now,'deletedAt'=>null,'aliases'=>[],'draft'=>$input['snapshot'],'published'=>null,'scheduled'=>null,'sourceRevision'=>''];}
-          else{$row=$rows[$id]??throw new HttpError(404,'Publication unavailable.','posts.error.missing');if($row['deletedAt']!==null&&!in_array($action,['recover','restore'],true))PostTypes::fail('missing',404);}
+          else{$row=$rows[$id]??throw new HttpError(404,'Publication unavailable.','posts.error.missing');if(!isset($data['records'][$id])&&!$this->sourceEnabled($row,$data))$row['published']=$row['scheduled']=null;if($row['deletedAt']!==null&&!in_array($action,['recover','restore'],true))PostTypes::fail('missing',404);}
           if($action==='duplicate'){$id='pub-'.bin2hex(random_bytes(12));$row['id']=$id;$row['source']=['plugin'=>'posts','id'=>$id];$row['draft']['document']['slug']=$id;$row['draft']['slug']=$input['slug'];$row['draft']['publishedAt']='';$row['aliases']=[];$row['published']=$row['scheduled']=null;$row['createdAt']=$now;$row['deletedAt']=null;}
           elseif(in_array($action,['create','save'],true)){$row['draft']=$input['snapshot'];$row['draft']['document']['slug']=$row['source']['id'];$row['draft']['document']['status']='draft';$row['draft']['publishedAt']='';}
           elseif(in_array($action,['publish','schedule'],true)){$snap=$row['draft'];$snap['review']=false;$row['draft']['review']=false;$type=$data['types'][$snap['type']];$terms=$this->terms($data);foreach(['groups','tags'] as $kind)foreach($snap[$kind] as $term)if($terms[$kind][$term]['deleted'])PostTypes::fail('term');
             if($type['kind']==='article'&&(($snap['authored']&&trim($snap['document']['markup']['html']??'')==='')||(!$snap['authored']&&$snap['blocks']===[])))PostTypes::fail();
             if($type['kind']==='article'&&($snap['authorId']===''||($terms['authors'][$snap['authorId']]['deleted']??true)))PostTypes::fail('author');
             (new Components(new ContentContext($this->store,$this->store->read('site')['data']['template'],'',$row['source']['id'])))->validateBindings($snap['document']['markup']['bindings']??[]);
-            $date=$input['publishAt']??$now;PagePublications::date($date);if($action==='schedule'&&strtotime($date)<=time())PostTypes::fail('date');$snap['publishedAt']=$date;if($snap['authored'])$snap['blocks']=null;
+            $date=$input['publishAt']??$now;PagePublications::date($date);if($action==='schedule'&&strtotime($date)<=time())PostTypes::fail('date');$snap['publishedAt']=$date;unset($snap['releaseAt']);if($snap['authored'])$snap['blocks']=null;
             $previous=self::effective($row);if($previous!==null){$row['published']=$previous;$path=PostTypes::route($data['types'],$previous);if($path!==PostTypes::route($data['types'],$snap)&&!str_contains($path,'?'))$row['aliases']=array_values(array_unique([...$row['aliases'],$path]));if($previous['slug']!==$snap['slug'])$snap['slugAliases']=array_values(array_unique([...$previous['slugAliases'],$previous['slug']]));}
             if(strtotime($date)>time())$row['scheduled']=$snap;else{$row['published']=$snap;$row['scheduled']=null;}
           }

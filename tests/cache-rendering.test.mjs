@@ -16,7 +16,7 @@ for(const application of applications){
     const c=fixture(application);try{
       const file=path.join(c.contents,'pages/starter-page.json'),page=JSON.parse(fs.readFileSync(file));page.markup={html:'<section>{{#news.items}}<h2>{{title}}</h2>{{/news.items}}</section>',bindings:[{plugin:'blog',service:'posts',alias:'news',parameters:{limit:2,category:''}}]};fs.writeFileSync(file,JSON.stringify(page));
       inspect(c,warm+"$s->read('starter-page');echo 'true';");
-      const manifest=path.join(c.app,'system/plugins/blog/plugin.json'),data=JSON.parse(fs.readFileSync(manifest));data.contentServices.posts.parameters.properties.limit.maximum=1;data.contentServices.posts.parameters.properties.limit.default=1;fs.writeFileSync(manifest,JSON.stringify(data));
+      const manifest=path.join(c.app,'system/plugins/posts/compatibility/blog/contract.json'),data=JSON.parse(fs.readFileSync(manifest));data.contentServices.posts.parameters.properties.limit.maximum=1;data.contentServices.posts.parameters.properties.limit.default=1;fs.writeFileSync(manifest,JSON.stringify(data));
       const result=inspect(c,warm+"$codes=[];foreach([true,false] as $enabled){$store=new DBLESSCMS\\JsonStore($s->config);if($enabled)$store->publicCache($cache);try{$store->read('starter-page');$codes[]=200;}catch(DBLESSCMS\\HttpError $e){$codes[]=$e->status;}}echo json_encode([$codes,$cache->snapshot()['metrics']['hits']]);");assert.deepEqual(result[0],[422,422]);assert.ok(result[1]>=3);
     }finally{c.close();}
   });

@@ -27,7 +27,7 @@ for(const tree of trees)test(`${tree}: uploads e navegação possuem configuraç
     const login=await request('/cms-admin/');assert.equal((await request('/cms-admin/',{action:'login',username:'editor',password:'Synthetic-DBLESS-CMS-password-2026',csrf_token:field(login.body,'csrf_token')})).status,303);
     const configFile=path.join(sandbox.temporary,'contents/plugins.json'),read=()=>JSON.parse(fs.readFileSync(configFile));
     // Simula uma instalação anterior sem migrar/regravar conteúdo real.
-    const legacy=read();Object.assign(legacy.plugins.pages.settings,{creation:{model:'starter-page'}});Object.assign(legacy.plugins.menu.settings,{creation:{newTab:true}});Object.assign(legacy.plugins.slides.settings,{creation:{contentType:'product',autoplay:true,interval:9000}});fs.writeFileSync(configFile,JSON.stringify(legacy));
+    const legacy=read();Object.assign(legacy.plugins.posts.settings,{creation:{model:'starter-page'}});Object.assign(legacy.plugins.menu.settings,{creation:{newTab:true}});Object.assign(legacy.plugins.slides.settings,{creation:{contentType:'product',autoplay:true,interval:9000}});fs.writeFileSync(configFile,JSON.stringify(legacy));
     const contentFiles=['pages/home.json','menu/menus.json','slides/slides.json'].map(file=>path.join(sandbox.temporary,'contents',file)),contents=contentFiles.map(file=>fs.readFileSync(file));
     const opened=await request(screen('files-manager')),csrf=field(opened.body,'csrf_token');assert.equal(opened.status,200);
     assert.match(opened.body,/data-editor-schema=/);assert.match(opened.body,/class="savebar"/);assert.doesNotMatch(opened.body,/name="enabled"|id="plugin-options-history"/);

@@ -1,9 +1,13 @@
 <?php
-/** Plugin Pages: domínio editorial reutiliza JsonStore, com rotas próprias e adaptador dos endereços administrativos anteriores. */
+/** Posts-owned page compatibility adapter: preserves historical provider/editor API contracts through JsonStore, without an independently installed package. */
 declare(strict_types=1);
+/** Trusted Posts implementation and retained internal contracts.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
 require_once __DIR__.'/Router.php';
-final class PagesPlugin implements PluginInterface,ContentProviderInterface,ContentOptionsInterface,ContentDocumentInterface,ContentReferenceInterface {
+/** Preserve historical page APIs and providers inside Posts while keeping adopted publications under owner authority. */
+final class PostsPagesAdapter implements PluginInterface,ContentProviderInterface,ContentOptionsInterface,ContentDocumentInterface,ContentReferenceInterface {
   /** Resolve public page identity or newest-first data; receive validated selector/parameters/context, return finite JSON with literal body, never draft markup or rendered recursive HTML. */
   public function reference(string $selector,array $parameters,ContentContext $context): ?array {
     $repo=new PagePublications($context->store);$catalog=$repo->read()['data']['records'];$items=[];

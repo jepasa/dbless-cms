@@ -1,7 +1,11 @@
 <?php
 /** Blog public queries/rendering: published-only projections, active-template integration, canonical metadata, XML discovery and moderated public input. */
 declare(strict_types=1);
+/** Trusted Posts implementation and retained internal contracts.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
+/** Preserve article discovery, rendering and moderated public input using trusted contexts and published-only projections. */
 final class BlogView {
   /** Build an addressed plugin URL under a supplied base; takes base/declared route/query, returns URL with RFC3986 parameters, no writes. */
   public static function url(string $base,string $route='list',array $query=[]): string {
@@ -141,7 +145,7 @@ final class BlogView {
   }
   /** Obtain public homepage examples when the extension is installed/enabled; takes store/limit, returns visible articles or empty, propagating corrupt content rather than hiding it. */
   public static function latest(JsonStore $store,int $limit=3): array {
-    $registry=new Plugins($store);if (!isset($registry->all()['blog'])||!$registry->state('blog')['enabled']) return [];
+    $registry=new Plugins($store);if (!isset($registry->available()['blog'])||!$registry->state('blog')['enabled']) return [];
     return array_slice(BlogModel::published((new BlogStore($store))->read()['data']),0,$limit);
   }
 }

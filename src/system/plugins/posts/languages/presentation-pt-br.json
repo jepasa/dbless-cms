@@ -87,7 +87,7 @@
       "id": "discussion",
       "title": "Moderar discussão",
       "body": [
-        "Comentários em páginas permanecem desabilitados. Artigos exigem a configuração global existente do Blog e a opção individual. Comentários enviados permanecem pendentes até moderação. IDs, endpoints e histórico existentes são preservados."
+        "Comentários em páginas permanecem desabilitados. A discussão de artigos usa a opção global de Posts em Tipos e configurações e a opção individual da publicação. Comentários enviados permanecem pendentes até moderação; IDs, URLs e histórico existentes são preservados."
       ],
       "steps": [
         "Habilite discussão somente quando desejado e revise os comentários recebidos em Comentários."
@@ -101,6 +101,16 @@
       ],
       "steps": [
         "Valide uma exportação sintética antes de distribuir o código e preserve o estado independente da instalação."
+      ]
+    },
+    {
+      "id": "consolidation",
+      "title": "Consolidação dos pacotes",
+      "body": [
+        "Posts incorpora Pages e Blog, cujos pacotes e assets antigos são removidos. URLs, referências e APIs anteriores usam adaptadores internos; os plugins antigos não aparecem no catálogo e não possuem ativação independente. Conteúdo, histórico e comentários permanecem preservados. Configurações anteriores são combinadas em leitura até uma gravação explícita no Posts."
+      ],
+      "steps": [
+        "Gerencie publicação e discussão em Tipos e configurações, modere em Comentários e acesse home/404 em Páginas especiais."
       ]
     }
   ]
