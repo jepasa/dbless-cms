@@ -1,4 +1,4 @@
-/** Media explorer geometry: canonical tokens/icons, connected tree, natural-height results with horizontal table scrolling, thumbnail grid and accessible context actions. */
+/** Media explorer geometry: aligned command/filter controls above the breadcrumb, canonical tokens/icons, connected tree and natural-height table/grid results. */
 .plugin-standalone { padding: 24px; }
 .fm { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: clip; }
 .fm [hidden] { display: none !important; }
@@ -29,6 +29,14 @@
 .fm-folder-name img { width: 18px; height: 18px; flex-shrink: 0; }
 .fm .fm-folder-name[aria-current=page] { background: var(--accent-soft); color: var(--accent); }
 .fm-main { padding: 16px; min-width: 0; display: flex; flex-direction: column; }
+.fm-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.fm-controls > .fm-toolbar { flex: none; }
+.fm-controls > .fm-filters { flex: 1 1 440px; min-width: 0; gap: 12px; }
+.fm-controls .catalog-search { min-width: 0; flex-wrap: nowrap; }
+.fm-controls .fm-search { min-width: 120px; max-width: 360px; flex: 1; }
+.fm-controls .catalog-search label:not(.fm-search) { min-width: 0; flex: none; }
+.fm-controls .catalog-search input { width: 100%; min-width: 0; }
+.fm-controls .catalog-search select { min-width: 132px; }
 .fm-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
 .fm-toolbar-separator { height: 25px; border-inline-start: 1px solid var(--line); margin-inline: 4px; }
 .fm-breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-block: 10px; font-size: .85rem; }

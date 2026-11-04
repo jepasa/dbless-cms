@@ -1,5 +1,5 @@
 <?php
-/** Authenticated media explorer: canonical icons, accessible tree/table/grid, localizable dialogs and shared action dispatch. */
+/** Authenticated media explorer: command/filter row above the breadcrumb, canonical icons, accessible tree/table/grid and localizable shared actions. */
 declare(strict_types=1);
 use DBLESSCMS\{Icons,AdminTable};
 use function DBLESSCMS\e;
@@ -21,12 +21,13 @@ $button=static function(string $action,?string $label=null,string $class='')use(
 <section class="fm" aria-label="<?= e($t('title')) ?>" data-fm data-screen="<?= e($screen) ?>" data-api="<?= e($context->url('')) ?>" data-csrf="<?= e(\DBLESSCMS\Security::token()) ?>" data-page-size="<?= e((string)($context->settings['browser']['pageSize']??25)) ?>" data-icons="<?= e(json_encode($icons,JSON_THROW_ON_ERROR)) ?>" data-messages="<?= e(json_encode($context->language->messages(),JSON_THROW_ON_ERROR)) ?>">
 <header class="fm-header"><?php if (!$context->integrated): ?><h1><?= e($t('title')) ?></h1><?php endif; ?><nav aria-label="<?= e($t('title')) ?>"><?php foreach(['public','private'] as $scope): ?><button type="button" class="fm-action" data-scope="<?= e($scope) ?>" aria-pressed="<?= $scope==='public'?'true':'false' ?>" title="<?= e($t($scope)) ?>" aria-label="<?= e($t($scope)) ?>"><?= Icons::svg($scope,$context->base) ?></button><?php endforeach; ?></nav><p data-scope-help></p></header>
 <div class="fm-layout"><aside class="fm-sidebar"><h2><?= e($t('folders')) ?></h2><nav data-tree aria-label="<?= e($t('folders')) ?>"></nav><?= $button('trash') ?></aside>
-<div class="fm-main"><div class="fm-toolbar" role="toolbar" aria-label="<?= e($t('files')) ?>">
+<div class="fm-main"><div class="fm-controls"><div class="fm-toolbar" role="toolbar" aria-label="<?= e($t('files')) ?>">
 <?php foreach(['up','refresh','upload','mkdir'] as $action)echo $button($action,null,$action==='upload'?'button-primary':''); ?>
 <input type="file" data-upload multiple accept=".jpg,.jpeg,.png,.gif,.webp,.ico,.pdf,.txt,.mp4" hidden aria-label="<?= e($t('upload')) ?>"><input type="file" data-replace hidden aria-label="<?= e($t('replace')) ?>">
 
-</div><nav class="fm-breadcrumb" data-breadcrumb aria-label="<?= e($t('root')) ?>"></nav>
+</div>
 <form class="catalog-toolbar fm-filters" data-file-filters><div class="catalog-actions"><?= $button('list') ?><?= $button('grid') ?></div><div class="catalog-search"><label class="fm-search"><span class="fm-sr"><?= e($t('search')) ?></span><input type="search" data-filter placeholder="<?= e($t('search')) ?>"></label><label><span class="fm-sr"><?= e($t('filterType')) ?></span><select data-type-filter aria-label="<?= e($t('filterType')) ?>"><?php foreach(['allTypes','images','videos','documents','folders'] as $key): ?><option value="<?= e($key) ?>"><?= e($t($key)) ?></option><?php endforeach; ?></select></label><button type="button" class="fm-action" data-filter-clear title="<?= e($t('clear')) ?>" aria-label="<?= e($t('clear')) ?>"><?= Icons::svg('clear',$context->base) ?></button><button type="submit" class="fm-action" title="<?= e($t('searchAction')) ?>" aria-label="<?= e($t('searchAction')) ?>"><?= Icons::svg('search',$context->base) ?></button></div></form>
+</div><nav class="fm-breadcrumb" data-breadcrumb aria-label="<?= e($t('root')) ?>"></nav>
 <div class="fm-grid-sort" data-grid-sort><label><span class="fm-sr"><?= e($t('sort')) ?></span><select data-sort aria-label="<?= e($t('sort')) ?>"><?php foreach(['name','type','size','added'] as $key): ?><option value="<?= e($key) ?>"><?= e($t($key)) ?></option><?php endforeach; ?></select></label><button type="button" class="fm-action" data-direction title="<?= e($t('ascending')) ?>" aria-label="<?= e($t('ascending')) ?>"><?= Icons::svg('sort-up',$context->base) ?></button></div>
 <p class="fm-status" data-status role="status" aria-live="polite"></p><progress data-progress max="100" value="0" hidden aria-label="<?= e($t('upload')) ?>"></progress>
 <div class="fm-selection"><span data-selected><?= e($t('files')) ?></span><div role="toolbar" aria-label="<?= e($t('actions')) ?>"><?php foreach(['rename','move','download','preview','replace','delete','restore','purge'] as $action)echo $button($action); ?></div></div>

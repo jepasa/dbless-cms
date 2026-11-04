@@ -16,7 +16,7 @@
       "title": "Find and inspect files",
       "body": [],
       "steps": [
-        "Switch between list and grid. Grid shows image/video thumbnails or file-type icons.",
+        "File commands and the view/search/type controls share the top row above the breadcrumbs; narrow screens wrap within that area. Switch between list and grid. Grid shows image/video thumbnails or file-type icons.",
         "Enter a search term, filter by type and choose sorting. In list view, click Name, Type, Size or Added on to toggle sorting direction. Use pagination to inspect further results.",
         "Select an item to enable its applicable actions. Open Preview or Information to inspect it; older files may have no recorded addition date."
       ]
