@@ -110,7 +110,7 @@ final class Admin {
     }
   }
 
-  /** Despacha painel/preview; retorna HTML ou redireciona; erros de edição preservam documento/status; configuração explicitamente ausente retorna 404. */
+  /** Despacha a requisição sem parâmetros; retorna HTML ou redireciona, preserva documento/status em erros e retorna 404 se desabilitado. Reserva assets da moldura antes de renderizar fragmentos integrados; mantém sessão/cabeçalhos e propaga falhas de contrato. */
   public function run(): string {
     if (($this->config->credentials['enabled']??true)!==true) throw new HttpError(404,'Página não encontrada.','error.not_found');
     if (($_GET['view']??'')==='plugin-api') return $this->pluginApi();
@@ -162,6 +162,7 @@ final class Admin {
       $themeOptions=$manager->options($themeId); $themeLanguage=$this->store->templates->language($themeId,$this->language->locale());
     }
     $pluginMenus=$plugins?->navigation($this->language->locale())??[];
+    $tableAssets=$view==='plugin-panel'?AdminTable::assets($this->base):'';
     $panelId=''; $panelRoute=null; $panelLanguage=null; $panelContent=''; $panelAssets=null;
     if ($view==='plugin-panel') {
       $panelId=$requestedPlugin; $route=$requestedRoute;

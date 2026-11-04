@@ -64,7 +64,7 @@
       ],
       "steps": [
         "Use the icon controls and their translated tooltips. Search, clear and ordering restart at page one; page navigation preserves the selected filters and order.",
-        "The seven-position pager stays visible below the scrollable table. Ellipsis buttons open upward menus containing earlier or later pages outside the three displayed numbers. Use the keyboard or a page button to navigate.",
+        "All result rows and the seven-position pager scroll together with the page. The pager follows the complete table or grid without covering any result; only wide tables scroll horizontally. Ellipsis buttons open upward menus containing earlier or later pages outside the three displayed numbers. Use the keyboard or a page button to navigate.",
         "Read the total results, displayed range/count and page totals below the pager. Unavailable directions and empty catalogs retain disabled controls."
       ]
     }
