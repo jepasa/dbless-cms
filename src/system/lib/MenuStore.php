@@ -19,18 +19,18 @@ final class MenuStore {
     return is_string($value) && strlen($value)<=$max && ($empty || trim($value)!=='') && preg_match('//u',$value)===1 && !preg_match('/[\x00-\x1F\x7F<>]/u',$value);
   }
 
-  /** Valida árvore plana e destinos tipados; recebe itens, retorna profundidade máxima; ciclos/referências/URLs inválidos geram 422. */
+  /** Valida árvore plana e destinos tipados, incluindo ID estável de artigo no campo page; recebe itens, retorna profundidade máxima; ciclos/referências/URLs inválidos geram 422. */
   public static function items(mixed $items): int {
     if (!is_array($items) || !array_is_list($items) || count($items)>100) throw new HttpError(422,'Itens inválidos.','menu.error.contract');
     $index=[];
     foreach ($items as $item) {
       self::fields($item,['id','parent','label','kind','page','anchor','url','enabled','newTab']);
-      if (!is_string($item['id']) || !self::identifier($item['id']) || isset($index[$item['id']]) || !self::text($item['label'],160) || !is_string($item['parent']) || ($item['parent']!==''&&!self::identifier($item['parent'])) || !in_array($item['kind'],['page','anchor','url','group'],true) || !is_bool($item['enabled']) || !is_bool($item['newTab'])) throw new HttpError(422,'Item inválido.','menu.error.contract');
+      if (!is_string($item['id']) || !self::identifier($item['id']) || isset($index[$item['id']]) || !self::text($item['label'],160) || !is_string($item['parent']) || ($item['parent']!==''&&!self::identifier($item['parent'])) || !in_array($item['kind'],['page','anchor','post','url','group'],true) || !is_bool($item['enabled']) || !is_bool($item['newTab'])) throw new HttpError(422,'Item inválido.','menu.error.contract');
       foreach (['page'=>64,'anchor'=>100,'url'=>2048] as $key=>$limit) if (!self::text($item[$key],$limit,true)) throw new HttpError(422,'Destino inválido.','menu.error.contract');
-      if (in_array($item['kind'],['page','anchor'],true)) {
+      if (in_array($item['kind'],['page','anchor','post'],true)) {
         if (!preg_match('/^[a-z0-9][a-z0-9-]{0,63}$/D',$item['page']) || in_array($item['page'],['404','site','plugins','templates'],true) || $item['url']!=='') throw new HttpError(422,'Página inválida.','menu.error.contract');
         if ($item['kind']==='anchor' && !preg_match('/^[A-Za-z][A-Za-z0-9_-]{0,99}$/D',$item['anchor'])) throw new HttpError(422,'Âncora inválida.','menu.error.contract');
-        if ($item['kind']==='page' && $item['anchor']!=='') throw new HttpError(422,'Âncora inesperada.','menu.error.contract');
+        if (in_array($item['kind'],['page','post'],true) && $item['anchor']!=='') throw new HttpError(422,'Âncora inesperada.','menu.error.contract');
       } elseif ($item['page']!=='' || $item['anchor']!=='') throw new HttpError(422,'Destino incompatível.','menu.error.contract');
       if ($item['kind']==='url') {
         $url=$item['url']; $scheme=strtolower((string)parse_url($url,PHP_URL_SCHEME));

@@ -7,9 +7,10 @@
       "title": "Create and edit",
       "body": [],
       "steps": [
-        "Enter a name and stable ID. Choose the navigation type for direct Mustache data.",
-        "Add page, anchor, URL or group items. Use parents and ordering to build up to five levels; enable items and choose new-tab behavior as needed.",
-        "Save and reopen to confirm the items. Only eligible public page targets are rendered; the receiving layout controls appearance."
+        "Select an existing menu or create one. Enter its name; the suggested stable ID/key can be adjusted before the first save. Renaming a saved menu never changes its key.",
+        "Use the left source panels to search published Pages and Blog posts, select several entries and add them together. Custom links, anchors and groups have their own panel; source choices are shown in pages of 25.",
+        "Expand an item to edit its label, destination, enabled/new-tab options or parent. Drag complete branches vertically to reorder and horizontally to nest, or use keyboard/touch icon controls. Up to five levels and 100 items are supported.",
+        "Removing a parent opens a choice: delete the entire branch or promote its children. Cancel preserves every item. Save and reopen to confirm; the receiving layout controls appearance."
       ]
     },
     {
@@ -34,8 +35,8 @@
       "title": "Render the public tree",
       "body": [],
       "steps": [
-        "Use menu.ID-or-slug.items in Mustache mode or template.key.items for a declared Menu position. Explicit id and slug selectors are also supported.",
-        "Items contain label, href, slug, anchor, newTab and children. Use finite sections and inverted sections; preserve safe link behavior and keep markup in the receiving layout."
+        "The reference example is generated automatically from the stable menu key or selected template keys. Copy it into a receiving layout: menu.ID-or-slug.items in Mustache mode or template.key.items for declared positions. No manual binding registration is needed.",
+        "Items contain label, href, slug, anchor, newTab and children. Blog links store immutable post IDs and follow the current published slug. Draft, scheduled, disabled or removed sources do not become public. Use finite sections/inverted sections, safe links and layout-owned formatting."
       ],
       "code": "{{#menu.main.items}}<a href=\"{{href}}\">{{label}}</a>{{#children}}<a href=\"{{href}}\">{{label}}</a>{{/children}}{{/menu.main.items}}"
     },

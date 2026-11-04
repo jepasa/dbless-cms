@@ -6,6 +6,7 @@ final class Navigation {
   public const TYPES=['navbar','sidebar','list','dropdown'];
   private ?array $document=null;
   private bool $loaded=false;
+  private ?MenuTargets $targets=null;
   /** Recebe serviços/template/base pública; não escreve e adia a leitura de menus até a localização solicitada. */
   public function __construct(private readonly JsonStore $store,private readonly string $template,private readonly string $base) {}
 
@@ -65,7 +66,7 @@ final class Navigation {
     $slot=ContentReferences::slots($this->store->templates->get($this->template))[$key]??null;
     return $slot===null||$slot['plugin']!=='menu'?null:$this->location($slot['location'],$key);
   }
-  /** Resolve árvore plana para dados escapáveis; recebe itens e parent interno; omite páginas ausentes/rascunhos e grupos vazios; não altera dados. */
+  /** Resolve árvore plana para dados escapáveis; recebe itens e parent interno; omite páginas/artigos ausentes, rascunhos e grupos vazios; não altera dados. */
   public function tree(array $items,string $parent=''): array {
     $result=[];
     foreach ($items as $item) {
@@ -76,6 +77,9 @@ final class Navigation {
         catch (HttpError $error) { if ($error->status===404) continue;throw $error; }
         if ($page['status']!=='published') continue;
         $slug=$item['page'];$href=(new PagePublications($this->store))->url($slug,$this->base).($item['kind']==='anchor'?'#'.$item['anchor']:'');
+      } elseif ($item['kind']==='post') {
+        $this->targets??=new MenuTargets(new ContentContext($this->store,$this->template,$this->base,'home'));
+        $post=$this->targets->post($item['page']);if($post===null)continue;$slug=$post['slug'];$href=$post['url'];
       } elseif ($item['kind']==='url') $href=$item['url'];
       $children=$this->tree($items,$item['id']);
       if ($href===''&&$children===[]) continue;
