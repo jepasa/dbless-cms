@@ -1,35 +1,44 @@
 <?php
-/** Localização de menus no editor: manifesto ativo, revisão do site e vínculos preservados quando o template muda. */
+/** Menu delivery editor: active declared positions, persisted channels and preserved legacy bindings under site revision. */
 declare(strict_types=1);
 namespace DBLESSCMS;
 final class MenuPlacement {
-  /** Consulta contexto de posicionamento; recebe contexto/documento/ID e retorna manifesto, locais, seleção e alertas sem escrever. */
+  /** Read active positions/selection and infer legacy mode; receive context/document/ID, return editor state with no writes; propagate invalid manifests. */
   public static function state(PluginContext $context,array $data,string $id): array {
     $site=$context->store->read('site');$template=$site['data']['template'];$manifest=$context->store->templates->get($template);
-    $locations=Navigation::locations($manifest);$selected=[];$orphaned=[];
-    foreach ($data['assignments'] as $binding) if ($binding['menu']===$id) {
-      if ($binding['template']===$template&&isset($locations[$binding['location']])) $selected[$binding['location']]=$binding['type'];
+    $locations=ContentPlacement::locations($manifest,'menu',Navigation::locations($manifest));$selected=[];$orphaned=[];$assigned=false;
+    foreach($data['assignments'] as $binding)if($binding['menu']===$id){
+      $assigned=true;
+      if($binding['template']===$template&&isset($locations[$binding['location']]))$selected[$binding['location']]=$binding['type'];
       else $orphaned[]=$binding['template'].' / '.$binding['location'];
     }
-    return ['template'=>$template,'name'=>$manifest['name'],'revision'=>$site['revision'],'locations'=>$locations,'selected'=>$selected,'orphaned'=>$orphaned];
+    $record=$data['menus'][$id]??[];
+    return ['template'=>$template,'name'=>$manifest['name'],'revision'=>$site['revision'],'locations'=>$locations,'selected'=>$selected,'orphaned'=>$orphaned,'mode'=>$record['insertionMode']??($assigned?'template':'mustache'),'legacy'=>$record!==[]&&!isset($record['insertionMode'])];
   }
-  /** Atualiza locais escolhidos na mesma mutação editorial; recebe contexto/documento/ID/POST e retorna documento; seleção/revisão inválida gera 422/409 sem escrita. */
+  /** Save explicit channel and current declared bindings atomically; receive context/document/ID/POST, return document; reject stale/forged/retired selections, preserve other bindings. */
   public static function apply(PluginContext $context,array $data,string $id,array $post): array {
-    if (!isset($post['placement_editor'])) return $data;
-    if ($post['placement_editor']!=='1') throw new HttpError(422,'Seleção inválida.','menu.error.binding');
+    if(!isset($post['placement_editor']))return $data;
+    if($post['placement_editor']!=='1')throw new HttpError(422,'Invalid placement.','menu.error.binding');
     $state=self::state($context,$data,$id);
-    if (($post['placement_template']??null)!==$state['template']||($post['site_revision']??null)!==$state['revision']) throw new HttpError(409,'Template alterado.','menu.error.templateChanged');
-    $selected=$post['locations']??[];$types=$post['locationTypes']??[];
-    if (!is_array($selected)||!array_is_list($selected)||count($selected)>20||!is_array($types)) throw new HttpError(422,'Seleção inválida.','menu.error.binding');
+    if(($post['placement_template']??null)!==$state['template']||($post['site_revision']??null)!==$state['revision'])throw new HttpError(409,'Template changed.','menu.error.templateChanged');
+    $mode=$post['placementMode']??($data['menus'][$id]['insertionMode']??'template');
+    if(!in_array($mode,['template','mustache'],true))throw new HttpError(422,'Invalid insertion mode.','menu.error.binding');
+    $selected=$post['locations']??[];
+    if(!is_array($selected)||!array_is_list($selected)||count($selected)>20||($mode==='mustache'&&$selected!==[]))throw new HttpError(422,'Invalid selection.','menu.error.binding');
+    $data['menus'][$id]['insertionMode']=$mode;
+    if($mode==='mustache')return $data;
+    $existing=array_filter($data['assignments'],static fn(array $b):bool=>$b['menu']===$id);
+    if($selected===[]&&$existing===[])throw new HttpError(422,'Select a template position.','menu.error.positionRequired');
     $bindings=[];
-    foreach ($selected as $location) {
-      if (!is_string($location)||!isset($state['locations'][$location])||isset($bindings[$location])||!is_string($types[$location]??null)) throw new HttpError(422,'Local inválido.','menu.error.binding');
-      $binding=['template'=>$state['template'],'location'=>$location,'menu'=>$id,'type'=>$types[$location]];
+    $types=$post['locationTypes']??[];if(!is_array($types))throw new HttpError(422,'Invalid types.','menu.error.binding');
+    foreach($selected as $location){
+      if(!is_string($location)||!isset($state['locations'][$location])||isset($bindings[$location]))throw new HttpError(422,'Invalid position.','menu.error.binding');
+      $binding=['template'=>$state['template'],'location'=>$location,'menu'=>$id,'type'=>$types[$location]??''];
       Navigation::binding($context->store,$data,$binding);$bindings[$location]=$binding;
     }
-    $data['assignments']=array_values(array_filter($data['assignments'],static fn(array $binding): bool=>
-      $binding['template']!==$state['template']||(!isset($bindings[$binding['location']])&&($binding['menu']!==$id||!isset($state['locations'][$binding['location']])))));
-    foreach ($bindings as $binding) $data['assignments'][]=$binding;
+    $data['assignments']=array_values(array_filter($data['assignments'],static fn(array $b):bool=>
+      $b['template']!==$state['template']||(!isset($bindings[$b['location']])&&($b['menu']!==$id||!isset($state['locations'][$b['location']])))));
+    foreach($bindings as $binding)$data['assignments'][]=$binding;
     return $data;
   }
 }

@@ -16,9 +16,9 @@
       "title": "Assign and insert",
       "code": "{{#slides.highlights.items}}<figure><img src=\"{{image}}\" alt=\"{{title}}\"><figcaption>{{text}}</figcaption></figure>{{/slides.highlights.items}}",
       "steps": [
-        "Choose a supported template location, presentation type and optional page filter in the editor. Configure autoplay and interval only when desired, then save the published state.",
-        "Choose a location discovered from the active template manifest and publish the collection. A location must accept the collection content type.",
-        "Use a typed page block, a legacy Slides marker or the shared component service. The modern service provides published item data to the chosen registered component format."
+        "Choose Template key to select a compatible position declared in mustacheSlots of the currently active template. The template name is read from its manifest.",
+        "Choose Mustache key for direct references without page, marker or location fields. Save and reopen to confirm the selected channel.",
+        "Saving an explicit mode makes the channels exclusive. Preserved assignments are inactive in Mustache mode; they can be reused after returning to Template key."
       ],
       "body": []
     },
@@ -61,6 +61,18 @@
         "All result rows and the seven-position pager scroll together with the page. The pager follows the complete table or grid without covering any result; only wide tables scroll horizontally. Ellipsis buttons open upward menus containing earlier or later pages outside the three displayed numbers. Use the keyboard or a page button to navigate.",
         "Read the total results, displayed range/count and page totals below the pager. Unavailable directions and empty catalogs retain disabled controls."
       ]
+    },
+    {
+      "title": "Exclusive delivery channels",
+      "steps": [
+        "Template key exposes this record only through its assigned template positions. Direct slides.<id-or-slug> references are unavailable.",
+        "Mustache key exposes typed data through slides.<id-or-slug>.<field>; render items with standard sections in the receiving layout. Template assignments are preserved but inactive.",
+        "Legacy records retain previous access until saved with an explicit mode. Review existing publications before saving the selected channel. Missing simple references appear as literal text; missing collections do not iterate."
+      ],
+      "body": [
+        "Delivery mode is stored on the record and checked by all read channels."
+      ],
+      "code": "{{#slides.promotion.items}}<figure><img src=\"{{image}}\" alt=\"{{alt}}\"><figcaption>{{title}}</figcaption></figure>{{/slides.promotion.items}}"
     }
   ]
 }

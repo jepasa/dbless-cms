@@ -72,13 +72,19 @@
     "options.newTab": "Open new links in a new tab by default",
     "menu.contentHistory": "Content history",
     "menu.placementTitle": "Display location",
-    "menu.placementHelp": "Locations and formats come from the active template. Select where this menu appears; a selection may replace the currently assigned menu. Bindings for other templates are preserved.",
+    "menu.placementHelp": "Template keys come from the active template manifest. Mustache references need no destination fields.",
     "menu.useLocation": "Display in this location",
     "menu.placementWarning": "Preserved bindings outside current locations: {items}. Content remains editable; review its location in the active template.",
-    "menu.noLocations": "The active template declares no menu locations. The menu can be saved without a binding.",
+    "menu.noLocations": "The active manifest declares no compatible positions for this plugin. Use Mustache or declare a typed mustacheSlots position.",
     "menu.replaces": "Selecting this location replaces the current binding for: {name}.",
     "menu.error.templateChanged": "Site settings or the template changed. Reopen the editor to refresh locations before saving.",
     "menu.historyInactive": "Content restoration requires the plugin to be active. Activate it in the Plugins overview.",
-    "menu.contentType": "Navigation type"
+    "menu.contentType": "Navigation type",
+    "menu.placementMode": "Insertion method",
+    "menu.byKey": "Template key",
+    "menu.byMustache": "Mustache key",
+    "menu.exclusiveHelp": "Saving makes the channels exclusive. Template mode blocks direct plugin references; Mustache mode disables template assignments while preserving them for reuse.",
+    "menu.legacyPlacement": "Legacy delivery is preserved until this record is saved. Saving adopts the selected exclusive channel; review publications that use the other channel.",
+    "menu.error.positionRequired": "Select a declared template position or choose Mustache key."
   }
 }

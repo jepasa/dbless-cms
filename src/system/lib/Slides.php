@@ -21,11 +21,11 @@ final class Slides {
     if ($locations!==[]&&!isset($manifest['partials']['slides'])) throw new HttpError(422,'Partial slides ausente.','slides.error.binding');
     return $locations;
   }
-  /** Valida associação instalada e tipagem; recebe store/documento/vínculo e lança 422/404 sem escrita. */
+  /** Validate a template-channel binding and content type; receive store/document/binding, throw 422/404 on mismatch, without writes. */
   public static function binding(JsonStore $store,array $data,array $binding): void {
     $location=self::locations($store->templates->get($binding['template']))[$binding['location']]??null;
     $set=$data['collections'][$binding['collection']]??null;
-    if ($location===null||$set===null||$set['deleted']||$set['contentType']!==$location['contentType']) throw new HttpError(422,'Associação incompatível.','slides.error.binding');
+    if ($location===null||$set===null||$set['deleted']||!ContentPlacement::allows($set,'template')||$set['contentType']!==$location['contentType']) throw new HttpError(422,'Associação incompatível.','slides.error.binding');
   }
   /** Reconhece somente marcador completo autorizado, inspirado em Mustache; recebe texto e retorna chave ou null. */
   public static function marker(string $text): ?string {
@@ -60,7 +60,7 @@ final class Slides {
     foreach(explode('/',$image) as $part){$path.='/'.$part;if(is_link($path))return false;}
     return is_file($path);
   }
-  /** Resolve conjunto publicado/compatível por chave; retorna dados com mídia segura ou null; corrupção propaga erro explícito. */
+  /** Resolve a published template-allowed collection; receive key, return safe enabled media or null, enforce finite budgets and propagate contract failures without writes. */
   public function location(string $key): ?array {
     if($this->resolved>=20)return null;
     $location=self::locations($this->store->templates->get($this->template))[$key]??null;
@@ -72,7 +72,7 @@ final class Slides {
     if($this->document===null)return null;
     foreach($this->document['assignments'] as $binding)if($binding['template']===$this->template&&$binding['location']===$key){
       $set=$this->document['collections'][$binding['collection']];
-      if($set['deleted']||$set['status']!=='published'||$set['contentType']!==$location['contentType'])return null;
+      if($set['deleted']||!ContentPlacement::allows($set,'template')||$set['status']!=='published'||$set['contentType']!==$location['contentType'])return null;
       $set['items']=array_slice(array_values(array_filter($set['items'],static fn(array $item): bool=>$item['enabled'])),0,$set['maxItems']??50);
       if($set['items']===[])return null;
       foreach($set['items'] as &$item)if(!$this->imageExists($item['image']))$item['image']='';unset($item);

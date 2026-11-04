@@ -6,6 +6,7 @@ final class ContentReferences {
   private Plugins $registry;
   private array $cache=[];
   private array $warnings=[];
+  private array $missing=[];
   private static ?\WeakMap $budgets=null;
   /** Receive immutable render context, discover trusted manifests without executing providers or writing state. */
   public function __construct(private readonly ContentContext $context) {$this->registry=new Plugins($context->store);}
@@ -49,16 +50,18 @@ final class ContentReferences {
     self::$budgets??=new \WeakMap();$used=self::$budgets[$this->context->store]??0;if($used>=20)throw new HttpError(422,'Reference request limit exceeded.','markup.error');self::$budgets[$this->context->store]=$used+1;
     $provider=$this->registry->instance($plugin);if(!$provider instanceof ContentReferenceInterface)throw new HttpError(503,'Reference provider contract unavailable.','markup.error');$data=$provider->reference($selector,$parameters,$this->context);self::json($data);if(strlen(json_encode($data,JSON_THROW_ON_ERROR))>131072)throw new HttpError(422,'Reference output exceeded.','markup.error');if($data===null)$this->warnings[]=$plugin.'.'.$selector.' (unavailable)';return $this->cache[$key]=$data;
   }
-  /** Resolve a qualified scalar or section lazily; receive path, return JSON value or null with private missing-field diagnostics, never reparse returned text. */
+  /** Resolve a qualified path lazily; receive path, return JSON/null and track genuine absence separately from valid null fields; private diagnostics only, no reparsing or writes. */
   public function value(string $path): mixed {
-    $parsed=$this->parse($path);if($parsed===null)return null;[$plugin,$selector,$parameters,$fields]=$parsed;$value=$this->fetch($plugin,$selector,$parameters);if($value===null)return null;
-    foreach($fields as $field){if(!is_array($value)||!array_key_exists($field,$value)){$this->warnings[]=$path.' (field unavailable)';return null;}$value=$value[$field];}return $value;
+    $parsed=$this->parse($path);if($parsed===null){if(str_contains($path,'.')&&!str_starts_with($path,'cms.'))$this->missing[$path]=true;return null;}[$plugin,$selector,$parameters,$fields]=$parsed;$value=$this->fetch($plugin,$selector,$parameters);if($value===null){$this->missing[$path]=true;return null;}
+    foreach($fields as $field){if(!is_array($value)||!array_key_exists($field,$value)){$this->warnings[]=$path.' (field unavailable)';$this->missing[$path]=true;return null;}$value=$value[$field];}return $value;
   }
+  /** Report whether an automatically resolved path was absent; receive path, return bool, preserving valid null/falsy fields without I/O. */
+  public function missing(string $path): bool {return isset($this->missing[$path]);}
   /** Prepare typed standalone HTML references as opaque slots; receive source/legacy roots, return source/slots without rendering forms or evaluating provider HTML as Mustache. */
   public function prepare(string $source,array $legacyRoots=[]): array {
     if(preg_match('/data-cms-reference-slot\s*=/i',$source))throw new HttpError(422,'Reserved reference slot.','markup.error');$slots=[];
     $html=preg_replace_callback('/\{\{\s*([a-zA-Z][a-zA-Z0-9_-]*(?:\.[a-zA-Z0-9_-]+)+)\s*\}\}/',function(array $match)use(&$slots,$legacyRoots):string{
-      $root=explode('.',$match[1])[0];if(in_array($root,$legacyRoots,true))return $match[0];if($root!=='template'&&!isset($this->registry->all()[$root]['mustache']))return $match[0];$parsed=$this->parse($match[1]);if($parsed===null)return $match[0];[$plugin,$selector,$parameters,$fields]=$parsed;$kind=$this->registry->all()[$plugin]['mustache']['kind']??'data';if($fields!==[]||!in_array($kind,['form','widget'],true))return $match[0];$data=$this->fetch($plugin,$selector,$parameters);if($data===null)return '';
+      $root=explode('.',$match[1])[0];if(in_array($root,$legacyRoots,true))return $match[0];if($root!=='template'&&!isset($this->registry->all()[$root]['mustache']))return $match[0];$parsed=$this->parse($match[1]);if($parsed===null)return $match[0];[$plugin,$selector,$parameters,$fields]=$parsed;$kind=$this->registry->all()[$plugin]['mustache']['kind']??'data';if($fields!==[]||!in_array($kind,['form','widget'],true))return $match[0];$data=$this->fetch($plugin,$selector,$parameters);if($data===null)return $match[0];
       if($kind==='widget'&&($data['type']??'text')==='text')return '{{'.$match[1].'.value}}';if($kind==='widget'&&$data['type']!=='html')return $match[0];if(count($slots)>=10)throw new HttpError(422,'HTML reference limit exceeded.','markup.error');$token=bin2hex(random_bytes(16));$slots[$token]=$kind==='form'?['plugin'=>$plugin,'id'=>$data['id']]:['html'=>ContentMarkup::html($data['html'],false)];return '<div data-cms-reference-slot="'.$token.'"></div>';
     },$source);return ['html'=>$html,'slots'=>$slots];
   }

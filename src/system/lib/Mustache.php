@@ -19,36 +19,37 @@ final class Mustache {
       if(!preg_match('/^([#^\/]?)(\.|[a-zA-Z][a-zA-Z0-9_-]*(?:\.[a-zA-Z0-9_-]+)*)$/D',$tag,$parts))throw new HttpError(422,'Unsupported Mustache syntax.','markup.error');
       [$unused,$operator,$name]=$parts;
       if($operator==='/'){if($section!==$name)throw new HttpError(422,'Mismatched Mustache section.','markup.error');return $nodes;}
-      $nodes[]=in_array($operator,['#','^'],true)?[$operator,$name,self::nodes($source,$position,$tokens,$depth+1,$name)]:['value',$name];
+      $nodes[]=in_array($operator,['#','^'],true)?[$operator,$name,self::nodes($source,$position,$tokens,$depth+1,$name)]:['value',$name,substr($source,$start,$end+2-$start)];
     }
     if($section!==null)throw new HttpError(422,'Unclosed Mustache section.','markup.error');return $nodes;
   }
-  /** Resolve JSON-only lexical paths; receive path/context stack/optional read-only resolver, return scalar/array/null, never access objects, callables or arbitrary PHP properties. */
-  private static function value(string $path,array $stack,?callable $resolve=null): mixed {
+  /** Resolve lexical JSON or a read-only provider; receive path/stack/resolver and output automatic-resolution flag, return JSON/null without object access or writes. */
+  private static function value(string $path,array $stack,?callable $resolve,bool &$automatic): mixed {
+    $automatic=false;
     if($path==='.')return end($stack);$keys=explode('.',$path);
     for($i=count($stack)-1;$i>=0;$i--){$value=$stack[$i];if(!is_array($value)||!array_key_exists($keys[0],$value))continue;foreach($keys as $key){if(!is_array($value)||!array_key_exists($key,$value))return null;$value=$value[$key];}return $value;}
-    return $resolve===null?null:$resolve($path);
+    $automatic=$resolve!==null;return $resolve===null?null:$resolve($path);
   }
   /** Evaluate Mustache presence while keeping numeric zero visible; receive JSON value, return bool without effects. */
   private static function present(mixed $value): bool {return $value!==null&&$value!==false&&$value!==[]&&$value!=='';}
-  /** Render bounded AST with escaped scalar output; receive nodes/context/counters/optional resolver, return HTML text or 422 on expansion/iteration limits, no I/O or data reparsing. */
-  private static function evaluate(array $nodes,array $stack,int &$iterations,int &$bytes,?callable $resolve=null): string {
+  /** Render bounded AST with escaped scalars/literal missing references; receive nodes/stack/counters/resolver/missing predicate, return HTML or 422 on limits, no source reparsing. */
+  private static function evaluate(array $nodes,array $stack,int &$iterations,int &$bytes,?callable $resolve=null,?callable $missing=null): string {
     $output='';foreach($nodes as $node){
       if(++$iterations>10000)throw new HttpError(422,'Mustache work limit exceeded.','markup.error');$piece='';
       if($node[0]==='text')$piece=$node[1];
       else{
-        $value=self::value($node[1],$stack,$resolve);$present=self::present($value);
-        if($node[0]==='value')$piece=is_bool($value)?($value?'true':'false'):(is_string($value)||is_int($value)||is_float($value)?e((string)$value):'');
-        elseif($node[0]==='^'&&!$present)$piece=self::evaluate($node[2],$stack,$iterations,$bytes,$resolve);
+        $automatic=false;$value=self::value($node[1],$stack,$resolve,$automatic);$present=self::present($value);
+        if($node[0]==='value')$piece=$automatic&&$missing!==null&&$missing($node[1])?e($node[2]):(is_bool($value)?($value?'true':'false'):(is_string($value)||is_int($value)||is_float($value)?e((string)$value):''));
+        elseif($node[0]==='^'&&!$present)$piece=self::evaluate($node[2],$stack,$iterations,$bytes,$resolve,$missing);
         elseif($node[0]==='#'&&$present){
           $items=is_array($value)&&array_is_list($value)?$value:[$value];if(count($items)>100)throw new HttpError(422,'Mustache list exceeds limit.','markup.error');
-          foreach($items as $item)$piece.=self::evaluate($node[2],[...$stack,$item],$iterations,$bytes,$resolve);
+          foreach($items as $item)$piece.=self::evaluate($node[2],[...$stack,$item],$iterations,$bytes,$resolve,$missing);
         }
       }
       // Count emitted leaf bytes once; parent concatenation never expands the budget twice.
       if($node[0]==='text'||$node[0]==='value'){$bytes+=strlen($piece);if($bytes>524288)throw new HttpError(422,'Mustache output exceeds limit.','markup.error');}$output.=$piece;
     }return $output;
   }
-  /** Render JSON data through the safe subset; receive source/context/optional resolver, return escaped expansion, preserve literal provider values and reject excessive work. */
-  public static function render(string $source,array $data,?callable $resolve=null): string {$iterations=0;$bytes=0;return self::evaluate(self::parse($source),[$data],$iterations,$bytes,$resolve);}
+  /** Render data through the safe subset; receive source/data/optional resolver and unresolved-path predicate, return escaped output, propagate validation errors without I/O or source reparsing. */
+  public static function render(string $source,array $data,?callable $resolve=null,?callable $missing=null): string {$iterations=0;$bytes=0;return self::evaluate(self::parse($source),[$data],$iterations,$bytes,$resolve,$missing);}
 }

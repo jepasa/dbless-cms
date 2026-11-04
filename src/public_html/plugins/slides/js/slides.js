@@ -8,22 +8,16 @@
   if(editor){
     const placement=editor.querySelector('[data-slides-placement]');
     if(placement){
-      const state=JSON.parse(placement.dataset.placementState),mode=placement.querySelector('[data-placement-mode]'),page=placement.querySelector('[data-placement-page]');
-      /** Filtra locais por destino/tipo, identifica revisão da página e atualiza link ao editor; não grava páginas ou conjuntos. */
+      const mode=placement.querySelector('[data-placement-mode]');
+      /** Toggle declared positions by persisted channel/content type; no page selection, writes or mutation of checked values. */
       function updatePlacement(){
-        const inPage=mode.value==='page',selected=state.pages[page.value],type=editor.elements.namedItem('contentType').value;
-        placement.querySelector('[data-placement-page-label]').hidden=!inPage;
-        placement.querySelector('[data-placement-page-help]').hidden=!inPage||!selected;
-        placement.querySelector('[data-placement-edit-page]').href=placement.dataset.pageEditor+encodeURIComponent(page.value);
-        placement.querySelector('[name="page_revision"]').value=selected?.revision||'';
-        let count=0;
+        const template=mode.value==='template',type=editor.elements.namedItem('contentType').value;
+        placement.querySelector('[data-template-positions]').hidden=!template;
         for(const row of placement.querySelectorAll('[data-placement-location]')){
-          const visible=row.dataset.contentType===type&&(!inPage||selected?.keys.includes(row.dataset.placementLocation));
-          row.hidden=!visible;row.querySelector('input').disabled=!visible;if(visible)count++;
+          const compatible=row.dataset.contentType===type;row.hidden=!compatible;row.disabled=!template||!compatible;
         }
-        placement.querySelector('[data-placement-empty]').hidden=!inPage||count>0;
       }
-      mode.addEventListener('change',updatePlacement);page.addEventListener('change',updatePlacement);editor.elements.namedItem('contentType').addEventListener('change',updatePlacement);updatePlacement();
+      mode.addEventListener('change',updatePlacement);editor.elements.namedItem('contentType').addEventListener('change',updatePlacement);updatePlacement();
     }
     const messages=JSON.parse(editor.dataset.messages),list=editor.querySelector('[data-slide-items]');
     let items=JSON.parse(editor.dataset.state),dragged='';

@@ -14,7 +14,7 @@ $editing=$data['menus'][$id]??['id'=>'','name'=>'','deleted'=>false,'items'=>[]]
 if ($route==='editor'&&$id!==''&&(!isset($data['menus'][$id])||$editing['deleted'])) throw new HttpError(404,'Menu indisponível.','menu.error.missing');
 $issues=[];$unavailable=[];
 foreach ($data['menus'] as $menu) if (!$menu['deleted']) foreach ($menu['items'] as $item) if (in_array($item['kind'],['page','anchor'],true)&&(!isset($pages[$item['page']])||$pages[$item['page']]['data']['status']!=='published')) $issues[]=$menu['name'].' / '.$item['label'];
-foreach ($data['assignments'] as $binding) {
+foreach ($data['assignments'] as $binding) {if(!\DBLESSCMS\ContentPlacement::allows($data['menus'][$binding['menu']],'template'))continue;
   try { Navigation::binding($context->store,$data,$binding); }
   catch (HttpError $error) { if (!in_array($error->status,[404,422],true)) throw $error;$unavailable[]=$binding['template'].' / '.$binding['location']; }
 }
