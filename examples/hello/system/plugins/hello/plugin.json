@@ -41,5 +41,8 @@
     "label": "hello.name",
     "route": "overview"
   },
-  "presentation": "presentation.json"
+  "presentation": "presentation.json",
+  "presentationLocales": {
+    "pt-br": "languages/presentation-pt-br.json"
+  }
 }

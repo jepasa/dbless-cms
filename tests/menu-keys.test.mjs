@@ -35,10 +35,10 @@ for(const application of applications){
    assert.equal(r[0],true);assert.deepEqual(r[1],[{key:'future-menu',type:'list'}]);assert.deepEqual(r[2],[{key:'portable-nav',type:'list'}]);assert.equal(r[3],'mustache');assert.deepEqual(r[4],[409,422]);assert.equal(r[5],3);
   }finally{c.close();}
  });
- test(`${application}: Menu presentation uses complete dictionaries and leaves technical examples unchanged`,()=>{
+ test(`${application}: Menu tutorial uses separate locale documents and inherits canonical technical examples`,()=>{
   const c=fixture(application);try{
-   const r=inspect(c,`$plugins=new DBLESSCMS\\Plugins($s);$doc=DBLESSCMS\\PluginPresentation::read($s->config->root.'/plugins/menu','presentation.json');$pt=DBLESSCMS\\PluginPresentation::localized($doc,$plugins->language('menu','pt-br'),'menu');$en=DBLESSCMS\\PluginPresentation::localized($doc,$plugins->language('menu','en-us'),'menu');echo json_encode([$pt,$en,$doc]);`);
-   assert.equal(r[0].language,'pt-br');assert.match(r[0].lead,/chaves portáveis/);assert.equal(r[1].language,'en-us');assert.equal(r[1].lead,r[2].lead);assert.equal(r[0].sections[3].code,r[2].sections[3].code);
+   const r=inspect(c,`$plugins=new DBLESSCMS\\Plugins($s);$doc=DBLESSCMS\\PluginPresentation::read($s->config->root.'/plugins/menu','presentation.json');$manifest=$plugins->get('menu');$pt=DBLESSCMS\\PluginPresentation::select($s->config->root.'/plugins/menu',$manifest,'pt-br',$plugins->language('menu','pt-br'))['document'];$en=DBLESSCMS\\PluginPresentation::select($s->config->root.'/plugins/menu',$manifest,'en-us',$plugins->language('menu','en-us'))['document'];$html=$doc['sections'][5]['code'];DBLESSCMS\\ContentMarkup::definition(['html'=>$html]);DBLESSCMS\\ContentMarkup::render(['html'=>str_replace('menu.main-navigation','menu.demo-principal',$html)],new DBLESSCMS\\ContentContext($s,'essencial','','home'));json_decode($doc['sections'][6]['code'],true,16,JSON_THROW_ON_ERROR);echo json_encode([$pt,$en,$doc,$plugins->language('menu','pt-br')->text('menu.editor')]);`);
+   assert.equal(r[0].language,'pt-br');assert.match(r[0].lead,/árvores de navegação/);assert.equal(r[0].sections[5].code,r[2].sections[5].code);assert.deepEqual(r[1],r[2]);assert.equal(r[2].sections.length,11);assert.ok(r[2].sections.every(section=>section.body.length>0&&section.steps.length>0));assert.equal(r[3],'Editor de Menu');
   }finally{c.close();}
  });
 }

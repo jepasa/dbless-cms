@@ -110,7 +110,7 @@ final class Admin {
     }
   }
 
-  /** Despacha a requisição sem parâmetros; retorna HTML ou redireciona, preserva documento/status em erros e retorna 404 se desabilitado. Reserva assets da moldura antes de renderizar fragmentos integrados; mantém sessão/cabeçalhos e propaga falhas de contrato. */
+  /** Despacha a requisição sem parâmetros; retorna HTML ou redireciona, preserva documento/status em erros e retorna 404 se desabilitado. Reserva assets da moldura antes de renderizar fragmentos integrados; mantém sessão/cabeçalhos, seleciona tutoriais declarados com aviso de fallback e propaga falhas de contrato. */
   public function run(): string {
     if (($this->config->credentials['enabled']??true)!==true) throw new HttpError(404,'Página não encontrada.','error.not_found');
     if (($_GET['view']??'')==='plugin-api') return $this->pluginApi();
@@ -143,12 +143,13 @@ final class Admin {
       if (($manifest['configuration']??null)===false) throw new HttpError(404,'Plugin sem configuração.','error.not_found');
       if (isset($manifest['configuration'])) {$requestedRoute=$manifest['configuration'];$view='plugin-panel';}
     }
-    $presentation=null;
+    $presentation=null;$presentationWarning=null;$presentationDirection='ltr';
     if($view==='plugin-about'){
       if(!is_string($requestedPlugin))throw new HttpError(400,'Invalid plugin.','error.plugin');
       $definition=$plugins->get($requestedPlugin);if(!isset($definition['presentation']))throw new HttpError(404,'Presentation unavailable.','error.not_found');
-      $presentation=PluginPresentation::read($this->config->root.'/plugins/'.$requestedPlugin,$definition['presentation']);
-      $presentation=PluginPresentation::localized($presentation,$plugins->language($requestedPlugin,$this->language->locale()),$requestedPlugin);
+      $selectedPresentation=PluginPresentation::select($this->config->root.'/plugins/'.$requestedPlugin,$definition,$this->language->locale(),$plugins->language($requestedPlugin,$this->language->locale()));
+      $presentation=$selectedPresentation['document'];$presentationWarning=$selectedPresentation['warning'];
+      $presentationDirection=$this->language->all()[$presentation['language']]['direction']??'ltr';
     }
     $manager=new Extensions($this->store);
     $extensionRows=$authenticated&&in_array($view,['plugins','templates'],true)?$manager->catalog($view,$this->language->locale()):[];

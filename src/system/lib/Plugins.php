@@ -5,7 +5,7 @@ namespace DBLESSCMS;
 final class Plugins {
   private array $catalog = [];
   private array $rejected = [];
-  /** Descobre manifests sem execução; recebe store; configuration=false dispensa opções; inválidos ficam diagnosticáveis por ID. */
+  /** Descobre manifests sem execução; recebe store; configuration=false dispensa opções; inválidos ficam diagnosticáveis por ID; valida fonte/declarações de apresentação sem exigir traduções opcionais. */
   public function __construct(private readonly JsonStore $store) {
     $root=$store->config->root.'/plugins';
     if (is_link($root)) throw new HttpError(503,'Registro inseguro.','error.plugin');
@@ -42,7 +42,7 @@ final class Plugins {
         }
         Components::definitions($manifest);ContentReferences::definitions($manifest);ContentForms::definitions($manifest);ContentDocuments::definition($manifest);
         if(($manifest['presentation']??null)!=='presentation.json')throw new \RuntimeException('Missing required presentation.json declaration.');
-        PluginPresentation::read($directory,$manifest['presentation']);
+        PluginPresentation::definition($manifest,PluginPresentation::read($directory,$manifest['presentation']));
         Schema::validate($manifest['defaults']??null,$schema);
         $this->catalog[$id]=$manifest;
       } catch (\RuntimeException|HttpError $failure) { $this->rejected[$id]='error.plugin'; }

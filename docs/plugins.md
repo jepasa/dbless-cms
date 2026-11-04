@@ -611,3 +611,42 @@ references remain available for compatibility; no stored data is deleted.
 Every plugin, including data-only plugins, declares `"presentation": "presentation.json"`. Store that English tutorial beside `plugin.json`; see [the presentation contract](components.md#plugin-owned-presentations) and the Hello example. Older packages must rename their presentation and add a nonempty `steps` array to each section before upgrading. Missing or malformed tutorials reject discovery.
 
 Mark the private trash navigation item with `"role": "trash"`; route IDs remain plugin-owned. The Core places Presentation before Trash, with separators, or last when there is no trash role. It automatically promotes a single-item menu to a dropdown. Presentation uses the authenticated Core route and requires no executable plugin page.
+
+## Localized presentation documents (2.19)
+
+Every plugin still declares `"presentation": "presentation.json"` and keeps that canonical English document beside `plugin.json`. Do not duplicate an identical English edition under languages. Optional translated tutorials are separate from operational message catalogs:
+
+```json
+{
+  "presentation": "presentation.json",
+  "presentationLocales": {
+    "pt-br": "languages/presentation-pt-br.json"
+  }
+}
+```
+
+Use the project's normalized lowercase locale identifiers with hyphens, not underscores. A map supports at most 20 entries; each path must match exactly `languages/presentation-LOCALE.json`. The Core never scans request-supplied paths, includes files as PHP or fetches remote documents. Language discovery reserves these filenames and does not parse them as `locale/name/direction/messages` dictionaries. Declare every offered translation in the manifest; unlisted documents are not selected.
+
+The canonical document retains `language: "en"`, title, introductory lead and 1–20 sections with title, body paragraphs, nonempty ordered steps and optional inert code. Each file is at most 64 KiB; existing text/array limits remain. Opting into presentationLocales requires a unique stable `id` on every canonical section. A translated document uses its exact locale as `language`, supplies the translated title/lead/sections, and preserves the ordered section IDs. For example:
+
+```json
+{
+  "language": "pt-br",
+  "title": "Example",
+  "lead": "Introdução ao recurso.",
+  "sections": [
+    {
+      "id": "start",
+      "title": "Começar",
+      "body": ["Descrição do recurso e seus requisitos."],
+      "steps": ["Abra o plugin e siga o procedimento indicado."]
+    }
+  ]
+}
+```
+
+Use the same `start` section ID in the corresponding English document. Translations may omit code: the Core inherits the canonical example by section ID. If code is included, its bytes must match the English example; technical identifiers and source programs are not translated. This avoids copying examples into every language and detects stale outlines. Menu and the Hello example demonstrate both files.
+
+The Core selects the exact `settings.adminLocale` entry. A missing translation falls back to canonical English with a localized administrative notice (English regional locales may use the base English source without a notice). A missing, malformed, linked, oversized or structurally stale declared translation also produces a visible notice and safe English fallback, without disabling a plugin whose canonical source is valid. Invalid canonical English or unsafe declaration metadata remains a package error. English fallback keeps LTR direction even in an RTL panel. Text and code remain escaped; reading a tutorial never invokes the plugin entrypoint or writes editorial state.
+
+Older plugins without presentationLocales or section IDs remain compatible, including the legacy optional dictionary projection for a matching locale. A message-catalog fallback in a different locale is not used to replace the English document. New/migrated plugins should keep only controls, navigation and diagnostics in their dictionaries. This release migrates Menu and supplies a Hello example; other bundled plugins keep English until optional documents are supplied, with explicit fallback diagnostics. Returning to an older Core that does not accept section IDs requires restoring matching plugin packages; no content migration is performed by this feature.

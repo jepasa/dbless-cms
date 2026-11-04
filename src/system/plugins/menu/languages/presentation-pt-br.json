@@ -1,0 +1,172 @@
+{
+  "language": "pt-br",
+  "title": "Menu — apresentação e tutorial completo de uso",
+  "lead": "Crie árvores de navegação reutilizáveis com um editor clássico de duas colunas e entregue dados por uma chave estável de Menu ou uma chave declarada de template. Este tutorial apresenta os recursos atuais de autoria, composição, entrega e recuperação; o layout receptor define o HTML e a aparência.",
+  "sections": [
+    {
+      "id": "create",
+      "title": "Criar e selecionar um menu",
+      "body": [
+        "O Menu gerencia dados de navegação reutilizáveis. O editor segue a organização clássica do WordPress, mantendo as cores, a segurança e os contratos de renderização do DBLESS-CMS.",
+        "Um menu contém nome, ID/chave imutável e uma árvore ordenada de itens. Esses itens são independentes das relações de pai e filho do Pages. Criar um menu não o adiciona automaticamente a um layout público."
+      ],
+      "steps": [
+        "Abra Menu e, depois, Novo Menu. Para editar um registro, utilize o seletor acima da área de trabalho ou o ícone Editar na Visão Geral.",
+        "Informe um nome descritivo, por exemplo Navegação principal. O editor sugere navegacao-principal como ID/chave. Ajuste essa chave antes do primeiro salvamento, se necessário: utilize uma letra minúscula seguida de letras minúsculas, números ou hífens, até 48 caracteres.",
+        "Após salvar, a chave fica somente para leitura. Renomear altera o nome exibido, preservando referências e destinos. Uma chave duplicada é recusada, sem substituir outro menu.",
+        "Utilize as duas colunas: Adicionar itens ao menu oferece as fontes à esquerda; Estrutura do menu organiza os itens escolhidos à direita. Nada é gravado até Salvar alterações concluir com sucesso."
+      ]
+    },
+    {
+      "id": "sources",
+      "title": "Adicionar páginas e artigos do Blog",
+      "body": [
+        "As fontes listam somente páginas publicadas e artigos do Blog já liberados. Os seletores exibem 25 opções por página; a pesquisa considera ID e título. Seleções permanecem ao mudar o termo pesquisado ou a página de fontes.",
+        "O link não copia o conteúdo de origem. Os destinos de páginas seguem o contrato de endereço do Pages; os artigos guardam seu ID imutável e resolvem a URL publicada atual. O catálogo do Blog admite até 500 artigos."
+      ],
+      "steps": [
+        "Expanda Páginas à esquerda. Pesquise o título ou ID desejado e marque uma ou várias opções.",
+        "Utilize os ícones de página anterior/próxima quando houver mais de 25 resultados. O contador inclui seleções preservadas fora da página de fontes visível.",
+        "Clique em Adicionar itens selecionados. A seleção é acrescentada em conjunto; se ultrapassar 100 itens, a operação é recusada sem inserir somente uma parte.",
+        "Expanda Artigos do Blog e repita a operação. Artigos em rascunho, futuros, removidos ou indisponíveis não são oferecidos; com o Blog desativado, suas fontes ficam vazias.",
+        "O último cartão adicionado abre para edição. Alterar posteriormente o título da fonte não substitui o rótulo do menu: edite esse rótulo quando necessário."
+      ]
+    },
+    {
+      "id": "custom-targets",
+      "title": "Adicionar links personalizados, âncoras e grupos",
+      "body": [
+        "Links personalizados, âncoras e grupos oferece destinos que não são selecionados diretamente das listas de conteúdo. Um grupo é um pai sem link para organizar submenus; grupos vazios são omitidos da navegação pública.",
+        "O rótulo de navegação é conteúdo autoral. HTML, scripts e esquemas ativos de URL não são aceitos como rótulos ou destinos."
+      ],
+      "steps": [
+        "Expanda Links personalizados, âncoras e grupos e escolha o tipo de destino.",
+        "Para URL externa, informe um rótulo e um endereço absoluto HTTP/HTTPS, mailto ou tel. Para links internos normais, utilize o seletor de Páginas.",
+        "Para Âncora, selecione uma página publicada e informe o ID de sua âncora sem #, por exemplo contact. Essa âncora deve existir na página receptora.",
+        "Para Grupo de submenu, informe somente o rótulo. Adicione o grupo e organize seus filhos em Estrutura do menu.",
+        "Clique em Adicionar item para acrescentar o destino. Como alternativa, utilize o ícone Adicionar item acima da estrutura para criar um cartão vazio e preencher seus campos."
+      ]
+    },
+    {
+      "id": "structure",
+      "title": "Organizar e editar a estrutura do menu",
+      "body": [
+        "Os cartões ficam recolhidos quando um menu salvo é reaberto. A indentação representa relações de pai e filho; não constitui outra listagem nem reproduz automaticamente a hierarquia de páginas.",
+        "Mover um pai transporta todo o seu ramo. São permitidos até 100 itens e cinco níveis; um template receptor pode suportar menos níveis e apresentar um aviso de compatibilidade."
+      ],
+      "steps": [
+        "Expanda o cartão pelo ícone de abertura. Edite Rótulo, Tipo de destino, Item pai e os campos de destino correspondentes ao tipo.",
+        "Utilize Habilitado para incluir o item. Desabilitar um pai omite todo o ramo público. Abrir em nova aba fica desmarcado inicialmente; o layout deve aplicar target e os atributos rel seguros correspondentes.",
+        "Arraste verticalmente para ordenar. Arraste horizontalmente em relação a outro cartão para criar submenus ou retornar em direção à raiz. Os indicadores de destino mostram a posição pretendida.",
+        "Por teclado ou toque, utilize Mover para cima, Mover para baixo, Indentar e Desindentar. O campo Item pai é uma alternativa explícita. Descendentes e destinos que criariam um ciclo ou sexto nível ficam indisponíveis.",
+        "Remover uma folha altera somente o buffer do editor. Remover um pai abre um diálogo: excluir todo o ramo ou remover o pai promovendo seus filhos. Cancelar preserva os itens.",
+        "Revise a estrutura e utilize Salvar alterações. Remover um item do menu nunca exclui sua página, artigo ou destino remoto."
+      ]
+    },
+    {
+      "id": "delivery",
+      "title": "Escolher o canal de entrega",
+      "body": [
+        "Chave de Template e Chave de Mustache são canais exclusivos. Ambos utilizam a sintaxe Mustache no layout receptor, com namespaces que distinguem a identidade do menu de uma posição do template.",
+        "O Menu fornece dados compatíveis com JSON. Estrutura HTML, classes, responsividade e interação dos submenus pertencem ao template ou layout autoral receptor. Referências automáticas não exigem cadastro manual de bindings."
+      ],
+      "steps": [
+        "Expanda Configurações e entrega do menu, abaixo da estrutura.",
+        "Escolha o tipo de navegação para os dados diretos, como Lista ou Navbar. Cada chave de template pode indicar seu próprio formato suportado.",
+        "Escolha Chave de Mustache quando uma página, artigo ou outro layout autoral compatível solicitar o menu por ID/chave. Nenhum campo de destino é necessário.",
+        "Escolha Chave de Template quando um template instalado declarar uma posição de Menu. Selecione as chaves portáveis e os formatos; nenhum seletor Template nem ID específico de template é armazenado no menu.",
+        "Leia o exemplo gerado e utilize Copiar exemplo de referência. Ele acompanha automaticamente a chave estável do menu ou as chaves de template selecionadas.",
+        "Alternar o canal preserva seleções de template inativas. Referências diretas ficam indisponíveis em Chave de Template; associações de posição ficam inativas em Chave de Mustache."
+      ]
+    },
+    {
+      "id": "mustache-layout",
+      "title": "Compor um layout com dados Mustache diretos",
+      "body": [
+        "Em um menu salvo como main-navigation no modo Mustache, menu.main-navigation.items expõe os itens da raiz. Também são aceitos os seletores explícitos menu.id.main-navigation e menu.slug.main-navigation; atualmente, o Menu utiliza o mesmo valor estável como ID e chave legível.",
+        "O editor desambigua uma chave literalmente chamada id ou slug pelo seletor explícito de ID. Os campos fornecidos são id, slug, name, type e items. Cada item contém label, href, slug, anchor, newTab e children.",
+        "Variáveis normais são escapadas. Seções percorrem listas finitas ou exibem valores condicionalmente; seções invertidas fornecem a alternativa vazia/falsa. Valores retornados por plugins nunca são reinterpretados como código Mustache."
+      ],
+      "steps": [
+        "Crie o menu, adicione os itens, selecione Chave de Mustache e salve com a chave main-navigation.",
+        "Abra um editor HTML/Mustache compatível de Pages ou Blog e insira o exemplo abaixo no layout autoral desejado. Substitua main-navigation pela chave realmente salva.",
+        "Utilize seções href para links e seções href invertidas para rótulos de grupos. Seções newTab controlam links com target=_blank e noopener noreferrer. O exemplo inclui um nível de submenu.",
+        "Repita explicitamente as seções children para níveis adicionais, até o limite suportado. Não são admitidos partials recursivos, helpers executáveis, programas IF/SWITCH/WHILE arbitrários ou eval.",
+        "Salve ou publique o conteúdo receptor por seu próprio fluxo editorial. Depois, abra a página pública e siga um link. O layout define a aparência final."
+      ]
+    },
+    {
+      "id": "template-keys",
+      "title": "Conectar chaves declaradas pelo template",
+      "body": [
+        "O template declara locais estáticos e tipados de Menu e mustacheSlots em seu manifesto. Uma chave portável pode corresponder a outro local físico em outro template; o menu não fica preso a um nome de template.",
+        "O JSON abaixo é um fragmento de manifesto, não um pacote de template completo. Integre os campos a um manifesto válido, com partial de menu registrado e arquivos existentes. Chaves técnicas são identificadores, não rótulos traduzidos."
+      ],
+      "steps": [
+        "No template receptor, declare o local tipado de Menu e a entrada correspondente de mustacheSlots. O local deve suportar o formato e a profundidade escolhidos.",
+        "Nas configurações do Menu, selecione Chave de Template, habilite primary-menu e escolha um formato suportado pelo local receptor.",
+        "Salve o menu. Reivindicar uma chave substitui seu outro proprietário portável ativo na mesma gravação revisionada, sem excluir o outro menu.",
+        "Em um layout autoral compatível, percorra template.primary-menu.items. O template também pode consumir a posição pelo partial nativo de Menu.",
+        "Ative outro template válido que declare a mesma chave para reutilizar o menu. Uma declaração ausente ou incompatível gera aviso privado e dados indisponíveis, sem exceção pública de compatibilidade."
+      ]
+    },
+    {
+      "id": "availability",
+      "title": "Interpretar avisos de fontes e compatibilidade",
+      "body": [
+        "Seleções indisponíveis são preservadas para correção deliberada. A leitura nunca regrava menus nem migra associações legadas.",
+        "Uma referência simples qualificada ausente permanece como texto literal escapado; uma coleção ausente não é percorrida, e sua seção invertida pode exibir uma alternativa. Utilize layouts com seções quando os dados forem opcionais."
+      ],
+      "steps": [
+        "Revise os avisos da Visão Geral ou do editor sobre chaves ausentes, formatos não suportados, profundidade excessiva para o template receptor ou locais ambíguos.",
+        "Selecione chave/formato compatível ou ative um template adequado. Problemas de disponibilidade do template não impedem salvar; dados malformados, autorização e revisão continuam sendo erros efetivos.",
+        "Se um artigo se tornar rascunho, futuro, removido, ausente ou seu provedor for desativado, seu ramo público é omitido. Referências de Blog indisponíveis já salvas permanecem editáveis e podem ser salvas sem inventar substituições.",
+        "Novas referências a artigos indisponíveis são recusadas. Para uma página permanentemente removida, selecione um destino válido antes de salvar quando o registro original não puder mais ser resolvido.",
+        "Associações legadas por template e chaves portáveis inativas continuam disponíveis para leituras suportadas e recuperação. Salvar pelo editor atual adota o contrato portável sem alterar conteúdo em GET."
+      ]
+    },
+    {
+      "id": "saving",
+      "title": "Salvar com segurança e reutilizar o menu",
+      "body": [
+        "Salvar alterações grava o catálogo de menus com sessão, CSRF, revisão, trava e histórico. Não publica páginas ou artigos. A navegação pública reflete os dados salvos com sucesso pelo canal selecionado.",
+        "A revisão cobre o catálogo: salvar qualquer menu em outro editor pode invalidar um formulário aberto anteriormente. Falhas preservam o buffer atual no navegador."
+      ],
+      "steps": [
+        "Revise nome/chave, estrutura, opções de destino e canal de entrega. Utilize Salvar alterações e aguarde o recarregamento bem-sucedido.",
+        "Reabra o menu e expanda um cartão para conferir os valores. Renomeie o nome exibido quando necessário; as referências estáveis permanecem iguais.",
+        "Ao trocar de menu ou sair com alterações não salvas, utilize a confirmação do navegador para continuar ou descartar o buffer. Seleções de fontes só se tornam itens do menu depois de adicionadas.",
+        "Em caso de conflito, preserve as alterações pretendidas, recarregue o catálogo atual e reaplique-as sobre a nova revisão. Um formulário desatualizado não pode sobrescrever outra edição silenciosamente.",
+        "Reutilize um menu Mustache em vários layouts compatíveis ou um menu de Chave de Template em qualquer receptor que declare suas chaves portáveis selecionadas."
+      ]
+    },
+    {
+      "id": "overview",
+      "title": "Pesquisar a Visão Geral e navegar pelos resultados",
+      "body": [
+        "A Visão Geral lista menus salvos e utiliza os controles de tabela compartilhados. O seletor de fontes do editor e a tabela da Visão Geral são listagens distintas."
+      ],
+      "steps": [
+        "Abra a Visão Geral e informe o termo de pesquisa. Utilize o filtro de estado quando aplicável e Pesquisar; Limpar restaura os controles de filtro.",
+        "Selecione o cabeçalho ordenável para escolher a coluna e alternar ordem crescente/decrescente. A seta identifica a direção ativa.",
+        "Utilize o paginador centralizado de sete posições abaixo dos resultados. Anterior/próxima movem uma página; as reticências abrem menus ascendentes com páginas fora da janela adjacente. Controles indisponíveis permanecem visíveis e desativados.",
+        "Confira faixa, total, número de páginas e quantidade exibida no rodapé. O rodapé acompanha a tabela completa no fluxo normal da página.",
+        "Utilize Editar na linha desejada ou crie outro menu. Avisos de destinos indisponíveis devem ser revisados antes de depender da navegação pública."
+      ]
+    },
+    {
+      "id": "recovery",
+      "title": "Recuperar menus e revisões do catálogo",
+      "body": [
+        "A Lixeira remove um menu de modo recuperável, preservando suas associações. O Histórico restaura uma revisão do catálogo, não apenas um cartão ou menu; essa restauração pode afetar todos os menus e vínculos."
+      ],
+      "steps": [
+        "Na Visão Geral, utilize Mover para a lixeira no menu desejado e confirme. Seus dados públicos ficam indisponíveis nos canais correspondentes.",
+        "Abra a Lixeira, utilize Restaurar menu e confira o conteúdo e as chaves recuperados. O conteúdo das fontes não é copiado nem recriado.",
+        "Abra o Histórico para consultar revisões anteriores do catálogo. Escolha uma revisão conhecida e confirme considerando os efeitos sobre os demais menus.",
+        "Após restaurar, revise os avisos, reabra os menus afetados e teste os layouts receptores. Colisões de chaves ou templates indisponíveis exigem correção explícita; dados ambíguos não são adivinhados.",
+        "A Apresentação continua legível com o Menu desativado. Restaurar ou gravar ainda exige o plugin habilitado e as verificações administrativas normais."
+      ]
+    }
+  ]
+}
