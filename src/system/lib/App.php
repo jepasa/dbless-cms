@@ -15,14 +15,20 @@ final class App {
       $base=self::base($store);
       if ($admin) { echo (new Admin($config,$store,$base,$language))->run(); return; }
       if (($_SERVER['REQUEST_METHOD']??'GET')==='GET'&&empty($_GET['action'])&&!Security::authenticated($config)) $store->publicCache(new Cache($config,$store->read('site')['data']['settings']['cache']??[]));
-      foreach (['page','action'] as $name) if (isset($_GET[$name]) && !is_string($_GET[$name])) throw new HttpError(400,'Parâmetro inválido.','error.parameter');
+      foreach (['page','content_path','action'] as $name) if (isset($_GET[$name]) && !is_string($_GET[$name])) throw new HttpError(400,'Parâmetro inválido.','error.parameter');
       $action=strtolower(trim($_GET['action']??''));
       if ($action==='contact') {
         $site=$store->read('site')['data']; $manifest=$store->templates->get($site['template']);
         if (!isset($manifest['forms']['contact'])) throw new HttpError(404,'Formulário não disponível.','error.form_unavailable');
         require $store->templates->path($site['template'],'forms',$manifest['forms']['contact']); return;
       }
-      $key=strtolower(trim($_GET['page']??'home')); if ($key==='') $key='home';
+      $key=strtolower(trim($_GET['content_path']??$_GET['page']??'home')); if ($key==='') $key='home';
+      $postsResponse=PostsView::dispatch($store,$key,$base);
+      if($postsResponse!==null){
+        // Reviewed HTML boundary: PostsView validates routes/snapshots; its trusted templates escape query and publication fields.
+        // nosemgrep: github.php-request-to-raw-output
+        echo $postsResponse;return;
+      }
       if(PagePublications::identifier($key)){try{$resolved=(new PagePublications($store))->lookup($key);if($resolved!==null&&$resolved['data']['status']==='published'){$destination=(new PagePublications($store))->url($resolved['data']['slug'],$base);if(parse_url($destination,PHP_URL_PATH)!==parse_url($base.'/'.$key,PHP_URL_PATH)){header('Location: '.$destination,true,301);return;}}}catch(HttpError $failure){if($failure->status!==404)throw $failure;}}
       // Reviewed HTML boundary: render validates page data and templates escape editorial fields.
       // nosemgrep: github.php-request-to-raw-output

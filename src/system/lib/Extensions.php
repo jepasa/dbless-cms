@@ -83,6 +83,7 @@ final class Extensions {
     if (!in_array($kind,['plugins','templates'],true) || !Templates::identifier($id) || ($kind==='plugins'&&!Plugins::identifier($id)) || $confirmation!==$id) throw new HttpError(422,'Confirmação inválida.','error.extension_confirmation');
     if ($kind==='templates' && $id===Templates::DEFAULT_ID) throw new HttpError(422,'Template padrão protegido.','error.default_template');
     $this->store->transaction(function() use($kind,$id,$revision): void {
+      if($kind==='plugins'){foreach((new Plugins($this->store))->all() as $dependent=>$manifest)if(in_array($id,$manifest['dependencies']??[],true))throw new HttpError(409,'An installed plugin requires this package.','error.plugin_dependency',['plugin'=>$dependent]);}
       $key=$kind==='plugins'?'plugins':'site'; $document=$this->current($key,$revision);
       $root=$this->store->config->root.'/'.$kind; $package=$root.'/'.$id;
       if (is_link($root)) throw new HttpError(422,'Pacote inseguro.','error.extension_archive');

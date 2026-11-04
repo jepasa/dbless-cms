@@ -1,5 +1,5 @@
 <?php
-/** Pages editorial snapshots: immutable IDs, drafts/publications/schedules, URL aliases and private revision history under one atomic catalog commit. */
+/** Pages editorial snapshots and unified Posts compatibility: immutable IDs, independent publication states, aliases and recoverable history under the common writer lock. */
 declare(strict_types=1);
 namespace DBLESSCMS;
 final class PagePublications {
@@ -15,13 +15,13 @@ final class PagePublications {
     if($id!==null&&!self::identifier($id))self::fail();$path=$id===null?$this->store->config->data['contents'].'/page-publications/catalog.json':$this->store->config->data['storage'].'/page-history/'.$id;
     try{Lifecycle::path($path);}catch(\RuntimeException){self::fail('storage',503);}return $path;
   }
-  /** Read a bounded schema versioned catalog; no parameters or writes, returns data/revision, absence is an empty unpersisted baseline. */
-  public function read(): array {
-    $file=$this->file();if(!file_exists($file))return ['data'=>['schema_version'=>1,'records'=>[]],'revision'=>hash('sha256','')];if(!is_file($file)||filesize($file)>self::LIMIT)self::fail('storage',503);$raw=file_get_contents($file);if($raw===false)self::fail('storage',503);
+  /** Read a bounded schema versioned catalog; receive optional raw-source flag, return data/revision with optional unified metadata overlays, no writes, absence is an empty unpersisted baseline. */
+  public function read(bool $original=false): array {
+    $file=$this->file();if(!file_exists($file))return ['data'=>['schema_version'=>1,'records'=>$original?[]:(new Posts($this->store))->pageCatalog([])],'revision'=>hash('sha256','')];if(!is_file($file)||filesize($file)>self::LIMIT)self::fail('storage',503);$raw=file_get_contents($file);if($raw===false)self::fail('storage',503);
     try{$data=json_decode($raw,true,64,JSON_THROW_ON_ERROR);}catch(\JsonException){self::fail();}
     if(!is_array($data)||count($data)!==2||($data['schema_version']??null)!==1||!is_array($data['records']??null)||count($data['records'])>200)self::fail();
     foreach($data['records'] as $id=>$row){$id=(string)$id;if(!is_string($id)||!self::identifier($id)||!is_array($row)||count($row)!==11||($row['id']??null)!==$id||array_diff(array_keys($row),['id','parent','model','createdAt','updatedAt','deletedAt','publishAt','aliases','draft','published','scheduled'])||!is_string($row['parent']??null)||!is_string($row['model']??null)||!is_array($row['aliases']??null)||!array_is_list($row['aliases'])||count($row['aliases'])>50)self::fail();foreach(['createdAt','updatedAt','deletedAt'] as $key)if(($row[$key]??null)!==null)self::date($row[$key]);self::date($row['publishAt']??null,true);foreach($row['aliases'] as $alias)if(!is_string($alias)||!self::identifier($alias))self::fail();foreach(['draft','published','scheduled'] as $key){if(!array_key_exists($key,$row)||($key==='draft'&&$row[$key]===null))self::fail();if($row[$key]!==null)$data['records'][$id][$key]=$this->snapshot($id,$row[$key]);}}
-    return ['data'=>$data,'revision'=>hash('sha256',$raw)];
+    if(!$original)$data['records']=(new Posts($this->store))->pageCatalog($data['records']);return ['data'=>$data,'revision'=>hash('sha256',$raw)];
   }
   /** Validate an exact UTC instant; receives timestamp/empty flag, returns text or 422 without normalizing invalid dates. */
   public static function date(mixed $value,bool $empty=false): string {
@@ -47,8 +47,8 @@ final class PagePublications {
   public function legacy(string $id): array {
     if(!self::identifier($id))self::fail();$page=$this->store->read($id,null,true)['data'];$snapshot=['url'=>$id,'document'=>$page,'seo'=>self::seo(),'parent'=>'','updatedAt'=>null,'editorial'=>self::editorial()];return ['id'=>$id,'parent'=>'','model'=>'legacy','createdAt'=>null,'updatedAt'=>null,'deletedAt'=>null,'publishAt'=>'','aliases'=>[],'draft'=>$snapshot,'published'=>$page['status']==='published'?$snapshot:null,'scheduled'=>null];
   }
-  /** Resolve a stored ID without creating state; receives ID, returns managed/legacy record or 404. */
-  public function record(string $id): array {return $this->read()['data']['records'][$id]??$this->legacy($id);}
+  /** Resolve a stored ID without creating state; receives ID/optional raw-source flag, returns managed/legacy record or 404. */
+  public function record(string $id,bool $original=false): array {return $this->read($original)['data']['records'][$id]??$this->legacy($id);}
   /** Resolve the effective authorized snapshot at the supplied clock; receives row/clock, returns published/scheduled or null without public writes. */
   public static function effective(array $row,?int $now=null): ?array {if($row['deletedAt']!==null)return null;return $row['scheduled']!==null&&strtotime($row['publishAt'])<=($now??time())?$row['scheduled']:$row['published'];}
   /** Resolve an ID/current URL/old alias; receives key/template, returns overlay or null for unmanaged pages, throws 404 for removed managed entries. */
@@ -60,13 +60,13 @@ final class PagePublications {
   /** Check all managed identities and reserved draft/published/alias URLs; receives identifier, returns bool without writes, preventing legacy creation from shadowing managed routes. */
   public function reserved(string $key): bool {foreach($this->read()['data']['records'] as $id=>$row)if(in_array($key,[$id,$row['draft']['url'],$row['published']['url']??'',$row['scheduled']['url']??'',...$row['aliases']],true))return true;return false;}
   /** Return the effective public URL for an immutable ID; receives ID/base, returns stable local address, preserving unmanaged routes. */
-  public function url(string $id,string $base=''): string {$row=$this->read()['data']['records'][$id]??null;$slug=$row!==null?(self::effective($row)['url']??$row['draft']['url']):$id;return rtrim($base,'/').'/'.($slug==='home'?'':rawurlencode($slug));}
-  /** Return managed snapshots for catalog merge; receives template, excludes removed records, returns keyed read results without writes. */
-  public function overlays(?string $template=null): array {$items=[];$catalog=$this->read();foreach($catalog['data']['records'] as $id=>$row){$id=(string)$id;if($row['deletedAt']!==null){$items[$id]=null;continue;}$live=self::effective($row);$document=($live??$row['draft'])['document'];$document['status']=$live===null?'draft':'published';$items[$id]=['data'=>$this->store->document($id,JsonStore::encode($document),$template),'revision'=>$catalog['revision']];}return $items;}
+  public function url(string $id,string $base=''): string {$unified=(new Posts($this->store))->nativeUrl('pages',$id,$base);if($unified!==null)return $unified;$row=$this->read()['data']['records'][$id]??null;$slug=$row!==null?(self::effective($row)['url']??$row['draft']['url']):$id;return rtrim($base,'/').'/'.($slug==='home'?'':rawurlencode($slug));}
+  /** Return managed snapshots for catalog merge; receives template/optional raw-source flag, excludes removed records, returns keyed read results without writes. */
+  public function overlays(?string $template=null,bool $original=false): array {$items=[];$catalog=$this->read($original);foreach($catalog['data']['records'] as $id=>$row){$id=(string)$id;if($row['deletedAt']!==null){$items[$id]=null;continue;}$live=self::effective($row);$document=($live??$row['draft'])['document'];$document['status']=$live===null?'draft':'published';$items[$id]=['data'=>$this->store->document($id,JsonStore::encode($document),$template),'revision'=>$catalog['revision']];}return $items;}
   /** Ensure unique URLs and acyclic valid parents against catalog and legacy files; receives updated catalog, rejects collisions before commit. */
   private function relationships(array $data): void {
     $owners=[];foreach(glob($this->store->config->data['contents'].'/pages/*.json')?:[] as $file)$owners[basename($file,'.json')]=basename($file,'.json');
-    foreach($data['records'] as $id=>$row){$id=(string)$id;foreach(array_unique([$id,$row['draft']['url'],...$row['aliases'],...array_map(static fn(array $s):string=>$s['url'],array_filter([$row['published'],$row['scheduled']]))]) as $url){if(isset($owners[$url])&&$owners[$url]!==$id)self::fail('collision',409);$owners[$url]=$id;}}
+    foreach($data['records'] as $id=>$row){$id=(string)$id;foreach(array_unique([$id,$row['draft']['url'],...$row['aliases'],...array_map(static fn(array $s):string=>$s['url'],array_filter([$row['published'],$row['scheduled']]))]) as $url){if((new Posts($this->store))->reserved($url,'pages',$id))self::fail('collision',409);if(isset($owners[$url])&&$owners[$url]!==$id)self::fail('collision',409);$owners[$url]=$id;}}
     foreach($data['records'] as $id=>$row){$id=(string)$id;$seen=[$id];$parent=$row['parent'];while($parent!==''){if(in_array($parent,$seen,true)||!self::identifier($parent)||(!isset($data['records'][$parent])&&!is_file($this->store->config->data['contents'].'/pages/'.$parent.'.json'))||isset($data['records'][$parent]['deletedAt']))self::fail('parent');$seen[]=$parent;$parent=$data['records'][$parent]['parent']??'';if(count($seen)>12)self::fail('parent');}}
   }
   /** Atomically replace one regular JSON file under the shared transaction; receives contained file/data, creates only private parent directories, propagates storage failures. */
@@ -76,7 +76,8 @@ final class PagePublications {
   /** Commit an editorial operation with catalog/site CAS and private recovery history; receives ID/action/input/revisions, returns new catalog and ID, never alters legacy source files. */
   public function change(string $id,string $action,array $input,string $revision,string $siteRevision): array {
     return $this->store->transaction(function()use($id,$action,$input,$revision,$siteRevision):array{
-      $current=$this->read();if(!hash_equals($current['revision'],$revision)||!hash_equals($this->store->read('site')['revision'],$siteRevision))self::fail('conflict',409);$data=$current['data'];$now=gmdate('Y-m-d\TH:i:s\Z');
+      (new Posts($this->store))->guard('pages',$id);
+      $current=$this->read(true);if(!hash_equals($current['revision'],$revision)||!hash_equals($this->store->read('site')['revision'],$siteRevision))self::fail('conflict',409);$data=$current['data'];$now=gmdate('Y-m-d\TH:i:s\Z');
       if($action==='create'||$action==='duplicate'){$source=$action==='duplicate'?$this->record($id):null;$id='p-'.bin2hex(random_bytes(8));$row=['id'=>$id,'parent'=>'','model'=>$input['model']??'blank','createdAt'=>$now,'updatedAt'=>$now,'deletedAt'=>null,'publishAt'=>'','aliases'=>[],'draft'=>$source['draft']??$input['snapshot'],'published'=>null,'scheduled'=>null];$row['draft']['document']['slug']=$id;$row['draft']['url']=$input['url']??$row['draft']['url'];$row['draft']['seo']['canonical']='';}
       else {$row=$data['records'][$id]??$this->legacy($id);if($row['deletedAt']!==null&&!in_array($action,['recover','restore'],true))self::fail('missing',404);}
       if(!in_array($row['model'],['blank','institutional','content','landing','legacy'],true)||!is_string($input['parent']??''))self::fail();
@@ -100,9 +101,10 @@ final class PagePublications {
   public static function status(array $row): string {if($row['deletedAt']!==null)return 'deleted';if($row['scheduled']!==null&&strtotime($row['publishAt'])>time())return 'scheduled';$live=self::effective($row);if($live===null)return ($row['draft']['editorial']['review']??false)?'pending':'draft';$draft=$row['draft'];$draft['document']['status']='published';unset($live['publishedAt'],$draft['publishedAt']);return $live===$draft?'published':'modified';}
   /** Resolve current document and SEO/social fallback for public rendering; receives page/base/settings/preview flag, returns safe plain values only. */
   public function metadata(array $page,string $base,array $settings,bool $preview=false): array {
+    $unified=(new Posts($this->store))->metadata($page['slug'],$settings,$preview);if($unified!==null)return $unified;
     $row=$this->read()['data']['records'][$page['slug']]??null;$snapshot=$row===null?null:($preview?$row['draft']:self::effective($row));$seo=$snapshot['seo']??self::seo();$meta=$page['meta'];$title=$seo['title']?:$meta['title'];$description=$seo['description']?:$meta['description'];$image=$seo['socialImage']?:($meta['image']?:$settings['image']);
     return ['title'=>$title,'description'=>$description,'canonical'=>$seo['canonical']?:rtrim($settings['canonical'],'/').'/'.($page['slug']==='home'?'':($snapshot['url']??$page['slug'])),'robots'=>$preview?'noindex, nofollow':($seo['noindex']?'noindex, follow':'index, follow'),'socialTitle'=>$seo['socialTitle']?:$title,'socialDescription'=>$seo['socialDescription']?:$description,'image'=>$image,'imageAlt'=>$seo['socialImage']!==''?$seo['socialImageAlt']:($meta['image']!==''?$meta['imageAlt']:$settings['imageAlt'])];
   }
   /** Export only published/scheduled records to fresh staging; receives target, excludes private drafts/history/trash while retaining future authorized transitions. */
-  public function export(string $target): void {$data=$this->read()['data'];$data['records']=array_filter($data['records'],static fn(array $row):bool=>$row['deletedAt']===null&&($row['published']!==null||$row['scheduled']!==null));foreach($data['records'] as &$row)$row['draft']=$row['scheduled']??$row['published'];unset($row);if($data['records']===[])return;$this->atomic($target.'/system/storage/contents/page-publications/catalog.json',$data);}
+  public function export(string $target): void {$data=$this->read(true)['data'];foreach((new Posts($this->store))->read()['data']['records'] as $owned)if($owned['source']['plugin']==='pages')unset($data['records'][$owned['source']['id']]);$data['records']=array_filter($data['records'],static fn(array $row):bool=>$row['deletedAt']===null&&($row['published']!==null||$row['scheduled']!==null));foreach($data['records'] as &$row)$row['draft']=$row['scheduled']??$row['published'];unset($row);if($data['records']===[])return;$this->atomic($target.'/system/storage/contents/page-publications/catalog.json',$data);}
 }

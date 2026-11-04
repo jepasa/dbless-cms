@@ -101,13 +101,13 @@ final class JsonStore {
     return ['data'=>$data,'revision'=>$revision];
   }
 
-  /** Lista páginas validadas por slug; não escreve; falha em documento inválido em vez de ocultá-lo. */
-  public function pages(?string $template=null): array {
+  /** Lista páginas validadas por identidade; recebe template e opção interna de incluir adaptadores Posts, não escreve e propaga documentos inválidos. */
+  public function pages(?string $template=null,bool $includePosts=true): array {
     $template??=$this->read('site')['data']['template']; $pages=[];
     foreach (glob($this->config->data['contents'].'/pages/*.json') ?: [] as $file) {
       $key=basename($file,'.json'); $pages[$key]=$this->read($key,$template,true);
     }
-    foreach((new PagePublications($this))->overlays($template) as $id=>$snapshot){if($snapshot===null)unset($pages[$id]);else $pages[$id]=$snapshot;}
+    foreach((new PagePublications($this))->overlays($template,!$includePosts) as $id=>$snapshot){if($snapshot===null)unset($pages[$id]);else $pages[$id]=$snapshot;}
     ksort($pages); return $pages;
   }
 
@@ -173,6 +173,7 @@ final class JsonStore {
   /** Salva documento sob revisão e contrato; recebe chave/JSON/revisão, retorna versão nova; conflito gera 409. */
   public function save(string $key,string $raw,string $revision): array {
     return $this->transaction(function() use($key,$raw,$revision): array {
+      if(!in_array($key,['site','plugins','templates','home','404'],true))(new Posts($this))->guard('pages',$key);
       $current=$this->read($key);
       if(isset((new PagePublications($this))->read()['data']['records'][$key]))throw new HttpError(409,'Use the Pages draft workflow.','pages.editorial.conflict');
       if (!hash_equals($current['revision'],$revision)) throw new HttpError(409,'Outra edição foi salva. Reabra a página antes de substituir o conteúdo.','error.conflict');
@@ -206,7 +207,7 @@ final class JsonStore {
   public function create(string $key,string $model,?array $authored=null): array {
     return $this->transaction(function() use($key,$model,$authored): array {
       $file=$this->path($key);
-      if (in_array($key,['site','plugins','templates','home','404'],true) || is_file($file) || (new PagePublications($this))->reserved($key)) throw new HttpError(409,'Identificador reservado ou já existente.','error.reserved');
+      if (in_array($key,['site','plugins','templates','home','404'],true) || is_file($file) || (new PagePublications($this))->reserved($key)||(new Posts($this))->reserved($key)) throw new HttpError(409,'Identificador reservado ou já existente.','error.reserved');
       if (in_array($model,['site','plugins','templates','404'],true)) throw new HttpError(422,'Modelo de página inválido.','error.model');
       $data=$this->read($model)['data']; $data['slug']=$key; $data['status']='draft';
       if($authored!==null){if(count($authored)!==3||array_diff(array_keys($authored),['meta','status','markup']))throw new HttpError(422,'Invalid authored page.','markup.error');$data=array_replace($data,$authored);}
@@ -218,6 +219,7 @@ final class JsonStore {
   /** Move página para histórico recuperável sob revisão; recebe chave/revisão; não apaga páginas obrigatórias. */
   public function remove(string $key,string $revision): void {
     $this->transaction(function() use($key,$revision): void {
+      if(!in_array($key,['site','plugins','templates','home','404'],true))(new Posts($this))->guard('pages',$key);
       if(isset((new PagePublications($this))->read()['data']['records'][$key]))throw new HttpError(409,'Use the Pages draft workflow.','pages.editorial.conflict');
       if (in_array($key,['site','plugins','templates','home','404'],true)) throw new HttpError(422,'Documento obrigatório não pode ser removido.','error.required_remove');
       $current=$this->read($key);
@@ -234,9 +236,15 @@ final class JsonStore {
     $ids=array_map('basename',$files); rsort($ids,SORT_STRING); return $ids;
   }
 
+  /** Lê um backup legado validado sem restaurar a fonte; recebe chave/ID existente, retorna documento ou erro 422/503, sem aceitar caminhos livres nem gravar estado. */
+  public function backupDocument(string $key,string $id): array {
+    $this->path($key);if(!preg_match('/^[0-9]{8}-[0-9]{6}-[0-9]{6}-[a-f0-9]{12}\.json$/D',$id)||!in_array($id,$this->history($key),true))throw new HttpError(422,'Invalid backup.','error.backup');
+    $file=Lifecycle::path($this->config->data['storage'].'/backups/'.$key.'/'.$id);if(!is_file($file)||filesize($file)>524288)throw new HttpError(503,'Backup unavailable.','error.storage');$raw=file_get_contents($file);if($raw===false)throw new HttpError(503,'Backup read failed.','error.storage');return $this->document($key,$raw);
+  }
   /** Restaura backup sanitizado inclusive página removida; recebe chave/ID/revisão, retorna documento; conflitos geram 409. */
   public function restore(string $key,string $id,string $revision): array {
     return $this->transaction(function() use($key,$id,$revision): array {
+      if(!in_array($key,['site','plugins','templates','home','404'],true))(new Posts($this))->guard('pages',$key);
       if(isset((new PagePublications($this))->read()['data']['records'][$key]))throw new HttpError(409,'Use the Pages draft workflow.','pages.editorial.conflict');
       if (!preg_match('/^[0-9]{8}-[0-9]{6}-[0-9]{6}-[a-f0-9]{12}\.json$/D',$id) || !in_array($id,$this->history($key),true)) throw new HttpError(422,'Backup inválido.','error.backup');
       $file=$this->path($key); $exists=is_file($file);

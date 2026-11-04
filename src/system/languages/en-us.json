@@ -532,6 +532,21 @@
     "table.pagination": "Pagination",
     "table.unavailable": "Unavailable page",
     "catalog.presentation_fallback_missing": "This tutorial is not provided in {locale}; the canonical English version is displayed.",
-    "catalog.presentation_fallback_invalid": "The tutorial translation for {locale} is unavailable or invalid; the canonical English version is displayed."
+    "catalog.presentation_fallback_invalid": "The tutorial translation for {locale} is unavailable or invalid; the canonical English version is displayed.",
+    "posts.error.invalid": "Invalid publication data.",
+    "posts.error.route": "Use a safe literal route with up to three segments.",
+    "posts.error.collision": "This address or identifier conflicts with existing content, an alias or a reserved/static route.",
+    "posts.error.conflict": "The site or source changed. Reload before saving.",
+    "posts.error.missing": "Publication unavailable.",
+    "posts.error.query": "Invalid publication filter.",
+    "posts.error.term": "Invalid or unavailable group, tag or author.",
+    "posts.error.parent": "The parent relationship is unavailable, cyclic or too deep.",
+    "posts.error.inUse": "This type or entry is protected or still in use.",
+    "posts.error.managed": "This publication is managed in Publications. Use its unified editor.",
+    "posts.error.author": "Choose an available author profile before publishing an article.",
+    "posts.error.date": "Choose a valid future UTC instant.",
+    "posts.error.operation": "Unavailable publication operation.",
+    "posts.error.projection": "Legacy blocks have incompatible binding scopes; preserve the native source and resolve them explicitly before conversion.",
+    "error.plugin_dependency": "The installed plugin {plugin} requires this package. Remove the dependent plugin first."
   }
 }

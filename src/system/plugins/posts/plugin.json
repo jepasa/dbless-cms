@@ -1,0 +1,426 @@
+{
+  "id": "posts",
+  "name": "Publications",
+  "description": "Unified pages, articles, custom types, taxonomies and public search.",
+  "version": "1.0.0",
+  "api": 1,
+  "cmsMajor": 2,
+  "entry": "Plugin.php",
+  "class": "DBLESSCMS\\PostsPlugin",
+  "assets": {
+    "css": "css/posts.css",
+    "js": "js/posts.js",
+    "icon": "posts.svg"
+  },
+  "defaults": {
+    "browser": {
+      "pageSize": 25
+    }
+  },
+  "router": "Router.php",
+  "routes": {
+    "overview": {
+      "title": "posts.overview",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "new": {
+      "title": "posts.new",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "editor": {
+      "title": "posts.editor",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "groups": {
+      "title": "posts.groups",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "tags": {
+      "title": "posts.tags",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "authors": {
+      "title": "posts.authors",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "comments": {
+      "title": "posts.comments",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "history": {
+      "title": "posts.history",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "settings": {
+      "title": "posts.settings",
+      "file": "pages/workspace.php",
+      "requiresEnabled": false,
+      "visibility": "private"
+    },
+    "trash": {
+      "title": "posts.trash",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "preview": {
+      "title": "posts.preview",
+      "file": "pages/workspace.php",
+      "requiresEnabled": true,
+      "visibility": "private"
+    },
+    "search": {
+      "title": "posts.publicSearch",
+      "file": "pages/public.php",
+      "requiresEnabled": true,
+      "visibility": "public",
+      "methods": [
+        "GET"
+      ]
+    },
+    "feed": {
+      "title": "posts.publicSearch",
+      "file": "pages/public.php",
+      "requiresEnabled": true,
+      "visibility": "public",
+      "methods": [
+        "GET"
+      ]
+    },
+    "sitemap": {
+      "title": "posts.publicSearch",
+      "file": "pages/public.php",
+      "requiresEnabled": true,
+      "visibility": "public",
+      "methods": [
+        "GET"
+      ]
+    }
+  },
+  "navigation": {
+    "label": "posts.name",
+    "items": [
+      {
+        "label": "posts.overview",
+        "route": "overview"
+      },
+      {
+        "label": "posts.new",
+        "route": "new"
+      },
+      {
+        "label": "posts.groups",
+        "route": "groups"
+      },
+      {
+        "label": "posts.tags",
+        "route": "tags"
+      },
+      {
+        "label": "posts.authors",
+        "route": "authors"
+      },
+      {
+        "label": "posts.comments",
+        "route": "comments"
+      },
+      {
+        "label": "posts.history",
+        "route": "history"
+      },
+      {
+        "label": "posts.settings",
+        "route": "settings"
+      },
+      {
+        "separator": true
+      },
+      {
+        "label": "posts.trash",
+        "route": "trash",
+        "role": "trash"
+      }
+    ]
+  },
+  "replacesNavigation": [
+    "pages",
+    "blog"
+  ],
+  "configuration": "settings",
+  "presentation": "presentation.json",
+  "presentationLocales": {
+    "pt-br": "languages/presentation-pt-br.json"
+  },
+  "mustache": {
+    "api": 1,
+    "kind": "data",
+    "queries": {
+      "latest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "q": {
+            "type": "string",
+            "maxLength": 128,
+            "default": ""
+          },
+          "type": {
+            "type": "string",
+            "maxLength": 64,
+            "default": ""
+          },
+          "group": {
+            "type": "string",
+            "maxLength": 64,
+            "default": ""
+          },
+          "tags": {
+            "type": "string",
+            "maxLength": 1024,
+            "default": ""
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000,
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000,
+            "default": 10000
+          }
+        }
+      }
+    },
+    "fields": [
+      "id",
+      "slug",
+      "type",
+      "title",
+      "summary",
+      "url",
+      "image",
+      "imageAlt",
+      "author",
+      "publishedAt",
+      "order",
+      "parentId",
+      "groups",
+      "tags",
+      "content",
+      "body",
+      "items",
+      "total",
+      "page",
+      "pages",
+      "pageSize",
+      "hasNext",
+      "hasPrevious"
+    ]
+  },
+  "contentServices": {
+    "records": {
+      "api": 1,
+      "description": "Published publications with combined bounded type/group/tag/text filters.",
+      "context": "block",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "q": {
+            "type": "string",
+            "maxLength": 128,
+            "default": ""
+          },
+          "type": {
+            "type": "string",
+            "maxLength": 64,
+            "default": ""
+          },
+          "group": {
+            "type": "string",
+            "maxLength": 64,
+            "default": ""
+          },
+          "tags": {
+            "type": "string",
+            "maxLength": 1024,
+            "default": ""
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000,
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000,
+            "default": 10000
+          }
+        },
+        "required": []
+      },
+      "result": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pages",
+          "pageSize",
+          "hasNext",
+          "hasPrevious"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "slug",
+                "type",
+                "title",
+                "summary",
+                "url",
+                "image",
+                "imageAlt",
+                "author",
+                "publishedAt",
+                "parentId",
+                "order",
+                "groups",
+                "tags"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 12000
+                },
+                "slug": {
+                  "type": "string",
+                  "maxLength": 12000
+                },
+                "type": {
+                  "type": "string",
+                  "maxLength": 12000
+                },
+                "title": {
+                  "type": "string",
+                  "maxLength": 12000
+                },
+                "summary": {
+                  "type": "string",
+                  "maxLength": 12000
+                },
+                "url": {
+                  "type": "string",
+                  "maxLength": 12000
+                },
+                "image": {
+                  "type": "string",
+                  "maxLength": 12000
+                },
+                "imageAlt": {
+                  "type": "string",
+                  "maxLength": 12000
+                },
+                "author": {
+                  "type": "string",
+                  "maxLength": 12000
+                },
+                "publishedAt": {
+                  "type": "string",
+                  "maxLength": 12000
+                },
+                "parentId": {
+                  "type": "string",
+                  "maxLength": 12000
+                },
+                "order": {
+                  "type": "integer",
+                  "minimum": -999999,
+                  "maximum": 999999
+                },
+                "groups": {
+                  "type": "array",
+                  "maxItems": 50,
+                  "items": {
+                    "type": "string",
+                    "maxLength": 64
+                  }
+                },
+                "tags": {
+                  "type": "array",
+                  "maxItems": 50,
+                  "items": {
+                    "type": "string",
+                    "maxLength": 64
+                  }
+                }
+              }
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "pages": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "hasNext": {
+            "type": "boolean"
+          },
+          "hasPrevious": {
+            "type": "boolean"
+          }
+        }
+      },
+      "formats": []
+    }
+  },
+  "documentSource": {
+    "api": 1,
+    "description": "Published publication bodies, without draft/private state."
+  },
+  "dependencies": [
+    "pages",
+    "blog"
+  ]
+}

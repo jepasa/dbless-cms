@@ -1,0 +1,10 @@
+/** Posts module geometry within canonical admin tokens; results stay in normal flow and the Core editorial shell owns editor behavior. */
+.posts-plugin .posts-library{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:1.25rem;align-items:start}
+.posts-plugin .posts-filters{display:flex;flex-wrap:wrap;gap:.75rem;align-items:end}
+.posts-plugin .posts-filters label{flex:1 1 10rem;min-width:0}
+.posts-plugin .posts-duplicate{margin-top:1rem;display:flex;gap:1rem;align-items:end;flex-wrap:wrap}
+.posts-plugin .posts-duplicate label{flex:1 1 16rem}
+.posts-plugin .extension-table td code{overflow-wrap:anywhere}
+@media(max-width:900px){.posts-plugin .posts-library{grid-template-columns:minmax(0,1fr)}}
+.posts-plugin .posts-library>.panel>label{display:grid;gap:.4rem;margin-block:.75rem}
+.posts-plugin .posts-library>.panel>label.editor-checkbox{display:flex}

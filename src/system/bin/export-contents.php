@@ -23,7 +23,7 @@ foreach ($templateDocument['templates'] as $id=>$options) {
   if (!isset($store->templates->all()[$id])) { unset($templateDocument['templates'][$id]); continue; }
   \DBLESSCMS\Schema::validate($options,$store->templates->configuration($id)['schema']);
 }
-$site=$store->read('site')['data']; $pages=$store->pages();$managed=(new \DBLESSCMS\PagePublications($store))->read()['data']['records'];
+$site=$store->read('site')['data']; $pages=$store->pages();$managed=(new \DBLESSCMS\PagePublications($store))->read()['data']['records'];foreach((new \DBLESSCMS\Posts($store))->read()['data']['records'] as $owned)$managed[$owned['source']['plugin']==='pages'?$owned['source']['id']:$owned['id']]=true;
 foreach($pages as $key=>$snapshot)if(isset($managed[$key])&&$snapshot['data']['status']!=='published')unset($pages[$key]);
 $languages=new \DBLESSCMS\Language();
 if ($languages->invalid()!==[] || (isset($site['settings']['adminLocale']) && !$languages->available($site['settings']['adminLocale']))) throw new RuntimeException('Dicionários ou idioma padrão inválidos; exportação interrompida.');
@@ -74,4 +74,5 @@ echo count($pages)." páginas sanitizadas.\n";
 (new \DBLESSCMS\Privacy($store))->export($target);
 (new \DBLESSCMS\MediaRights($store))->export($target);
 if(isset($registry->all()['forms'])){require_once $config->root.'/plugins/forms/Plugin.php';$forms=\DBLESSCMS\FormsModel::repository($store)->read()['data'];$forms['forms']=array_filter($forms['forms'],static fn(array $f):bool=>!$f['deleted']&&$f['status']==='published');\DBLESSCMS\ExtensionDocument::atomic($target.'/system/storage/contents/forms/catalog.json',\DBLESSCMS\ExtensionDocument::encode($forms));}
+(new \DBLESSCMS\Posts($store))->export($target);
 \DBLESSCMS\EditorialMedia::export($store,$target);

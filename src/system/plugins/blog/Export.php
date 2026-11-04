@@ -5,7 +5,7 @@ namespace DBLESSCMS;
 final class BlogExport {
   /** Export one sanitized installation catalog; takes source store/trusted new staging root, writes private catalog and referenced raster assets, raises on malformed/unsafe/missing files. */
   public static function run(JsonStore $store,string $target): void {
-    $data=(new BlogStore($store))->read()['data'];
+    $data=(new BlogStore($store))->read(true)['data'];foreach((new Posts($store))->read()['data']['records'] as $owned)if($owned['source']['plugin']==='blog')unset($data['articles'][$owned['source']['id']]);
     $data['articles']=array_filter($data['articles'],static fn(array $item): bool=>$item['deletedAt']==='');
     foreach (['categories','tags','authors'] as $key) $data[$key]=array_filter($data[$key],static fn(array $item): bool=>!$item['deleted']);
     BlogModel::catalog($data);$references=[];

@@ -197,3 +197,7 @@ The additive item kind `post` stores the immutable Blog post ID in the existing 
 ## Separate tutorial translations (2.19)
 
 The Menu presentation now covers creation/identity, searchable multi-add sources, custom targets, hierarchy/removal, both delivery channels, finite Mustache composition, declared template keys, compatibility, safe saving, Overview and recovery. English lives in its mandatory presentation.json; Portuguese lives in languages/presentation-pt-br.json. Both share stable section IDs and canonical inert code examples. Core selects the administrative locale and displays a translated notice when falling back to English. Long tutorial text is no longer included in Menu's operational message catalog. The optional presentationLocales authoring contract is documented in plugins.md; it is available to any plugin.
+
+## Unified publication queries
+
+The `posts:records` data-only service and `posts.latest` reference accept bounded type/group/tags/text filters, limit and page. Distinct filters use AND; comma-separated tags use OR. Single selectors use an immutable unified ID or an unambiguous public slug. Existing Pages/Blog adapters remain available. See [Publications](publications.md).

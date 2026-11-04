@@ -1,0 +1,9 @@
+/** Public publication search/cards: local responsive layout independent of the administrative theme and dictionary. */
+.posts-public-filters{display:flex;flex-wrap:wrap;align-items:end;gap:1rem;margin-block:2rem}
+.posts-public-filters label{display:flex;flex:1 1 10rem;min-width:0;flex-direction:column;gap:.4rem}
+.posts-public-filters input,.posts-public-filters select{box-sizing:border-box;width:100%;max-width:100%;padding:.65rem;border:1px solid currentColor;border-radius:.25rem;background:transparent;color:inherit}
+.posts-public-filters button{padding:.7rem 1.2rem;cursor:pointer}
+.posts-public-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr));gap:1.5rem}
+.posts-public-grid article{min-width:0;overflow-wrap:anywhere;padding-block:1rem;border-block-start:1px solid currentColor}
+.posts-public-grid img{display:block;max-width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}
+.posts-public-pagination{display:flex;justify-content:center;align-items:center;gap:1.5rem;margin-block:2rem}

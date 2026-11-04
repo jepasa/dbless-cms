@@ -1,16 +1,16 @@
 <?php
-/** Navegação Essencial: marca configurada, âncoras reais e disclosure móvel nativo, sem misturar o tema administrativo. */
+/** Navegação Essencial: marca/âncoras, demonstração opcional da busca de Publicações e disclosure móvel nativo, com textos públicos independentes do painel. */
 declare(strict_types=1);
 use function DBLESSCMS\e;
 $links=['about'=>'Sobre','resume'=>'Trajetória','portfolio'=>'Projetos','services'=>'Serviços','contact'=>'Contato'];
 $menuData=$navigation->location('header-primary');
-$blogRegistry=new \DBLESSCMS\Plugins($store);$blogAvailable=isset($blogRegistry->all()['blog'])&&$blogRegistry->state('blog')['enabled'];
+$blogRegistry=new \DBLESSCMS\Plugins($store);$blogAvailable=isset($blogRegistry->all()['blog'])&&$blogRegistry->state('blog')['enabled'];$postsAvailable=isset($blogRegistry->all()['posts'])&&$blogRegistry->state('posts')['enabled'];$postsPath=$postsAvailable?(new \DBLESSCMS\Posts($store))->read()['data']['searchPath']:'';$postsCopy=\DBLESSCMS\PostsView::copy($publicLocale['tag']);
 
 ?>
 <header class="site-header">
   <div class="container header-inner">
     <a class="brand" href="<?= e($base_url.'/') ?>"><img class="brand-symbol" src="<?= e($settings['logo']!==''?$mediaUrl($settings['logo']):$store->templates->asset($id,$manifest['assets']['files']['brandSymbol'],$base_url)) ?>" alt="" aria-hidden="true" width="32" height="32"><span><?= e($siteContent['brand']['name']) ?></span></a>
-    <nav id="navmenu" class="desktop-nav" aria-label="<?= e('Navegação principal') ?>"><?php if ($menuData!==null): require $store->templates->path($id,'partials',$manifest['partials']['menu']);else:foreach ($links as $anchor=>$label): ?><a href="<?= e($base_url.'/#'.$anchor) ?>"><?= e($label) ?></a><?php endforeach;endif; ?><?php if ($blogAvailable): ?><a href="<?= e($base_url.'/plugins/blog/list') ?>">Blog</a><?php endif; ?></nav>
-    <details class="mobile-menu" data-site-menu><summary aria-label="<?= e('Abrir navegação') ?>" title="<?= e('Abrir navegação') ?>"><?= \DBLESSCMS\Icons::site('list',$base_url,'site-menu-icon',$id) ?></summary><nav aria-label="<?= e('Navegação principal') ?>"><?php if ($menuData!==null): require $store->templates->path($id,'partials',$manifest['partials']['menu']);else:foreach ($links as $anchor=>$label): ?><a href="<?= e($base_url.'/#'.$anchor) ?>"><?= e($label) ?></a><?php endforeach;endif; ?><?php if ($blogAvailable): ?><a href="<?= e($base_url.'/plugins/blog/list') ?>">Blog</a><?php endif; ?></nav></details>
+    <nav id="navmenu" class="desktop-nav" aria-label="<?= e('Navegação principal') ?>"><?php if ($menuData!==null): require $store->templates->path($id,'partials',$manifest['partials']['menu']);else:foreach ($links as $anchor=>$label): ?><a href="<?= e($base_url.'/#'.$anchor) ?>"><?= e($label) ?></a><?php endforeach;endif; ?><?php if ($blogAvailable): ?><a href="<?= e($base_url.'/plugins/blog/list') ?>">Blog</a><?php endif;if($postsAvailable): ?><a href="<?= e($base_url.'/'.$postsPath) ?>"><?= e($postsCopy['search']) ?></a><?php endif; ?></nav>
+    <details class="mobile-menu" data-site-menu><summary aria-label="<?= e('Abrir navegação') ?>" title="<?= e('Abrir navegação') ?>"><?= \DBLESSCMS\Icons::site('list',$base_url,'site-menu-icon',$id) ?></summary><nav aria-label="<?= e('Navegação principal') ?>"><?php if ($menuData!==null): require $store->templates->path($id,'partials',$manifest['partials']['menu']);else:foreach ($links as $anchor=>$label): ?><a href="<?= e($base_url.'/#'.$anchor) ?>"><?= e($label) ?></a><?php endforeach;endif; ?><?php if ($blogAvailable): ?><a href="<?= e($base_url.'/plugins/blog/list') ?>">Blog</a><?php endif;if($postsAvailable): ?><a href="<?= e($base_url.'/'.$postsPath) ?>"><?= e($postsCopy['search']) ?></a><?php endif;if($postsAvailable): ?><a href="<?= e($base_url.'/'.$postsPath) ?>"><?= e($postsCopy['search']) ?></a><?php endif; ?></nav></details>
   </div>
 </header>

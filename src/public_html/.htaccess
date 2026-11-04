@@ -23,10 +23,10 @@
     # Evita loop: requisições já direcionadas ao index.php não são reescritas
     RewriteRule ^index\.php$ - [L]
 
-    # Reescreve URLs amigáveis (/nome) para index.php?page=nome (interno, sem redirecionamento)
+    # Encaminha caminhos amigáveis ao Core sem colidir com a paginação pública page.
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^([a-zA-Z0-9_-]+)/?$ index.php?page=$1 [L,QSA]
+    RewriteRule ^([a-zA-Z0-9_-]+(?:/[a-zA-Z0-9_-]+){0,3})/?$ index.php?content_path=$1 [L,QSA]
 </IfModule>
 
 # Também proteger downloads estáticos de interpretação por sniffing, quando mod_headers estiver disponível.

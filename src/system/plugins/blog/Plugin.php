@@ -137,7 +137,7 @@ final class BlogPlugin implements PluginInterface,PublicPluginInterface,Dashboar
       });
       return ['revision'=>$result['revision'],'redirect'=>BlogRouter::url($context,'comments')];
     }
-    $id=$this->input('id',64);$result=(new BlogStore($context->store))->mutate($revision,function(array $data) use($operation,&$id,$context): array {
+    $id=$this->input('id',64);if($id!==''&&!str_starts_with($operation,'taxonomy-'))(new Posts($context->store))->guard('blog',$id);$result=(new BlogStore($context->store))->mutate($revision,function(array $data) use($operation,&$id,$context): array {
       if (str_starts_with($operation,'taxonomy-')) return $this->taxonomy($data,$operation);
       if ($operation==='save') {$article=$this->article($data,$id,$context);$id=$article['id'];$data['articles'][$id]=$article;return $data;}
       if (!isset($data['articles'][$id])) throw new HttpError(404,'Article unavailable.','blog.error.missing');

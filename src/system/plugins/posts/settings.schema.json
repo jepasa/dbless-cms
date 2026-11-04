@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "browser"
+  ],
+  "properties": {
+    "browser": {
+      "type": "object",
+      "title": "posts.browser",
+      "additionalProperties": false,
+      "required": [
+        "pageSize"
+      ],
+      "properties": {
+        "pageSize": {
+          "type": "integer",
+          "title": "posts.pageSize",
+          "minimum": 25,
+          "maximum": 100
+        }
+      }
+    }
+  }
+}

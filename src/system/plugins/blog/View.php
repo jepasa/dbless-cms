@@ -50,6 +50,7 @@ final class BlogView {
       $slug=self::parameter('slug');if (!BlogModel::identifier($slug)) throw new HttpError(404,'Article unavailable.','blog.error.missing');
       foreach (BlogModel::published($catalog) as $article) if ($article['slug']===$slug||in_array($slug,$article['aliases'],true)) {
         if ($article['slug']!==$slug) {header('Location: '.self::url($context->base,'article',['slug'=>$article['slug']]),true,301);return '';}
+        $unified=(new Posts($store))->nativeUrl('blog',$article['id'],$context->base);if($unified!==null&&$unified!==self::url($context->base,'article',['slug'=>$article['slug']])){header('Location: '.$unified,true,301);return '';}
         return self::document($store,$context->base,['kind'=>'article','article'=>$article,'catalog'=>$catalog,'preview'=>false],$settings);
       }
       throw new HttpError(404,'Article unavailable.','blog.error.missing');
@@ -117,7 +118,7 @@ final class BlogView {
     $title=$options['publication']['title'];$description=$options['publication']['description'];$cover='';$coverAlt='';$canonical=self::url(rtrim($settings['canonical'],'/'));$robots='index, follow';
     if ($model['kind']==='article') {
       $article=$model['article'];$title=$article['seoTitle']?:$article['title'];$description=$article['seoDescription']?:$article['excerpt'];$cover=$article['cover'];$coverAlt=$article['coverAlt'];
-      $canonical=self::url(rtrim($settings['canonical'],'/'),'article',['slug'=>$article['slug']]);
+      $canonical=$model['postsCanonical']??(new Posts($store))->nativeUrl('blog',$article['id'],rtrim($settings['canonical'],'/'))??self::url(rtrim($settings['canonical'],'/'),'article',['slug'=>$article['slug']]);
       if ($model['preview']||$article['noindex']) $robots='noindex, nofollow';
       $published=BlogModel::published($model['catalog']);unset($published[$article['id']]);
       uasort($published,static function(array $a,array $b) use($article): int {

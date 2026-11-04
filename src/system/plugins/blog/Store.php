@@ -34,12 +34,12 @@ final class BlogStore {
     $raw=file_get_contents($file,false,null,0,BlogModel::LIMIT+1);
     if ($raw===false) throw new HttpError(503,'Blog read failed.','blog.error.storage');return $raw;
   }
-  /** Read catalog/revision; no arguments or writes, absent document means an empty installation, corruption remains an explicit error. */
-  public function read(): array {
+  /** Read catalog/revision; optional original flag bypasses read-only Posts overlays, no writes, absent document means an empty installation, corruption remains an explicit error. */
+  public function read(bool $original=false): array {
     $file=$this->directory().'/'.$this->kind.'.json';
     if (is_link($file)) throw new HttpError(503,'Unsafe blog storage.','blog.error.storage');
-    if (!file_exists($file)) return ['data'=>$this->kind==='catalog'?BlogModel::emptyCatalog():['schema_version'=>1,'comments'=>[]],'revision'=>hash('sha256','')];
-    $raw=$this->bytes($file);return ['data'=>$this->decode($raw),'revision'=>hash('sha256',$raw)];
+    if (!file_exists($file)) {$data=$this->kind==='catalog'?BlogModel::emptyCatalog():['schema_version'=>1,'comments'=>[]];if(!$original&&$this->kind==='catalog')$data=(new Posts($this->store))->blogCatalog($data);return ['data'=>$data,'revision'=>hash('sha256','')];}
+    $raw=$this->bytes($file);$data=$this->decode($raw);if(!$original&&$this->kind==='catalog')$data=(new Posts($this->store))->blogCatalog($data);return ['data'=>$data,'revision'=>hash('sha256',$raw)];
   }
   /** Publish bytes using same-directory secure temporary file and rename; takes fixed path/bytes, cleans temporary on all failures, raises 503. */
   private function atomic(string $file,string $raw): void {
@@ -54,8 +54,8 @@ final class BlogStore {
   /** Apply a CAS mutation under the CMS lock; takes expected revision/callback, returns snapshot, preserves prior bytes on validation/conflict and records private revision-only audit. */
   public function mutate(string $revision,callable $change): array {
     return $this->store->transaction(function() use($revision,$change): array {
-      $current=$this->read();if (!hash_equals($current['revision'],$revision)) throw new HttpError(409,'Blog revision conflict.','blog.error.conflict');
-      $data=$this->validate($change($current['data']));$raw=self::encode($data);
+      $current=$this->read(true);if (!hash_equals($current['revision'],$revision)) throw new HttpError(409,'Blog revision conflict.','blog.error.conflict');
+      $data=$this->validate($change($current['data']));if($this->kind==='catalog')(new Posts($this->store))->guardBlog($current['data'],$data);$raw=self::encode($data);
       $directory=$this->directory();Security::directory($directory);$history=$this->directory(true);Security::directory($history);
       $audit=$this->store->config->data['storage'].'/audit.jsonl';
       if (is_link($audit)) throw new HttpError(503,'Unsafe blog audit.','blog.error.storage');
@@ -72,9 +72,12 @@ final class BlogStore {
     foreach (glob($directory.'/*.json')?:[] as $file) if (!is_link($file)&&is_file($file)&&preg_match('/^\d{8}-\d{6}-\d{6}-[a-f0-9]{16}\.json$/D',basename($file))) $ids[]=basename($file);
     rsort($ids,SORT_STRING);return $ids;
   }
+  /** Read an existing validated private native backup without restoring its catalog; receive opaque ID, return bounded original data or 422/503, no writes. */
+  public function snapshot(string $id): array {
+    if(!in_array($id,$this->history(),true))throw new HttpError(422,'Invalid blog backup.','blog.error.contract');return $this->decode($this->bytes($this->directory(true).'/'.$id));
+  }
   /** Restore a validated backup with current CAS and new backup; takes opaque ID/revision, returns snapshot or 422/409/503, never accepts arbitrary paths. */
   public function restore(string $id,string $revision): array {
-    if (!in_array($id,$this->history(),true)) throw new HttpError(422,'Invalid blog backup.','blog.error.contract');
-    $data=$this->decode($this->bytes($this->directory(true).'/'.$id));return $this->mutate($revision,static fn(array $current): array=>$data);
+    $data=$this->snapshot($id);return $this->mutate($revision,static fn(array $current): array=>$data);
   }
 }

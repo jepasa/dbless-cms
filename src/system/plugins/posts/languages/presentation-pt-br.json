@@ -1,0 +1,107 @@
+{
+  "language": "pt-br",
+  "title": "Publicações",
+  "lead": "Um fluxo editorial para páginas, artigos e tipos personalizados, preservando contratos e conteúdo existentes.",
+  "sections": [
+    {
+      "id": "start",
+      "title": "Ativar Publicações",
+      "body": [
+        "No catálogo de plugins, ative Publicações para utilizar uma área única de páginas, artigos e tipos personalizados. Os endpoints originais de Pages e Blog permanecem compatíveis."
+      ],
+      "steps": [
+        "Abra o catálogo de plugins e ative Publicações."
+      ]
+    },
+    {
+      "id": "types",
+      "title": "Configurar tipos e rotas",
+      "body": [
+        "Páginas mantêm URLs na raiz por padrão; artigos preservam o endpoint existente do Blog. Novos tipos usam /posts/tipo/slug. Selecione raiz ou um prefixo literal, como noticias. Alterações verificam caminhos reservados e preservam endereços públicos anteriores."
+      ],
+      "steps": [
+        "Abra Tipos e configurações; crie um tipo com ID estável, nomes, comportamento de página/artigo, recursos e política de URL."
+      ]
+    },
+    {
+      "id": "author",
+      "title": "Escrever um documento editorial único",
+      "body": [
+        "Use o editor visual/código compartilhado ou a visão JSON sincronizada. O JSON contém html, bindings e conteúdo nativo preservado. JSON inválido bloqueia troca e salvamento sem descartar o buffer. Blocos nativos do Blog são mantidos quando o HTML é adotado."
+      ],
+      "steps": [
+        "Adicione uma publicação, escolha o tipo, informe título/slug e escreva o conteúdo; salve um rascunho."
+      ]
+    },
+    {
+      "id": "lifecycle",
+      "title": "Publicar, agendar e recuperar",
+      "body": [
+        "Salvar não altera a versão pública. Publique o rascunho salvo ou escolha um instante UTC futuro. Agendamentos são resolvidos sem gravações na leitura. Lixeira e recuperação preservam histórico; restaurar o histórico altera somente o rascunho."
+      ],
+      "steps": [
+        "Salve primeiro; abra a prévia; então use Publicar ou Agendar. Use Histórico para recuperar um rascunho anterior."
+      ]
+    },
+    {
+      "id": "terms",
+      "title": "Organizar grupos, tags e autores",
+      "body": [
+        "Grupos são hierárquicos e reutilizam categorias existentes do Blog. Tags não possuem hierarquia. Tipos diferentes podem compartilhar registros. Perfis de autor são editoriais e não criam contas administrativas. Registros vinculados não podem ser removidos."
+      ],
+      "steps": [
+        "Crie grupos/tags/autores em suas telas e associe-os nas propriedades da publicação."
+      ]
+    },
+    {
+      "id": "search",
+      "title": "Buscar e exibir conteúdo publicado",
+      "body": [
+        "A busca combina texto, tipo, grupo e tags selecionadas. Filtros distintos usam E; múltiplas tags usam OU. Grupos incluem descendentes. Somente snapshots públicos chegam aos resultados, feeds e provedores; referências não são executadas para compor o texto pesquisável."
+      ],
+      "steps": [
+        "Abra a busca pública pelo catálogo, combine filtros e acesse um resultado. Configure o caminho da busca nas configurações."
+      ]
+    },
+    {
+      "id": "references",
+      "title": "Reutilizar dados e documentos",
+      "body": [
+        "Referências automáticas de Posts expõem resumos publicados e consultas latest limitadas. Referências Pages/Blog, links do Menu e templates existentes permanecem compatíveis pelos adaptadores nativos. Slugs ambíguos entre tipos resultam em indisponibilidade; use o ID imutável."
+      ],
+      "steps": [
+        "Use o ID imutável da publicação ou um slug único no editor Core; percorra coleções finitas de resultados."
+      ]
+    },
+    {
+      "id": "legacy",
+      "title": "Adotar conteúdo existente explicitamente",
+      "body": [
+        "Abrir conteúdo legado nunca o migra. A primeira operação explícita estabelece autoridade unificada, preservando conteúdo e histórico originais. Gravadores legados recusam identidades adotadas. Use o histórico original para registros anteriores da fonte."
+      ],
+      "steps": [
+        "Abra uma página/artigo existente em Publicações e salve deliberadamente; prossiga pelo editor unificado."
+      ]
+    },
+    {
+      "id": "discussion",
+      "title": "Moderar discussão",
+      "body": [
+        "Comentários em páginas permanecem desabilitados. Artigos exigem a configuração global existente do Blog e a opção individual. Comentários enviados permanecem pendentes até moderação. IDs, endpoints e histórico existentes são preservados."
+      ],
+      "steps": [
+        "Habilite discussão somente quando desejado e revise os comentários recebidos em Comentários."
+      ]
+    },
+    {
+      "id": "delivery",
+      "title": "Exportação e entrega",
+      "body": [
+        "Rascunhos gerenciados, lixeira, histórico e comentários nunca entram na exportação pública. Snapshots publicados e agendados mantêm somente mídia pública referenciada. Atualizar código preserva conteúdo/configuração reais; ativação e adoção são escolhas explícitas do operador."
+      ],
+      "steps": [
+        "Valide uma exportação sintética antes de distribuir o código e preserve o estado independente da instalação."
+      ]
+    }
+  ]
+}

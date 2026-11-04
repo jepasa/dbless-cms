@@ -40,6 +40,8 @@ final class Plugins {
           if (!is_array($manifest['publicSettings']) || !array_is_list($manifest['publicSettings']) || count($manifest['publicSettings'])>50) throw new \RuntimeException('Campos públicos inválidos.');
           foreach ($manifest['publicSettings'] as $key) if (!is_string($key) || !isset($schema['properties'][$key])) throw new \RuntimeException('Campo público sem contrato.');
         }
+        if(isset($manifest['dependencies'])){if(!is_array($manifest['dependencies'])||!array_is_list($manifest['dependencies'])||count($manifest['dependencies'])>8)throw new \RuntimeException('Invalid plugin dependencies.');foreach($manifest['dependencies'] as $dependency)if(!is_string($dependency)||!self::identifier($dependency)||$dependency===$id)throw new \RuntimeException('Invalid plugin dependency.');}
+        if(isset($manifest['replacesNavigation'])){if(!is_array($manifest['replacesNavigation'])||!array_is_list($manifest['replacesNavigation'])||count($manifest['replacesNavigation'])>8)throw new \RuntimeException('Invalid navigation replacement.');foreach($manifest['replacesNavigation'] as $replaced)if(!is_string($replaced)||!self::identifier($replaced)||$replaced===$id)throw new \RuntimeException('Invalid navigation replacement.');}
         Components::definitions($manifest);ContentReferences::definitions($manifest);ContentForms::definitions($manifest);ContentDocuments::definition($manifest);
         if(($manifest['presentation']??null)!=='presentation.json')throw new \RuntimeException('Missing required presentation.json declaration.');
         PluginPresentation::definition($manifest,PluginPresentation::read($directory,$manifest['presentation']));
@@ -94,9 +96,9 @@ final class Plugins {
   }
   /** Build localized manifest menus with a Core presentation destination and final trash role; receive locale, return menu data without executing plugins or writing state. */
   public function navigation(string $locale): array {
-    $menus=[];
+    $menus=[];$hidden=[];foreach($this->catalog as $owner=>$definition)if(isset($definition['replacesNavigation'])&&$this->state($owner)['enabled'])foreach($definition['replacesNavigation'] as $replaced)$hidden[$replaced]=true;
     foreach ($this->catalog as $id=>$manifest) {
-      if (!isset($manifest['navigation'])) continue;
+      if (!isset($manifest['navigation'])||isset($hidden[$id])) continue;
       $language=$this->language($id,$locale); $menu=$manifest['navigation'];
       $items=$menu['items']??[['label'=>$menu['label'],'route'=>$menu['route']]];
       $ordered=[]; $trash=null;

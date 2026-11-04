@@ -49,6 +49,14 @@
     "forms": {
       "enabled": true,
       "settings": {}
+    },
+    "posts": {
+      "enabled": false,
+      "settings": {
+        "browser": {
+          "pageSize": 25
+        }
+      }
     }
   }
 }
