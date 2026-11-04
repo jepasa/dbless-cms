@@ -1,4 +1,4 @@
-/** Media explorer geometry: aligned command/filter controls above the breadcrumb, canonical tokens/icons, connected tree and natural-height table/grid results. */
+/** Media explorer geometry: aligned controls, compact breadcrumb/status spacing, canonical tokens/icons, connected tree and natural-height table/grid results. */
 .plugin-standalone { padding: 24px; }
 .fm { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: clip; }
 .fm [hidden] { display: none !important; }
@@ -44,7 +44,9 @@
 .fm-filters label { min-width: 100px; flex: 1; margin: 0; }
 .fm-filters .fm-search { flex: 3; min-width: 170px; }
 .fm-filters input, .fm-filters select { width: 100%; min-height: 38px; }
-.fm-status { min-height: 22px; margin: 7px 0; overflow-wrap: anywhere; color: var(--success); font-size: .85rem; }
+.fm .fm-grid-sort { margin-block-end: 10px; }
+.fm-status { min-height: 22px; margin: 0 0 10px; overflow-wrap: anywhere; color: var(--success); font-size: .85rem; }
+.fm-status:empty { min-height: 0; margin: 0; }
 .fm-status.fm-error, .fm-settings [role=status].fm-error { color: var(--danger); }
 .fm-selection { display: flex; justify-content: space-between; gap: 8px; align-items: center; flex-wrap: wrap; padding: 10px; border: 1px solid var(--line); border-radius: 8px 8px 0 0; background: var(--paper); }
 .fm-selection > span { font-size: .8rem; overflow-wrap: anywhere; }
