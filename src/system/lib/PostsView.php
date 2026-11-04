@@ -3,20 +3,20 @@
 declare(strict_types=1);
 namespace DBLESSCMS;
 final class PostsView {
-  /** Dispatch owned friendly routes before legacy page rendering; receive store/path/base, return HTML/empty redirect or null if unowned, 404 for unavailable owned destinations. */
-  public static function dispatch(JsonStore $store,string $path,string $base): ?string {
-    $repository=new Posts($store);$registry=new Plugins($store);if(!isset($registry->all()['posts']))return null;$data=$repository->read()['data'];$enabled=isset($registry->all()['posts'])&&$registry->state('posts')['enabled'];if(!$enabled&&$data['records']===[])return null;
-    if(isset($data['routeAliases'][$path])){if(($_SERVER['REQUEST_METHOD']??'GET')!=='GET')throw new HttpError(405,'Method not allowed.','error.method');$alias=$data['routeAliases'][$path];$prefix=$alias['kind']==='search'?$data['searchPath']:PostTypes::prefix($data['types'][$alias['type']]);$destination=$prefix===null?'plugins/blog/list':($prefix===''?$data['searchPath'].'?type='.rawurlencode($alias['type']):$prefix);$query=[];foreach(['q','type','group','tags','page'] as $key)if(isset($_GET[$key])&&is_string($_GET[$key])&&strlen($_GET[$key])<=1024)$query[$key]=$_GET[$key];if($query!==[])$destination.=(str_contains($destination,'?')?'&':'?').http_build_query($query,'','&',PHP_QUERY_RFC3986);header('Location: '.rtrim($base,'/').'/'.$destination,true,301);return '';}
+  /** Serve owned friendly routes before legacy page rendering; receive store/path/base, emit trusted rendered HTML or redirect and return true, false if unowned, 404 for unavailable owned destinations. */
+  public static function dispatch(JsonStore $store,string $path,string $base): bool {
+    $repository=new Posts($store);$registry=new Plugins($store);if(!isset($registry->all()['posts']))return false;$data=$repository->read()['data'];$enabled=isset($registry->all()['posts'])&&$registry->state('posts')['enabled'];if(!$enabled&&$data['records']===[])return false;
+    if(isset($data['routeAliases'][$path])){if(($_SERVER['REQUEST_METHOD']??'GET')!=='GET')throw new HttpError(405,'Method not allowed.','error.method');$alias=$data['routeAliases'][$path];$prefix=$alias['kind']==='search'?$data['searchPath']:PostTypes::prefix($data['types'][$alias['type']]);$destination=$prefix===null?'plugins/blog/list':($prefix===''?$data['searchPath'].'?type='.rawurlencode($alias['type']):$prefix);$query=[];foreach(['q','type','group','tags','page'] as $key)if(isset($_GET[$key])&&is_string($_GET[$key])&&strlen($_GET[$key])<=1024)$query[$key]=$_GET[$key];if($query!==[])$destination.=(str_contains($destination,'?')?'&':'?').http_build_query($query,'','&',PHP_QUERY_RFC3986);header('Location: '.rtrim($base,'/').'/'.$destination,true,301);return true;}
     $archive=null;$owned=$path===$data['searchPath'];foreach($data['types'] as $type){$prefix=PostTypes::prefix($type);if($prefix!==null&&$prefix!==''){if($path===$prefix){$archive=$type['id'];$owned=true;}elseif(str_starts_with($path,$prefix.'/'))$owned=true;}}
-    if($path===$data['searchPath']||$archive!==null){if(($_SERVER['REQUEST_METHOD']??'GET')!=='GET')throw new HttpError(405,'Method not allowed.','error.method');return self::listing($store,$base,$archive);}
+    if($path===$data['searchPath']||$archive!==null){if(($_SERVER['REQUEST_METHOD']??'GET')!=='GET')throw new HttpError(405,'Method not allowed.','error.method');echo self::listing($store,$base,$archive);return true;}
     foreach($repository->records($data) as $row){$live=Posts::effective($row);$match=false;
       foreach(['draft','published','scheduled'] as $which)if($row[$which]!==null&&$path===PostTypes::route($data['types'],$row[$which]))$match=true;
       if(in_array($path,$row['aliases'],true)||($row['source']['plugin']==='pages'&&$path===$row['source']['id']))$match=true;
       if(!$match)continue;if(($_SERVER['REQUEST_METHOD']??'GET')!=='GET')throw new HttpError(405,'Method not allowed.','error.method');if($live===null||!$repository->sourceEnabled($row,$data))PostTypes::fail('missing',404);
-      $destination=$repository->url($row,$base,$live,$data);if($path!==PostTypes::route($data['types'],$live)){header('Location: '.$destination,true,301);return '';}
-      return self::document($store,$row,$live,$base);
+      $destination=$repository->url($row,$base,$live,$data);if($path!==PostTypes::route($data['types'],$live)){header('Location: '.$destination,true,301);return true;}
+      echo self::document($store,$row,$live,$base);return true;
     }
-    if($owned)PostTypes::fail('missing',404);return null;
+    if($owned)PostTypes::fail('missing',404);return false;
   }
   /** Render one authorized snapshot through native template contracts; receive store/row/snapshot/base/preview, return HTML, enforce public authorization or private authentication with no writes. */
   public static function document(JsonStore $store,array $row,array $snapshot,string $base,bool $preview=false): string {

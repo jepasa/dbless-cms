@@ -23,12 +23,7 @@ final class App {
         require $store->templates->path($site['template'],'forms',$manifest['forms']['contact']); return;
       }
       $key=strtolower(trim($_GET['content_path']??$_GET['page']??'home')); if ($key==='') $key='home';
-      $postsResponse=PostsView::dispatch($store,$key,$base);
-      if($postsResponse!==null){
-        // Reviewed HTML boundary: PostsView validates routes/snapshots; its trusted templates escape query and publication fields.
-        // nosemgrep: github.php-request-to-raw-output
-        echo $postsResponse;return;
-      }
+      if(PostsView::dispatch($store,$key,$base))return;
       if(PagePublications::identifier($key)){try{$resolved=(new PagePublications($store))->lookup($key);if($resolved!==null&&$resolved['data']['status']==='published'){$destination=(new PagePublications($store))->url($resolved['data']['slug'],$base);if(parse_url($destination,PHP_URL_PATH)!==parse_url($base.'/'.$key,PHP_URL_PATH)){header('Location: '.$destination,true,301);return;}}}catch(HttpError $failure){if($failure->status!==404)throw $failure;}}
       // Reviewed HTML boundary: render validates page data and templates escape editorial fields.
       // nosemgrep: github.php-request-to-raw-output
