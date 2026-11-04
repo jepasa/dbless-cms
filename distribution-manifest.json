@@ -2820,8 +2820,8 @@
     },
     {
       "path": "tests/cache-dashboard.test.mjs",
-      "bytes": 15770,
-      "sha256": "ee9e77237b8680a6a94d9e94c95a964354d5350411a1807e9b4c88e642720137"
+      "bytes": 15852,
+      "sha256": "32607b758d817228a3c130fff72fa7a5e28a5b579eb6db295f5126d749133e6f"
     },
     {
       "path": "tests/cache-rendering.test.mjs",
@@ -2830,8 +2830,8 @@
     },
     {
       "path": "tests/components-homepage.test.mjs",
-      "bytes": 24609,
-      "sha256": "56970a85c2f76e24fa86f822fa7d693aedc504f42c420206fdb7d7e796a66ee2"
+      "bytes": 24773,
+      "sha256": "7642b09a8e6fddba1d1bb063646738f5610a7dc34e70f59e81f35a108b315d98"
     },
     {
       "path": "tests/content-placement.test.mjs",
@@ -2955,8 +2955,8 @@
     },
     {
       "path": "tests/menu-editor.test.mjs",
-      "bytes": 4349,
-      "sha256": "57023c53564f66aad28653d2ce0dacbd9be92889309d447e45dd809ad6bfe523"
+      "bytes": 4431,
+      "sha256": "7e46d7b9a4ece0ed192aec3ce10da60b932bc0f23917b7d3dafca087e014ba2e"
     },
     {
       "path": "tests/menu-keys.test.mjs",
