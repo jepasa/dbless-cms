@@ -1,77 +1,51 @@
 {
   "language": "en",
   "title": "Menu",
-  "lead": "Create reusable navigation trees and assign them to locations supported by the active template.",
+  "lead": "Create reusable navigation trees and deliver them through portable template keys or direct Mustache data.",
   "sections": [
     {
-      "title": "Create a menu",
+      "title": "Create and edit",
+      "body": [],
       "steps": [
-        "Open Menu → New menu. Enter a descriptive name, for example “Main navigation”.",
-        "Add page links, anchors or validated URLs. Choose parent relationships to build submenus, adjust order and select whether a link opens a new tab.",
-        "Save the menu. Use Edit from Overview to change its items; only eligible public targets appear on the site. The template supplies the visual navigation style."
-      ],
-      "body": []
+        "Enter a name and stable ID. Choose the navigation type for direct Mustache data.",
+        "Add page, anchor, URL or group items. Use parents and ordering to build up to five levels; enable items and choose new-tab behavior as needed.",
+        "Save and reopen to confirm the items. Only eligible public page targets are rendered; the receiving layout controls appearance."
+      ]
     },
     {
-      "title": "Choose a location",
-      "code": "{{#menu.main.items}}<a href=\"{{href}}\">{{label}}</a>{{#children}}<a href=\"{{href}}\">{{label}}</a>{{/children}}{{/menu.main.items}}",
+      "title": "Choose a delivery channel",
+      "body": [],
       "steps": [
-        "Select Template key as the insertion method and choose a matching position from the active manifest. The menu is available only through that channel after saving.",
-        "Select Mustache key for direct menu.<id-or-slug> data without destination fields. Template assignments remain preserved but inactive.",
-        "Save and reopen to confirm the chosen mode. A site/template revision conflict requires refreshing destinations before retrying."
-      ],
-      "body": []
+        "Template key selects portable keys from installed manifests, without selecting or binding a template. Each key has its own presentation format.",
+        "Any template declaring the same typed Menu key can receive the menu, even when it maps that key to another physical location.",
+        "Mustache key exposes menu.ID-or-slug data without destination fields. Saved template keys remain inactive and preserved; template mode blocks direct ID/slug references."
+      ]
     },
     {
-      "title": "Recover changes",
+      "title": "Compatibility and safe switching",
+      "body": [],
       "steps": [
-        "Use Trash for recoverable removal and History for catalog revisions. Saves verify revisions and template state to prevent silent overwrites."
-      ],
-      "body": []
+        "Missing keys or unsupported format/depth produce an admin warning and unavailable public menu data. They do not prevent saving or produce a public compatibility error.",
+        "Unavailable keys remain editable for future templates. Claiming a key replaces its other active portable owner in the same revision-checked save; history preserves recovery.",
+        "Legacy per-template bindings are retained. Saving through this editor adopts portable keys; reads never migrate existing content."
+      ]
     },
     {
-      "title": "Full public navigation data",
-      "code": "{{#menu.main.items}}<a href=\"{{href}}\">{{label}}</a>{{#children}}<a href=\"{{href}}\">{{label}}</a>{{/children}}{{/menu.main.items}}",
+      "title": "Render the public tree",
+      "body": [],
       "steps": [
-        "menu:tree(key: active-template location key) supplies name, type and items with label, href, slug, anchor, newTab and children. Up to five item levels are declared; submenu items use the same fields. Unpublished/private page targets are omitted. menu:location remains a compatible flat-card service.",
-        "Bind menu:tree with alias navigation. Write {{#navigation.items}}<li><a href=\"{{href}}\">{{label}}</a>{{#children}}<a href=\"{{href}}\">{{label}}</a>{{/children}}</li>{{/navigation.items}} inside your own nav/ul markup. Layout and behavior belong to your template and authored HTML. Missing location assignments return an empty items list."
-      ],
-      "body": []
-    },
-    {
-      "title": "Direct plugin data and template positions",
-      "body": [
-        "Create a menu with a stable slug-shaped ID, select its navigation type and edit its items. Direct references return a tree; missing/private pages are omitted. For a hardcoded template position, assign the menu to the declared location in its editor. template.<slot> must be declared in the template manifest."
-      ],
-      "steps": [
-        "Use the stable identifier or slug without dots. Explicit id.<value> and slug.<value> selectors disambiguate reserved names.",
-        "Place named query parameters before field paths; use sections (#) and inverted sections (^) for finite iteration and empty states.",
-        "Keep presentation in the receiving layout. Template positions require manifest declarations and source-plugin assignments."
+        "Use menu.ID-or-slug.items in Mustache mode or template.key.items for a declared Menu position. Explicit id and slug selectors are also supported.",
+        "Items contain label, href, slug, anchor, newTab and children. Use finite sections and inverted sections; preserve safe link behavior and keep markup in the receiving layout."
       ],
       "code": "{{#menu.main.items}}<a href=\"{{href}}\">{{label}}</a>{{#children}}<a href=\"{{href}}\">{{label}}</a>{{/children}}{{/menu.main.items}}"
     },
     {
-      "title": "Search, sort and paginate the overview",
-      "body": [
-        "The overview uses shared CMS table controls. Search and status/type filters are at the top; Clear resets filters. Click a column heading to select ascending or descending order; the active arrow identifies the current ordering."
-      ],
+      "title": "Overview and recovery",
+      "body": [],
       "steps": [
-        "Use the icon controls and their translated tooltips. Search, clear and ordering restart at page one; page navigation preserves the selected filters and order.",
-        "All result rows and the seven-position pager scroll together with the page. The pager follows the complete table or grid without covering any result; only wide tables scroll horizontally. Ellipsis buttons open upward menus containing earlier or later pages outside the three displayed numbers. Use the keyboard or a page button to navigate.",
-        "Read the total results, displayed range/count and page totals below the pager. Unavailable directions and empty catalogs retain disabled controls."
+        "Search and clear filters with the icon controls. Column headers change ordering; the pager preserves filters and shows result/page totals.",
+        "Use Trash for recoverable removal and History to restore earlier catalogs. Concurrent changes are rejected without overwriting the saved catalog."
       ]
-    },
-    {
-      "title": "Exclusive delivery channels",
-      "steps": [
-        "Template key exposes this record only through its assigned template positions. Direct menu.<id-or-slug> references are unavailable.",
-        "Mustache key exposes typed data through menu.<id-or-slug>.<field>; render items with standard sections in the receiving layout. Template assignments are preserved but inactive.",
-        "Legacy records retain previous access until saved with an explicit mode. Review existing publications before saving the selected channel. Missing simple references appear as literal text; missing collections do not iterate."
-      ],
-      "body": [
-        "Delivery mode is stored on the record and checked by all read channels."
-      ],
-      "code": "{{#menu.navigation.items}}<a href=\"{{href}}\">{{label}}</a>{{/menu.navigation.items}}"
     }
   ]
 }

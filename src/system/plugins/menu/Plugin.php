@@ -7,7 +7,7 @@ require_once __DIR__.'/Placement.php';
 final class MenuPlugin implements PluginInterface,ContentProviderInterface,ContentOptionsInterface,ContentReferenceInterface {
   /** Resolve a menu through its allowed direct/template channel; receive selector/parameters/context, return public tree or null, omit private pages and never write. */
   public function reference(string $selector,array $parameters,ContentContext $context): ?array {
-    $navigation=new Navigation($context->store,$context->template,$context->base);if($selector==='@location')return $navigation->location($parameters['key']);$id=preg_replace('/^(?:id|slug):/','',$selector);$menu=(new MenuStore($context->store))->read()['data']['menus'][$id]??null;if($menu===null||$menu['deleted']||!ContentPlacement::allows($menu,'mustache'))return null;return ['id'=>$id,'slug'=>$id,'name'=>$menu['name'],'type'=>$menu['type']??'list','items'=>$navigation->tree($menu['items'])];
+    $navigation=new Navigation($context->store,$context->template,$context->base);if($selector==='@slot')return $navigation->slot($parameters['slot']);if($selector==='@location')return $navigation->location($parameters['key']);$id=preg_replace('/^(?:id|slug):/','',$selector);$menu=(new MenuStore($context->store))->read()['data']['menus'][$id]??null;if($menu===null||$menu['deleted']||!ContentPlacement::allows($menu,'mustache'))return null;return ['id'=>$id,'slug'=>$id,'name'=>$menu['name'],'type'=>$menu['type']??'list','items'=>$navigation->tree($menu['items'])];
   }
 
   /** List active template menu locations for the authorized picker; receive service/context, return plain key/description pairs without changing assignments. */
@@ -61,7 +61,7 @@ final class MenuPlugin implements PluginInterface,ContentProviderInterface,Conte
           catch (HttpError $error) { if ($error->status===404) throw new HttpError(422,'Página indisponível.','menu.error.page');throw $error; }
         }
         $type=array_key_exists('contentType',$_POST)?$this->input('contentType',16):($data['menus'][$id]['type']??'list');
-        $mode=array_intersect_key($data['menus'][$id]??[],['insertionMode'=>true]);
+        $mode=array_intersect_key($data['menus'][$id]??[],['insertionMode'=>true,'templateKeys'=>true]);
         $data['menus'][$id]=['type'=>$type,'id'=>$id,'name'=>$this->input('name'),'deleted'=>false,'items'=>$items]+$mode;
         $data=MenuPlacement::apply($context,$data,$id,$_POST);
       } elseif ($operation==='assign') {

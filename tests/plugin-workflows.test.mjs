@@ -34,12 +34,12 @@ for(const tree of trees)test(`${tree}: history and exclusive placement work with
     const values={revision:revision(menuFile),id:'workflow-menu',original:'',name:'Menu sintético',items:JSON.stringify([item]),placement_editor:'1',placementMode:'template',placement_template:'essencial',site_revision:revision(siteFile),'locations[]':'header-primary','locationTypes[header-primary]':'navbar'};
     assert.equal((await api('menu','editor','save',values)).status,200);menu=JSON.parse(fs.readFileSync(menuFile));assert.ok(menu.assignments.some(binding=>binding.menu==='workflow-menu'&&binding.location==='header-primary'));
     assert.match((await request('/')).body,/Fluxo de menu/);
-    const editor=await request(screen('menu','editor','workflow-menu'));assert.match(editor.body,/data-placement-location="header-primary"/);assert.doesNotMatch(editor.body,/data-placement-location="sidebar-primary"/);
+    const editor=await request(screen('menu','editor','workflow-menu'));assert.match(editor.body,/data-menu-key="primary-menu"/);assert.match(editor.body,/data-menu-key="synthetic-sidebar"/);assert.doesNotMatch(editor.body,/name="placement_template"/);
     const saved=fs.readFileSync(menuFile);assert.equal((await api('menu','editor','save',{...values,original:'workflow-menu',revision:revision(menuFile),'locations[]':'not-declared'})).status,422);assert.deepEqual(fs.readFileSync(menuFile),saved);
     assert.equal((await api('menu','editor','save',{...values,original:'workflow-menu',revision:revision(menuFile),placementMode:'mustache'})).status,422);assert.deepEqual(fs.readFileSync(menuFile),saved);
     site.template='synthetic-theme';fs.writeFileSync(siteFile,JSON.stringify(site));
     assert.equal((await api('menu','editor','save',{...values,original:'workflow-menu',revision:revision(menuFile)})).status,409);assert.deepEqual(fs.readFileSync(menuFile),saved);
-    const switched=await request(screen('menu','editor','workflow-menu'));assert.equal(switched.status,200);assert.match(switched.body,/data-placement-location="sidebar-primary"/);assert.match(switched.body,/Vínculos preservados/);
+    const switched=await request(screen('menu','editor','workflow-menu'));assert.equal(switched.status,200);assert.match(switched.body,/data-menu-key="synthetic-sidebar"/);assert.match(switched.body,/chaves portáveis/);
     const unassigned={...values,original:'workflow-menu',revision:revision(menuFile),placement_template:'synthetic-theme',site_revision:revision(siteFile)};delete unassigned['locations[]'];delete unassigned['locationTypes[header-primary]'];
     assert.equal((await api('menu','editor','save',unassigned)).status,200);assert.ok(JSON.parse(fs.readFileSync(menuFile)).assignments.some(binding=>binding.menu==='workflow-menu'&&binding.template==='essencial'));
     site.template='essencial';fs.writeFileSync(siteFile,JSON.stringify(site));

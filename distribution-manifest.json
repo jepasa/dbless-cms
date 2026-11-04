@@ -1,6 +1,6 @@
 {
   "name": "dbless-cms",
-  "version": "2.16.0",
+  "version": "2.17.0",
   "license": "Apache-2.0",
   "files": [
     {
@@ -75,8 +75,8 @@
     },
     {
       "path": "docs/components.md",
-      "bytes": 23925,
-      "sha256": "166f63cf305819edd4ebcaa17f8c118759eab54aad219aef6da4d5f561f6ca68"
+      "bytes": 25453,
+      "sha256": "537eaf096a6e587a696efab5de4ae195292bb3d0fcb7a6e32932417bf1f80d41"
     },
     {
       "path": "docs/homepage-conversion.md",
@@ -110,8 +110,8 @@
     },
     {
       "path": "docs/templates.md",
-      "bytes": 26137,
-      "sha256": "a87950d96fa8d29e153d67642ad389a4b7ba8a8f6dfafab46f8c24ceb67f220b"
+      "bytes": 26655,
+      "sha256": "a6a6bd830358c5699b36a67c6d3f2b2a18a62ea222bdc50bbb050aba916e203e"
     },
     {
       "path": "examples/hello/public_html/plugins/hello/css/hello.css",
@@ -191,12 +191,12 @@
     {
       "path": "package-lock.json",
       "bytes": 9865,
-      "sha256": "c5be362cbd58c459f93c8ad68aad745bb79fbf835cc6552209cbf0cadd511269"
+      "sha256": "1ac0065be0e0c7cebc3087d0b5b35e1b486e8ff168c0704a1354c4355bcd000a"
     },
     {
       "path": "package.json",
       "bytes": 1182,
-      "sha256": "53b4b4dc0f05a85e2126eaecaca4864949e831659602585eb3876ac54ac8e984"
+      "sha256": "4e6f94d10f0c3d7158b730508f16ff69ea2ad06e8267c8b7cb2130cf2a7b06f0"
     },
     {
       "path": "README.md",
@@ -890,8 +890,8 @@
     },
     {
       "path": "src/public_html/plugins/menu/js/menu.js",
-      "bytes": 9429,
-      "sha256": "8919700a857254ac611981b2a8a875be7d2543a79ee07c262dd3f788dcdff480"
+      "bytes": 9593,
+      "sha256": "5776ce5492422a900fc232488438a3aab69507086e8a0e8c69cd36fda2e642bc"
     },
     {
       "path": "src/public_html/plugins/menu/menu.svg",
@@ -1300,8 +1300,8 @@
     },
     {
       "path": "src/system/admin/plugin-about.php",
-      "bytes": 1399,
-      "sha256": "6ecedd0e2ecff0e935a2ae28e67836ecfbd8be9bf605252fc9d6f0d9aac2eec8"
+      "bytes": 1625,
+      "sha256": "c4211188d176f50388aec7caef3a89333a95370b7661c3043ed55f886e8a8d37"
     },
     {
       "path": "src/system/admin/plugin-options-history.php",
@@ -1406,7 +1406,7 @@
     {
       "path": "src/system/config/settings.php",
       "bytes": 480,
-      "sha256": "41598ab9d1f91468000e142dff2e8060c2bedf1618d7da651e487255167e8a2e"
+      "sha256": "632bc58ea7236002f513948d48b5bb585804b83448889e55b58ec2c4213108b6"
     },
     {
       "path": "src/system/core.php",
@@ -1425,8 +1425,8 @@
     },
     {
       "path": "src/system/lib/Admin.php",
-      "bytes": 20183,
-      "sha256": "d3e3b5acd6334da7409765651f9f3d8a105f8b4e043a880a748f3e69b79aeeaa"
+      "bytes": 20329,
+      "sha256": "fe62b3a2746cce57b4fccbdbe39287361cb6bf0d45083baeb99349b01954249f"
     },
     {
       "path": "src/system/lib/AdminTable.php",
@@ -1520,8 +1520,8 @@
     },
     {
       "path": "src/system/lib/ContentReferences.php",
-      "bytes": 12018,
-      "sha256": "dcd1b7c36a33bf9fa0faaef3c7414daeae8bb2ad4161448329ba7a33dfb5a1f7"
+      "bytes": 12281,
+      "sha256": "65d23c90136b5b82953e7d1a27cd62e22e2219cf72ff761eda5d1827ec2a69a6"
     },
     {
       "path": "src/system/lib/Dashboard.php",
@@ -1619,9 +1619,14 @@
       "sha256": "7fa68dcfad620c9f6b9df0e96ba4ac17f17b99d042f5421677220171a1f4026d"
     },
     {
+      "path": "src/system/lib/MenuKeys.php",
+      "bytes": 3555,
+      "sha256": "96f0f2ebeeca3f1a92e6b7b7287143ab28a5e952d7c16cd829d694a49ebeba70"
+    },
+    {
       "path": "src/system/lib/MenuStore.php",
-      "bytes": 12487,
-      "sha256": "3a4cd40be318a79da20f650209ab3726acf6e36a825e20cf49226d10a805cfc7"
+      "bytes": 12733,
+      "sha256": "4a0b7a4f52c2ef6bcd634948c95457e5a2e6f52b1455a9df6a581e573c3c0769"
     },
     {
       "path": "src/system/lib/Mustache.php",
@@ -1630,8 +1635,8 @@
     },
     {
       "path": "src/system/lib/Navigation.php",
-      "bytes": 5195,
-      "sha256": "e7c342b8cf9147735fcfc37a5d7840c4e76b38c176ca7b284d9af467b60c1674"
+      "bytes": 6792,
+      "sha256": "aad01a04c1ab7982e604c4d0937b070d221fecab94b924c53cbfca97166d1e49"
     },
     {
       "path": "src/system/lib/Operations.php",
@@ -1680,8 +1685,8 @@
     },
     {
       "path": "src/system/lib/PluginPresentation.php",
-      "bytes": 2217,
-      "sha256": "be10f5c6aa059ff19cf69984d9a16fa53762511e3e359d015bf4fb8e890045e6"
+      "bytes": 3093,
+      "sha256": "057c90db74621ce1611bd0a2f338efcf86e1327b515bc459398f198d16f8c7da"
     },
     {
       "path": "src/system/lib/Plugins.php",
@@ -2025,28 +2030,28 @@
     },
     {
       "path": "src/system/plugins/menu/languages/en-us.json",
-      "bytes": 4740,
-      "sha256": "5921e0509000848910be51969c6767e9d17cc2cc3ab1937e7e175d67bd3b3f85"
+      "bytes": 9058,
+      "sha256": "a571e9a5537fafb99380321236a43d9977b2d6ae43a0a56ea5a856109a5f360d"
     },
     {
       "path": "src/system/plugins/menu/languages/pt-br.json",
-      "bytes": 5173,
-      "sha256": "8a99b2f333c26733c4be3ed4761ddc21a431bc04891d1d90846c4348bc35cf72"
+      "bytes": 9992,
+      "sha256": "e6e0cae9c4d776939ae7fe55687d4630cff37cca86e4c6014f16f95b59c4fcad"
     },
     {
       "path": "src/system/plugins/menu/pages/placement.php",
-      "bytes": 3056,
-      "sha256": "d5dca34b9e04ad61f24532bd5025914c63f76961b1dad7a4a9b2eb34f6a816ee"
+      "bytes": 2741,
+      "sha256": "e50d3f9bd06b3bedcbf773f794f6c7da7d696856b4208be29e019f53298e4169"
     },
     {
       "path": "src/system/plugins/menu/pages/workspace.php",
-      "bytes": 9550,
-      "sha256": "7e94ec8e640c4eee29ed84db601015732cf8c42750f57261afab8b0540c68cd8"
+      "bytes": 10101,
+      "sha256": "e4745acc56158d7e61ec0989c0745c8048ce2e397a90edbfc0bd77cbf975ef96"
     },
     {
       "path": "src/system/plugins/menu/Placement.php",
-      "bytes": 3663,
-      "sha256": "a6ebf5e83cbab4f6c1063b70dccee9696fb2afd07684d8e109d45d6316dec678"
+      "bytes": 7892,
+      "sha256": "db003c422d267e90035c6b9bfac9a0bba41fa9a7a322a213c612552999279919"
     },
     {
       "path": "src/system/plugins/menu/plugin.json",
@@ -2055,13 +2060,13 @@
     },
     {
       "path": "src/system/plugins/menu/Plugin.php",
-      "bytes": 7707,
-      "sha256": "82e853a0bbed063d6e4b356b0e954de4d75dbc3c4bec3a3135157c863dfd13f0"
+      "bytes": 7797,
+      "sha256": "97b955df6b7889055a374c38c8ba9b7a5647f86e059652f416def6630cdbee03"
     },
     {
       "path": "src/system/plugins/menu/presentation.json",
-      "bytes": 5440,
-      "sha256": "25a29158143520dc62187328f778be223ed4bfc72db7ed6720e9cfa3f0f8d9d0"
+      "bytes": 2829,
+      "sha256": "5cb0d042e395155c4b378dabc93a4cfcd38ea7ebf36eec238eabbcae5e2ae09b"
     },
     {
       "path": "src/system/plugins/menu/Router.php",
@@ -2590,8 +2595,8 @@
     },
     {
       "path": "tests/browser/content-placement.mjs",
-      "bytes": 7727,
-      "sha256": "d281db83fa885216fdb3870458e18e330ebf6eab07309990e77b5d42d2e121d0"
+      "bytes": 7895,
+      "sha256": "a87fe504ad8eaf07c16902f0b88f5fd2ed69701ed419daae5b0485dbe9762e8a"
     },
     {
       "path": "tests/browser/core-editor.mjs",
@@ -2647,6 +2652,11 @@
       "path": "tests/browser/images-explorer.mjs",
       "bytes": 13350,
       "sha256": "f4d485dc31dbf220aa8629aa77dd7d93c38b5ecf005ac9f83c328dced7acb65f"
+    },
+    {
+      "path": "tests/browser/menu-keys.mjs",
+      "bytes": 8319,
+      "sha256": "cc2f564d197c2eccf2d09dde79103871a0fadda8373e63d6dec530c6840a31e4"
     },
     {
       "path": "tests/browser/overview-tables.mjs",
@@ -2824,6 +2834,11 @@
       "sha256": "5357e0f483d8f051c21247fd7a610de23ba4883bff71143ad2f48aaa7ae4de2a"
     },
     {
+      "path": "tests/menu-keys.test.mjs",
+      "bytes": 7788,
+      "sha256": "784e5e27bbc6cabe1efc52570f402b59799506c203cf501015b65ba0cdcc4453"
+    },
+    {
       "path": "tests/overview-tables.test.mjs",
       "bytes": 5805,
       "sha256": "9166fed8922671b9af11d060b8d97630ec40fef8cec3d5f6bbedffe667d73b85"
@@ -2860,8 +2875,8 @@
     },
     {
       "path": "tests/plugin-workflows.test.mjs",
-      "bytes": 10462,
-      "sha256": "d81a014707527844c410beebd637b696ac8a53ccec88fa761d85fdc164024b58"
+      "bytes": 10484,
+      "sha256": "f7bfe90f0af2fd72f9b9c0d0f9084a6d9394e787399b116b2b68b8d647a7bd99"
     },
     {
       "path": "tests/privacy-forms.test.mjs",
