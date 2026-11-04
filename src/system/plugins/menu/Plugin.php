@@ -34,7 +34,7 @@ final class MenuPlugin implements PluginInterface,ContentProviderInterface,Conte
     if (!is_string($value)||strlen($value)>$limit) throw new HttpError(422,'Campo inválido.','menu.error.contract');
     return $value;
   }
-  /** Executa mutação POST autorizada pelo núcleo; recebe contexto/operação, retorna revisão/destino local; falhas preservam revisão e conteúdo. */
+  /** Executa mutação POST autorizada pelo núcleo; recebe contexto/operação, retorna revisão/destino local; falhas preservam revisão e conteúdo; novos artigos exigem referência pública, os indisponíveis já salvos são preservados. */
   public function api(PluginContext $context,string $operation): ?array {
     if (($_SERVER['REQUEST_METHOD']??'GET')!=='POST') throw new HttpError(405,'Método inválido.','error.method');
     $revision=$this->input('revision',128);$menus=new MenuStore($context->store);$route=$context->route;
@@ -59,6 +59,11 @@ final class MenuPlugin implements PluginInterface,ContentProviderInterface,Conte
         foreach ($items as $item) if (in_array($item['kind'],['page','anchor'],true)) {
           try { $context->store->read($item['page']); }
           catch (HttpError $error) { if ($error->status===404) throw new HttpError(422,'Página indisponível.','menu.error.page');throw $error; }
+        }
+        $targets=new MenuTargets(new ContentContext($context->store,$context->store->read('site')['data']['template'],$context->base,'home'));
+        foreach($items as $item)if($item['kind']==='post'){
+          $preserved=false;foreach($data['menus'][$id]['items']??[] as $saved)if($saved['id']===$item['id']&&$saved['kind']==='post'&&$saved['page']===$item['page']){$preserved=true;break;}
+          if(!$preserved&&$targets->post($item['page'])===null)throw new HttpError(422,'Post unavailable.','menu.error.post');
         }
         $type=array_key_exists('contentType',$_POST)?$this->input('contentType',16):($data['menus'][$id]['type']??'list');
         $mode=array_intersect_key($data['menus'][$id]??[],['insertionMode'=>true,'templateKeys'=>true]);

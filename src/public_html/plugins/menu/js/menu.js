@@ -1,92 +1,105 @@
-/** Editor Menu: árvore por dados, ordenação acessível/arraste e formulários autenticados com preservação de erros. */
+/** Menu authoring: classic source/structure workspace, bounded whole-branch moves, accessible cards and automatic data references; saves remain POST/CAS. */
 (() => {
   'use strict';
   const root=document.querySelector('[data-menu-plugin]');if(!root)return;
   const status=root.querySelector('[data-menu-status]'),editor=root.querySelector('[data-menu-editor]');
-  /** Exibe falha como texto; recebe mensagem, sem HTML nem alteração do documento submetido. */
-  function failure(message) {status.textContent=message;status.hidden=false;status.scrollIntoView({block:'nearest'});}
-  if(editor) {
-    const placement=editor.querySelector('[data-menu-placement]'),mode=placement.querySelector('[data-placement-mode]');
-    /** Toggle portable key fields and empty-selection notice; receive no parameters, preserve selections, perform no writes. */
-    function updatePlacement(){
-      const template=mode.value==='template';placement.querySelector('[data-template-positions]').hidden=!template;
-      for(const row of placement.querySelectorAll('[data-menu-key]'))row.disabled=!template;
-      placement.querySelector('[data-menu-keys-empty]').hidden=!!placement.querySelector('input[name="keys[]"]:checked');
-    }
-    mode.addEventListener('change',updatePlacement);placement.addEventListener('change',updatePlacement);updatePlacement();
-    const labels=JSON.parse(editor.dataset.messages),pages=JSON.parse(editor.dataset.pages),list=editor.querySelector('[data-menu-items]');
-    let items=JSON.parse(editor.dataset.state),dragged='';
-    /** Traduz controle hardcoded do editor; recebe chave, retorna texto do catálogo administrativo. */
-    function t(key) {return labels['menu.'+key]||key;}
-    /** Cria nó com texto seguro; recebe tag/texto/classe, retorna elemento sem inseri-lo. */
-    function element(tag,text='',className='') {const node=document.createElement(tag);node.textContent=text;if(className)node.className=className;return node;}
-    /** Sincroniza somente o payload JSON; sem argumentos, não envia requisição. */
-    function synchronize() {editor.elements.namedItem('items').value=JSON.stringify(items);}
-    /** Identifica descendência com limite; recebe item/ancestral e retorna bool sem alterar itens. */
-    function descendant(item,ancestor) {let parent=item.parent;for(let count=0;parent&&count<100;count++){if(parent===ancestor)return true;parent=items.find(node=>node.id===parent)?.parent||'';}return false;}
-    /** Reordena irmãos sem alterar descendentes; recebe ID/deslocamento, redesenha e recupera foco do botão. */
-    function move(id,offset) {
-      const item=items.find(node=>node.id===id),siblings=items.filter(node=>node.parent===item.parent),other=siblings[siblings.indexOf(item)+offset];if(!other)return;
-      const a=items.indexOf(item),b=items.indexOf(other);[items[a],items[b]]=[items[b],items[a]];render(id,offset<0?'up':'down');
-    }
-    /** Cria botão de operação acessível; recebe rótulo/ação/callback, retorna botão sem submeter formulário. */
-    function button(key,action,callback) {const node=element('button',t(key),'button-secondary');node.type='button';node.dataset.itemAction=action;node.title=t(key);node.addEventListener('click',callback);return node;}
-    /** Monta campo de item; recebe container/item/chave/tipo/opções; retorna controle associado e atualiza apenas o modelo em input. */
-    function field(container,item,key,type='text',options=null) {
-      const label=element('label',t(key)),control=element(options?'select':'input');control.id='menu-'+item.id+'-'+key;label.htmlFor=control.id;control.dataset.itemField=key;
-      if(options)for(const [value,text] of options){const option=element('option',text);option.value=value;control.append(option);}
-      else control.type=type;
+  /** Show a plain error and focus its live region; receive message, preserve all editorial buffers without requests. */
+  function failure(message){status.textContent=message;status.hidden=false;status.scrollIntoView({block:'nearest'});}
+  if(editor){
+    const messages=JSON.parse(editor.dataset.messages),icons=JSON.parse(editor.dataset.icons),pages=JSON.parse(editor.dataset.pages),posts=JSON.parse(editor.dataset.posts),list=editor.querySelector('[data-menu-items]'),placement=editor.querySelector('[data-menu-placement]'),mode=placement.querySelector('[data-placement-mode]'),dialog=editor.querySelector('[data-remove-dialog]');
+    let items=JSON.parse(editor.dataset.state),dragged='',dragX=0,removing='',dirty=false,submitting=false,manualId=!!editor.elements.id.value;
+    const expanded=new Set(),sources={page:pages,post:posts};
+    /** Translate fixed controls with named parameters; receive key/values, return dictionary text without HTML. */
+    function t(key,values={}){return Object.entries(values).reduce((text,[name,value])=>text.replaceAll('{'+name+'}',String(value)),messages['menu.'+key]||key);}
+    /** Create a safe detached element; receive tag/text/class, return node without interpreting authorial HTML. */
+    function element(tag,text='',className=''){const node=document.createElement(tag);node.textContent=text;if(className)node.className=className;return node;}
+    /** Build an icon-only local action; receive title/icon/action/callback, return button with localized accessible name. */
+    function button(key,icon,action,callback){const node=element('button','','icon-button');node.type='button';node.title=t(key);node.setAttribute('aria-label',t(key));node.dataset.itemAction=action;const image=element('img','','admin-icon');image.src=icons[icon];image.alt='';image.width=24;image.height=24;image.setAttribute('aria-hidden','true');node.append(image);node.addEventListener('click',callback);return node;}
+    /** Mark unsaved state after user changes; no parameters/return, leave saved data untouched. */
+    function changed(){dirty=true;editor.querySelector('[data-menu-dirty]').textContent=t('unsaved');}
+    /** Update finite examples from stable identity or selected declared keys; no parameters, no binding registration or execution. */
+    function references(){const keys=mode.value==='template'?[...placement.querySelectorAll('input[name="keys[]"]:checked')].map(node=>'template.'+node.value):['menu.'+(['id','slug'].includes(editor.elements.id.value)?'id.':'')+(editor.elements.id.value||'ID')];editor.querySelector('[data-menu-reference]').textContent=keys.map(key=>'{{#'+key+'.items}}\n  {{#href}}{{#newTab}}<a href="{{href}}" target="_blank" rel="noopener noreferrer">{{label}}</a>{{/newTab}}{{^newTab}}<a href="{{href}}" rel="noopener noreferrer">{{label}}</a>{{/newTab}}{{/href}}\n  {{^href}}<span>{{label}}</span>{{/href}}\n  {{#children}}\n    {{#href}}{{#newTab}}<a href="{{href}}" target="_blank" rel="noopener noreferrer">{{label}}</a>{{/newTab}}{{^newTab}}<a href="{{href}}" rel="noopener noreferrer">{{label}}</a>{{/newTab}}{{/href}}\n    {{^href}}<span>{{label}}</span>{{/href}}\n  {{/children}}\n{{/'+key+'.items}}').join('\n\n');}
+    /** Toggle the preserved channel fields and examples; receive no input, perform no persistence. */
+    function updatePlacement(){const template=mode.value==='template';placement.querySelector('[data-template-positions]').hidden=!template;for(const row of placement.querySelectorAll('[data-menu-key]'))row.disabled=!template;placement.querySelector('[data-menu-keys-empty]').hidden=!!placement.querySelector('input[name="keys[]"]:checked');references();}
+    placement.addEventListener('change',updatePlacement);updatePlacement();editor.elements.id.addEventListener('input',()=>{manualId=true;references();});
+    editor.elements.name.addEventListener('input',()=>{if(!manualId&&!editor.elements.original.value){editor.elements.id.value=editor.elements.name.value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^[^a-z]+/,'').replace(/-+$/,'').slice(0,48);references();}});
+    editor.addEventListener('input',event=>{if(!event.target.closest('.menu-sources,[data-remove-dialog]'))changed();});editor.addEventListener('change',event=>{if(!event.target.closest('.menu-sources,[data-remove-dialog]'))changed();});
+    window.addEventListener('beforeunload',event=>{if(dirty&&!submitting){event.preventDefault();event.returnValue='';}});
+    const menuSwitch=root.querySelector('[data-menu-switch]'),currentMenu=menuSwitch.value;
+    menuSwitch.addEventListener('change',event=>{if(dirty&&!window.confirm(t('discardChanges'))){event.target.value=currentMenu;return;}submitting=true;location.assign(event.target.value);});
+    /** Test ancestry in the bounded flat model; receive node/ancestor ID, return boolean without mutation. */
+    function descendant(node,id){let parent=node.parent;for(let n=0;parent&&n<100;n++){if(parent===id)return true;parent=items.find(row=>row.id===parent)?.parent||'';}return false;}
+    /** Compute a node's zero-based depth; receive ID, return bounded depth or 100 for a cycle/missing parent. */
+    function depth(id){let node=items.find(row=>row.id===id),value=0;const seen=new Set();while(node?.parent){if(seen.has(node.id))return 100;seen.add(node.id);node=items.find(row=>row.id===node.parent);if(!node)return 100;value++;}return value;}
+    /** Compute relative branch height; receive ancestor ID, return maximum relative descendant depth without changing order. */
+    function height(id){return Math.max(0,...items.filter(node=>descendant(node,id)).map(node=>depth(node.id)-depth(id)));}
+    /** Canonicalize preorder while preserving sibling order; no parameters, update only the in-memory list. */
+    function normalize(){const sorted=[];/** Append each validated branch in sibling order; receive parent ID, update only the local preorder buffer. */function branch(parent){for(const node of items.filter(row=>row.parent===parent)){sorted.push(node);branch(node.id);}}branch('');items=sorted;}
+    /** Synchronize the submitted JSON and empty-state message; receive no parameters, never write storage. */
+    function synchronize(){editor.elements.items.value=JSON.stringify(items);editor.querySelector('[data-menu-empty]').hidden=items.length>0;}
+    /** Announce the completed hierarchy action; receive item, update only the accessible live region. */
+    function announce(item){editor.querySelector('[data-menu-announcement]').textContent=t('moved',{label:item.label,level:depth(item.id)+1});}
+    /** Move a complete branch around another branch; receive IDs/after flag/new parent, reject invalid depth/cycles and preserve descendants. */
+    function relocate(id,targetId,after,parent){const item=items.find(node=>node.id===id),target=items.find(node=>node.id===targetId);if(!item||!target||id===targetId||descendant(target,id)||parent===id||items.some(node=>node.id===parent&&descendant(node,id))||(parent?depth(parent)+1:0)+height(id)>4)return false;const moving=items.filter(node=>node.id===id||descendant(node,id));items=items.filter(node=>!moving.includes(node));let index=items.indexOf(target);if(after){index++;while(index<items.length&&descendant(items[index],target.id))index++;}item.parent=parent;items.splice(index,0,...moving);normalize();changed();render(id,'drag');announce(item);return true;}
+    /** Move a branch among siblings; receive ID/direction, preserve its subtree and focus. */
+    function move(id,offset){const item=items.find(node=>node.id===id),siblings=items.filter(node=>node.parent===item.parent),other=siblings[siblings.indexOf(item)+offset];if(other&&relocate(id,other.id,offset>0,item.parent))focus(id,offset<0?'up':'down');}
+    /** Reparent a complete branch as the last child or after its former parent; receive ID/parent, reject cycles/depth and preserve data. */
+    function reparent(id,parent){const item=items.find(node=>node.id===id);if(!item||parent===item.parent)return;const target=parent||item.parent;if(!target)return;if(relocate(id,target,true,parent))focus(id,'parent');}
+    /** Focus an available action/field in the named card; receive ID/action, fall back to its collapse control. */
+    function focus(id,action){const card=list.querySelector('[data-item-id="'+id+'"]');(card?.querySelector('[data-item-action="'+action+'"]:not(:disabled),[data-item-field="'+action+'"]')||card?.querySelector('[data-item-action="expand"]'))?.focus();}
+    /** Create an item field with safe labels and preserved unavailable choices; receive container/item/key/options/type, return control updating only memory. */
+    function field(container,item,key,options=null,type='text'){
+      const label=element('label',t(key==='page'&&item.kind==='post'?'post':key)),control=element(options?'select':'input');control.id='menu-'+item.id+'-'+key;label.htmlFor=control.id;control.dataset.itemField=key;
+      if(options){if(!options.some(([value])=>value===item[key]))options.push([item[key],item[key]+' — '+t('unavailableTarget')]);for(const [value,text] of options){const option=element('option',text);option.value=value;control.append(option);}}else{control.type=type==='url'?'text':type;if(type==='url')control.inputMode='url';control.maxLength=key==='url'?2048:key==='anchor'?100:160;}
       if(type==='checkbox')control.checked=item[key];else control.value=item[key];
-      if(type==='text'){control.maxLength=key==='url'?2048:key==='anchor'?100:160;control.required=key!=='parent';}
-      control.addEventListener('input',()=>{item[key]=type==='checkbox'?control.checked:control.value;synchronize();if(key==='label')container.closest('fieldset').querySelector('legend').textContent=item.label||t('items');});
-      label.append(control);container.append(label);return control;
+      control.addEventListener(options?'change':'input',()=>{if(key==='parent'){reparent(item.id,control.value);return;}item[key]=type==='checkbox'?control.checked:control.value;if(key==='kind'){item.page=['page','anchor','post'].includes(item.kind)?Object.keys(item.kind==='post'?posts:pages)[0]||'':'';item.anchor='';item.url='';render(item.id,'kind');}else{if(key==='label')container.closest('[data-item-id]').querySelector('[data-item-title]').textContent=item.label||t('items');synchronize();}changed();});label.append(control);container.append(label);return control;
     }
-    /** Reconstrói árvore visível sem innerHTML; recebe foco opcional, preserva dados e desabilita ações inviáveis. */
-    function render(focusId='',action='') {
-      list.replaceChildren();
-      /** Insere ramo por parent; recebe ID/profundidade, cria campos e controles dos descendentes em ordem. */
-      function branch(parent='',depth=0) {
-        const siblings=items.filter(node=>node.parent===parent);
-        for(const [position,item] of siblings.entries()) {
-          const card=element('fieldset','','menu-item');card.dataset.itemId=item.id;card.dataset.depth=String(depth);card.append(element('legend',item.label||t('items')));
-          const toolbar=element('div','','menu-item-toolbar'),handle=button('drag','drag',()=>{});handle.draggable=true;
-          handle.addEventListener('dragstart',event=>{dragged=item.id;event.dataTransfer.setData('text/plain',item.id);event.dataTransfer.effectAllowed='move';});
-          card.addEventListener('dragover',event=>{if(dragged&&dragged!==item.id&&items.find(node=>node.id===dragged)?.parent===item.parent)event.preventDefault();});
-          card.addEventListener('drop',event=>{event.preventDefault();const from=items.findIndex(node=>node.id===dragged),to=items.indexOf(item);if(from>=0&&items[from].parent===item.parent){const [moved]=items.splice(from,1);items.splice(to,0,moved);render(moved.id,'drag');}dragged='';});
-          handle.addEventListener('dragend',()=>{dragged='';});toolbar.append(handle);
-          const up=button('up','up',()=>move(item.id,-1)),down=button('down','down',()=>move(item.id,1));up.disabled=position===0;down.disabled=position===siblings.length-1;toolbar.append(up,down);
-          const indent=button('indent','indent',()=>{item.parent=siblings[position-1].id;render(item.id,'outdent');});indent.disabled=position===0||depth>=4||items.some(node=>descendant(node,item.id));
-          const outdent=button('outdent','outdent',()=>{item.parent=items.find(node=>node.id===parent)?.parent||'';render(item.id,'indent');});outdent.disabled=!parent;toolbar.append(indent,outdent);
-          toolbar.append(button('remove','remove',()=>{items=items.filter(node=>node.id!==item.id&&!descendant(node,item.id));render();editor.querySelector('[data-add-item]').focus();}));card.append(toolbar);
-          const fields=element('div','','field-grid');field(fields,item,'label');
-          const kind=field(fields,item,'kind','text',['page','anchor','url','group'].map(value=>[value,t(value)]));
-          kind.addEventListener('change',()=>{item.page=['page','anchor'].includes(item.kind)?Object.keys(pages).find(value=>value!=='404')||'home':'';item.anchor='';item.url='';render(item.id,'kind');});
-          const parents=[['',t('root')],...items.filter(node=>node.id!==item.id&&!descendant(node,item.id)).map(node=>[node.id,node.label||node.id])];
-          const parentField=field(fields,item,'parent','text',parents);parentField.addEventListener('change',()=>render(item.id,'parent'));
-          if(['page','anchor'].includes(item.kind))field(fields,item,'page','text',Object.entries(pages).filter(([slug])=>slug!=='404'));
-          if(item.kind==='anchor')field(fields,item,'anchor');if(item.kind==='url')field(fields,item,'url');
-          field(fields,item,'enabled','checkbox');field(fields,item,'newTab','checkbox');card.append(fields);list.append(card);branch(item.id,depth+1);
-        }
-      }
-      branch();synchronize();
-      if(focusId){const card=list.querySelector('[data-item-id="'+focusId+'"]');const target=card?.querySelector('[data-item-action="'+action+'"]:not(:disabled),[data-item-field="'+action+'"]')||card?.querySelector('[data-item-field="label"]');if(target)target.focus();}
+    /** Open a removal choice for parents, or remove one leaf; receive ID, preserve state until explicit confirmation. */
+    function remove(id){if(items.some(node=>node.parent===id)){removing=id;dialog.showModal();dialog.querySelector('[data-remove-cancel]').focus();}else finishRemoval(id,false);}
+    /** Delete branch or promote direct children in place; receive ID/promotion flag, update only editor and restore usable focus. */
+    function finishRemoval(id,promote){const item=items.find(node=>node.id===id);if(promote){for(const node of items)if(node.parent===id)node.parent=item.parent;items=items.filter(node=>node.id!==id);}else items=items.filter(node=>node.id!==id&&!descendant(node,id));expanded.delete(id);normalize();changed();render();editor.querySelector('[data-add-item]').focus();}
+    dialog.querySelector('[data-remove-confirm]').addEventListener('click',()=>{finishRemoval(removing,dialog.querySelector('[value=promote]').checked);dialog.close();});dialog.querySelector('[data-remove-cancel]').addEventListener('click',()=>dialog.close());dialog.addEventListener('close',()=>focus(removing,'remove'));
+    /** Clear all drop indicators; no parameters/return, leaves model unchanged. */
+    function clearDrop(){for(const card of list.children){delete card.dataset.drop;delete card.dataset.dropDepth;}}
+    /** Rebuild collapsed cards from preorder; receive optional focus ID/action, preserve expanded fields and selection buffers. */
+    function render(focusId='',action=''){
+      normalize();list.replaceChildren();
+      for(const item of items){const level=depth(item.id),siblings=items.filter(node=>node.parent===item.parent),position=siblings.indexOf(item),card=element('section','','menu-item');card.dataset.itemId=item.id;card.dataset.depth=String(level);
+        const header=element('div','','menu-item-header'),handle=button('drag','drag','drag',()=>{});handle.draggable=true;header.append(handle);
+        const toggle=button('expandItem','expand','expand',()=>{if(expanded.has(item.id))expanded.delete(item.id);else expanded.add(item.id);render(item.id,'expand');});toggle.classList.add('menu-item-toggle');toggle.setAttribute('aria-expanded',String(expanded.has(item.id)));toggle.setAttribute('aria-controls','menu-body-'+item.id);const title=element('strong',item.label||t('items'));title.dataset.itemTitle='';toggle.prepend(title);header.append(toggle,element('span',t(item.kind),'menu-item-kind'));
+        const actions=element('div','','menu-item-toolbar'),up=button('up','up','up',()=>move(item.id,-1)),down=button('down','down','down',()=>move(item.id,1)),indent=button('indent','indent','indent',()=>reparent(item.id,siblings[position-1].id)),outdent=button('outdent','outdent','outdent',()=>reparent(item.id,items.find(node=>node.id===item.parent)?.parent||''));up.disabled=position===0;down.disabled=position===siblings.length-1;indent.disabled=position===0||level+1+height(item.id)>4;outdent.disabled=!item.parent;actions.append(up,down,indent,outdent,button('remove','remove','remove',()=>remove(item.id)));header.append(actions);card.append(header);
+        const body=element('div','','menu-item-fields field-grid');body.id='menu-body-'+item.id;body.hidden=!expanded.has(item.id);field(body,item,'label');field(body,item,'kind',['page','post','anchor','url','group'].map(value=>[value,t(value)]));field(body,item,'parent',[['',t('root')],...items.filter(node=>node.id!==item.id&&!descendant(node,item.id)&&depth(node.id)+1+height(item.id)<=4).map(node=>[node.id,node.label||node.id])]);
+        if(['page','anchor','post'].includes(item.kind))field(body,item,'page',Object.entries(item.kind==='post'?posts:pages).map(([id,value])=>[id,typeof value==='string'?value:value.name]));if(item.kind==='anchor')field(body,item,'anchor');if(item.kind==='url')field(body,item,'url',null,'url');field(body,item,'enabled',null,'checkbox');field(body,item,'newTab',null,'checkbox');card.append(body);list.append(card);
+        handle.addEventListener('dragstart',event=>{dragged=item.id;dragX=event.clientX;event.dataTransfer.setData('text/plain',item.id);event.dataTransfer.effectAllowed='move';});
+        card.addEventListener('dragover',event=>{if(!dragged||dragged===item.id||descendant(item,dragged))return;event.preventDefault();clearDrop();const rect=header.getBoundingClientRect();card.dataset.drop=event.clientY>rect.top+rect.height/2?'after':'before';card.dataset.dropDepth=String(Math.max(0,Math.min(level+Math.round((event.clientX-dragX)/28),4-height(dragged))));});
+        card.addEventListener('drop',event=>{event.preventDefault();const after=card.dataset.drop==='after',requested=Number(card.dataset.dropDepth??level);let parent=item.parent;if(requested>level){parent=item.id;}else if(requested<level){while(parent&&depth(parent)>=requested)parent=items.find(node=>node.id===parent)?.parent||'';}relocate(dragged,item.id,requested>level||after,parent);dragged='';clearDrop();});handle.addEventListener('dragend',()=>{dragged='';clearDrop();});
+      }synchronize();if(focusId)focus(focusId,action);
     }
-    /** Cria link sem nova aba por padrão; sem parâmetros/retorno, atualiza o editor ou informa o limite de 100 itens. */
-    editor.querySelector('[data-add-item]').addEventListener('click',()=>{
-      if(items.length>=100){failure(t('error.contract'));return;}
-      const id='item-'+crypto.randomUUID().slice(0,12);items.push({id,parent:'',label:'',kind:'page',page:Object.keys(pages).find(slug=>slug!=='404')||'home',anchor:'',url:'',enabled:true,newTab:false});render(id,'label');
-    });
-    render();
+    /** Append complete validated additions without partial overflow; receive items, update memory, focus last new card and announce count. */
+    function add(entries){if(items.length+entries.length>100){failure(t('error.limit'));return false;}items.push(...entries);if(entries.length){expanded.add(entries.at(-1).id);changed();render(entries.at(-1).id,'label');editor.querySelector('[data-menu-announcement]').textContent=t('added',{count:entries.length});}return true;}
+    /** Construct a new local target; receive kind/ID/label, return a complete flat-contract item with opaque unique ID. */
+    function newItem(kind='page',page=Object.keys(pages)[0]||'',label=''){return {id:'item-'+crypto.randomUUID().slice(0,12),parent:'',label,kind,page,anchor:'',url:'',enabled:true,newTab:false};}
+    editor.querySelector('[data-add-item]').addEventListener('click',()=>add([newItem()]));
+    for(const panel of editor.querySelectorAll('[data-source]')){
+      const kind=panel.dataset.source,search=panel.querySelector('[data-source-search]'),options=panel.querySelector('[data-source-options]'),selected=new Set();let sourcePage=0;
+      /** Filter and page the published source chooser; no parameters, preserve selections across pages/search and never fetch private targets. */
+      function choices(){const rows=Object.entries(sources[kind]).filter(([id,value])=>(id+' '+(value.name||value)).toLocaleLowerCase().includes(search.value.toLocaleLowerCase())),size=25,pagesCount=Math.max(1,Math.ceil(rows.length/size));sourcePage=Math.min(sourcePage,pagesCount-1);options.replaceChildren();for(const [id,value] of rows.slice(sourcePage*size,(sourcePage+1)*size)){const label=element('label','','menu-source-choice'),checkbox=element('input');checkbox.type='checkbox';checkbox.value=id;checkbox.checked=selected.has(id);checkbox.addEventListener('change',()=>{if(checkbox.checked)selected.add(id);else selected.delete(id);count();});label.append(checkbox,element('span',value.name||value));options.append(label);}if(!rows.length)options.append(element('p',t('noSources'),'muted'));if(pagesCount>1){const pager=element('div','','row-actions'),previous=button('sourcePrevious','outdent','source-previous',()=>{sourcePage--;choices();}),next=button('sourceNext','indent','source-next',()=>{sourcePage++;choices();});previous.disabled=sourcePage===0;next.disabled=sourcePage===pagesCount-1;pager.append(previous,element('span',t('sourcePage',{page:sourcePage+1,pages:pagesCount})),next);options.append(pager);}count();}
+      /** Update selected source count; no parameters/return, no editorial changes. */
+      function count(){panel.querySelector('[data-source-count]').textContent=t('selected',{count:selected.size});panel.querySelector('[data-add-selected]').disabled=selected.size===0;}
+      search.addEventListener('input',()=>{sourcePage=0;choices();});panel.querySelector('[data-add-selected]').addEventListener('click',()=>{if(add([...selected].map(id=>newItem(kind,id,sources[kind][id].name||sources[kind][id])))){selected.clear();choices();}});choices();
+    }
+    const custom=editor.querySelector('[data-source-custom]'),customKind=custom.querySelector('[data-custom-kind]');
+    /** Toggle the three custom target fields without discarding their input; no parameters/return or persistence. */
+    function customFields(){for(const key of ['url','page','anchor'])custom.querySelector('[data-custom-'+key+'-label]').hidden=key==='url'?customKind.value!=='url':customKind.value!=='anchor';}
+    customKind.addEventListener('change',customFields);customFields();custom.querySelector('[data-add-custom]').addEventListener('click',()=>{const kind=customKind.value,label=custom.querySelector('[data-custom-label]'),item=newItem(kind,kind==='anchor'?custom.querySelector('[data-custom-page]').value:'',label.value);item.url=kind==='url'?custom.querySelector('[data-custom-url]').value:'';item.anchor=kind==='anchor'?custom.querySelector('[data-custom-anchor]').value:'';if(!valid(item)){failure(t('error.contract'));return;}if(add([item])){label.value='';custom.querySelector('[data-custom-url]').value='';custom.querySelector('[data-custom-anchor]').value='';}});
+    editor.querySelector('[data-copy-reference]').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(editor.querySelector('[data-menu-reference]').textContent);editor.querySelector('[data-menu-announcement]').textContent=t('copied');}catch{failure(t('copyFailed'));}});
+    /** Check editable label/target before submission; receive item, return bool, leaving authoritative URL/hierarchy checks to PHP. */
+    function valid(item){return item.label.trim()!==''&&(!['page','post','anchor'].includes(item.kind)||item.page!=='')&&(item.kind!=='anchor'||/^[A-Za-z][A-Za-z0-9_-]{0,99}$/.test(item.anchor))&&(item.kind!=='url'||/^(?:https?:\/\/|mailto:|tel:)/i.test(item.url));}
+    editor.addEventListener('submit',event=>{const invalid=items.find(item=>!valid(item));if(invalid){event.preventDefault();expanded.add(invalid.id);render(invalid.id,'label');failure(t('error.contract'));return;}synchronize();submitting=true;});
+    editor.addEventListener('menu-save-failed',()=>{submitting=false;});render();
   }
   for(const form of root.querySelectorAll('[data-menu-form]'))form.addEventListener('submit',async event=>{
-    if(event.defaultPrevented)return;event.preventDefault();status.hidden=true;
-    const buttons=[...form.querySelectorAll('button')],disabled=buttons.map(button=>button.disabled),payload=new FormData(form);buttons.forEach(button=>{button.disabled=true;});
-    try {
-      const response=await fetch(form.getAttribute('action'),{method:'POST',body:payload,credentials:'same-origin',headers:{Accept:'application/json'}});
-      if(!response.headers.get('content-type')?.includes('application/json'))throw new Error(root.dataset.networkError);
-      const result=await response.json();
-      if(!response.ok)throw new Error(result.error||root.dataset.networkError);
-      const destination=new URL(result.redirect,location.href);if(destination.origin!==location.origin)throw new Error(root.dataset.networkError);location.assign(destination.href);
-    } catch(error){failure(error instanceof Error?error.message:root.dataset.networkError);buttons.forEach((button,index)=>{button.disabled=disabled[index];});}
+    if(event.defaultPrevented)return;event.preventDefault();status.hidden=true;const buttons=[...form.querySelectorAll('button')],disabled=buttons.map(button=>button.disabled),payload=new FormData(form);buttons.forEach(button=>{button.disabled=true;});
+    try{const response=await fetch(form.getAttribute('action'),{method:'POST',body:payload,credentials:'same-origin',headers:{Accept:'application/json'}});if(!response.headers.get('content-type')?.includes('application/json'))throw new Error(root.dataset.networkError);const result=await response.json();if(!response.ok)throw new Error(result.error||root.dataset.networkError);const destination=new URL(result.redirect,location.href);if(destination.origin!==location.origin)throw new Error(root.dataset.networkError);location.assign(destination.href);}catch(error){failure(error.message||root.dataset.networkError);buttons.forEach((button,index)=>{button.disabled=disabled[index];});form.dispatchEvent(new Event('menu-save-failed'));}
   });
 })();
