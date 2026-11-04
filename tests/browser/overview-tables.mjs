@@ -1,4 +1,4 @@
-/** Human overview workflows on disposable installs: catalogs, filtering/paging and natural page scrolling with the footer after all rows; optional scroll-only mode avoids repeating unrelated workflows. */
+/** Human overview workflows on disposable installs; focused scrolling or media-toolbar modes avoid repeating unrelated catalog/editor workflows. */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -7,9 +7,16 @@ import {seed} from '../helpers/overview-tables.mjs';
 const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const evidence=process.env.DBLESS_CMS_TABLE_EVIDENCE||'/tmp/dbless-overview-tables';fs.mkdirSync(evidence,{recursive:true});
 const scrollOnly=process.env.DBLESS_CMS_TABLE_SCROLL_ONLY==='1';
+const toolbarOnly=process.env.DBLESS_CMS_MEDIA_TOOLBAR_ONLY==='1';
 const browser=await chromium.launch({executablePath:'/usr/bin/google-chrome',headless:true,args:['--no-sandbox']});
 /** Follow an actual table link/button and await its document; receive page/control, throw on navigation failure without forced clicks. */
 async function follow(page,control){await Promise.all([page.waitForNavigation(),control.click()]);}
+/** Check visible media-control geometry; receive page/root, return measured layout, and reject desktop misalignment, controls below the breadcrumb, or viewport overflow without changing content. */
+async function toolbarGeometry(page,owner){
+  const geometry=await owner.evaluate(root=>{const bounds=selector=>{const r=root.querySelector(selector).getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom};};return {width:innerWidth,toolbar:bounds('.fm-toolbar'),filters:bounds('[data-file-filters]'),breadcrumb:bounds('[data-breadcrumb]'),controls:[...root.querySelectorAll('.fm-controls button,.fm-controls input:not([hidden]),.fm-controls select')].filter(node=>node.getClientRects().length).map(node=>({left:node.getBoundingClientRect().left,right:node.getBoundingClientRect().right})),documentWidth:document.documentElement.scrollWidth};});
+  if(geometry.width>=1440){assert.ok(Math.abs(geometry.toolbar.y-geometry.filters.y)<=1,'Desktop toolbars must share one row');assert.ok(geometry.toolbar.right<=geometry.filters.x,'File commands must precede filters');}
+  assert.ok(Math.max(geometry.toolbar.bottom,geometry.filters.bottom)<=geometry.breadcrumb.y,'Both toolbars must precede the breadcrumb');assert.ok(geometry.documentWidth<=geometry.width+1,'Document must not overflow horizontally');assert.ok(geometry.controls.every(rect=>rect.left>=0&&rect.right<=geometry.width),'Every control must remain inside the viewport');return geometry;
+}
 /** Verify natural document scrolling with real wheel input; receive page, catalog owner and visible content selector, return geometry evidence, and fail on vertical clipping, overlays or a footer that does not move with the rows. */
 async function pageFlow(page,owner,contentSelector){
   await page.mouse.move(300,500);await page.mouse.wheel(0,-100000);await page.waitForFunction(()=>scrollY===0);
@@ -25,8 +32,18 @@ try{for(const [index,application] of browserApplications.entries()){
   const c=await server(application),context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];
   page.on('pageerror',error=>errors.push(error.message));await context.route('**/*',route=>new URL(route.request().url()).origin===c.base?route.continue():route.abort());
   try{
-    seed(c);const siteFile=path.join(c.contents,'site.json'),site=JSON.parse(fs.readFileSync(siteFile));site.settings.media={public:'library',private:'vault'};fs.writeFileSync(siteFile,JSON.stringify(site));const library=path.join(c.app,'public_html/library');fs.mkdirSync(library);for(let n=1;n<=(scrollOnly?100:650);n++)fs.writeFileSync(path.join(library,'artifact-'+String(n).padStart(3,'0')+'.txt'),'Synthetic fixture');
+    if(toolbarOnly){const file=path.join(c.contents,'plugins.json'),registry=JSON.parse(fs.readFileSync(file));registry.plugins['files-manager'].enabled=true;fs.writeFileSync(file,JSON.stringify(registry));}else seed(c);const siteFile=path.join(c.contents,'site.json'),site=JSON.parse(fs.readFileSync(siteFile));site.settings.media={public:'library',private:'vault'};fs.writeFileSync(siteFile,JSON.stringify(site));const library=path.join(c.app,'public_html/library');fs.mkdirSync(library);for(let n=1;n<=(toolbarOnly?3:scrollOnly?100:650);n++)fs.writeFileSync(path.join(library,'artifact-'+String(n).padStart(3,'0')+'.txt'),'Synthetic fixture');if(toolbarOnly){fs.mkdirSync(path.join(library,'nested'));fs.writeFileSync(path.join(library,'nested/nested.txt'),'Synthetic nested fixture');}
     await page.goto(c.base+'/cms-admin/');await page.getByLabel('Username',{exact:true}).fill('editor');await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Sign in',exact:true}).click();await page.locator('[data-dashboard]').waitFor();
+    if(toolbarOnly){
+      const geometry=[];
+      for(const locale of ['en-us','pt-br']){
+        const local=JSON.parse(fs.readFileSync(siteFile));local.settings.adminLocale=locale;fs.writeFileSync(siteFile,JSON.stringify(local));
+        for(const width of [1784,1440,390]){await page.setViewportSize({width,height:1000});await page.goto(c.base+'/cms-admin/?view=plugin-panel&plugin=files-manager&route=overview');const owner=page.locator('[data-fm]');await owner.locator('[data-catalog-pager]').getByText(locale==='en-us'?/of 4 results/:/de 4 resultados/).waitFor();geometry.push({locale,...await toolbarGeometry(page,owner)});await page.screenshot({path:path.join(evidence,`${index}-toolbar-${locale}-${width}.png`)});
+          if(locale==='en-us'&&width===1784){const pager=owner.locator('[data-catalog-pager]');await owner.getByRole('searchbox').fill('artifact-001');await owner.locator('[data-file-filters]').getByRole('button',{name:'Search',exact:true}).click();await pager.getByText(/of 1 results/).waitFor();await owner.getByRole('button',{name:'Clear filters',exact:true}).click();await pager.getByText(/of 4 results/).waitFor();await owner.locator('[data-type-filter]').selectOption('folders');await pager.getByText(/of 1 results/).waitFor();await owner.getByRole('button',{name:'Clear filters',exact:true}).click();await pager.getByText(/of 4 results/).waitFor();await owner.getByRole('button',{name:'Grid',exact:true}).click();assert.equal(await owner.locator('[data-grid-items]').isVisible(),true);await owner.getByRole('button',{name:'List',exact:true}).click();await owner.locator('[data-list-items]').getByRole('button',{name:'nested',exact:true}).click();await owner.locator('[data-breadcrumb]').getByText('nested',{exact:true}).waitFor();await owner.locator('[data-action=up]').click();await pager.getByText(/of 4 results/).waitFor();}
+        }
+      }
+      await page.setViewportSize({width:1784,height:1000});await page.goto(c.base+'/cms-admin/?view=plugin&plugin=files-manager&route=overview');const owner=page.locator('[data-fm]');await owner.locator('[data-catalog-pager]').getByText(/de 4 resultados/).waitFor();geometry.push({locale:'pt-br',standalone:true,...await toolbarGeometry(page,owner)});assert.deepEqual(errors,[]);assert.doesNotMatch(c.logs(),/PHP (?:Warning|Fatal|Parse)/);console.log(JSON.stringify({application,passed:true,checks:'media toolbar row above breadcrumb/search-clear-type/list-grid/folder-up/1784-1440-390/en-pt/standalone',geometry,evidence}));continue;
+    }
     if(scrollOnly){
       const geometry=[];
       for(const width of [390,1440]){

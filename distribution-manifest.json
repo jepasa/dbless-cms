@@ -1,6 +1,6 @@
 {
   "name": "dbless-cms",
-  "version": "2.15.1",
+  "version": "2.15.2",
   "license": "Apache-2.0",
   "files": [
     {
@@ -191,12 +191,12 @@
     {
       "path": "package-lock.json",
       "bytes": 9865,
-      "sha256": "ac76c3930b3f1ab3b278b751bd0fe5e04c4a44558ed88312c026f4ad05b34626"
+      "sha256": "c905f7d7d0923b39a24bec7a8fa36e087a1fad5f2ac6c58e6af5f182c7b90785"
     },
     {
       "path": "package.json",
       "bytes": 1182,
-      "sha256": "f56956cca67222fed07a2f2249f73d29574ff3b70a76403536f57b5df7a102e1"
+      "sha256": "034f961b76f5d9c4dfdacd43509dce2e6849586810fc1a6cc02c13b9483d4c01"
     },
     {
       "path": "README.md",
@@ -835,8 +835,8 @@
     },
     {
       "path": "src/public_html/plugins/files-manager/css/files-manager.css",
-      "bytes": 9503,
-      "sha256": "532c61202dd71bc121eed5799b9fdb26912d4861de69a892f0464d76bcac4dec"
+      "bytes": 10033,
+      "sha256": "6d97ba907140774d0e376f6bc9ccc9a2d65dab40b4874529ddaa5c9d3e5e35e0"
     },
     {
       "path": "src/public_html/plugins/files-manager/files-manager.svg",
@@ -1406,7 +1406,7 @@
     {
       "path": "src/system/config/settings.php",
       "bytes": 480,
-      "sha256": "93bfd7a08db5caa1c5a636b9b2144e719f7ace34c842f71f0a070e34a1756484"
+      "sha256": "143bee15b1d8e3983fe89e49d5dd3ade548045d03621e44d57673252e4ba73e0"
     },
     {
       "path": "src/system/core.php",
@@ -1885,8 +1885,8 @@
     },
     {
       "path": "src/system/plugins/files-manager/presentation.json",
-      "bytes": 4873,
-      "sha256": "d7238ae452efb407097ce970ee33b92e01761a033501da229d85a53a319d51fd"
+      "bytes": 5000,
+      "sha256": "3d5afe5b1c7a3653e3862016854ff69b3a5e6a8d41fe700ec1982ce740a82d07"
     },
     {
       "path": "src/system/plugins/files-manager/Router.php",
@@ -1900,8 +1900,8 @@
     },
     {
       "path": "src/system/plugins/files-manager/view.php",
-      "bytes": 7397,
-      "sha256": "6bcbd19f4cb5de5ccd02300349b7cdbf1db905cce6159b9c3dada06534041ca6"
+      "bytes": 7453,
+      "sha256": "ef6764bb7bd86c2ae9218585aec771cbb544b8e8ad8f9bb02af8a9bbc5e15e40"
     },
     {
       "path": "src/system/plugins/forms/Delivery.php",
@@ -2640,8 +2640,8 @@
     },
     {
       "path": "tests/browser/overview-tables.mjs",
-      "bytes": 12881,
-      "sha256": "0ea66e4ead644e08ecc899e736566d405bbeba489e9408d043a3ce797dce92b5"
+      "bytes": 17241,
+      "sha256": "5e2084cd88459dc06aa69f90166acf0ccf6b40de7758b564576f9485dbf8bdc6"
     },
     {
       "path": "tests/browser/pages-document-sync.mjs",
