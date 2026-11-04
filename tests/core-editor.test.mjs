@@ -29,7 +29,8 @@ for(const application of applications){
     for(const options of [{language:'python'},{language:'php',visual:true},{language:'js',mustache:true},{language:'html',height:1},{language:'html',sanitize:false},{language:'html',toolbar:['eval']}])assert.throws(()=>model.options(options));
   });
   test(`${application}: malformed or unsupported HTML/Mustache is rejected while its input stays unchanged`,()=>{
-    for(const source of ['{{{csrf_field}}}','{{title','{{bad:name}}','{{#items}}{{/other}}','<p style="color:red">Text</p>','<iframe srcdoc="plain"></iframe>','<form><input name="value"></form>','<p onclick="evil()">Text</p>','<?php echo 1; ?>','<p data-dbless-token="forged">Text</p>']){const original=source;assert.throws(()=>analyze(source));assert.equal(source,original);}
+    for(const source of ['{{{csrf_field}}}','{{title','{{bad:name key=unquoted}}','{{#items}}{{/other}}','<p style="color:red">Text</p>','<iframe srcdoc="plain"></iframe>','<form><input name="value"></form>','<p onclick="evil()">Text</p>','<?php echo 1; ?>','<p data-dbless-token="forged">Text</p>']){const original=source;assert.throws(()=>analyze(source));assert.equal(source,original);}
+    assert.ok(analyze('{{slides:page-showcase}}').tokens.length>0);
     assert.throws(()=>analyze('{{title}}',{language:'html'}));assert.throws(()=>analyze('{{#a}}'.repeat(9)+'{{/a}}'.repeat(9)));
     assert.throws(()=>analyze('<p>'+('a'.repeat(131073))+'</p>'));
     for(const token of ['{{template:fragment id="contact"}}','{{forms:form id="contact"}}'])assert.equal(analyze(token).source,token);

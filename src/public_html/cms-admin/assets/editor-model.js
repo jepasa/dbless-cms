@@ -22,13 +22,14 @@
   }
   /** Validate the bounded data-only grammar plus registered marker shapes; receives source/enabled flag, returns tokens or throws an indexed SyntaxError. */
   function mustache(source,enabled) {
-    let position=0;const tokens=[],stack=[];let fragments=0,forms=0;
+    let position=0;const tokens=[],stack=[];let fragments=0,forms=0,components=0;
     while((position=source.indexOf('{{',position))!==-1) {
       if(!enabled)throw new SyntaxError('Mustache requires the mustache profile at '+position);
       const end=source.indexOf('}}',position+2);if(end<0||end-position>512||tokens.length>=1024)throw new SyntaxError('Invalid Mustache token at '+position);
       const raw=source.slice(position,end+2),name=raw.slice(2,-2).trim();let kind='value';
       if(/^template:fragment id="[a-z][a-z0-9-]{0,47}"(?: key="[a-z][a-z0-9-]{0,47}")?$/.test(name)){kind='fragment';if(raw!=='{{'+name+'}}')throw new SyntaxError('Invalid template fragment syntax.');if(++fragments>20)throw new SyntaxError('Template fragment limit.');}
       else if(/^[a-z][a-z0-9-]{0,63}:form\s+id="[a-z][a-z0-9-]{0,47}"$/.test(name)){kind='form';if(++forms>10)throw new SyntaxError('Form marker limit.');}
+      else if(/^(?!template:)(?![a-z][a-z0-9-]*:form(?: |$))[a-z][a-z0-9-]{0,63}:[a-z][a-z0-9-]{0,63}(?: [a-z][a-zA-Z0-9]{0,47}="[^"{}\r\n]{0,512}")*$/.test(name)){kind='fragment';if(++components>20)throw new SyntaxError('Component marker limit.');}
       else if(name.startsWith('!'))kind='comment';
       else {
         const match=/^([#^\/]?)(\.|[a-zA-Z][a-zA-Z0-9_-]*(?:\.[a-zA-Z0-9_-]+)*)$/.exec(name);if(!match)throw new SyntaxError('Unsupported Mustache syntax at '+position);

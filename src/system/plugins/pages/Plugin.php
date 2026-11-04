@@ -67,9 +67,9 @@ final class PagesPlugin implements PluginInterface,ContentProviderInterface,Cont
   }
   /** Parse one submitted authored page atomically; receive payload, return metadata/status/shared markup, raise 422 on JSON/type/binding contract errors without writes. */
   private function authored(array $post): array {
-    try{$bindings=json_decode($this->input($post,'bindings',32768),true,16,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(422,'Invalid bindings.','markup.error');}if(!is_array($bindings))throw new HttpError(422,'Invalid bindings.','markup.error');
+    try{$bindings=json_decode(array_key_exists('editor_document',$post)?'[]':$this->input($post,'bindings',32768),true,16,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(422,'Invalid bindings.','markup.error');}if(!is_array($bindings))throw new HttpError(422,'Invalid bindings.','markup.error');
     $meta=[];foreach(['title'=>200,'description'=>500,'keywords'=>2048,'image'=>2048,'imageAlt'=>2048] as $field=>$limit)$meta[$field]=$this->input($post,'meta_'.$field,$limit);
-    $authored=['meta'=>$meta,'status'=>$this->input($post,'page_status',20)];if($this->input($post,'markup_enabled',1)==='1')$authored['markup']=ContentMarkup::definition(['html'=>$this->input($post,'html',131072),'bindings'=>$bindings]);return $authored;
+    $authored=['meta'=>$meta,'status'=>$this->input($post,'page_status',20)];if(!array_key_exists('editor_document',$post)&&$this->input($post,'markup_enabled',1)==='1')$authored['markup']=ContentMarkup::definition(['html'=>$this->input($post,'html',131072),'bindings'=>$bindings]);return $authored;
   }
   /** Execute the Pages working/publication lifecycle; receives trusted context/operation and validates bounded submitted fields, propagating CAS/contract errors without partial publication. */
   private function editorial(PluginContext $context,string $operation): array {
@@ -82,7 +82,7 @@ final class PagesPlugin implements PluginInterface,ContentProviderInterface,Cont
       if($this->input($_POST,'compose',1)==='1'){
         $post=$_POST;$post['meta_title']=$this->input($_POST,'title',200);$post['meta_description']=$this->input($_POST,'meta_description',500)?:$post['meta_title'];$post['page_status']='draft';
         $authored=$this->authored($post);$input['snapshot']['document']=array_replace($input['snapshot']['document'],$authored);
-        if(!isset($authored['markup'])){unset($input['snapshot']['document']['markup']);$native=$this->input($_POST,'native_content',131072);if($native!==''){try{$input['snapshot']['document']['content']=json_decode($native,true,32,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(422,'Invalid native content.','pages.editorial.invalid');}}}
+        if(!array_key_exists('editor_document',$post)&&!isset($authored['markup'])){unset($input['snapshot']['document']['markup']);$native=$this->input($_POST,'native_content',131072);if($native!==''){try{$input['snapshot']['document']['content']=json_decode($native,true,32,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(422,'Invalid native content.','pages.editorial.invalid');}}}
         foreach(PagePublications::seo() as $field=>$default)$input['snapshot']['seo'][$field]=$field==='noindex'?$this->input($_POST,'seo_noindex',1)==='1':$this->input($_POST,'seo_'.$field,2048);
       }
     }
@@ -90,7 +90,8 @@ final class PagesPlugin implements PluginInterface,ContentProviderInterface,Cont
       $row=$repository->record($id);$document=$row['draft']['document'];$document['meta']=[];
       foreach(['title'=>200,'description'=>500,'image'=>2048,'imageAlt'=>500] as $field=>$limit)$document['meta'][$field]=$this->input($_POST,'meta_'.$field,$limit);
       $document['meta']['keywords']=$row['draft']['document']['meta']['keywords'];if($document['meta']['description']==='')$document['meta']['description']=$document['meta']['title'];
-      if($this->input($_POST,'markup_enabled',1)==='1'){$authored=$this->authored($_POST);$document['markup']=$authored['markup'];}
+      if(array_key_exists('editor_document',$_POST)){/* Canonical envelope is independently validated below before the repository write. */}
+      elseif($this->input($_POST,'markup_enabled',1)==='1'){$authored=$this->authored($_POST);$document['markup']=$authored['markup'];}
       else{unset($document['markup']);$native=$this->input($_POST,'native_content',131072);if($native!==''){try{$document['content']=json_decode($native,true,32,JSON_THROW_ON_ERROR);}catch(\JsonException){throw new HttpError(422,'Invalid native content.','pages.editorial.invalid');}}}
       $seo=[];foreach(PagePublications::seo() as $field=>$default)$seo[$field]=$field==='noindex'?$this->input($_POST,'seo_noindex',1)==='1':$this->input($_POST,'seo_'.$field,2048);
       $input+=['snapshot'=>['url'=>$this->input($_POST,'slug',64),'document'=>$document,'seo'=>$seo],'parent'=>$this->input($_POST,'parent',64),'model'=>$row['model']];
@@ -104,6 +105,8 @@ final class PagesPlugin implements PluginInterface,ContentProviderInterface,Cont
         $existing=['author'=>$this->input($_POST,'page_author',200),'order'=>(int)$order,'review'=>$this->input($_POST,'page_review',1)==='1'];
       }
       $input['snapshot']['editorial']=PagePublications::editorial($existing);
+      // The new single-document payload is authoritative in either tab; legacy clients retain their previous native/authored contract.
+      if(array_key_exists('editor_document',$_POST))$input['snapshot']['document']=PageEditorDocument::apply($input['snapshot']['document'],$this->input($_POST,'editor_document',524288));
       if(array_key_exists('page_layout',$_POST)){$layout=$this->input($_POST,'page_layout',64);if(in_array($layout,['home','404'],true))throw new HttpError(422,'Reserved page layout.','pages.editorial.invalid');$input['snapshot']['document']['page']=$layout;}
     }
     $result=$repository->change($id,$action,$input,$this->input($_POST,'catalog_revision'),$this->input($_POST,'site_revision'));

@@ -98,7 +98,7 @@
     "pages.model.legacy": "Existing structure",
     "pages.content": "Editorial content",
     "pages.layoutData": "Layout and data",
-    "pages.nativePreserved": "Each tab edits an independent format. Switching does not convert content; the active format is saved.",
+    "pages.nativePreserved": "JSON and HTML/Mustache edit the same document. The html field is the displayed content; content preserves earlier structured data without reconstructing it from HTML.",
     "pages.structure": "Structure and address",
     "pages.urlHelp": "The internal identifier is permanent. Publishing another address redirects the previous one.",
     "pages.seo": "SEO and sharing",
@@ -178,6 +178,9 @@
     "pages.state.pending": "Pending review",
     "pages.order": "Order",
     "pages.layout": "Page template",
-    "pages.layoutHelp": "Only active-template layouts compatible with the current content are offered."
+    "pages.layoutHelp": "Only active-template layouts compatible with the current content are offered.",
+    "pages.documentJSON": "Editorial document (JSON)",
+    "pages.documentInvalid": "Invalid JSON. Provide an object with html (text), bindings (array) and content (object). Correct it before switching or saving.",
+    "pages.conversionUnsupported": "This native content contains integrations that require an explicit HTML layout for lossless conversion."
   }
 }
