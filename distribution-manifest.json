@@ -105,8 +105,8 @@
     },
     {
       "path": "docs/publications.md",
-      "bytes": 7287,
-      "sha256": "83bcc32b3714b16078696518e3e324ffaf37281e417663581f4d4c4a62861e87"
+      "bytes": 7519,
+      "sha256": "671da5a349781754d0b8161d5008db0a5417a18e1b03118cce8ef422af44653f"
     },
     {
       "path": "docs/shared-editor.md",
@@ -1740,8 +1740,8 @@
     },
     {
       "path": "src/system/lib/PostsView.php",
-      "bytes": 10023,
-      "sha256": "b34d23ac81b90b746dae92e47b0eeda10826521abb261292aa918b33f28f4daa"
+      "bytes": 10323,
+      "sha256": "7203667f3038753937d0c6b9fcdaf3d3c344afbd17f3f5a1a07a1124547ef849"
     },
     {
       "path": "src/system/lib/PostTypes.php",
@@ -2835,8 +2835,8 @@
     },
     {
       "path": "tests/browser/posts.mjs",
-      "bytes": 9841,
-      "sha256": "1464bd12878bfc6e7e3ea96f2f4e4ec99ff17d143491d46bc85d846ae6061238"
+      "bytes": 10077,
+      "sha256": "c2097f997505750d9ff704e8481a9e84e4f762ded966ea0117dc94ff60337352"
     },
     {
       "path": "tests/browser/privacy-forms.mjs",
@@ -3040,8 +3040,8 @@
     },
     {
       "path": "tests/posts-http.test.mjs",
-      "bytes": 6431,
-      "sha256": "98b9832057a14fa9c0d7645978895aa9f6077d955a1ccd8767340ef83608b07b"
+      "bytes": 7634,
+      "sha256": "235d2693ec81333cb210878bfc29d09b4d65c84685e50522a96a7ff195d80871"
     },
     {
       "path": "tests/posts.test.mjs",
