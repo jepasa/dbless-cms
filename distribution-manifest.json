@@ -3185,8 +3185,8 @@
     },
     {
       "path": "tests/users.test.mjs",
-      "bytes": 20616,
-      "sha256": "1bc58cd8b7c1a2c4847f11a8faa3f914c73b4c6cde9819900d9c39d7c4c2819d"
+      "bytes": 20831,
+      "sha256": "351bfcb2822def2d07ee387721ba2fc10e7be45ab6985a0d29ea04a347e71369"
     },
     {
       "path": "tests/widgets.test.mjs",
