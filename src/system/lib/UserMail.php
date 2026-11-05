@@ -28,7 +28,9 @@ final class UserMail {
 
   /** Deliver a generated reset/initial-password link in the administrative language; throws on unconfigured/rejected transport without claiming delivery. */
   public static function recovery(Config $config,Language $language,array $recipient): void {
-    $url=self::resetUrl($config,$recipient['token']);$body=$language->text('users.mail.reset_body',['name'=>$recipient['name'],'url'=>"\n\n".$url."\n\n",'minutes'=>30]);
+    $url=self::resetUrl($config,$recipient['token']);$minutes=(new Users($config))->policy()['resetLifetimeMinutes'];
+    // Preserve the original issued limit if policy was lengthened before transport; existing callers without metadata retain the effective default.
+    $minutes=min($minutes,$recipient['lifetimeMinutes']??$minutes);$body=$language->text('users.mail.reset_body',['name'=>$recipient['name'],'url'=>"\n\n".$url."\n\n",'minutes'=>$minutes]);
     if(!self::send($config,$recipient['email'],$language->text('users.mail.reset_subject'),$body))throw new HttpError(503,'Identity mail transport rejected the request.','users.error.mail');
   }
 

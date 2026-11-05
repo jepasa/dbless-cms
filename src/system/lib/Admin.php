@@ -37,7 +37,7 @@ final class Admin {
     $action=$this->input('action');
     if((new UsersAdmin($this->config,$this->language,$this->base))->post($action))return;
     if ($action==='login') {
-      Security::limit($this->config,'login',5,900);Security::csrf($_POST['csrf_token']??null);
+      $policy=(new Users($this->config))->policy();Security::limit($this->config,'login',$policy['loginAttempts'],$policy['loginWindowMinutes']*60);Security::csrf($_POST['csrf_token']??null);
       if (!Security::login($this->config,$this->input('username'),$this->input('password',800))) throw new HttpError(401,'Usuário ou senha inválidos.','error.credentials');
       if(isset($_SESSION['users_pending']))$this->redirect('twofactor','','users.factor_needed');
       $this->redirect('dashboard','','notice.login');

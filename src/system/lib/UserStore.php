@@ -83,7 +83,9 @@ final class UserStore {
 
   /** Validate the closed catalog, group/user references and bounded secret envelopes; throws 503 for corruption, never repairs on read. */
   private static function validate(array $data): void {
-    if(!self::shape($data,['schema_version','groups','users','ownership','audit'])||$data['schema_version']!==1||!is_array($data['groups'])||count($data['groups'])<1||count($data['groups'])>20||!is_array($data['users'])||count($data['users'])<1||!is_array($data['ownership'])||!is_array($data['audit'])||count($data['audit'])>500)self::failure();
+    if(!self::shape($data,['schema_version','groups','users','ownership','audit'],['policy'])||$data['schema_version']!==1||!is_array($data['groups'])||count($data['groups'])<1||count($data['groups'])>20||!is_array($data['users'])||count($data['users'])<1||!is_array($data['ownership'])||!is_array($data['audit'])||count($data['audit'])>500)self::failure();
+    // Optional policy fields remain absent in older catalogs until an explicit save; invalid stored values cannot silently become defaults.
+    UserPolicy::from($data);
     foreach($data['groups'] as $id=>$group){
       // Reject composite permission values before set operations can coerce them or emit warnings.
       if(!is_array($group)||!is_array($group['permissions']??null))self::failure();
@@ -94,18 +96,25 @@ final class UserStore {
     $administrator=$data['groups']['administrator']??null;if(!is_array($administrator)||$administrator['permissions']!==Access::CAPABILITIES||!$administrator['mfaRequired'])self::failure();
     $logins=[];$emails=[];
     foreach($data['users'] as $id=>$user){
-      if(!is_string($id)||!preg_match('/^[a-f0-9]{32}$/D',$id)||!is_array($user)||!self::shape($user,['id','username','name','email','group','status','passwordHash','authVersion','mfa','reset','createdAt','updatedAt'])||$user['id']!==$id||!self::text($user['name'],160)||!is_string($user['username'])||!preg_match('/^[A-Za-z0-9_.@-]{3,100}$/D',$user['username'])||!is_string($user['email'])||strlen($user['email'])>254||filter_var($user['email'],FILTER_VALIDATE_EMAIL)===false||!is_string($user['group'])||!isset($data['groups'][$user['group']])||!in_array($user['status'],['pending','active','blocked','deleted'],true)||!is_string($user['passwordHash'])||strlen($user['passwordHash'])>512||($user['passwordHash']!==''&&password_get_info($user['passwordHash'])['algoName']==='unknown')||($user['status']==='active'&&$user['passwordHash']==='')||!is_int($user['authVersion'])||$user['authVersion']<1||!is_int($user['createdAt'])||!is_int($user['updatedAt']))self::failure();
+      if(!is_string($id)||!preg_match('/^[a-f0-9]{32}$/D',$id)||!is_array($user)||!self::shape($user,['id','username','name','email','group','status','passwordHash','authVersion','mfa','reset','createdAt','updatedAt'],['passwordChangedAt'])||$user['id']!==$id||!self::text($user['name'],160)||!is_string($user['username'])||!preg_match('/^[A-Za-z0-9_.@-]{3,100}$/D',$user['username'])||!is_string($user['email'])||strlen($user['email'])>254||filter_var($user['email'],FILTER_VALIDATE_EMAIL)===false||!is_string($user['group'])||!isset($data['groups'][$user['group']])||!in_array($user['status'],['pending','active','blocked','deleted'],true)||!is_string($user['passwordHash'])||strlen($user['passwordHash'])>512||($user['passwordHash']!==''&&password_get_info($user['passwordHash'])['algoName']==='unknown')||($user['status']==='active'&&$user['passwordHash']==='')||!is_int($user['authVersion'])||$user['authVersion']<1||!is_int($user['createdAt'])||!is_int($user['updatedAt']))self::failure();
+      if(array_key_exists('passwordChangedAt',$user)&&(!is_int($user['passwordChangedAt'])||$user['passwordChangedAt']<0))self::failure();
       $mfa=$user['mfa'];if(!is_array($mfa)||!self::shape($mfa,['secret','lastStep','recovery'])||!is_string($mfa['secret'])||strlen($mfa['secret'])>512||($mfa['secret']!==''&&base64_decode($mfa['secret'],true)===false)||!is_int($mfa['lastStep'])||$mfa['lastStep']< -1||!is_array($mfa['recovery'])||!array_is_list($mfa['recovery'])||count($mfa['recovery'])>10)self::failure();
       foreach($mfa['recovery'] as $hash)if(!is_string($hash)||!preg_match('/^[a-f0-9]{64}$/D',$hash))self::failure();
-      $reset=$user['reset'];if($reset!==null&&(!is_array($reset)||!self::shape($reset,['hash','expires'])||!is_string($reset['hash'])||!preg_match('/^[a-f0-9]{64}$/D',$reset['hash'])||!is_int($reset['expires'])))self::failure();
+      $reset=$user['reset'];if($reset!==null&&(!is_array($reset)||!self::shape($reset,['hash','expires'],['issuedAt'])||!is_string($reset['hash'])||!preg_match('/^[a-f0-9]{64}$/D',$reset['hash'])||!is_int($reset['expires'])||(array_key_exists('issuedAt',$reset)&&(!is_int($reset['issuedAt'])||$reset['issuedAt']<0))))self::failure();
       if($user['status']!=='deleted'){foreach([strtolower($user['username']),strtolower($user['email'])] as $login){if(isset($logins[$login])&&$logins[$login]!==$id)self::failure();$logins[$login]=$id;}if(isset($emails[strtolower($user['email'])]))self::failure();$emails[strtolower($user['email'])]=$id;}
     }
     foreach($data['ownership'] as $record=>$id)if(!is_string($record)||strlen($record)>160||!is_string($id)||!isset($data['users'][$id]))self::failure();
     foreach($data['audit'] as $entry)if(!is_array($entry)||!self::shape($entry,['at','actor','action','target'])||!is_int($entry['at'])||!is_string($entry['actor'])||strlen($entry['actor'])>32||!is_string($entry['action'])||!preg_match('/^[a-z-]{1,40}$/D',$entry['action'])||!is_string($entry['target'])||strlen($entry['target'])>160)self::failure();
   }
 
-  /** Require an exact object key set independent of JSON member order; never coerces values or changes decoded data. */
-  private static function shape(array $value,array $keys): bool {return count($value)===count($keys)&&array_diff(array_keys($value),$keys)===[];}
+  /**
+   * Require all declared keys and permit only explicit optional additions, independent of JSON member order.
+   * @param array $value Decoded object; never changed or coerced.
+   * @param array $keys Required member names.
+   * @param array $optional Additive member names allowed for older schema-1 catalogs.
+   * @return bool Whether the object matches the closed shape; no I/O or migration occurs.
+   */
+  private static function shape(array $value,array $keys,array $optional=[]): bool {return array_diff($keys,array_keys($value))===[]&&array_diff(array_keys($value),[...$keys,...$optional])===[];}
 
   /** Validate a bounded human label without controls; receives optional-empty policy and returns bool without normalization. */
   private static function text(mixed $value,int $maximum,bool $empty=false): bool {return is_string($value)&&($empty||trim($value)!=='')&&strlen($value)<=$maximum&&preg_match('//u',$value)===1&&!preg_match('/[\x00-\x1F\x7F]/',$value);}

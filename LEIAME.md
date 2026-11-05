@@ -126,6 +126,10 @@ de senha e TOTP local. A migração do proprietário é explícita; administrado
 devem cadastrar um segundo fator. Consulte o [guia de usuários e autenticação](docs/users.md)
 para configuração de e-mail, permissões e recuperação privada.
 
+O dropdown do Users segue o Posts: Visão geral, Novo usuário, Grupos de acesso,
+Histórico, Configurações, Apresentação e Lixeira. As configurações definem limites
+de login/MFA, tempos de sessão, mínimo/validade opcional da senha e prazo dos links.
+
 Configurações Globais incluem um card privado de envio por PHP mail() ou SMTP
 autenticado com TLS verificado. Users, Contato e Forms compartilham o transporte;
 credenciais SMTP ficam cifradas fora de conteúdo/histórico/exportações. Consulte

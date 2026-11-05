@@ -12,4 +12,6 @@
 .users-recovery { display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 8px; padding-inline-start: 22px; }
 .users-panel fieldset { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
 .users-panel dd { margin-inline-start: 0; overflow-wrap: anywhere; margin-block-end: 12px; }
+/* The native Core dropdown/table preserve document flow; only the per-row restore controls need a bounded width. */
+.users-restore select { max-width: 15rem; min-width: 0; }
 @media (max-width: 480px) { .users-permissions, .users-recovery { grid-template-columns: 1fr; } }

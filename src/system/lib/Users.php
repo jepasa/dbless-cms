@@ -17,13 +17,16 @@ final class Users {
   public function enabled(): bool {return $this->store->exists();}
   /** Return the private validated catalog/revision to trusted callers; never expose this envelope directly to clients. */
   public function snapshot(): array {return $this->store->read();}
+  /** Return effective policy without persisting defaults or initializing Users; corruption propagates as a closed storage error. */
+  public function policy(): array {return UserPolicy::from($this->snapshot()['data']);}
   /** Raise a bounded translated domain error; accepts closed suffix and status and never returns. */
   private static function fail(string $key='invalid',int $status=422): never {throw new HttpError($status,'Users operation unavailable.','users.error.'.$key);}
 
   /** Validate a live actor and capability inside the catalog lock; prevents stale sessions from mutating security state. */
   private static function actor(array $data,string $id,?string $capability=null): array {
     $auth=$_SESSION['users_auth']??null;$user=$data['users'][$id]??null;
-    if(!is_array($auth)||!is_array($user)||($auth['id']??null)!==$id||$user['status']!=='active'||($auth['last_seen']??0)<time()-1800||!is_string($auth['fingerprint']??null)||!hash_equals(self::fingerprint($user,$data['groups'][$user['group']]),$auth['fingerprint']))self::fail('credentials',401);
+    $policy=UserPolicy::from($data);
+    if(!is_array($auth)||!is_array($user)||($auth['id']??null)!==$id||$user['status']!=='active'||!UserPolicy::session($auth,$policy,time())||UserPolicy::passwordExpired($user,$policy,time())||!is_string($auth['fingerprint']??null)||!hash_equals(self::fingerprint($user,$data['groups'][$user['group']]),$auth['fingerprint'])){unset($_SESSION['users_auth']);self::fail('credentials',401);}
     $group=$data['groups'][$user['group']];
     if(($group['mfaRequired']||$user['mfa']['secret']!=='')&&!in_array($auth['factor']??null,['totp','recovery'],true))self::fail('otp',401);
     if($capability!==null&&$user['group']!=='administrator'&&!in_array($capability,$group['permissions'],true))self::fail('forbidden',403);
@@ -77,8 +80,8 @@ final class Users {
 
   /** Return the current fully authenticated account, revalidating identity/group revisions and expiry on every request; never grants partial sessions. */
   public function current(): ?array {
-    $auth=$_SESSION['users_auth']??null;if(!is_array($auth)||!is_string($auth['id']??null)||!is_string($auth['fingerprint']??null)||!is_int($auth['last_seen']??null)||$auth['last_seen']<time()-1800)return null;
-    $data=$this->snapshot()['data'];$user=$data['users'][$auth['id']]??null;if(!is_array($user)||$user['status']!=='active'||!hash_equals(self::fingerprint($user,$data['groups'][$user['group']]),$auth['fingerprint'])){unset($_SESSION['users_auth']);return null;}
+    $auth=$_SESSION['users_auth']??null;if(!is_array($auth)||!is_string($auth['id']??null)||!is_string($auth['fingerprint']??null))return null;
+    $data=$this->snapshot()['data'];$policy=UserPolicy::from($data);$user=$data['users'][$auth['id']]??null;if(!is_array($user)||$user['status']!=='active'||!UserPolicy::session($auth,$policy,time())||UserPolicy::passwordExpired($user,$policy,time())||!hash_equals(self::fingerprint($user,$data['groups'][$user['group']]),$auth['fingerprint'])){unset($_SESSION['users_auth'],$_SESSION['users_reauthenticated'],$_SESSION['users_enrollment']);return null;}
     if(($data['groups'][$user['group']]['mfaRequired']||$user['mfa']['secret']!=='')&&($auth['factor']??'')!=='totp'&&($auth['factor']??'')!=='recovery')return null;
     $_SESSION['users_auth']['last_seen']=time();return $user;
   }
@@ -89,6 +92,7 @@ final class Users {
   /** Complete authentication after required factors; receives a current account and factor, regenerates session and removes legacy/partial state. */
   public function establish(array $user,string $factor,string $expected): void {
     $data=$this->snapshot()['data'];$current=$data['users'][$user['id']]??null;if(!is_array($current)||$current['status']!=='active'||!hash_equals($expected,self::fingerprint($current,$data['groups'][$current['group']])))self::fail('credentials',401);
+    if(UserPolicy::passwordExpired($current,UserPolicy::from($data),time()))self::fail('password_expired',401);
     if(($data['groups'][$current['group']]['mfaRequired']||$current['mfa']['secret']!=='')&&!in_array($factor,['totp','recovery'],true))self::fail('otp',401);
     if(!session_regenerate_id(true))self::fail('storage',503);unset($_SESSION['auth'],$_SESSION['users_pending'],$_SESSION['users_enrollment'],$_SESSION['users_reauthenticated']);$_SESSION['users_auth']=['id'=>$current['id'],'fingerprint'=>self::fingerprint($current,$data['groups'][$current['group']]),'last_seen'=>time(),'factor'=>$factor,'at'=>time()];
   }
@@ -98,13 +102,14 @@ final class Users {
     // The latency floor also covers preserved legacy hashes with a lower work factor.
     $started=microtime(true);try{
     unset($_SESSION['users_pending'],$_SESSION['users_enrollment'],$_SESSION['users_reauthenticated'],$_SESSION['users_auth'],$_SESSION['auth']);
-    $data=$this->snapshot()['data'];$user=null;foreach($data['users'] as $candidate)if($candidate['status']==='active'&&(strcasecmp($candidate['username'],$login)===0||strcasecmp($candidate['email'],$login)===0)){$user=$candidate;break;}
-    Security::limit($this->config,'users-password-'.($user['id']??hash('sha256',strtolower($login))),10,900,false);
+    $data=$this->snapshot()['data'];$policy=UserPolicy::from($data);$user=null;foreach($data['users'] as $candidate)if($candidate['status']==='active'&&(strcasecmp($candidate['username'],$login)===0||strcasecmp($candidate['email'],$login)===0)){$user=$candidate;break;}
+    Security::limit($this->config,'users-password-'.($user['id']??hash('sha256',strtolower($login))),$policy['accountAttempts'],$policy['loginWindowMinutes']*60,false);
     // Keep unknown identity work comparable without persisting an artificial account.
     $hash=$user['passwordHash']??'$argon2id$v=19$m=65536,t=4,p=1$ZHVtbXktdXNlcnMtc2FsdA$NJbMvvFKpns33Q2VLCWa7FcxSgHf6aMcJmRmcYDnU4s';$valid=Passwords::verify($password,$hash);
     if($user===null||!$valid)return false;
+    if(UserPolicy::passwordExpired($user,$policy,time()))self::fail('password_expired',401);
     if($data['groups'][$user['group']]['mfaRequired']||$user['mfa']['secret']!==''){
-      if(!session_regenerate_id(true))self::fail('storage',503);unset($_SESSION['users_auth'],$_SESSION['auth']);$_SESSION['users_pending']=['id'=>$user['id'],'fingerprint'=>self::fingerprint($user,$data['groups'][$user['group']]),'expires'=>time()+300];return true;
+      if(!session_regenerate_id(true))self::fail('storage',503);unset($_SESSION['users_auth'],$_SESSION['auth']);$_SESSION['users_pending']=['id'=>$user['id'],'fingerprint'=>self::fingerprint($user,$data['groups'][$user['group']]),'at'=>time(),'expires'=>time()+$policy['challengeMinutes']*60];return true;
     }
     $this->establish($user,'password',self::fingerprint($user,$data['groups'][$user['group']]));return true;
     }finally{$remaining=500000-(int)((microtime(true)-$started)*1000000);if($remaining>0)usleep($remaining);}
@@ -112,8 +117,9 @@ final class Users {
 
   /** Resolve a valid pending login account; returns null for expired/revoked challenges without changing catalog state. */
   public function pending(): ?array {
-    $pending=$_SESSION['users_pending']??null;if(!is_array($pending)||!is_string($pending['id']??null)||!is_int($pending['expires']??null)||$pending['expires']<time())return null;
-    $data=$this->snapshot()['data'];$user=$data['users'][$pending['id']]??null;return is_array($user)&&$user['status']==='active'&&is_string($pending['fingerprint']??null)&&hash_equals(self::fingerprint($user,$data['groups'][$user['group']]),$pending['fingerprint'])?$user:null;
+    $pending=$_SESSION['users_pending']??null;if(!is_array($pending)||!is_string($pending['id']??null)||!is_int($pending['expires']??null)||$pending['expires']<=time())return null;
+    $data=$this->snapshot()['data'];$policy=UserPolicy::from($data);$user=$data['users'][$pending['id']]??null;
+    if(!UserPolicy::challenge($pending,$policy,time())||!is_array($user)||$user['status']!=='active'||UserPolicy::passwordExpired($user,$policy,time())||!is_string($pending['fingerprint']??null)||!hash_equals(self::fingerprint($user,$data['groups'][$user['group']]),$pending['fingerprint'])){unset($_SESSION['users_pending'],$_SESSION['users_enrollment']);return null;}return $user;
   }
 
   /** Consume one TOTP/recovery code under the catalog lock; returns factor name/null and never accepts a reused code or counter. */
@@ -161,6 +167,36 @@ final class Users {
   /** Soft-remove an account and erase its reusable authenticators/reset state, preserving immutable ownership/audit references. */
   public function removeUser(string $id,string $revision,string $actor): void {$this->store->change(function(array &$data)use($id,$actor):void{self::actor($data,$actor,'users.manage');if(!isset($data['users'][$id]))self::fail();$user=&$data['users'][$id];$user['status']='deleted';$user['passwordHash']='';$user['mfa']=['secret'=>'','lastStep'=>-1,'recovery'=>[]];$user['reset']=null;$user['authVersion']++;self::lastAdministrator($data);self::audit($data,$actor,'user-remove',$id);},$revision);}
 
+  /**
+   * Restore a removed identity as pending under CAS, preserving its immutable ID and publication ownership.
+   * @param string $id Removed account ID.
+   * @param string $group Explicitly selected existing group; no previous or Administrator fallback is inferred.
+   * @param string $revision Current catalog byte revision.
+   * @param string $actor Fully authenticated users.manage actor.
+   * @return void No password, factor, token or e-mail is generated by restoration.
+   * @throws HttpError On authorization, conflicts, duplicate identity or invalid group/state.
+   */
+  public function restoreUser(string $id,string $group,string $revision,string $actor): void {
+    $this->store->change(function(array &$data)use($id,$group,$actor):void{
+      self::actor($data,$actor,'users.manage');$user=$data['users'][$id]??null;if(!is_array($user)||$user['status']!=='deleted')self::fail();
+      $fields=self::identity($data,['username'=>$user['username'],'name'=>$user['name'],'email'=>$user['email'],'group'=>$group,'status'=>'pending'],$id);
+      $user=array_replace($user,$fields);$user['passwordHash']='';$user['mfa']=['secret'=>'','lastStep'=>-1,'recovery'=>[]];$user['reset']=null;$user['authVersion']++;$user['updatedAt']=time();unset($user['passwordChangedAt']);$data['users'][$id]=$user;self::audit($data,$actor,'user-restore',$id);
+    },$revision);
+  }
+
+  /**
+   * Commit a complete validated policy inside the same authorization/CAS boundary as account state.
+   * @param array $policy Exact typed policy; unsafe minima and unknown fields are rejected.
+   * @param string $revision Current catalog byte revision.
+   * @param string $actor Fully authenticated system.manage actor, with mandatory group MFA.
+   * @return void Appends a secret-free audit event; no credential/session is rewritten or e-mail sent.
+   * @throws HttpError On conflicts, expired/unauthorized sessions or invalid policy.
+   */
+  public function savePolicy(array $policy,string $revision,string $actor): void {
+    UserPolicy::validate($policy);
+    $this->store->change(function(array &$data)use($policy,$actor):void{self::actor($data,$actor,'system.manage');$data['policy']=$policy;self::audit($data,$actor,'policy-save','policy');},$revision);
+  }
+
   /** Edit only the current profile display name under CAS; group/status/e-mail/password are intentionally outside this contract. */
   public function profile(string $name,string $revision,string $actor): void {$this->store->change(function(array &$data)use($name,$actor):void{self::actor($data,$actor);if(!isset($data['users'][$actor])||trim($name)===''||strlen($name)>160||preg_match('//u',$name)!==1||preg_match('/[\x00-\x1F\x7F]/',$name))self::fail();$data['users'][$actor]['name']=$name;$data['users'][$actor]['updatedAt']=time();self::audit($data,$actor,'profile-save',$actor);},$revision);}
 
@@ -188,12 +224,17 @@ final class Users {
   /** Issue a hashed 256-bit reset/initial-password token for an eligible address; returns private delivery data/null, never a public account-existence response. */
   public function requestReset(string $email): ?array {
     if(!$this->enabled())return null;$token=bin2hex(random_bytes(32));
-    return $this->store->change(function(array &$data)use($email,$token):?array{foreach($data['users'] as &$user){if(!in_array($user['status'],['pending','active'],true)||strcasecmp($user['email'],$email)!==0)continue;$user['reset']=['hash'=>hash('sha256',$token),'expires'=>time()+1800];self::audit($data,'','reset-request',$user['id']);return ['id'=>$user['id'],'email'=>$user['email'],'name'=>$user['name'],'token'=>$user['id'].'.'.$token];}return null;});
+    return $this->store->change(function(array &$data)use($email,$token):?array{$policy=UserPolicy::from($data);foreach($data['users'] as &$user){if(!in_array($user['status'],['pending','active'],true)||strcasecmp($user['email'],$email)!==0)continue;$user['reset']=['hash'=>hash('sha256',$token),'issuedAt'=>time(),'expires'=>time()+$policy['resetLifetimeMinutes']*60];self::audit($data,'','reset-request',$user['id']);return ['id'=>$user['id'],'email'=>$user['email'],'name'=>$user['name'],'token'=>$user['id'].'.'.$token,'lifetimeMinutes'=>$policy['resetLifetimeMinutes']];}return null;});
   }
 
-  /** Validate and consume a password token once under the catalog lock; returns the recipient notification fields, revokes all sessions and preserves MFA. */
+  /** Validate the current password policy and consume a live reset token once under lock; return notification fields, update credential age, revoke sessions and preserve MFA; throws on policy/token failure. */
   public function reset(string $token,string $password): array {
     if(!$this->enabled())self::fail('reset');if(!preg_match('/^([a-f0-9]{32})\.([a-f0-9]{64})$/D',$token,$matches))self::fail('reset');$hash=UserCrypto::password($password);
-    return $this->store->change(function(array &$data)use($matches,$hash):array{$user=$data['users'][$matches[1]]??null;if(!is_array($user)||!in_array($user['status'],['pending','active'],true)||$user['reset']===null||$user['reset']['expires']<=time()||!hash_equals($user['reset']['hash'],hash('sha256',$matches[2])))self::fail('reset');$user['passwordHash']=$hash;$user['status']='active';$user['reset']=null;$user['authVersion']++;$user['updatedAt']=time();$data['users'][$user['id']]=$user;self::audit($data,$user['id'],'password-reset',$user['id']);return ['id'=>$user['id'],'email'=>$user['email'],'name'=>$user['name']];});
+    return $this->store->change(function(array &$data)use($matches,$hash,$password):array{
+      $policy=UserPolicy::from($data);$user=$data['users'][$matches[1]]??null;
+      if(!is_array($user)||!in_array($user['status'],['pending','active'],true)||$user['reset']===null||$user['reset']['expires']<=time()||($user['reset']['issuedAt']??($user['reset']['expires']-1800))+$policy['resetLifetimeMinutes']*60<=time()||!hash_equals($user['reset']['hash'],hash('sha256',$matches[2])))self::fail('reset');
+      // Validate again under the catalog lock so a concurrently raised minimum cannot accept an obsolete password policy.
+      UserPolicy::password($password,$policy);$user['passwordHash']=$hash;$user['passwordChangedAt']=time();$user['status']='active';$user['reset']=null;$user['authVersion']++;$user['updatedAt']=time();$data['users'][$user['id']]=$user;self::audit($data,$user['id'],'password-reset',$user['id']);return ['id'=>$user['id'],'email'=>$user['email'],'name'=>$user['name']];
+    });
   }
 }

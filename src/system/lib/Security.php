@@ -18,6 +18,8 @@ final class Security {
     session_save_path($path);
     session_name('DBLESSCMSSESSID');
     ini_set('session.use_strict_mode', '1');
+    // Application policy enforces idle/absolute expiry; PHP must not collect sessions before the largest permitted duration.
+    ini_set('session.gc_maxlifetime', '86400');
     session_set_cookie_params(['lifetime'=>0,'path'=>'/','secure'=>!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off','httponly'=>true,'samesite'=>'Strict']);
     if (!session_start()) throw new HttpError(503,'Sessão indisponível.','error.session');
   }
@@ -55,11 +57,13 @@ final class Security {
     } finally { flock($handle,LOCK_UN); fclose($handle); }
   }
 
-  /** Verifica sessão e timeout com credencial atual; recebe config, retorna bool; expira autenticação vencida. */
+  /** Verifica credencial e limites inativo/absoluto no servidor; recebe config, retorna bool e invalida autenticação vencida. */
   public static function authenticated(Config $config): bool {
     $users=new Users($config);if($users->enabled())return $users->current()!==null;
     $fingerprint = hash('sha256', json_encode($config->credentials, JSON_THROW_ON_ERROR));
-    if (!isset($_SESSION['auth']) || !hash_equals($fingerprint, (string)$_SESSION['auth']) || ($_SESSION['last_seen'] ?? 0) < time()-1800) { unset($_SESSION['auth']); return false; }
+    $auth=['last_seen'=>$_SESSION['last_seen']??0,'at'=>$_SESSION['auth_at']??($_SESSION['last_seen']??0)];
+    if (!isset($_SESSION['auth']) || !hash_equals($fingerprint, (string)$_SESSION['auth']) || !UserPolicy::session($auth,UserPolicy::from(null),time())) { unset($_SESSION['auth'],$_SESSION['auth_at']); return false; }
+    $_SESSION['auth_at']=$auth['at'];
     $_SESSION['last_seen'] = time(); return true;
   }
 
@@ -71,7 +75,7 @@ final class Security {
     $valid = isset($credentials['password_plaintext']) ? hash_equals($credentials['password_plaintext'],$password) : Passwords::verify($password,$credentials['password_hash']);
     if (!$valid || !hash_equals($credentials['username'],$user)) return false;
     if (!session_regenerate_id(true)) throw new HttpError(503,'Sessão indisponível.','error.session');
-    $_SESSION['auth'] = hash('sha256',json_encode($credentials,JSON_THROW_ON_ERROR)); $_SESSION['last_seen'] = time();
+    $_SESSION['auth'] = hash('sha256',json_encode($credentials,JSON_THROW_ON_ERROR)); $_SESSION['last_seen'] = time(); $_SESSION['auth_at']=time();
     return true;
   }
 }

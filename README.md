@@ -129,6 +129,10 @@ and local TOTP. Initialize the existing owner explicitly; administrators must
 enroll a second factor. See [Users and authentication](docs/users.md) for setup,
 permissions, mail configuration and private recovery.
 
+The Users dropdown follows Posts: Overview, New user, Access groups, History,
+Settings, Presentation and Trash. Settings configures bounded login/MFA attempts,
+session lifetimes, password minimum/optional expiry and recovery-link lifetime.
+
 Global Settings includes a private Email delivery card for PHP mail() or
 authenticated SMTP with verified TLS. Users, Contact and Forms share this transport;
 SMTP credentials stay encrypted outside content/history/exports. See

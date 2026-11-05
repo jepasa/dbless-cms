@@ -41,7 +41,10 @@ $labels=['users'=>$t('users.title'),'privacy'=>$t('privacy.title'),'customizatio
 <p class="nav-caption"><?= e($t('nav.workspace')) ?></p>
 <nav>
 <a class="dashboard-link" href="?view=dashboard" <?= $view==='dashboard'?'aria-current="page"':'' ?>><?= Icons::svg('house',$base) ?><?= e($t('nav.dashboard')) ?></a>
-<a class="users-link" href="?view=users" <?= $view==='users'?'aria-current="page"':'' ?>><?= Icons::svg('person',$base) ?><?= e($t('users.title')) ?></a>
+<details class="sidebar-dropdown users-link" data-core-menu="users" <?= $view==='users'?'open':'' ?>><summary><?= Icons::svg('person',$base) ?><?= e($t('users.title')) ?><span class="dropdown-chevron" aria-hidden="true">⌄</span></summary><div class="sidebar-submenu">
+<?php foreach((new \DBLESSCMS\UsersAdmin($this->config,$language,$base))->navigation() as $item): if(isset($item['separator'])): ?><hr><?php else: ?>
+<a href="<?= e($item['url']) ?>" <?= $view==='users'&&($_GET['screen']??'users')===$item['screen']?'aria-current="page"':'' ?>><?= e($item['label']) ?></a>
+<?php endif; endforeach; ?></div></details>
 <?php foreach ($pluginMenus as $menuId=>$menu): ?>
 <?php if ($menu['dropdown']): ?>
 <details class="sidebar-dropdown" data-plugin-menu="<?= e($menuId) ?>" <?= (($view==='plugin-panel'&&$plugins->owner($panelId)===$menuId)||($view==='plugin-about'&&$requestedPlugin===$menuId))?'open':'' ?>><summary><img class="admin-icon plugin-icon" src="<?= e($plugins->icon($menuId,$base)) ?>" width="24" height="24" alt="" aria-hidden="true"><?= e($menu['label']) ?><span class="dropdown-chevron" aria-hidden="true">⌄</span></summary><div class="sidebar-submenu">

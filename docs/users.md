@@ -6,6 +6,92 @@ external authentication services. Fixed controls follow the administrative local
 Editorial authors and publication groups are separate from accounts/access groups.
 Core [email delivery settings](mail.md) support PHP mail() or authenticated SMTP.
 
+## Workspace and navigation
+
+The Core sidebar uses the same native dropdown, separators and visual components
+as Posts, fixed below Dashboard: Overview, New user, Access groups; History;
+Settings; Presentation; Trash. Links follow account capabilities and each route
+and mutation also checks authorization on the server. My profile remains in the
+account menu. Presentation is a localized, read-only operational guide.
+
+Overview and access-group catalogs use the shared searchable, sortable, paginated
+Core tables. History projects the latest 500 audit entries with UTC date, actor,
+action and target identifier. It does not retain or restore previous passwords,
+tokens, authenticator seeds or credential snapshots.
+
+Trash lists removed accounts. Removal erases password hashes, factors/recovery
+codes and reset tokens and revokes access. Restoration requires an explicitly
+selected existing group, rejects duplicate login/email and returns the same
+immutable identity as pending, preserving publication ownership. It never revives
+erased credentials or sends mail automatically. Select the restored account in
+Overview to send a new password link; mandatory MFA enrollment applies again.
+Non-protected empty groups are removed directly from Access groups and do not
+enter the account trash. There is no destructive purge action.
+
+## Authentication settings
+
+Users → Settings requires `system.manage` and stores validated policy in the
+private Users catalog under the same lock and byte revision as account changes.
+It is excluded from site JSON, editorial history and exports. Reading an older
+catalog resolves defaults without rewriting it; an invalid stored policy fails
+closed instead of reverting to defaults.
+
+| Parameter | Default | Allowed range |
+| --- | ---: | ---: |
+| Login attempts per origin | 5 | 1–20 |
+| Login attempts per account | 10 | 1–30 |
+| Login sliding window, minutes | 15 | 1–60 |
+| Idle session timeout, minutes | 30 | 5–120 |
+| Absolute session timeout, minutes | 480 | 30–1440 |
+| Minimum password length, Unicode code points | 16 | 16–128 |
+| Password lifetime, days | 0, disabled | 0–365 |
+| Password-link lifetime, minutes | 30 | 5–60 |
+| MFA attempts per origin and account | 5 | 1–10 |
+| MFA sliding window, minutes | 5 | 1–15 |
+| Pending authentication/enrollment lifetime, minutes | 5 | 1–10 |
+
+The absolute timeout must be at least the idle timeout. Both are enforced on the
+server, including locked identity mutations. Activity cannot extend the absolute
+lifetime. A shorter configured duration applies on the next authorization check;
+relaxing policy cannot revive a session already invalidated. PHP session garbage
+collection is configured for the largest permitted lifetime; hosting-level session
+cleanup may still terminate sessions earlier.
+
+Login windows count all submissions, including successful authentication. Origin
+and account quotas are independent and release as attempts leave the window; no
+permanent account lock is introduced. Account quotas use the immutable identity
+across username/email and origins. Unconfigured proxy headers cannot supply a new
+client address. Recovery request/consumption limits remain independently bounded.
+
+The password floor, 200-code-point/800-byte maximum, offline common-password list
+and Argon2id hashing remain mandatory. A higher minimum applies when a password
+is next defined, including a final policy check under the catalog lock. Unicode
+and spaces are allowed; control characters are not. No arbitrary regular
+expression, mandatory character composition or configurable hash algorithm is
+accepted. The offline list is not a comprehensive breached-password database.
+
+Periodic expiry is optional and disabled by default. When enabled, the reference
+is `passwordChangedAt`, or `createdAt` for an older account until its next reset;
+editing a profile does not renew password age. Enabling a lifetime can immediately
+expire older credentials and sessions. A correct expired password yields recovery
+instructions without full or partial private access or automatic mail. Use the
+ordinary recovery link. Successful reset records the new timestamp and preserves
+the account's existing MFA. Increasing a token/challenge lifetime never extends
+its original expiry; lowering it also limits live proofs under current policy.
+No credential is migrated or rehashed merely by reading or saving settings.
+
+The optional catalog members are understood by 2.24.0 and later. Once a policy,
+credential timestamp or issued-token timestamp has been saved, older runtime
+versions with the former closed schema cannot read that catalog. Do not downgrade
+code alone; use a compatible version or the documented whole-installation recovery
+procedure with its corresponding private state. Reading an untouched older catalog
+does not introduce those members.
+
+The defaults and ranges above are project policy. Optional periodic expiry and
+passphrases follow [OWASP Authentication guidance](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html);
+idle and absolute server-side limits follow
+[OWASP Session Management guidance](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html).
+
 ## Initialize an existing installation
 
 1. Back up the private installation using the operations runbook. Use HTTPS and an
@@ -121,9 +207,9 @@ abuse and obvious timing disclosure. A slow/failing MTA or a host under load can
 still affect latency; this is not a constant-time transport guarantee.
 
 A password link contains a random 256-bit token bound to its account. Only its
-SHA-256 hash and 30-minute expiry are stored. A later request invalidates previous
+SHA-256 hash, issuance time and configured expiry (30 minutes by default) are stored. A later request invalidates previous
 links. GET does not consume it. Password submission checks CSRF, confirmation and
-the 16–200 Unicode-character policy (up to 800 bytes and the offline common-password
+the configured minimum and 200 Unicode-character ceiling (up to 800 bytes and the offline common-password
 list), then uses native Argon2id with a fresh salt. Consumption is single-use under
 the catalog lock, including concurrent requests. Password reset revokes sessions,
 keeps existing MFA, does not sign in, and sends a security notification.
@@ -132,13 +218,13 @@ An authenticator uses RFC 6238 SHA-1, six digits, 30-second periods, ±1 period 
 window, and a persisted monotonic last-successful counter. Already accepted codes
 cannot be replayed. Each account may use one of ten high-entropy recovery codes
 once in place of its authenticator. Password authentication creates only a
-five-minute partial session when a factor is required. The first login of a new
+policy-bounded partial session (five minutes by default) when a factor is required. The first login of a new
 Administrator must enroll and confirm its authenticator before any private access.
 
 QR encoding runs locally with no remote image service. Manual enrollment works
 without QR support. The secret is temporarily held in the server-side enrollment
 session and rendered only to that private no-store/no-referrer page. Enrollment
-expires after five minutes. Seeds are encrypted with native XChaCha20-Poly1305,
+expires according to the challenge policy (five minutes by default). Seeds are encrypted with native XChaCha20-Poly1305,
 bound to the immutable account ID. Recovery codes are stored only as hashes.
 Replacement/optional disabling require the current password and an existing factor
 when enabled. Required MFA cannot be disabled from the profile. Replacing a factor
