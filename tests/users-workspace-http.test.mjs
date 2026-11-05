@@ -1,4 +1,4 @@
-/** Loopback Users workspace contracts: exact dropdown, read-only audit/trash, policy guards, translated limits and configurable HTTP quotas. */
+/** Loopback Users workspace contracts: group cards/actions, exact dropdown, read-only audit/trash, policy guards and configurable HTTP quotas. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -18,6 +18,25 @@ async function authenticate(request,info){const signed=await login(request);asse
 function values(html){return Object.fromEntries([...html.matchAll(/name="policy\[([A-Za-z]+)\]"[^>]*value="([0-9]+)"/g)].map(match=>['policy['+match[1]+']',match[2]]));}
 
 for(const application of applications){
+ test(`${path.basename(application)}: access group cards keep Back read-only and submit details and permissions together`,async()=>{
+  const c=await usersServer(application);try{
+   const info=inspect(c,prelude+String.raw`$r=$initialize();echo json_encode(['recovery'=>$r['recovery'][0]]);`),request=client(c);await authenticate(request,info);
+   const catalog=path.join(c.env.DBLESS_CMS_STORAGE_ROOT,'users/catalog.json'),before=fs.readFileSync(catalog),url='/cms-admin/?view=users&screen=group-edit';
+   let response=await request(url);assert.equal(response.status,200);let html=await response.text();
+   const form=html.match(/<form method="post" class="users-group-form">([\s\S]*?)<\/form>/)?.[1];assert.ok(form);assert.equal((form.match(/class="panel"/g)||[]).length,3);assert.doesNotMatch(form,/<form\b/);
+   assert.match(form,/<\/section><section class="panel"><h2 id="users-group-permissions-title">Permissions<\/h2>/);
+   const actions=form.match(/<div class="panel"><div class="row-actions"><a class="button-secondary" href="([^"]+)">Back<\/a><button class="button-primary" type="submit">Save changes<\/button><\/div><\/div>$/);assert.ok(actions);assert.equal(actions[1],c.base+'/cms-admin/?view=users&amp;screen=groups');
+   const post={action:field(form,'action'),csrf_token:field(form,'csrf_token'),revision:field(form,'revision'),original:field(form,'original'),id:'reviewer',name:'',description:'Review unpublished work','permissions[]':'posts.own',mfaRequired:'1'};
+   response=await request('/cms-admin/?view=users&screen=groups');assert.equal(response.status,200);await response.arrayBuffer();assert.deepEqual(fs.readFileSync(catalog),before,'Back target does not create a group');
+   response=await request(url,{method:'POST',body:new URLSearchParams(post)});assert.equal(response.status,422);html=await response.text();assert.match(html,/class="users-group-form"/);assert.match(html,/name="description"[^>]*value="Review unpublished work"/);assert.match(html,/value="posts.own" checked/);assert.match(html,/name="mfaRequired"[^>]*checked/);assert.deepEqual(fs.readFileSync(catalog),before);
+   post.name='Reviewer';response=await request(url,{method:'POST',body:new URLSearchParams(post)});assert.equal(response.status,303);assert.equal(response.headers.get('location'),c.base+'/cms-admin/?view=users&screen=groups');await response.arrayBuffer();
+   const saved=JSON.parse(fs.readFileSync(catalog)).groups.reviewer;assert.equal(saved.description,post.description);assert.deepEqual(saved.permissions,['posts.own']);assert.equal(saved.mfaRequired,true);
+   response=await request(url+'&id=reviewer');assert.equal(response.status,200);html=await response.text();assert.match(html,/value="reviewer" readonly/);const editBytes=fs.readFileSync(catalog);
+   response=await request('/cms-admin/?view=users&screen=groups');await response.arrayBuffer();assert.deepEqual(fs.readFileSync(catalog),editBytes,'Back target does not change an existing group');
+   response=await request(url+'&id=reviewer',{method:'POST',body:new URLSearchParams({...post,original:'reviewer',revision:field(html,'revision'),description:'Updated responsibility'})});assert.equal(response.status,303);await response.arrayBuffer();assert.equal(JSON.parse(fs.readFileSync(catalog)).groups.reviewer.description,'Updated responsibility');
+   assert.equal(fs.existsSync(path.join(c.temporary,'synthetic-mail.txt')),false,'Group navigation/save sends no mail');assert.doesNotMatch(c.logs(),/PHP (?:Warning|Fatal|Parse)/);
+  }finally{await c.close();}
+ });
  test(`${path.basename(application)}: Users dropdown, private policy, audit and pending restoration enforce CSRF/CAS/capabilities`,async()=>{
   const c=await usersServer(application);try{
    const info=initialize(c),request=client(c);await authenticate(request,info);const catalog=path.join(c.env.DBLESS_CMS_STORAGE_ROOT,'users/catalog.json'),before=fs.readFileSync(catalog);

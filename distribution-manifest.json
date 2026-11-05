@@ -1,6 +1,6 @@
 {
   "name": "dbless-cms",
-  "version": "2.24.0",
+  "version": "2.24.1",
   "license": "Apache-2.0",
   "files": [
     {
@@ -125,8 +125,8 @@
     },
     {
       "path": "docs/users.md",
-      "bytes": 19327,
-      "sha256": "63ce72458980e91bb566ac2292900f8ea9abc76a83d5163f3b9171b9207a0f00"
+      "bytes": 19955,
+      "sha256": "0e14eecb09c1129be4f8dd3f37c60309d8244a2d5a04c5dd07151c4583f7b749"
     },
     {
       "path": "examples/hello/public_html/plugins/hello/css/hello.css",
@@ -211,12 +211,12 @@
     {
       "path": "package-lock.json",
       "bytes": 9865,
-      "sha256": "38c09d0f936de8729ecab53b65597153b671322ca78a0cd1442cf48f517f211d"
+      "sha256": "c5ec7004fae65ce9f2e885c808c5db228a120ea94cefe2d65df837c70ec81c4d"
     },
     {
       "path": "package.json",
       "bytes": 1296,
-      "sha256": "055d48da8803f2f90797e5bda290838a02a9e91fe1723a5baa96e02583a2e57f"
+      "sha256": "f8a32d91707584805ccdaf103e523788765b92071854eac28c664290f479f966"
     },
     {
       "path": "README.md",
@@ -1451,7 +1451,7 @@
     {
       "path": "src/system/config/settings.php",
       "bytes": 480,
-      "sha256": "065c2108862a69f2e01e72ace3dfdda22ef568e0ce6758e03efb1f2b40f4b4a6"
+      "sha256": "a3fcc701f372796e9bb8fe5cdcc930e8e3fd3ad762f759c45cb3bbdb819a25a3"
     },
     {
       "path": "src/system/core.php",
@@ -1460,13 +1460,13 @@
     },
     {
       "path": "src/system/languages/en-us.json",
-      "bytes": 50195,
-      "sha256": "dd222261c25e7775348b9e7ee0a78ac6bf64e27e14209c7fd4658e272e369950"
+      "bytes": 50374,
+      "sha256": "a794c0a3d67ad50926f371470a15df764ea2048ac53a2104d64bcd677c7e7b1c"
     },
     {
       "path": "src/system/languages/pt-br.json",
-      "bytes": 54547,
-      "sha256": "0d487ea4d1b079fb9570e49ca73b4a40caa18a8c8a26f9513b8c5b2c369ab003"
+      "bytes": 54751,
+      "sha256": "71897118bec7ab352bbcfdb99cce21791355d377d68dd6ee18488de165bf9d9f"
     },
     {
       "path": "src/system/lib/Access.php",
@@ -1895,8 +1895,8 @@
     },
     {
       "path": "src/system/lib/UsersAdmin.php",
-      "bytes": 39278,
-      "sha256": "6ab6c737037a92a6e7895bec772978651fba03ded5b0918397ae909c500d1bc6"
+      "bytes": 40164,
+      "sha256": "8fc92163bf6672a6d4a2b4672a2805b653383c466f73ba3debe4ce27379d4176"
     },
     {
       "path": "src/system/lib/UserStore.php",
@@ -2905,8 +2905,8 @@
     },
     {
       "path": "tests/browser/users.mjs",
-      "bytes": 15787,
-      "sha256": "7183b287e492c7bc57f252d3bf853b4c1880bc85bd3e437a9447b43f1c37c199"
+      "bytes": 23274,
+      "sha256": "83cbc6815e1eafc862bd7cd19b848dde06a5b6b99c95766a6b3f03e42f5b5cd9"
     },
     {
       "path": "tests/browser/widgets.mjs",
@@ -3175,8 +3175,8 @@
     },
     {
       "path": "tests/users-workspace-http.test.mjs",
-      "bytes": 10556,
-      "sha256": "6822c6a9920cb7494f9fc47ef8c7a0e838596f39fdf82db02f7255fa19eb9695"
+      "bytes": 14093,
+      "sha256": "5e854615a9eefd4e99b8ee6a35ff54a2b07ac4cbdffc89a46c39d2fd249ec1a8"
     },
     {
       "path": "tests/users-workspace.test.mjs",

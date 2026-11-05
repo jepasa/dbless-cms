@@ -153,6 +153,10 @@ explicit access-group choice; it never falls back to Administrator.
 
 Up to 20 groups are supported, including the initial groups. An access group stores
 its responsibility description, a closed permission list and its MFA policy.
+The new/edit form separates group details and permissions into two cards, followed
+by an actions-only card. Back returns to Access groups without saving; Save changes
+submits the complete form. Both controls use the panel's right-aligned actions
+(the logical end in RTL), with Back before Save changes.
 The Administrator group always retains every permission. Creating a group with
 an existing identifier is rejected; editing retains the original identifier. Security-management
 permissions force MFA even in custom groups. An occupied group cannot be removed:
@@ -282,6 +286,10 @@ privilege escalation and cross-account object access. `tests/browser/users.mjs`
 uses actual forms, independent libzbar QR decoding, synthetic captured mail,
 optional MFA controls, supported locales, keyboard, mobile and synthetic RTL.
 The independent decoder requires local Python/Pillow/libzbar for QA only.
+For group-form-only changes, `DBLESS_CMS_USERS_GROUPS_ONLY=1 npm run test:browser:users`
+uses a synthetic enrolled owner and checks the three cards, create/edit/save,
+Back without writes, keyboard, both locales, mobile and RTL. This focused mode
+does not rerun QR enrollment or the unchanged authentication/pentest journeys.
 
 The existing local pentest catalog includes these controls. Core/full/release
 profiles retain their previous scopes and distinguish missing tools/failures from
