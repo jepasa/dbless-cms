@@ -6,12 +6,13 @@ final class EditorialMedia {
   /** Collect static src/poster references from one validated fragment; receives source and reference set by reference, returns nothing and performs no rendering/provider calls. */
   private static function markup(string $html,array &$references): void {
     ContentMarkup::html($html);$previous=libxml_use_internal_errors(true);$document=new \DOMDocument();
-    try{$document->loadHTML('<?xml encoding="UTF-8">'.$html,LIBXML_NONET|LIBXML_NOERROR|LIBXML_NOWARNING);foreach(['img','video','source'] as $tag)foreach($document->getElementsByTagName($tag) as $node)foreach(['src','poster'] as $attribute){$value=$node->getAttribute($attribute);if($value!==''&&!str_contains($value,'{{'))$references[$value]=true;}}
+    try{$document->loadHTML('<?xml encoding="UTF-8">'.$html,LIBXML_NONET|LIBXML_NOERROR|LIBXML_NOWARNING);foreach(['img','video','source'] as $tag)foreach($document->getElementsByTagName($tag) as $node)foreach(['src','poster'] as $attribute){$value=$node->getAttribute($attribute);$value=preg_replace('~^\{\{\s*cms\.base\s*\}\}/~','',$value);if($value!==''&&!str_contains($value,'{{'))$references[$value]=true;}}
     finally{libxml_clear_errors();libxml_use_internal_errors($previous);}
   }
   /** Walk only sanitized exported data for authored markup and page metadata; receives data/reference set, no external I/O and no interpretation of arbitrary text as HTML. */
   private static function collect(array $data,array &$references): void {
     if(isset($data['html'],$data['bindings'])&&is_string($data['html'])&&is_array($data['bindings']))self::markup($data['html'],$references);
+    if(($data['type']??null)==='image'&&is_string($data['src']??null)&&$data['src']!=='')$references[$data['src']]=true;
     if(isset($data['meta']['image'])&&is_string($data['meta']['image'])&&$data['meta']['image']!=='')$references[$data['meta']['image']]=true;
     if(isset($data['seo']['socialImage'])&&is_string($data['seo']['socialImage'])&&$data['seo']['socialImage']!=='')$references[$data['seo']['socialImage']]=true;
     foreach($data as $value)if(is_array($value))self::collect($value,$references);

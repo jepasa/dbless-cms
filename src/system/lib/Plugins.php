@@ -1,12 +1,23 @@
 <?php
 /** Registro de plugins API 1: descoberta por metadados/rotas/navegação, ativação explícita e configuração revisionada. */
 declare(strict_types=1);
+/** Shared CMS services and validated extension integration.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
+/** Discover installed packages and separately validate owner-controlled aliases before exposing metadata or executing entrypoints. */
 final class Plugins {
+  /** @var array<string,array> Valid installed manifests; compatibility aliases are deliberately excluded. */
   private array $catalog = [];
+  /** @var array<string,string> Invalid package IDs mapped to translated diagnostic keys. */
   private array $rejected = [];
+  /** @var array<string,array> Validated retired contracts with their installed owner identity. */
+  private array $aliases = [];
   /** Descobre manifests sem execução; recebe store; configuration=false dispensa opções; inválidos ficam diagnosticáveis por ID; valida fonte/declarações de apresentação sem exigir traduções opcionais. */
-  public function __construct(private readonly JsonStore $store) {
+  public function __construct(
+    /** @var JsonStore Shared private persistence and configuration authority; never supplied by request paths. */
+    private readonly JsonStore $store
+  ) {
     $root=$store->config->root.'/plugins';
     if (is_link($root)) throw new HttpError(503,'Registro inseguro.','error.plugin');
     foreach (glob($root.'/*',GLOB_ONLYDIR) ?: [] as $directory) {
@@ -40,6 +51,8 @@ final class Plugins {
           if (!is_array($manifest['publicSettings']) || !array_is_list($manifest['publicSettings']) || count($manifest['publicSettings'])>50) throw new \RuntimeException('Campos públicos inválidos.');
           foreach ($manifest['publicSettings'] as $key) if (!is_string($key) || !isset($schema['properties'][$key])) throw new \RuntimeException('Campo público sem contrato.');
         }
+        if(isset($manifest['dependencies'])){if(!is_array($manifest['dependencies'])||!array_is_list($manifest['dependencies'])||count($manifest['dependencies'])>8)throw new \RuntimeException('Invalid plugin dependencies.');foreach($manifest['dependencies'] as $dependency)if(!is_string($dependency)||!self::identifier($dependency)||$dependency===$id)throw new \RuntimeException('Invalid plugin dependency.');}
+        if(isset($manifest['replacesNavigation'])){if(!is_array($manifest['replacesNavigation'])||!array_is_list($manifest['replacesNavigation'])||count($manifest['replacesNavigation'])>8)throw new \RuntimeException('Invalid navigation replacement.');foreach($manifest['replacesNavigation'] as $replaced)if(!is_string($replaced)||!self::identifier($replaced)||$replaced===$id)throw new \RuntimeException('Invalid navigation replacement.');}
         Components::definitions($manifest);ContentReferences::definitions($manifest);ContentForms::definitions($manifest);ContentDocuments::definition($manifest);
         if(($manifest['presentation']??null)!=='presentation.json')throw new \RuntimeException('Missing required presentation.json declaration.');
         PluginPresentation::definition($manifest,PluginPresentation::read($directory,$manifest['presentation']));
@@ -48,7 +61,45 @@ final class Plugins {
       } catch (\RuntimeException|HttpError $failure) { $this->rejected[$id]='error.plugin'; }
     }
     ksort($this->catalog);
+    $this->compatibility();
   }
+  /** Validate owner-declared retired identifiers, fixed contained contracts/assets and route scopes; register adapters without executing code or listing installed packages. Invalid ownership rejects the owner. */
+  private function compatibility(): void {
+    // Count all ownership claims before registration so discovery order cannot select a winner.
+    $claims=[];
+    foreach($this->catalog as $owner=>$manifest)if(is_array($manifest['compatibilityAliases']??[]))foreach(array_keys($manifest['compatibilityAliases']??[]) as $id)$claims[$id][]=$owner;
+    foreach($this->catalog as $owner=>$manifest){
+      try{
+        $aliases=$manifest['compatibilityAliases']??[];
+        if(!is_array($aliases)||count($aliases)>8||$aliases!==[]&&array_is_list($aliases))throw new \RuntimeException('Invalid compatibility aliases.');
+        $fallback=$manifest['activationFallback']??null;
+        if($fallback!==null){if(!is_array($fallback)||count($fallback)!==2||!is_array($fallback['from']??null)||!array_is_list($fallback['from'])||!is_string($fallback['untilSetting']??null)||!isset($manifest['defaults'][$fallback['untilSetting']]))throw new \RuntimeException('Invalid activation fallback.');foreach($fallback['from'] as $id)if(!is_string($id)||!isset($aliases[$id]))throw new \RuntimeException('Undeclared fallback source.');}
+        if($aliases===[])continue;
+        $registered=[];$directory=$this->store->config->root.'/plugins/'.$owner;$language=$this->language($owner,'pt-br');
+        foreach($aliases as $id=>$declaration){
+          if(!is_string($id)||!self::identifier($id)||isset($this->catalog[$id])||count($claims[$id])!==1||!is_array($declaration)||count($declaration)!==2||!is_string($declaration['directory']??null)||!preg_match('~^compatibility/[a-z][a-z0-9-]{0,63}$~D',$declaration['directory'])||!is_array($declaration['assets']??null)||count($declaration['assets'])!==2)throw new \RuntimeException('Invalid compatibility ownership.');
+          $relative=$declaration['directory'];$this->regular($directory,$relative.'/contract.json');$this->regular($directory,$relative.'/settings.schema.json');$this->regular($directory,$relative.'/Adapter.php');
+          $contract=self::json($directory.'/'.$relative.'/contract.json');
+          if(array_diff(array_keys($contract),['defaults','router','routes','configuration','publicSettings','contentServices','documentSource','mustache'])||!is_array($contract['defaults']??null))throw new \RuntimeException('Invalid compatibility contract.');
+          $schema=self::json($directory.'/'.$relative.'/settings.schema.json');$this->settingsSchema($schema,$language);Schema::validate($contract['defaults'],$schema);
+          if(array_diff_key($contract['defaults'],$manifest['defaults']))throw new \RuntimeException('Unowned compatibility settings.');
+          $this->routes($directory.'/'.$relative,$contract,$language);Components::definitions($contract);ContentReferences::definitions($contract);ContentDocuments::definition($contract);
+          foreach(['css','js'] as $kind){$asset=$declaration['assets'][$kind]??null;if(!is_string($asset)||!preg_match('~^'.$kind.'/[a-z0-9-]+\.'.$kind.'$~D',$asset))throw new \RuntimeException('Invalid compatibility asset.');$this->regular(dirname($this->store->config->root).'/public_html/plugins/'.$owner,$asset,is_file($this->store->config->root.'/config/production.php'));}
+          if(isset($contract['publicSettings'])){if(!is_array($contract['publicSettings'])||!array_is_list($contract['publicSettings'])||count($contract['publicSettings'])>50)throw new \RuntimeException('Invalid compatibility public settings.');foreach($contract['publicSettings'] as $key)if(!is_string($key)||!isset($schema['properties'][$key]))throw new \RuntimeException('Invalid compatibility public setting.');}
+          if(isset($contract['configuration'])&&$contract['configuration']!==false){if(!is_string($contract['configuration']))throw new \RuntimeException('Invalid compatibility configuration.');$route=$contract['routes'][$contract['configuration']]??null;if($route===null||($route['visibility']??'private')!=='private'||$route['requiresEnabled']!==false)throw new \RuntimeException('Invalid compatibility configuration.');}
+          $identity=array_intersect_key($manifest,array_fill_keys(['name','description','version','api','cmsMajor','entry','class','presentation','presentationLocales'],true));
+          $registered[$id]=array_replace($identity,$contract,['id'=>$id,'owner'=>$owner,'compatibilityDirectory'=>$relative,'assets'=>$declaration['assets']+['icon'=>$manifest['assets']['icon']]]);
+        }
+        $this->aliases+=$registered;
+      }catch(\RuntimeException|HttpError $failure){unset($this->catalog[$owner]);$this->rejected[$owner]='error.plugin';}
+    }
+  }
+  /** Return installed metadata plus validated compatibility contracts for resolver lookups, without implying an independent package or executing adapters. */
+  public function available(): array {return $this->catalog+$this->aliases;}
+  /** Resolve an installed owner for a validated ID; receive ID, return owner ID without writes, fail 404 when absent. */
+  public function owner(string $id): string {return $this->get($id)['owner']??$id;}
+  /** Resolve a validated private schema location for installed/retired identifiers; receive ID, return contained path without writes. */
+  private function schemaPath(string $id): string {$manifest=$this->get($id);return $this->store->config->root.'/plugins/'.$this->owner($id).'/'.(isset($manifest['compatibilityDirectory'])?$manifest['compatibilityDirectory'].'/':'').'settings.schema.json';}
   /** Valida ID opaco; recebe string e retorna bool, sem resolver caminhos. */
   public static function identifier(string $id): bool { return (bool)preg_match('/^[a-z][a-z0-9-]{0,63}$/D',$id); }
   /** Valida rotas e navegação declaradas sem executar scripts; recebe raiz/manifesto/idioma; rejeita destinos externos e desconhecidos. */
@@ -94,9 +145,9 @@ final class Plugins {
   }
   /** Build localized manifest menus with a Core presentation destination and final trash role; receive locale, return menu data without executing plugins or writing state. */
   public function navigation(string $locale): array {
-    $menus=[];
+    $menus=[];$hidden=[];foreach($this->catalog as $owner=>$definition)if(isset($definition['replacesNavigation'])&&$this->state($owner)['enabled'])foreach($definition['replacesNavigation'] as $replaced)$hidden[$replaced]=true;
     foreach ($this->catalog as $id=>$manifest) {
-      if (!isset($manifest['navigation'])) continue;
+      if (!isset($manifest['navigation'])||isset($hidden[$id])) continue;
       $language=$this->language($id,$locale); $menu=$manifest['navigation'];
       $items=$menu['items']??[['label'=>$menu['label'],'route'=>$menu['route']]];
       $ordered=[]; $trash=null;
@@ -115,7 +166,7 @@ final class Plugins {
   }
   /** Resolve SVG declarado dentro do pacote público; recebe ID/base, retorna URL escapável ou 404 para plugin inválido, sem escrita. */
   public function icon(string $id,string $base=''): string {
-    $manifest=$this->get($id);return asset('plugins/'.$id.'/'.$manifest['assets']['icon'],$base);
+    $manifest=$this->get($id);return asset('plugins/'.$this->owner($id).'/'.$manifest['assets']['icon'],$base);
   }
   /** Resolve rota apenas no escopo solicitado; recebe plugin/ID/visibilidade, retorna metadados ou 404 sem executar código. */
   public function route(string $id,string $route='',string $visibility='private'): array {
@@ -177,16 +228,23 @@ final class Plugins {
   public function invalid(): array { return $this->rejected; }
   /** Retorna documento de plugins revisionado; ausência em instalações anteriores usa configuração vazia desativada. */
   public function document(): array { return $this->store->read('plugins'); }
-  /** Retorna estado com defaults aditivos de opções; recebe ID válido; não escreve nem altera ativação. */
+  /** Resolve owner/alias state with additive options and declared pre-upgrade activation fallback; receive validated ID, return effective state without writing configuration. */
   public function state(string $id): array {
-    $manifest=$this->get($id); $state=$this->document()['data']['plugins'][$id]??['enabled'=>false,'settings'=>[]];
-    $state['settings']=array_replace_recursive($manifest['defaults'],$state['settings']);return $state;
+    // Compatibility inherits owner state; legacy settings are projected in memory until an explicit save.
+    $manifest=$this->get($id);
+    if(isset($manifest['owner'])){$state=$this->state($manifest['owner']);$state['settings']=array_intersect_key($state['settings'],$this->schema($id)['properties']);return $state;}
+    $document=$this->document()['data']['plugins'];$state=$document[$id]??['enabled'=>false,'settings'=>[]];$inherited=[];
+    if(isset($manifest['activationFallback'])){$fallback=$manifest['activationFallback'];foreach($fallback['from'] as $source)$inherited=array_replace_recursive($inherited,array_intersect_key($document[$source]['settings']??[],$manifest['defaults']));if(!array_key_exists($fallback['untilSetting'],$state['settings']))foreach($fallback['from'] as $source)$state['enabled']=$state['enabled']||($document[$source]['enabled']??false);}
+    $state['settings']=array_replace_recursive($manifest['defaults'],$inherited,$state['settings']);return $state;
   }
   /** Consulta manifesto por ID opaco; retorna objeto ou 404. */
-  public function get(string $id): array { return $this->catalog[$id]??throw new HttpError(404,'Plugin indisponível.','error.plugin'); }
+  public function get(string $id): array { return $this->catalog[$id]??$this->aliases[$id]??throw new HttpError(404,'Plugin indisponível.','error.plugin'); }
   /** Carrega código local confiável apenas após seleção explícita; recebe ID e retorna contrato implementado ou 503. */
   public function instance(string $id): PluginInterface {
-    $manifest=$this->get($id); require_once $this->store->config->root.'/plugins/'.$id.'/'.$manifest['entry'];
+    // Only the validated installed owner can create an alias adapter; request input never selects a file.
+    $manifest=$this->get($id);
+    if(isset($manifest['owner'])){$owner=$this->instance($manifest['owner']);if(!$owner instanceof PluginCompatibilityInterface)throw new HttpError(503,'Compatibility interface unavailable.','error.plugin');return $owner->compatibility($id);}
+    require_once $this->store->config->root.'/plugins/'.$id.'/'.$manifest['entry'];
     $class=$manifest['class']; $plugin=new $class();
     if (!$plugin instanceof PluginInterface) throw new HttpError(503,'Contrato de plugin inválido.','error.plugin');
     return $plugin;
@@ -196,19 +254,20 @@ final class Plugins {
     $manifest=$this->get($id); $state=$this->state($id);
     $page=isset($manifest['routes'])?$this->route($id,$route):null;
     if (!$state['enabled'] && ($page['requiresEnabled']??true)) throw new HttpError(404,'Plugin desativado.','error.plugin');
-    Schema::validate($state['settings'],self::json($this->store->config->root.'/plugins/'.$id.'/settings.schema.json'));
+    Schema::validate($state['settings'],$this->schema($id));
     if ($page['requiresEnabled']??true) $this->instance($id)->validateSettings($state['settings'],$this->store->config);
     $language=$this->language($id,$locale);
     return new PluginContext($this->store->config,$this->store,$manifest,$state['settings'],$this->document()['revision'],$base,$language,$page['id']??$route,$integrated);
   }
   /** Carrega idioma próprio com fallback pt-br; recebe ID/locale e retorna catálogo validado sem escrita. */
   public function language(string $id,string $locale): Language {
-    $this->get($id); $language=new Language($this->store->config->root.'/plugins/'.$id.'/languages'); $language->select($locale); return $language;
+    $language=new Language($this->store->config->root.'/plugins/'.$this->owner($id).'/languages'); $language->select($locale); return $language;
   }
-  /** Salva ativação/configuração sob revisão global; recebe ID/flag/dados/revisão; valida antes de gravar/backupear. */
+  /** Save owner activation/options under global CAS; receive ID/flag/settings/revision, map historical settings calls to the owner and preserve other entries, validating before writes/backups. */
   public function save(string $id,bool $enabled,array $settings,string $revision): void {
-    $this->get($id); Schema::validate($settings,self::json($this->store->config->root.'/plugins/'.$id.'/settings.schema.json'));
+    $manifest=$this->get($id);if(isset($manifest['activationFallback']))$settings=array_replace_recursive($this->state($id)['settings'],$settings);Schema::validate($settings,$this->schema($id));
     $this->instance($id)->validateSettings($settings,$this->store->config);
+    if(isset($manifest['owner'])){$owner=$manifest['owner'];$this->save($owner,$enabled,array_replace_recursive($this->state($owner)['settings'],$settings),$revision);return;}
     $document=$this->document()['data']; $document['plugins'][$id]=['enabled'=>$enabled,'settings'=>$settings];
     $this->store->save('plugins',JsonStore::encode($document),$revision);
   }
@@ -234,9 +293,9 @@ final class Plugins {
   /** Valida todos os estados antes de salvar/restaurar; recebe documento, sem escrita; código local valida raízes/contratos. */
   public function validateDocument(array $document): void {
     foreach ($document['plugins'] as $id=>$state) {
-      if (!isset($this->catalog[$id]) && !$state['enabled']) continue;
-      $this->get($id); Schema::validate($state['settings'],$this->schema($id));
-      $this->instance($id)->validateSettings($state['settings'],$this->store->config);
+      if (!isset($this->available()[$id]) && !$state['enabled']) continue;
+      $manifest=$this->get($id);$settings=array_replace_recursive($manifest['defaults'],$state['settings']);Schema::validate($settings,$this->schema($id));
+      $this->instance($id)->validateSettings($settings,$this->store->config);
     }
   }
   /** Retorna metadados literais; recebe ID/locale administrativo compatível e retorna texto, sem executar entrypoint ou gravar. */
@@ -245,5 +304,5 @@ final class Plugins {
     return ['name'=>$manifest['name'],'description'=>$manifest['description']??''];
   }
   /** Retorna schema de configuração para formulário genérico; recebe ID e não executa código do plugin. */
-  public function schema(string $id): array { $this->get($id); return self::json($this->store->config->root.'/plugins/'.$id.'/settings.schema.json'); }
+  public function schema(string $id): array {return self::json($this->schemaPath($id));}
 }

@@ -33,7 +33,7 @@ for(const application of applications){
     }finally{c.close();}
   });
   test(`${path.basename(application)}: changed core and plugin dictionaries retain matching keys and placeholders`,()=>{
-    for(const directory of ['system/languages',...['pages','blog','homepage','slides','files-manager'].map(id=>'system/plugins/'+id+'/languages')]){
+    for(const directory of ['system/languages',...['posts','homepage','slides','files-manager'].map(id=>'system/plugins/'+id+'/languages')]){
       const locales=['pt-br','en-us'].map(locale=>JSON.parse(fs.readFileSync(path.join(application,directory,locale+'.json'))).messages);assert.deepEqual(Object.keys(locales[0]).sort(),Object.keys(locales[1]).sort(),directory);
       for(const key of Object.keys(locales[0]))assert.deepEqual((locales[0][key].match(/\{[a-zA-Z0-9_]+\}/g)||[]).sort(),(locales[1][key].match(/\{[a-zA-Z0-9_]+\}/g)||[]).sort(),directory+': '+key);
     }

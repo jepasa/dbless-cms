@@ -38,7 +38,8 @@
     "component-list": "component-list.php",
     "homepage-markup": "homepage-markup.php",
     "contact-form": "contact-form.php",
-    "homepage-composition": "homepage-composition.php"
+    "homepage-composition": "homepage-composition.php",
+    "posts": "posts.php"
   },
   "version": "2.1.0",
   "author": "dbless-cms",

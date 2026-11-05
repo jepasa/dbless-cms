@@ -33,14 +33,13 @@ Manage optional resources with explicit controls, and build accessible forms wit
 
 ## Explore a complete example
 
-The distribution includes the **Essencial** template and eight ready-to-use plugins:
+The distribution includes the **Essencial** template and seven ready-to-use plugins:
 
 | Plugin | What it brings to your project |
 | --- | --- |
-| Blog | Articles, scheduled publication, authors, topics, SEO, RSS and moderated comments |
 | Widgets | Positional values, reusable widgets and ordered sets inserted through components |
 | Homepage | Compose sections, reuse components and review private drafts before publishing |
-| Pages | Structured pages, drafts, publishing, history and trash |
+| Posts | Pages, articles, custom types, routes, taxonomies, search, scheduling and moderated discussion |
 | Menu | Hierarchical navigation assigned to locations declared by your template |
 | Slides | Banners, carousels, testimonials, product displays and rotating content |
 | Files Manager | Public/private uploads, recoverable deletion and descriptive operation history |
@@ -80,7 +79,7 @@ ignored by production packages.
 
 ## Publish a journal that belongs to you
 
-The bundled [Blog](docs/plugins.md#12-run-the-bundled-blog) brings an editorial workflow
+The bundled [Posts](docs/plugins.md#12-manage-publications-with-posts) brings an editorial workflow
 to your website: structured articles, visual covers, scheduled publishing, searchable
 archives and RSS. Enable moderated discussion when your project needs it. Keep articles
 in portable JSON and let your template own the reading experience.

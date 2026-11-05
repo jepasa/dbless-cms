@@ -1,0 +1,83 @@
+/** Public/private publication HTTP contracts on loopback fixtures: friendly dispatch, alias/canonical safety, published-only XML/search and authenticated CAS/CSRF denial. */
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import {applications,server,inspect,password} from './helpers/extension-media.mjs';
+/** Extract one required hidden control from trusted synthetic HTML; receive document/name, return attribute bytes or fail without logging credentials. */
+function field(html,name){const match=html.match(new RegExp('name="'+name+'"[^>]*value="([^"]*)"'));assert.ok(match,name);return match[1];}
+for(const application of applications)test(`${path.basename(application)}: type dialogs enforce 20 including built-ins, immutable identity and CAS; Special pages is unavailable`,async()=>{
+ const c=await server(application);let cookie='';
+ /** Request the isolated administrative API with this session; receives relative destination/options, returns an unfollowed response and propagates transport failures. */
+ async function request(url,options={}){const response=await fetch(c.base+url,{...options,redirect:'manual',headers:{...(cookie?{Cookie:cookie}:{}),...options.headers}});for(const value of response.headers.getSetCookie())if(value.startsWith('DBLESSCMSSESSID='))cookie=value.split(';')[0];return response;}
+ try{
+  const pluginFile=path.join(c.contents,'plugins.json'),plugins=JSON.parse(fs.readFileSync(pluginFile));plugins.plugins.posts={enabled:true,settings:{browser:{pageSize:25}}};fs.writeFileSync(pluginFile,JSON.stringify(plugins));
+  const reserved=['home','404'].map(id=>[path.join(c.contents,'pages',id+'.json'),fs.readFileSync(path.join(c.contents,'pages',id+'.json'))]);
+  for(const [start,end] of [[0,3],[3,6],[6,9],[9,12],[12,15],[15,17]])inspect(c,`$r=new DBLESSCMS\\Posts($s);for($i=${start};$i<${end};$i++){$type=DBLESSCMS\\PostTypes::defaults()['page'];$type['id']='type-'.$i;$type['singular']='Type '.$i;$type['plural']='Types '.$i;$r->change('type-save','',['type'=>$type],$r->read()['revision'],$s->read('site')['revision'],$r->sourceRevision());}echo 'true';`);
+  const login=await(await request('/cms-admin/')).text();const signed=await request('/cms-admin/',{method:'POST',body:new URLSearchParams({action:'login',username:'editor',password,csrf_token:field(login,'csrf_token')})});await signed.arrayBuffer();assert.equal(signed.status,303);
+  const settings='/cms-admin/?view=plugin-panel&plugin=posts&route=settings',api='/cms-admin/?view=plugin-api&plugin=posts&route=settings&operation=type-save';
+  let html=await(await request(settings)).text();const token=field(html,'csrf_token');assert.match(html,/19 of 20/);assert.match(html,/data-post-type-dialog/);assert.match(html,/Publication types/);assert.doesNotMatch(html,/posts\.specialPages|route=special|Special pages|All publications|Add publication|Types and settings/);
+  for(const route of ['/cms-admin/?view=plugin-panel&plugin=posts&route=special','/cms-admin/?view=plugin-api&plugin=posts&route=special&operation=save','/plugins/posts/special']){const denied=await request(route);assert.equal(denied.status,404);await denied.arrayBuffer();}
+  /** Build a valid closed type submission from current revisions; receives immutable original/new identity and overrides, returns plain form values without mutation. */
+  function payload(id,typeId,overrides={}){const revisions=inspect(c,`$r=new DBLESSCMS\\Posts($s);echo json_encode([$r->read()['revision'],$s->read('site')['revision'],$r->sourceRevision()]);`);return {csrf_token:token,id,typeId,singular:'Type',plural:'Types',kind:'page',routeMode:'default',prefix:'',supports_groups:'1',supports_tags:'1',supports_hierarchical:'1',revision:revisions[0],site_revision:revisions[1],source_revision:revisions[2],...overrides};}
+  const twentieth=payload('','last-type');let response=await request(api,{method:'POST',body:new URLSearchParams(twentieth)});assert.equal(response.status,200);assert.match((await response.json()).redirect,/plugin=posts&route=settings$/);
+  html=await(await request(settings)).text();assert.match(html,/20 of 20/);assert.match(html,/data-post-type-new[^>]*disabled/);assert.match(html,/data-post-type-edit="last-type"/);
+  const catalog=path.join(c.contents,'posts/catalog.json'),before=fs.readFileSync(catalog),historyBefore=inspect(c,`echo json_encode((new DBLESSCMS\\Posts($s))->repository()->history());`);
+  for(const [values,status,message] of [[payload('','overflow'),422,'The limit of 20'],[payload('','page'),409,'conflicts'],[payload('page','renamed'),422,'Invalid publication'],[payload('missing','missing'),404,'unavailable'],[payload('last-type','last-type',{revision:twentieth.revision}),409,'Another edit'],[payload('last-type','last-type',{csrf_token:'invalid'}),403,'']]){
+   response=await request(api,{method:'POST',body:new URLSearchParams(values)});assert.equal(response.status,status);const error=await response.json();if(message)assert.ok(error.error.includes(message),error.error);assert.deepEqual(fs.readFileSync(catalog),before);
+  }
+  assert.deepEqual(inspect(c,`echo json_encode((new DBLESSCMS\\Posts($s))->repository()->history());`),historyBefore);
+  response=await request(api,{method:'POST',body:new URLSearchParams(payload('last-type','last-type',{plural:'Updated types'}))});assert.equal(response.status,200);await response.json();const updated=JSON.parse(fs.readFileSync(catalog));assert.equal(Object.keys(updated.types).length,20);assert.equal(updated.types['last-type'].plural,'Updated types');
+  for(const [file,bytes] of reserved)assert.deepEqual(fs.readFileSync(file),bytes,'Reserved documents must remain byte-identical.');assert.doesNotMatch(c.logs(),/PHP (?:Warning|Fatal|Parse)/);
+ }finally{await c.close();}
+});
+for(const application of applications)test(`${path.basename(application)}: canonical Posts settings and moderation work without either retired package`,async()=>{
+ const c=await server(application);let cookie='';
+ /** Send one loopback request while retaining only this fixture's session; receive URL/options, return unfollowed response, propagate network failures. */
+ async function request(url,options={}){const response=await fetch(c.base+url,{...options,redirect:'manual',headers:{...(cookie?{Cookie:cookie}:{}),...options.headers}});for(const value of response.headers.getSetCookie())if(value.startsWith('DBLESSCMSSESSID='))cookie=value.split(';')[0];return response;}
+ try{
+  const login=await(await request('/cms-admin/')).text();const signed=await request('/cms-admin/',{method:'POST',body:new URLSearchParams({action:'login',username:'editor',password,csrf_token:field(login,'csrf_token')})});await signed.arrayBuffer();assert.equal(signed.status,303);
+  const options=await(await request('/cms-admin/?view=plugin-panel&plugin=posts&route=settings')).text();assert.match(options,/operation=options-save/);assert.doesNotMatch(options,/\/plugins\/(?:pages|blog)\/(?:css|js)\//);
+  const state=inspect(c,`$p=new DBLESSCMS\\Plugins($s);echo json_encode([$p->state('posts')['settings'],$p->document()['revision']]);`);state[0].discussion.enabled=true;
+  const values={csrf_token:field(options,'csrf_token'),revision:state[1],document:JSON.stringify(state[0])};
+  const saved=await request('/cms-admin/?view=plugin-api&plugin=posts&route=settings&operation=options-save',{method:'POST',body:new URLSearchParams(values)});assert.equal(saved.status,200);assert.match((await saved.json()).redirect,/plugin=posts&route=settings/);
+  cookie='';const article=await request('/plugins/posts/article?slug=designing-with-clarity');assert.equal(article.status,200);const body=await article.text();const submitted=await request('/plugins/posts/comment',{method:'POST',body:new URLSearchParams({csrf_token:field(body,'csrf_token'),article:'designing-with-clarity',name:'Synthetic reader',body:'CONSOLIDATED-MODERATION-CANARY',consent:'1',website:''})});await submitted.arrayBuffer();assert.equal(submitted.status,303);
+  const pending=inspect(c,`(new DBLESSCMS\\Plugins($s))->instance('posts');$b=new DBLESSCMS\\BlogStore($s,'comments');$d=$b->read();echo json_encode([array_values($d['data']['comments'])[0],$d['revision']]);`);assert.equal(pending[0].status,'pending');
+  const unauthorized=await request('/cms-admin/?view=plugin-api&plugin=posts&route=comments&operation=moderate',{method:'POST',body:new URLSearchParams({csrf_token:field(body,'csrf_token'),id:pending[0].id,status:'approved',revision:pending[1]})});await unauthorized.arrayBuffer();assert.equal(unauthorized.status,403);
+  const auth=await(await request('/cms-admin/')).text();const signedAgain=await request('/cms-admin/',{method:'POST',body:new URLSearchParams({action:'login',username:'editor',password,csrf_token:field(auth,'csrf_token')})});await signedAgain.arrayBuffer();
+  const comments=await(await request('/cms-admin/?view=plugin-panel&plugin=posts&route=comments')).text();assert.match(comments,/operation=moderate/);assert.match(comments,/CONSOLIDATED-MODERATION-CANARY/);
+  const approved=await request('/cms-admin/?view=plugin-api&plugin=posts&route=comments&operation=moderate',{method:'POST',body:new URLSearchParams({csrf_token:field(comments,'csrf_token'),id:pending[0].id,status:'approved',revision:pending[1]})});assert.equal(approved.status,200);assert.match((await approved.json()).redirect,/plugin=posts&route=comments/);assert.match(await(await request('/plugins/posts/article?slug=designing-with-clarity')).text(),/CONSOLIDATED-MODERATION-CANARY/);
+  for(const surface of ['system','public_html'])for(const id of ['pages','blog'])assert.equal(fs.existsSync(path.join(c.app,surface,'plugins',id)),false);
+ }finally{await c.close();}
+});
+for(const application of applications)test(`${path.basename(application)}: publication HTTP preserves aliases, blocks private snapshots and enforces session/CSRF/site/source CAS`,async()=>{
+ const c=await server(application);let cookie='';
+ /** Request only this loopback fixture and retain its session cookie; receive relative URL/options, return response without following redirects. */
+ async function request(url,options={}){const response=await fetch(c.base+url,{...options,redirect:'manual',headers:{...(cookie?{Cookie:cookie}:{}),...options.headers}});for(const value of response.headers.getSetCookie())if(value.startsWith('DBLESSCMSSESSID='))cookie=value.split(';')[0];return response;}
+ try{
+  const configFile=path.join(c.contents,'plugins.json'),config=JSON.parse(fs.readFileSync(configFile));config.plugins.posts={enabled:true,settings:{browser:{pageSize:25}}};fs.writeFileSync(configFile,JSON.stringify(config));
+  const info=inspect(c,`
+    $r=new DBLESSCMS\\Posts($s);$change=function($action,$id,$input=[])use($r,$s){return $r->change($action,$id,$input,$r->read()['revision'],$s->read('site')['revision'],$r->sourceRevision());};
+    $type=DBLESSCMS\\PostTypes::defaults()['page'];$type['id']='project';$type['singular']='Project';$type['plural']='Projects';$type['routeMode']='custom';$type['prefix']='projects';$change('type-save','',['type'=>$type]);
+    $snap=array_values(array_filter($r->records(),static fn($row)=>$row['source']['plugin']==='pages'))[0]['draft'];$snap['type']='project';$snap['slug']='http-item';$snap['document']['meta']['title']='HTTP-PUBLIC-PUBLICATION';$snap['document']['markup']=['html'=>'<p>HTTP-PUBLIC-BODY</p>','bindings'=>[]];$created=$change('create','',['snapshot'=>$snap]);$id=$created['id'];$change('publish',$id);$snap=$r->record($id)['draft'];$snap['document']['markup']['html']='<p>HTTP-PRIVATE-DRAFT-CANARY</p>';$snap['slug']='http-private-slug';$change('save',$id,['snapshot'=>$snap]);
+    $future=$snap;$future['slug']='http-future-slug';$future['document']['markup']['html']='<p>HTTP-FUTURE-CANARY</p>';$change('save',$id,['snapshot'=>$future]);$change('schedule',$id,['publishAt'=>gmdate('Y-m-d\\TH:i:s\\Z',time()+3600)]);$change('save',$id,['snapshot'=>$snap]);
+    $type['prefix']='work';$change('type-save','project',['type'=>$type]);$article=DBLESSCMS\\PostTypes::defaults()['article'];$article['routeMode']='custom';$article['prefix']='press';$change('type-save','article',['type'=>$article]);echo json_encode(['id'=>$id]);
+  `);
+  const file=path.join(c.contents,'posts/catalog.json'),before=fs.readFileSync(file,'utf8');
+  let response=await request('/work/http-item');assert.equal(response.status,200);let html=await response.text();assert.match(html,/HTTP-PUBLIC-BODY/);assert.doesNotMatch(html,/HTTP-PRIVATE-DRAFT-CANARY/);assert.match(html,/rel="canonical"[^>]+\/work\/http-item/);
+  for(const route of ['/work/http-private-slug','/work/http-future-slug']){response=await request(route);assert.equal(response.status,404,'Unreleased URL must stay unavailable: '+route);await response.arrayBuffer();}
+  response=await request('/projects/http-item');assert.equal(response.status,301);assert.equal(new URL(response.headers.get('location')).pathname,'/work/http-item');await response.arrayBuffer();
+  response=await request('/projects?q=HTTP');assert.equal(response.status,301);assert.equal(new URL(response.headers.get('location')).pathname,'/work');assert.equal(new URL(response.headers.get('location')).searchParams.get('q'),'HTTP');await response.arrayBuffer();
+  response=await request('/plugins/blog/article?slug=designing-with-clarity');assert.equal(response.status,301);assert.equal(new URL(response.headers.get('location')).pathname,'/press/designing-with-clarity');await response.arrayBuffer();
+  response=await request('/press/designing-with-clarity');assert.equal(response.status,200);assert.match(await response.text(),/Designing with clarity/);
+  for(const route of ['/search?q=HTTP&type=project','/plugins/posts/feed','/plugins/posts/sitemap']){response=await request(route);assert.equal(response.status,200,route);html=await response.text();assert.match(html,/HTTP-PUBLIC-PUBLICATION|http-item/);assert.doesNotMatch(html,/HTTP-PRIVATE-DRAFT-CANARY|HTTP-FUTURE-CANARY/);}
+  response=await request('/search?page=2');assert.equal(response.status,200);assert.doesNotMatch(await response.text(),/HTTP-PRIVATE-DRAFT-CANARY/);assert.equal((await request('/work/missing')).status,404);assert.equal((await request('/search?tags=missing')).status,400);assert.equal((await request('/plugins/posts/settings')).status,404);assert.equal((await request('/work/http-item',{method:'POST'})).status,405);
+  response=await request('/search?q='+encodeURIComponent('<script>alert(1)</script>'));assert.equal(response.status,422);assert.doesNotMatch(await response.text(),/<script>|onerror=/);
+  assert.equal(fs.readFileSync(file,'utf8'),before,'Public GETs must not persist lifecycle changes.');
+  const api='/cms-admin/?view=plugin-api&plugin=posts&route=editor&operation=publish';response=await request(api,{method:'POST',body:new URLSearchParams({id:info.id})});assert.equal(response.status,403);await response.arrayBuffer();
+  html=await(await request('/cms-admin/')).text();response=await request('/cms-admin/',{method:'POST',body:new URLSearchParams({action:'login',username:'editor',password,csrf_token:field(html,'csrf_token')})});assert.equal(response.status,303);await response.arrayBuffer();html=await(await request('/cms-admin/?view=plugin-panel&plugin=posts&route=editor&id='+info.id)).text();
+  const payload={id:info.id,csrf_token:field(html,'csrf_token'),revision:field(html,'revision'),site_revision:field(html,'site_revision'),source_revision:field(html,'source_revision')};
+  for(const [changed,status] of [[{csrf_token:'invalid'},403],[{site_revision:'stale'},409],[{source_revision:'stale'},409],[{revision:'stale'},409]]){response=await request(api,{method:'POST',headers:{Origin:c.base},body:new URLSearchParams({...payload,...changed})});assert.equal(response.status,status);await response.arrayBuffer();}
+  assert.equal(fs.readFileSync(file,'utf8'),before,'Denied operations must preserve current publication bytes.');const due=JSON.parse(before);due.records[info.id].scheduled.publishedAt=new Date(Date.now()-2000).toISOString().slice(0,19)+'Z';fs.writeFileSync(file,JSON.stringify(due));const dueBytes=fs.readFileSync(file,'utf8');response=await request('/work/http-future-slug');assert.equal(response.status,200);assert.match(await response.text(),/HTTP-FUTURE-CANARY/);response=await request('/work/http-item');assert.equal(response.status,301);assert.equal(new URL(response.headers.get('location')).pathname,'/work/http-future-slug');await response.arrayBuffer();assert.equal(fs.readFileSync(file,'utf8'),dueBytes,'Due URL selection must not persist a transition.');assert.doesNotMatch(c.logs(),/PHP (?:Warning|Fatal|Parse)/);
+ }finally{await c.close();}
+});

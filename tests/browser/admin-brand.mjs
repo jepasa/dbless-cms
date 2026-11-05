@@ -4,14 +4,34 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import {pathToFileURL} from 'node:url';
-import {applications,password,server} from '../helpers/extension-media.mjs';
+import {browserApplications,password,server} from '../helpers/extension-media.mjs';
+
+/**
+ * Verify and capture the Dashboard icon in a real navigation state.
+ * @param {import('playwright').Page} page Isolated authenticated page.
+ * @param {string} directory Existing evidence directory.
+ * @param {string} state Filename-safe navigation state.
+ * @param {string} expectedFilter Computed mint filter used by plugin icons.
+ * @returns {Promise<void>} Resolves after the icon is decoded and captured.
+ * @throws {Error} When the Dashboard uses a different tint or capture fails.
+ */
+async function checkDashboardTint(page,directory,state,expectedFilter){
+  const icon=page.locator('.sidebar .dashboard-link .admin-icon');
+  await icon.evaluate(image=>image.decode());
+  assert.equal(await icon.evaluate(image=>getComputedStyle(image).filter),expectedFilter,'Dashboard and plugin icons must share the sidebar mint filter: '+state);
+  await icon.screenshot({path:path.join(directory,'dashboard-'+state+'.png')});
+}
+
 if(!process.env.PLAYWRIGHT_MODULE)throw new Error('Set PLAYWRIGHT_MODULE to the authorized local installation.');
+/** @type {typeof import('playwright')} Authorized local Chromium driver; no dependency is downloaded. */
 const {chromium}=await import(pathToFileURL(process.env.PLAYWRIGHT_MODULE));
+/** Synthetic evidence directory and per-application results, written even when a browser assertion fails. */
 const evidence=fs.mkdtempSync(path.join(os.tmpdir(),'dbless-admin-brand-browser-')),results=[];
 console.log('Browser evidence: '+evidence);
+/** @type {import('playwright').Browser} Headless local browser closed after every application is checked. */
 const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',args:['--no-sandbox']});
 try{
-  for(const [index,application] of applications.entries()){
+  for(const [index,application] of browserApplications.entries()){
     const directory=path.join(evidence,String(index));fs.mkdirSync(directory);
     const sandbox=await server(application),context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];
     /** Confine browser traffic to this fixture; receives route, returns continue/abort and records unexpected requests. */
@@ -31,6 +51,7 @@ try{
         for(const [view,name] of Object.entries(accountIcons)){
           const icon=accountMenu.locator('a[href="?view='+view+'"] img.admin-icon');await icon.evaluate(image=>image.decode());
           const address=await icon.getAttribute('src');assert.ok(address.endsWith('/icons/'+name+'.svg'));addresses.push(address);
+          assert.doesNotMatch(await icon.evaluate(image=>getComputedStyle(image).filter),/plugin-icon-color\.svg#mint/);
         }
         assert.equal(new Set(addresses).size,3);await page.screenshot({path:path.join(directory,'account-menu-'+width+'.png')});await accountMenu.locator('summary').click();
       }
@@ -42,13 +63,19 @@ try{
       /** Measure the displayed signature against its parent; receives image and returns geometry without changing DOM. */
       const dimensions=await logo.evaluate(image=>{const a=image.getBoundingClientRect(),b=image.closest('.brand').getBoundingClientRect();return {width:a.width,height:a.height,fits:a.left>=b.left&&a.right<=b.right+1};});
       assert.ok(dimensions.width>=170&&dimensions.width<=188&&dimensions.height>=36&&dimensions.fits);
-      const icons=page.locator('.sidebar .plugin-icon');assert.equal(await icons.count(),6);
-      const urls=await icons.evaluateAll(async images=>{await Promise.all(images.map(image=>image.decode()));return images.map(image=>image.src);});assert.equal(new Set(urls).size,6);
+      const icons=page.locator('.sidebar .plugin-icon');assert.equal(await icons.count(),7);
+      const urls=await icons.evaluateAll(async images=>{await Promise.all(images.map(image=>image.decode()));return images.map(image=>image.src);});assert.equal(new Set(urls).size,7);
       for(const [number,icon] of (await icons.all()).entries()){
         assert.match(await icon.evaluate(image=>getComputedStyle(image).filter),/brand\/plugin-icon-color\.svg#mint/);
         await icon.screenshot({path:path.join(directory,'icon-'+number+'.png')});
       }
       const filterResponse=await context.request.get(sandbox.base+'/cms-admin/assets/brand/plugin-icon-color.svg');assert.equal(filterResponse.status(),200);
+      const mintFilter=await icons.first().evaluate(image=>getComputedStyle(image).filter),dashboard=page.locator('.sidebar .dashboard-link');
+      await checkDashboardTint(page,directory,'normal',mintFilter);
+      await dashboard.hover();await checkDashboardTint(page,directory,'hover',mintFilter);
+      // Keyboard activation verifies the Core destination and its active styling together.
+      await dashboard.focus();await dashboard.press('Enter');assert.equal(await dashboard.getAttribute('aria-current'),'page');
+      await checkDashboardTint(page,directory,'active',mintFilter);
       await page.screenshot({path:path.join(directory,'panel-desktop.png')});
       await icons.first().hover();await icons.first().screenshot({path:path.join(directory,'icon-hover.png')});
       const firstMenu=page.locator('[data-plugin-menu]').first();if(!await firstMenu.evaluate(node=>node.open))await firstMenu.locator('summary').click();
@@ -56,10 +83,11 @@ try{
       await firstMenu.locator('a').first().click();await page.screenshot({path:path.join(directory,'panel-active.png')});
       await page.setViewportSize({width:390,height:844});await page.locator('[data-nav-toggle]').click();await logo.waitFor({state:'visible'});
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await icons.first().screenshot({path:path.join(directory,'icon-mobile.png')});
+      await checkDashboardTint(page,directory,'mobile',mintFilter);
       await page.screenshot({path:path.join(directory,'panel-mobile.png')});
-      await page.setViewportSize({width:320,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await page.screenshot({path:path.join(directory,'panel-mobile-320.png')});
+      await page.setViewportSize({width:320,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await checkDashboardTint(page,directory,'mobile-320',mintFilter);await page.screenshot({path:path.join(directory,'panel-mobile-320.png')});
       assert.equal(await page.locator('svg').count(),0);assert.equal(await page.locator('.brand-mark').count(),0);assert.deepEqual(errors,[]);assert.doesNotMatch(sandbox.logs(),/PHP (?:Warning|Fatal|Parse)/);
-      results.push({application,status:'passed',viewports:[1440,390,320],loginAvatarPreserved:true,logoAddressedSVG:true,logoDimensions:dimensions,pluginIcons:urls.map(url=>new URL(url).pathname),filterLoaded:true,paintedIconSamples:9,icoFrames:7,accountMenuIcons:accountIcons,accountMenuRoutesVerified:true,inlineSVG:false,unexpectedErrors:errors});
+      results.push({application,status:'passed',viewports:[1440,390,320],loginAvatarPreserved:true,logoAddressedSVG:true,logoDimensions:dimensions,pluginIcons:urls.map(url=>new URL(url).pathname),dashboardTintStates:['normal','hover','active','mobile','mobile-320'],filterLoaded:true,paintedIconSamples:15,icoFrames:7,accountMenuIcons:accountIcons,accountMenuRoutesVerified:true,inlineSVG:false,unexpectedErrors:errors});
     }catch(error){await page.screenshot({path:path.join(directory,'failure.png'),fullPage:true});throw error;}finally{await context.close();await sandbox.close();}
   }
 }finally{await browser.close();fs.writeFileSync(path.join(evidence,'results.json'),JSON.stringify(results,null,2)+'\n');}

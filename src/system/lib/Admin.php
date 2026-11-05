@@ -1,10 +1,23 @@
 <?php
 /** Painel dbless-cms independente dos templates públicos: autenticação, conteúdo, histórico e seleção de tema. */
 declare(strict_types=1);
+/** Shared CMS services and validated extension integration.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
+/** Coordinate authenticated administration with shared security, revisions and plugin-owned business routes. */
 final class Admin {
   /** Recebe serviços, base pública e idioma selecionado; armazena contexto sem escrita externa. */
-  public function __construct(private readonly Config $config,private readonly JsonStore $store,private readonly string $base,private readonly Language $language) {}
+  public function __construct(
+    /** @var Config Trusted private application configuration; construction does not read credentials. */
+    private readonly Config $config,
+    /** @var JsonStore Shared revisioned editorial persistence and template registry. */
+    private readonly JsonStore $store,
+    /** @var string Validated local application base used for redirects and asset URLs. */
+    private readonly string $base,
+    /** @var Language Selected administrative dictionary; editorial content is not translated. */
+    private readonly Language $language
+  ) {}
 
   /** Extrai string limitada de formulário; recebe chave/limite, retorna string ou lança 400. */
   private function input(string $name,int $limit=128): string {
@@ -73,13 +86,13 @@ final class Admin {
       $this->redirect('plugins');
     }
     $key=$this->input('key'); $revision=$this->input('revision');
-    // Adaptador de formulários 2.0: o domínio editorial pertence ao plugin Pages.
+    // Historical forms dispatch through the validated owner adapter and the standard plugin API.
     if (in_array($action,['create','save','remove','restore'],true)&&!in_array($key,['site','plugins','templates'],true)) {
       $routes=['create'=>'new','save'=>'editor','remove'=>'editor','restore'=>'history'];$registry=new Plugins($this->store);
       $context=$registry->context('pages',$this->base,$this->language->locale(),$routes[$action]);
-      $plugin=$registry->instance('pages');
-      if (!$plugin instanceof PagesPlugin) throw new HttpError(404,'Plugin indisponível.','error.plugin');
-      $result=$plugin->change($context,$action,$_POST);$_SESSION['notice_key']=$result['notice'];header('Location: '.$result['redirect'],true,303);exit;
+      $result=$registry->instance('pages')->api($context,$action);
+      if($result===null||!isset($result['redirect']))throw new HttpError(503,'Compatibility response unavailable.','error.plugin');
+      if(isset($result['notice']))$_SESSION['notice_key']=$result['notice'];header('Location: '.$result['redirect'],true,303);exit;
     }
     switch ($action) {
       case 'save':
@@ -135,7 +148,7 @@ final class Admin {
     $aliases=['pages'=>'overview','page-new'=>'new','page-trash'=>'trash','edit'=>'editor'];
     if ($view==='history'&&!in_array($key,['site','plugins','templates'],true)) $aliases['history']='history';
     if ($authenticated&&isset($aliases[$view])) {
-      if (!isset($plugins->all()['pages'])||!$plugins->state('pages')['enabled']) $view='plugins';
+      if (!isset($plugins->available()['pages'])||!$plugins->state('pages')['enabled']) $view='plugins';
       else {$requestedPlugin='pages';$requestedRoute=$aliases[$view];$view='plugin-panel';}
     }
     if ($view==='plugin-settings'&&is_string($requestedPlugin)) {
@@ -147,7 +160,7 @@ final class Admin {
     if($view==='plugin-about'){
       if(!is_string($requestedPlugin))throw new HttpError(400,'Invalid plugin.','error.plugin');
       $definition=$plugins->get($requestedPlugin);if(!isset($definition['presentation']))throw new HttpError(404,'Presentation unavailable.','error.not_found');
-      $selectedPresentation=PluginPresentation::select($this->config->root.'/plugins/'.$requestedPlugin,$definition,$this->language->locale(),$plugins->language($requestedPlugin,$this->language->locale()));
+      $selectedPresentation=PluginPresentation::select($this->config->root.'/plugins/'.$plugins->owner($requestedPlugin),$definition,$this->language->locale(),$plugins->language($requestedPlugin,$this->language->locale()));
       $presentation=$selectedPresentation['document'];$presentationWarning=$selectedPresentation['warning'];
       $presentationDirection=$this->language->all()[$presentation['language']]['direction']??'ltr';
     }
@@ -233,7 +246,7 @@ final class Admin {
     $id=$_GET['plugin']??$_POST['plugin']??null;
     if (is_string($id)) {
       $plugins=new Plugins($this->store);
-      if (isset($plugins->all()[$id])) {
+      if (isset($plugins->available()[$id])) {
         $catalog=$plugins->language($id,$this->language->locale());
         if ($catalog->has($failure->messageKey)) return $catalog->error($failure);
       }

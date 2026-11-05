@@ -1,10 +1,17 @@
 <?php
 /** Gerenciamento de extensões: catálogo sem execução, ativação exclusiva, opções tipadas e desinstalação recuperável. */
 declare(strict_types=1);
+/** Shared CMS services and validated extension integration.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
+/** Manage installed extension lifecycle without deleting editorial data or treating compatibility aliases as packages. */
 final class Extensions {
   /** Recebe persistência privada; sem leitura de credenciais ou efeitos de escrita. */
-  public function __construct(private readonly JsonStore $store) {}
+  public function __construct(
+    /** @var JsonStore Shared private persistence and configuration authority; never supplied by request paths. */
+    private readonly JsonStore $store
+  ) {}
 
   /** Lista extensões e suas mídias declaradas; recebe tipo/locale, retorna linhas de catálogo sem executar código ou escrever conteúdo. */
   public function catalog(string $kind,string $locale): array {
@@ -45,6 +52,7 @@ final class Extensions {
         $this->store->save('site',JsonStore::encode($site['data']),$revision);
       } elseif ($kind==='plugins') {
         $document=$this->current('plugins',$revision); $registry=new Plugins($this->store); $state=$registry->state($id);
+        if($registry->owner($id)!==$id)throw new HttpError(404,'Compatibility aliases have no independent activation.','error.plugin');
         $document['data']['plugins'][$id]=['enabled'=>$enabled,'settings'=>$state['settings']];
         $this->store->save('plugins',JsonStore::encode($document['data']),$revision);
       } else throw new HttpError(400,'Tipo inválido.','error.operation');
@@ -82,7 +90,9 @@ final class Extensions {
   public function uninstall(string $kind,string $id,string $revision,string $confirmation): void {
     if (!in_array($kind,['plugins','templates'],true) || !Templates::identifier($id) || ($kind==='plugins'&&!Plugins::identifier($id)) || $confirmation!==$id) throw new HttpError(422,'Confirmação inválida.','error.extension_confirmation');
     if ($kind==='templates' && $id===Templates::DEFAULT_ID) throw new HttpError(422,'Template padrão protegido.','error.default_template');
+    if($kind==='plugins'&&isset((new Plugins($this->store))->available()[$id]['owner']))throw new HttpError(404,'Compatibility aliases are not packages.','error.plugin');
     $this->store->transaction(function() use($kind,$id,$revision): void {
+      if($kind==='plugins'){foreach((new Plugins($this->store))->all() as $dependent=>$manifest)if(in_array($id,$manifest['dependencies']??[],true))throw new HttpError(409,'An installed plugin requires this package.','error.plugin_dependency',['plugin'=>$dependent]);}
       $key=$kind==='plugins'?'plugins':'site'; $document=$this->current($key,$revision);
       $root=$this->store->config->root.'/'.$kind; $package=$root.'/'.$id;
       if (is_link($root)) throw new HttpError(422,'Pacote inseguro.','error.extension_archive');
@@ -98,6 +108,7 @@ final class Extensions {
       if ($kind==='plugins') {
         $state=$document['data']['plugins'][$id]??null;
         if ($state!==null) $document['data']['plugins'][$id]['enabled']=false;
+        foreach((new Plugins($this->store))->available() as $alias=>$definition)if(($definition['owner']??null)===$id&&isset($document['data']['plugins'][$alias]))$document['data']['plugins'][$alias]['enabled']=false;
       } elseif ($document['data']['template']===$id) $document['data']['template']=Templates::DEFAULT_ID;
       $destination=$archive.'/'.$id.'-'.bin2hex(random_bytes(12));
       if (!@rename($package,$destination)) throw new HttpError(503,'Arquivamento indisponível.','error.extension_archive');

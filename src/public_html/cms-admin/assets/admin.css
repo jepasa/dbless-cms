@@ -235,10 +235,8 @@ textarea { resize: vertical; line-height: 1.6; }
   .row-actions { justify-content: flex-end; }
 }
 
-/* SVG externos preservam contraste sem incorporar markup vetorial ao documento. */
-.sidebar .admin-icon { filter: invert(.86) sepia(.08) saturate(1.5); }
-/* Cor exata da marca; preserva a transparência e o SVG indicado pelo manifesto. */
-.sidebar .plugin-icon { filter: url("brand/plugin-icon-color.svg#mint"); }
+/* Core e plugins compartilham a cor exata da marca no sidebar, preservando o alfa e os SVGs endereçados. */
+.sidebar .admin-icon { filter: url("brand/plugin-icon-color.svg#mint"); }
 .extension-identity { display: flex; align-items: center; gap: 14px; }
 .template-thumbnail { display: block; width: 128px; max-width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid var(--line); border-radius: 8px; flex-shrink: 0; }
 @media (max-width: 480px) { .extension-identity { flex-wrap: wrap; } }

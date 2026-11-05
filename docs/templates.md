@@ -299,7 +299,7 @@ Blog provides published data independently of the template. Register an optional
 `partials.blog` entry in `template.json`, for example `"blog": "blog.php"`. The private
 partial receives `$blogModel`, `$blogSettings` and the standard layout context. A custom
 view may render the validated data directly; the bundled implementation delegates to
-`$store->config->root . '/plugins/blog/pages/public.php'` and owns its surrounding layout
+`$store->config->root . '/plugins/posts/compatibility/blog/pages/public.php'` and owns its surrounding layout
 and stylesheet. Both bundled template integrations use addressed raster media and
 escaped typed blocks. Without a custom partial, the plugin uses its private default
 fragment with local fallback reading CSS.

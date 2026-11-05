@@ -1,8 +1,13 @@
 <?php
 /** Manifest-discovered published document sources with independent providers, bounded output and cycle protection; missing sources never dispatch arbitrary PHP methods. */
 declare(strict_types=1);
+/** Shared CMS services and validated extension integration.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
+/** Resolve published document providers with bounded output and cycle detection across nested references. */
 final class ContentDocuments {
+  /** @var array<string,true> Active store/provider/document identities for bounded recursion and cycle rejection. */
   private static array $stack=[];
   /** Validate a stable document ID (including numeric-leading page slugs); receive value, return bool without I/O. */
   public static function identifier(mixed $id): bool {return is_string($id)&&preg_match('/^[a-z0-9][a-z0-9-]{0,63}$/D',$id)===1;}
@@ -23,7 +28,7 @@ final class ContentDocuments {
   public static function resolve(array $source,ContentContext $context): ?array {
     $plugin=$source['plugin']??'';$id=$source['id']??'';if(!is_string($plugin)||!Plugins::identifier($plugin)||!is_string($id)||!self::identifier($id))return null;$key=spl_object_id($context->store).':'.$plugin.':'.$id;
     if(count(self::$stack)>=4||isset(self::$stack[$key]))throw new HttpError(422,'Circular document reference.','markup.error');self::$stack[$key]=true;
-    try{$registry=new Plugins($context->store);$manifest=$registry->all()[$plugin]??null;if($manifest===null||!isset($manifest['documentSource'])||!$registry->state($plugin)['enabled'])return null;$provider=$registry->instance($plugin);if(!$provider instanceof ContentDocumentInterface)throw new \UnexpectedValueException('Document interface missing.');$result=$provider->document($id,$context);if($result===null)return null;
+    try{$registry=new Plugins($context->store);$manifest=$registry->available()[$plugin]??null;if($manifest===null||!isset($manifest['documentSource'])||!$registry->state($plugin)['enabled'])return null;$provider=$registry->instance($plugin);if(!$provider instanceof ContentDocumentInterface)throw new \UnexpectedValueException('Document interface missing.');$result=$provider->document($id,$context);if($result===null)return null;
       Schema::validate($result,['type'=>'object','additionalProperties'=>false,'required'=>['name','description','html'],'properties'=>['name'=>['type'=>'string','maxLength'=>500],'description'=>['type'=>'string','maxLength'=>12000],'html'=>['type'=>'string','maxLength'=>524288]]]);$result['html']=ContentMarkup::html($result['html'],false);return $result;
     }catch(\Throwable $error){error_log('DBLESS-CMS document '.$plugin.' '.$error::class);return null;}finally{unset(self::$stack[$key]);}
   }

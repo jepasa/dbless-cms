@@ -34,14 +34,13 @@ Gerencie recursos opcionais com controles explícitos e crie formulários acess�
 
 ## Explore um exemplo completo
 
-A distribuição inclui o template **Essencial** e oito plugins prontos para uso:
+A distribuição inclui o template **Essencial** e sete plugins prontos para uso:
 
 | Plugin | O que oferece ao seu projeto |
 | --- | --- |
-| Blog | Artigos, agendamento, autores, tópicos, SEO, RSS e comentários moderados |
 | Widgets | Valores posicionais, Widgets reutilizáveis e conjuntos ordenados inseridos por componentes |
 | Homepage | Composição por seções, componentes reutilizáveis e rascunhos privados antes da publicação |
-| Pages | Páginas estruturadas, rascunhos, publicação, histórico e lixeira |
+| Posts | Páginas, artigos, tipos, rotas, grupos/tags, busca, agendamento e discussão moderada |
 | Menu | Navegação hierárquica associada aos locais declarados pelo template |
 | Slides | Banners, carrosséis, testemunhos, produtos e conteúdo rotativo |
 | Forms | Formulários por finalidade, inserção Mustache segura e recibos privados mínimos de entrega |
@@ -80,7 +79,7 @@ configuração privada com hash de senha e exportação explícita. Pacotes de p
 
 ## Publique um blog sob seu controle
 
-O [Blog](docs/plugins.md#12-run-the-bundled-blog) incluído oferece artigos estruturados,
+O [Posts](docs/plugins.md#12-manage-publications-with-posts) incluído oferece artigos estruturados,
 capas visuais, agendamento, arquivos pesquisáveis e RSS. Ative a discussão moderada quando
 o projeto precisar. Mantenha artigos em JSON portátil e deixe o template controlar a leitura.
 

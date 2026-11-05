@@ -1,0 +1,119 @@
+{
+  "language": "en",
+  "title": "Publications",
+  "lead": "One editorial workflow for pages, articles and custom types, preserving existing content and contracts.",
+  "sections": [
+    {
+      "id": "start",
+      "title": "Enable Publications",
+      "body": [
+        "At the plugin catalog, enable Publications to use one workspace for pages, articles and custom publication types. The original Pages and Blog endpoints remain compatible."
+      ],
+      "steps": [
+        "Open the plugin catalog and activate Publications."
+      ]
+    },
+    {
+      "id": "types",
+      "title": "Configure publication types and routes",
+      "body": [
+        "Pages retain root URLs by default; articles retain the existing Blog endpoint. New types use /posts/type/slug. Select root or a literal custom prefix such as news. Prefix changes validate all reserved paths and preserve old public addresses.",
+        "The Publication types card provides the standard table and an X of 20 capacity counter, including Pages and Articles. New publication type and Edit open a modal. Saving reloads the list; errors retain the fields. At capacity, creation is disabled and the server rejects a 21st type; editing and permitted removal remain available."
+      ],
+      "steps": [
+        "Open Settings and select New publication type to the right of the card title. Complete and save the modal; use Edit in a row to update an existing type."
+      ]
+    },
+    {
+      "id": "author",
+      "title": "Write one editorial document",
+      "body": [
+        "Use the shared visual/code editor or the synchronized JSON view. JSON contains html, bindings and preserved native content. Invalid JSON blocks switching and saving without discarding the buffer. Native Blog blocks remain retained when HTML is adopted."
+      ],
+      "steps": [
+        "Add a publication, choose its type, enter a title/slug and write its content; save a draft."
+      ]
+    },
+    {
+      "id": "lifecycle",
+      "title": "Publish, schedule and recover",
+      "body": [
+        "Saving does not change the public version. Publish the saved draft or choose a future UTC time. Due schedules are selected without storage writes. Trash and recovery retain history; restoring history changes only the working draft."
+      ],
+      "steps": [
+        "Save first; preview; then Publish or Schedule. Use History to recover an earlier draft."
+      ]
+    },
+    {
+      "id": "terms",
+      "title": "Organize groups, tags and authors",
+      "body": [
+        "Groups are hierarchical and reuse existing Blog categories. Tags are flat. Different publication types may share terms. Author profiles remain editorial records, never administrator accounts. Entries still in use cannot be removed."
+      ],
+      "steps": [
+        "Create groups/tags/authors in their screens, then assign them in publication properties."
+      ]
+    },
+    {
+      "id": "search",
+      "title": "Search and display published content",
+      "body": [
+        "Search combines text, type, group and selected tags. Different filters use AND; multiple tags use OR. Groups include descendants. Only public snapshots reach public results, feeds and providers; source references are not executed to build searchable text."
+      ],
+      "steps": [
+        "Open public search from the catalog, combine filters and follow a result. Configure the search path in settings."
+      ]
+    },
+    {
+      "id": "references",
+      "title": "Reuse data and documents",
+      "body": [
+        "Automatic Posts references expose published summaries and bounded latest queries. Existing Pages/Blog references, Menu links and templates remain compatible through their native adapters. An ambiguous slug across types resolves to unavailable; use the immutable ID."
+      ],
+      "steps": [
+        "Use the immutable publication ID or a unique slug in the Core editor; iterate finite result collections."
+      ],
+      "code": "{{#posts.latest.type.article.page.1.items}}<article><h2><a href=\"{{url}}\">{{title}}</a></h2><p>{{summary}}</p></article>{{/posts.latest.type.article.page.1.items}}"
+    },
+    {
+      "id": "legacy",
+      "title": "Adopt existing content explicitly",
+      "body": [
+        "Opening legacy content never migrates it. The first explicit operation establishes unified authority while original content and history remain intact. Legacy writers reject adopted identities. Use original history for earlier source records."
+      ],
+      "steps": [
+        "Open an existing page/article in Publications and save deliberately; then continue through the unified editor."
+      ]
+    },
+    {
+      "id": "discussion",
+      "title": "Moderate discussion",
+      "body": [
+        "Page discussion stays disabled. Article discussion uses the global Posts option in Settings and the individual publication option. Comments remain pending until moderation; existing IDs, URLs and history are preserved."
+      ],
+      "steps": [
+        "Enable discussion only when intended; review incoming comments in Comments."
+      ]
+    },
+    {
+      "id": "delivery",
+      "title": "Export and delivery",
+      "body": [
+        "Managed drafts, trash, history and comments never enter public export. Published and scheduled snapshots retain referenced public media only. Updating code preserves real content/configuration; activation and adoption are explicit operator choices."
+      ],
+      "steps": [
+        "Validate a synthetic export before distributing code; preserve the independent installation state."
+      ]
+    },
+    {
+      "id": "consolidation",
+      "title": "Package consolidation",
+      "body": [
+        "Posts incorporates Pages and Blog, whose packages and old assets are removed. Existing URLs, references and APIs use internal adapters; the retired plugins do not appear in the catalog and have no independent activation. Content, history and comments remain preserved. Old settings are combined during reads until an explicit Posts save."
+      ],
+      "steps": [
+        "Manage publication/discussion in Settings and moderate in Comments. The Special pages screen has been removed from Posts; existing home and 404 documents are preserved."
+      ]
+    }
+  ]
+}

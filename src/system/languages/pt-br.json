@@ -532,6 +532,21 @@
     "table.pagination": "Paginação",
     "table.unavailable": "Página indisponível",
     "catalog.presentation_fallback_missing": "Este tutorial não foi fornecido em {locale}; a versão inglesa canônica está sendo exibida.",
-    "catalog.presentation_fallback_invalid": "A tradução do tutorial para {locale} está indisponível ou inválida; a versão inglesa canônica está sendo exibida."
+    "catalog.presentation_fallback_invalid": "A tradução do tutorial para {locale} está indisponível ou inválida; a versão inglesa canônica está sendo exibida.",
+    "posts.error.invalid": "Dados de publicação inválidos.",
+    "posts.error.route": "Use uma rota literal segura com até três segmentos.",
+    "posts.error.collision": "Este endereço ou identificador conflita com conteúdo existente, um alias ou uma rota reservada/estática.",
+    "posts.error.conflict": "O site ou a fonte foi alterado. Recarregue antes de salvar.",
+    "posts.error.missing": "Publicação indisponível.",
+    "posts.error.query": "Filtro de publicação inválido.",
+    "posts.error.term": "Grupo, tag ou autor inválido ou indisponível.",
+    "posts.error.parent": "A relação de hierarquia está indisponível, contém ciclo ou excede o limite.",
+    "posts.error.inUse": "Este tipo ou registro está protegido ou continua em uso.",
+    "posts.error.managed": "Esta publicação é gerenciada em Publicações. Use seu editor unificado.",
+    "posts.error.author": "Escolha um perfil de autor disponível antes de publicar um artigo.",
+    "posts.error.date": "Escolha um instante UTC futuro válido.",
+    "posts.error.operation": "Operação de publicação indisponível.",
+    "posts.error.projection": "Os blocos legados possuem escopos de binding incompatíveis; preserve a fonte nativa e resolva-os explicitamente antes da conversão.",
+    "error.plugin_dependency": "O plugin instalado {plugin} exige este pacote. Remova primeiro o plugin dependente."
   }
 }

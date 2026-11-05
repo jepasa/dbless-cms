@@ -1,16 +1,29 @@
 <?php
 /** Automatic dotted references: manifest discovery, bounded read-only queries, typed parameters, safe HTML slots and private diagnostics. */
 declare(strict_types=1);
+/** Shared CMS services and validated extension integration.
+ * @package DBLESSCMS
+ */
 namespace DBLESSCMS;
+/** Interpret declared dotted references using read-only providers, request-local memoization and escaped missing values. */
 final class ContentReferences {
+  /** @var Plugins Validated installed and compatibility metadata for this render context. */
   private Plugins $registry;
+  /** @var array<string,array|null> Request-local public projections keyed by provider, selector and parameters. */
   private array $cache=[];
+  /** @var list<string> Private unavailable-provider and missing-field diagnostics. */
   private array $warnings=[];
+  /** @var array<string,true> Unresolved qualified references retained as escaped literal tokens. */
   private array $missing=[];
+  /** @var array<string,bool> Memoized existence of saved portable Menu keys, including inactive destinations. */
   private array $knownMenuKeys=[];
+  /** @var \WeakMap<JsonStore,int>|null Per-store query budgets shared by resolvers in the same request. */
   private static ?\WeakMap $budgets=null;
   /** Receive immutable render context, discover trusted manifests without executing providers or writing state. */
-  public function __construct(private readonly ContentContext $context) {$this->registry=new Plugins($context->store);}
+  public function __construct(
+    /** @var ContentContext Immutable trusted read context; no persistence is performed by construction. */
+    private readonly ContentContext $context
+  ) {$this->registry=new Plugins($context->store);}
   /** Validate optional plugin reference metadata; receive manifest, return void or 422, no provider execution. */
   public static function definitions(array $manifest): void {
     if(!isset($manifest['mustache']))return;$m=$manifest['mustache'];
@@ -36,7 +49,7 @@ final class ContentReferences {
   }
   /** Parse a qualified reference using only declared named parameters; receive path, return normalized provider/query/field path or null for lexical data; reject malformed parameters. */
   private function parse(string $path): ?array {
-    $parts=explode('.',$path);$plugin=array_shift($parts);$selector=array_shift($parts);$manifest=$this->registry->all()[$plugin]??null;
+    $parts=explode('.',$path);$plugin=array_shift($parts);$selector=array_shift($parts);$manifest=$this->registry->available()[$plugin]??null;
     if($plugin==='template'){$slots=self::slots($this->context->store->templates->get($this->context->template));$slot=$slots[$selector??'']??null;if($slot===null){if($selector!==null&&($this->knownMenuKeys[$selector]??=MenuKeys::known($this->context->store,$selector)))return ['menu','@slot',['slot'=>$selector],$parts];throw new HttpError(422,'Undeclared template position.','markup.error');}return $slot['plugin']==='menu'?['menu','@slot',['slot'=>$selector],$parts]:[$slot['plugin'],'@location',['key'=>$slot['location']],$parts];}
     if($manifest===null||!isset($manifest['mustache'])){if($selector!==null&&$plugin!=='cms')$this->warnings[]=$plugin.' (unavailable)';return null;}if($selector===null)throw new HttpError(422,'Missing reference selector.','markup.error');
     if(in_array($selector,['id','slug'],true)){$identity=array_shift($parts);if($identity===null)throw new HttpError(422,'Missing reference identity.','markup.error');return [$plugin,$selector.':'.$identity,[],$parts];}
@@ -47,7 +60,7 @@ final class ContentReferences {
   /** Fetch one public projection once per render, charging request budgets even on misses; receive parsed identity, return data or null, propagate corrupt contracts. */
   private function fetch(string $plugin,string $selector,array $parameters): ?array {
     $key=$plugin.':'.$selector.':'.json_encode($parameters,JSON_THROW_ON_ERROR);if(array_key_exists($key,$this->cache))return $this->cache[$key];
-    $manifest=$this->registry->all()[$plugin]??null;if($manifest===null||!isset($manifest['mustache'])||!$this->registry->state($plugin)['enabled']){$this->warnings[]=$plugin.' (inactive)';return $this->cache[$key]=null;}
+    $manifest=$this->registry->available()[$plugin]??null;if($manifest===null||!isset($manifest['mustache'])||!$this->registry->state($plugin)['enabled']){$this->warnings[]=$plugin.' (inactive)';return $this->cache[$key]=null;}
     self::$budgets??=new \WeakMap();$used=self::$budgets[$this->context->store]??0;if($used>=20)throw new HttpError(422,'Reference request limit exceeded.','markup.error');self::$budgets[$this->context->store]=$used+1;
     $provider=$this->registry->instance($plugin);if(!$provider instanceof ContentReferenceInterface)throw new HttpError(503,'Reference provider contract unavailable.','markup.error');$data=$provider->reference($selector,$parameters,$this->context);self::json($data);if(strlen(json_encode($data,JSON_THROW_ON_ERROR))>131072)throw new HttpError(422,'Reference output exceeded.','markup.error');if($data===null)$this->warnings[]=$plugin.'.'.$selector.' (unavailable)';return $this->cache[$key]=$data;
   }
@@ -62,7 +75,7 @@ final class ContentReferences {
   public function prepare(string $source,array $legacyRoots=[]): array {
     if(preg_match('/data-cms-reference-slot\s*=/i',$source))throw new HttpError(422,'Reserved reference slot.','markup.error');$slots=[];
     $html=preg_replace_callback('/\{\{\s*([a-zA-Z][a-zA-Z0-9_-]*(?:\.[a-zA-Z0-9_-]+)+)\s*\}\}/',function(array $match)use(&$slots,$legacyRoots):string{
-      $root=explode('.',$match[1])[0];if(in_array($root,$legacyRoots,true))return $match[0];if($root!=='template'&&!isset($this->registry->all()[$root]['mustache']))return $match[0];$parsed=$this->parse($match[1]);if($parsed===null)return $match[0];[$plugin,$selector,$parameters,$fields]=$parsed;$kind=$this->registry->all()[$plugin]['mustache']['kind']??'data';if($fields!==[]||!in_array($kind,['form','widget'],true))return $match[0];$data=$this->fetch($plugin,$selector,$parameters);if($data===null)return $match[0];
+      $root=explode('.',$match[1])[0];if(in_array($root,$legacyRoots,true))return $match[0];if($root!=='template'&&!isset($this->registry->available()[$root]['mustache']))return $match[0];$parsed=$this->parse($match[1]);if($parsed===null)return $match[0];[$plugin,$selector,$parameters,$fields]=$parsed;$kind=$this->registry->available()[$plugin]['mustache']['kind']??'data';if($fields!==[]||!in_array($kind,['form','widget'],true))return $match[0];$data=$this->fetch($plugin,$selector,$parameters);if($data===null)return $match[0];
       if($kind==='widget'&&($data['type']??'text')==='text')return '{{'.$match[1].'.value}}';if($kind==='widget'&&$data['type']!=='html')return $match[0];if(count($slots)>=10)throw new HttpError(422,'HTML reference limit exceeded.','markup.error');$token=bin2hex(random_bytes(16));$slots[$token]=$kind==='form'?['plugin'=>$plugin,'id'=>$data['id']]:['html'=>ContentMarkup::html($data['html'],false)];return '<div data-cms-reference-slot="'.$token.'"></div>';
     },$source);return ['html'=>$html,'slots'=>$slots];
   }

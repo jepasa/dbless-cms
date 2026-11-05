@@ -25,5 +25,5 @@ if ($path==='/cms-admin' || str_starts_with($path,'/cms-admin/')) {
  $_SERVER['SCRIPT_NAME']='/cms-admin/index.php'; require $public.'/cms-admin/index.php'; return;
 }
 $_SERVER['SCRIPT_NAME']='/index.php';
-if ($path!=='/' && $path!=='/index.php') $_GET['page']=trim($path,'/');
+if ($path!=='/' && $path!=='/index.php') $_GET['content_path']=trim($path,'/');
 require $public.'/index.php';

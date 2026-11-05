@@ -38,7 +38,7 @@ for(const tree of trees) test(`${tree}: jornada administrativa completa por HTTP
     result=await request('/cms-admin/',{action:'login',username:'editor',password:'wrong-password-for-test',csrf_token:token});assert.equal(result.status,401);
     result=await request('/cms-admin/',{action:'login',username:'editor',password:'Synthetic-DBLESS-CMS-password-2026',csrf_token:token});assert.equal(result.status,303);
     result=await request('/cms-admin/?view=pages');assert.equal(result.status,200);
-    assert.match(result.body,/data-plugin-menu="pages" open/);assert.match(result.body,/plugin=pages&amp;route=new/);assert.match(result.body,/plugin=pages&amp;route=trash/);
+    assert.match(result.body,/data-plugin-menu="posts" open/);assert.match(result.body,/plugin=pages&amp;route=new/);assert.match(result.body,/plugin=posts&amp;route=trash/);
     assert.match(result.body,/class="extension-table"/);assert.match(result.body,/data-page-id="home"/);assert.doesNotMatch(result.body,/class="stats-grid"|class="create-form"/);
     result=await request('/cms-admin/?view=page-new');assert.equal(result.status,200);assert.match(result.body,/operation=editorial-create/);
     result=await request('/cms-admin/?view=page-trash');assert.equal(result.status,200);assert.match(result.body,/Nenhuma página na lixeira/);

@@ -20,11 +20,12 @@ transparency and contrast. The sidebar signature has a maximum width of 188 px
 and alternative text `DBLess-CMS`. Use addressed SVG files; never inline SVG or
 SVG data URLs. The minimal sign-in screen keeps its person-circle avatar.
 
-## Plugin icons and public templates
+## Sidebar icons and public templates
 
 Plugins keep their own SVG icons and manifest-defined paths. In the sidebar,
-`.sidebar .plugin-icon` uses the local SVG filter
-`brand/plugin-icon-color.svg#mint` to preserve source alpha and apply exact mint
+`.sidebar .admin-icon` uses the local SVG filter for Core navigation (Dashboard)
+and plugin icons alike. The filter
+`brand/plugin-icon-color.svg#mint` preserves source alpha and applies exact mint
 in sRGB. Do not rewrite plugin icons or recolor catalog actions and semantic
 statuses. The filter is included with source and production CSS.
 

@@ -15,9 +15,9 @@ try{
     page.on('pageerror',error=>errors.push(error.message));page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});
     await context.route('**/*',route=>new URL(route.request().url()).origin===sandbox.base?route.continue():route.abort());
     try{
-      const file=path.join(sandbox.contents,'plugins.json'),registry=JSON.parse(fs.readFileSync(file));registry.plugins.blog.settings.discussion.enabled=true;fs.writeFileSync(file,JSON.stringify(registry));
+      const file=path.join(sandbox.contents,'plugins.json'),registry=JSON.parse(fs.readFileSync(file));registry.plugins.posts.settings.discussion.enabled=true;fs.writeFileSync(file,JSON.stringify(registry));
       await page.goto(sandbox.base+'/cms-admin/');await page.getByLabel('Username',{exact:true}).fill('editor');await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Sign in',exact:true}).click();await page.locator('[data-dashboard]').waitFor();
-      await page.locator('[data-plugin-menu="pages"] summary').click();await page.locator('[data-plugin-menu="pages"]').getByRole('link',{name:'New Page',exact:true}).click();
+      await page.goto(sandbox.base+'/cms-admin/?view=plugin-panel&plugin=pages&route=new');
       await page.locator('[name="title"]').fill('Editorial parity example');const slug=page.locator('[name="slug"]').first();await revealField(slug);await slug.fill('editorial-parity');
       const author=page.getByLabel('Editorial author',{exact:true});await revealField(author);await author.fill('Example Editorial Team');await page.getByLabel('Pending review',{exact:true}).check();
       const order=page.getByLabel('Order',{exact:true});await revealField(order);await order.fill('-3');const layout=page.getByLabel('Page template',{exact:true});assert.ok(await layout.locator('option').count()>0,await layout.evaluate(n=>n.outerHTML));await layout.selectOption('service-details');
@@ -29,7 +29,7 @@ try{
       await date.fill('2099-01-01T12:30');await save(page,page.getByRole('button',{name:'Schedule',exact:true}));assert.equal(await page.locator('[data-page-work-state]').innerText(),'Scheduled');
       await page.screenshot({path:path.join(evidence,`${index}-pages-desktop.png`)});
       // Blog keeps its actual author/taxonomy/featured controls; pending review is a real nonpublic state.
-      await page.locator('[data-plugin-menu="blog"] summary').click();await page.locator('[data-plugin-menu="blog"]').getByRole('link',{name:'Overview',exact:true}).click();await page.locator('[data-article-id="designing-with-clarity"]').getByRole('link',{name:'Edit',exact:true}).click();
+      await page.goto(sandbox.base+'/cms-admin/?view=plugin-panel&plugin=blog&route=overview');await page.locator('[data-article-id="designing-with-clarity"]').getByRole('link',{name:'Edit',exact:true}).click();
       const articleForm=page.locator('[data-blog-editor]');await articleForm.getByLabel('Status',{exact:true}).selectOption('pending');await articleForm.getByLabel('Allow comments on this article',{exact:true}).uncheck();assert.ok(await articleForm.getByLabel('Template',{exact:true}).inputValue());await save(page,articleForm.getByRole('button',{name:'Save',exact:true}));
       assert.equal(await articleForm.getByLabel('Status',{exact:true}).inputValue(),'pending');assert.equal(await articleForm.getByLabel('Allow comments on this article',{exact:true}).isChecked(),false);
       const response=await reader.goto(sandbox.base+'/plugins/blog/article?slug=designing-with-clarity');assert.equal(response.status(),404);

@@ -15,7 +15,7 @@ $pluginDocument=$store->read('plugins')['data'];
 $registry=new \DBLESSCMS\Plugins($store);
 if ($registry->invalid()!==[]) throw new RuntimeException('Manifesto de plugin inválido.');
 foreach ($pluginDocument['plugins'] as $id=>$state) {
-  if (!isset($registry->all()[$id]) && !$state['enabled']) { unset($pluginDocument['plugins'][$id]); continue; }
+  if (!isset($registry->available()[$id]) && !$state['enabled']) { unset($pluginDocument['plugins'][$id]); continue; }
   $registry->get($id); \DBLESSCMS\Schema::validate($state['settings'],$registry->schema($id));
 }
 $templateDocument=$store->read('templates')['data'];
@@ -23,7 +23,7 @@ foreach ($templateDocument['templates'] as $id=>$options) {
   if (!isset($store->templates->all()[$id])) { unset($templateDocument['templates'][$id]); continue; }
   \DBLESSCMS\Schema::validate($options,$store->templates->configuration($id)['schema']);
 }
-$site=$store->read('site')['data']; $pages=$store->pages();$managed=(new \DBLESSCMS\PagePublications($store))->read()['data']['records'];
+$site=$store->read('site')['data']; $pages=$store->pages();$managed=(new \DBLESSCMS\PagePublications($store))->read()['data']['records'];foreach((new \DBLESSCMS\Posts($store))->read()['data']['records'] as $owned)$managed[$owned['source']['plugin']==='pages'?$owned['source']['id']:$owned['id']]=true;
 foreach($pages as $key=>$snapshot)if(isset($managed[$key])&&$snapshot['data']['status']!=='published')unset($pages[$key]);
 $languages=new \DBLESSCMS\Language();
 if ($languages->invalid()!==[] || (isset($site['settings']['adminLocale']) && !$languages->available($site['settings']['adminLocale']))) throw new RuntimeException('Dicionários ou idioma padrão inválidos; exportação interrompida.');
@@ -54,9 +54,9 @@ $slideDirectory=$target.'/system/storage/contents/slides';
 if(!mkdir($slideDirectory,0770,true)&&!is_dir($slideDirectory))throw new RuntimeException('Destino de slides indisponível.');
 $slideBytes=\DBLESSCMS\SlidesStore::encode(\DBLESSCMS\SlidesStore::validate($slides));
 if(file_put_contents($slideDirectory.'/slides.json',$slideBytes)!==strlen($slideBytes))throw new RuntimeException('Exportação de slides incompleta.');
-if (isset($registry->all()['blog'])) {
-  require_once $config->root.'/plugins/blog/Plugin.php';
-  require_once $config->root.'/plugins/blog/Export.php';
+if (isset($registry->available()['blog'])) {
+  $registry->instance('blog');
+  require_once $config->root.'/plugins/posts/compatibility/blog/Export.php';
   \DBLESSCMS\BlogExport::run($store,$target);
 }
 if (isset($registry->all()['widgets'])) {
@@ -74,4 +74,5 @@ echo count($pages)." páginas sanitizadas.\n";
 (new \DBLESSCMS\Privacy($store))->export($target);
 (new \DBLESSCMS\MediaRights($store))->export($target);
 if(isset($registry->all()['forms'])){require_once $config->root.'/plugins/forms/Plugin.php';$forms=\DBLESSCMS\FormsModel::repository($store)->read()['data'];$forms['forms']=array_filter($forms['forms'],static fn(array $f):bool=>!$f['deleted']&&$f['status']==='published');\DBLESSCMS\ExtensionDocument::atomic($target.'/system/storage/contents/forms/catalog.json',\DBLESSCMS\ExtensionDocument::encode($forms));}
+(new \DBLESSCMS\Posts($store))->export($target);
 \DBLESSCMS\EditorialMedia::export($store,$target);
