@@ -1,6 +1,6 @@
 {
   "name": "dbless-cms",
-  "version": "2.21.1",
+  "version": "2.21.2",
   "license": "Apache-2.0",
   "files": [
     {
@@ -65,8 +65,8 @@
     },
     {
       "path": "doc/identidade_visual/README.md",
-      "bytes": 3077,
-      "sha256": "e553de820d7c1eb08d62ad945c177d30941e75869b48caf05168760450b8ae63"
+      "bytes": 3144,
+      "sha256": "2d749f638ac4fafb2c130a08839c76e7af7f44620f8eab636b1bcf66bbfc85a1"
     },
     {
       "path": "docs/authoring-customizations.md",
@@ -201,12 +201,12 @@
     {
       "path": "package-lock.json",
       "bytes": 9865,
-      "sha256": "a2380baf93bc0843089de153ec320e16cee6f6672eafb484100d9b1e4143cf09"
+      "sha256": "0e58be117279112aa6ff1098ff1ab3e374fd79dfaf5bb24b9c153bc4014a039c"
     },
     {
       "path": "package.json",
       "bytes": 1182,
-      "sha256": "212c548b36c39c09f2e4d86786ba6f219db07fba6a4e2216e42aa125106c1ad2"
+      "sha256": "1e1c87b36d5382943ac2c62f010518e3a501022b4aad8361ed7ac3444e83e06a"
     },
     {
       "path": "README.md",
@@ -290,8 +290,8 @@
     },
     {
       "path": "src/public_html/cms-admin/assets/admin.css",
-      "bytes": 25185,
-      "sha256": "7c6a45c61d6f50204c34011a447096ebea7c3976a2c49f59c393dda749156d94"
+      "bytes": 25054,
+      "sha256": "0b90c694f94deed79e32ddb10c65641dba1ffd1a79a1e62ff5f81fff0508c3c4"
     },
     {
       "path": "src/public_html/cms-admin/assets/admin.js",
@@ -1431,7 +1431,7 @@
     {
       "path": "src/system/config/settings.php",
       "bytes": 480,
-      "sha256": "63e9cda96524d963e3e94fb05a7c17fcaa6ca37dc1867c7a5fd71368a6c8ad21"
+      "sha256": "8dfb07ddecae0f1f61c27f1886d190226a089f527f7ceae903ae0f594b46da54"
     },
     {
       "path": "src/system/core.php",
@@ -2685,8 +2685,8 @@
     },
     {
       "path": "tests/browser/admin-brand.mjs",
-      "bytes": 7256,
-      "sha256": "ffc11ee92caf2b32f60363b807b30b08865c11506466aadbfce3f184c372e2d7"
+      "bytes": 9439,
+      "sha256": "e9fa18754261f7fad159fad80d04796248af53561691536ac618934fb66c00f5"
     },
     {
       "path": "tests/browser/authoring-customizations.mjs",
