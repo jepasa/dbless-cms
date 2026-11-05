@@ -12,6 +12,9 @@ async function login(request,username='editor',value=password){const html=await(
 /** Build the actual private card payload with a bounded fixture-only destination; no network verification occurs during settings save. */
 function payload(revision,csrf,input=smtpInput({port:587,security:'starttls'})){return {action:'mail-save',csrf_token:csrf,mail_revision:revision,...Object.fromEntries(Object.entries(input).map(([key,value])=>['mail_'+key,value]))};}
 
+/** Prove that authorization caused no file creation, requiring ENOENT rather than treating access errors as absence; later fixture creation independently uses O_EXCL. */
+function missing(file){assert.throws(()=>fs.readFileSync(file),{code:'ENOENT'});}
+
 for(const application of applications){
  test(`${path.basename(application)}: the global mail card saves privately with CSRF/CAS, preserves/clears its secret and never enters site JSON`,async()=>{
   const c=await usersServer(application);try{
@@ -31,9 +34,9 @@ for(const application of applications){
  test(`${path.basename(application)}: partial and editor sessions cannot configure mail, and broken private mail never enumerates reset recipients`,async()=>{
   const c=await usersServer(application);try{
    const info=inspect(c,prelude+`$result=$initialize();$id=$u->saveUser(['id'=>'','username'=>'writer','name'=>'Synthetic Writer','email'=>'writer@example.invalid','group'=>'editor','status'=>'pending'],$u->snapshot()['revision'],$result['user']['id']);$reset=$u->requestReset('writer@example.invalid');$u->reset($reset['token'],'Account-password-synthetic-2026');echo json_encode(['recovery'=>$result['recovery'][0]]);`);
-   const owner=client(c),csrf=await login(owner);let response=await owner('/cms-admin/?view=site',{method:'POST',body:new URLSearchParams(payload('invalid',csrf))});assert.equal(response.status,403);await response.arrayBuffer();const file=path.join(c.env.DBLESS_CMS_STORAGE_ROOT,'mail/settings.json');assert.equal(fs.existsSync(file),false);
+   const owner=client(c),csrf=await login(owner);let response=await owner('/cms-admin/?view=site',{method:'POST',body:new URLSearchParams(payload('invalid',csrf))});assert.equal(response.status,403);await response.arrayBuffer();const file=path.join(c.env.DBLESS_CMS_STORAGE_ROOT,'mail/settings.json');missing(file);
    const factor=await(await owner('/cms-admin/?view=twofactor')).text();response=await owner('/cms-admin/?view=twofactor',{method:'POST',body:new URLSearchParams({action:'users-factor',csrf_token:field(factor,'csrf_token'),code:info.recovery})});assert.equal(response.status,303);await response.arrayBuffer();assert.match(await(await owner('/cms-admin/?view=site')).text(),/data-mail-settings/);
-   const editor=client(c),editorCsrf=await login(editor,'writer','Account-password-synthetic-2026');response=await editor('/cms-admin/?view=site');assert.equal(response.status,403);await response.arrayBuffer();response=await editor('/cms-admin/?view=site',{method:'POST',body:new URLSearchParams(payload('invalid',editorCsrf))});assert.equal(response.status,403);await response.arrayBuffer();assert.equal(fs.existsSync(file),false);
+   const editor=client(c),editorCsrf=await login(editor,'writer','Account-password-synthetic-2026');response=await editor('/cms-admin/?view=site');assert.equal(response.status,403);await response.arrayBuffer();response=await editor('/cms-admin/?view=site',{method:'POST',body:new URLSearchParams(payload('invalid',editorCsrf))});assert.equal(response.status,403);await response.arrayBuffer();missing(file);
    // A private storage failure must remain indistinguishable from an unknown recovery recipient.
    fs.mkdirSync(path.dirname(file),{recursive:true,mode:0o700});
    // Exclusive creation and a held descriptor prevent a fixture race from replacing a file checked above.
