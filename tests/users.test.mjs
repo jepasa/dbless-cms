@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {spawn} from 'node:child_process';
 import {applications} from './helpers/extension-media.mjs';
-import {usersFixture,inspect,prelude,password} from './helpers/users.mjs';
+import {usersFixture,inspect,prelude,password,field} from './helpers/users.mjs';
 for(const application of applications){
  test(`${path.basename(application)}: RFC 6238 vectors, window, replay and authenticated seed encryption`,()=>{
   const c=usersFixture(application);try{assert.equal(inspect(c,prelude+`
@@ -92,3 +92,9 @@ for(const application of applications){
   }finally{c.close();}
  });
 }
+
+/** The fixture reader must mirror the browser attribute value, preserving entity text encoded as content. */
+test('Users fixture HTML entities are decoded once without turning literal content into markup',()=>{
+ assert.equal(field('<input name="sample" value="&amp;quot;&amp;lt;&amp;#039;&quot;&#039;&lt;&gt;&amp;">','sample'),`&quot;&lt;&#039;"'<>&`);
+ assert.throws(()=>field('<input name="other" value="safe">','sample'),/Missing form field/);
+});

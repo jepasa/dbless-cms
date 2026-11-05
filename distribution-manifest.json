@@ -2990,8 +2990,8 @@
     },
     {
       "path": "tests/helpers/users.mjs",
-      "bytes": 3619,
-      "sha256": "4318a0e3de2d40beb17d4cb3b9d42a6fe9926814bffa36267d12f1e31e430797"
+      "bytes": 3731,
+      "sha256": "33233fd5e8cbf595edcdf1eea4e39e197982405d5c8c24019af34f9903e16466"
     },
     {
       "path": "tests/homepage-conversion.test.mjs",
@@ -3125,8 +3125,8 @@
     },
     {
       "path": "tests/users.test.mjs",
-      "bytes": 20157,
-      "sha256": "2f8b5f306ffd5c0ee38458d0da1cf362e341202fb881d9e4d5957583f8bbc58e"
+      "bytes": 20616,
+      "sha256": "1bc58cd8b7c1a2c4847f11a8faa3f914c73b4c6cde9819900d9c39d7c4c2819d"
     },
     {
       "path": "tests/widgets.test.mjs",
