@@ -3050,8 +3050,8 @@
     },
     {
       "path": "tests/mail-http.test.mjs",
-      "bytes": 7487,
-      "sha256": "7f904b348a6b2b201dca1b2fde025122ec2a1b2fb7124227eab09e0f4666542b"
+      "bytes": 7760,
+      "sha256": "94fdf18c9f2473475213791e408ca7c9b46a8bc4b7d63e757b74865d4744ad96"
     },
     {
       "path": "tests/mail.test.mjs",
