@@ -10,6 +10,25 @@ function initialize(c,accounts=false){return inspect(c,prelude+`$r=$initialize()
 /** Authenticate a synthetic password and retain the current CSRF value; returns the response and initial token. */
 async function login(request,username='editor',value=password){const html=await(await request('/cms-admin/')).text(),token=field(html,'csrf_token'),response=await request('/cms-admin/',{method:'POST',body:new URLSearchParams({action:'login',csrf_token:token,username,password:value})});await response.arrayBuffer();return {response,token};}
 for(const application of applications){
+ /** Check the recovery link's position and dictionary text in both identity states; only synthetic locale fixtures are changed. */
+ test(`${path.basename(application)}: login exposes localized recovery below submit before and after Users initialization without GET writes`,async()=>{
+  const c=await usersServer(application);try{
+   const request=client(c),catalog=path.join(c.env.DBLESS_CMS_STORAGE_ROOT,'users/catalog.json'),key=path.join(c.env.DBLESS_CMS_STORAGE_ROOT,'keys/users.key'),siteFile=path.join(c.contents,'site.json'),site=JSON.parse(fs.readFileSync(siteFile));
+   for(const initialized of [false,true]){
+    if(initialized)initialize(c);
+    const before=initialized?fs.readFileSync(catalog):null;
+    for(const locale of ['en-us','pt-br']){
+     site.settings.adminLocale=locale;fs.writeFileSync(siteFile,JSON.stringify(site));
+     const messages=JSON.parse(fs.readFileSync(path.join(c.app,'system/languages',locale+'.json'))),response=await request('/cms-admin/?view=login'),html=await response.text();
+     assert.equal(response.status,200);assert.match(html,/<button[^>]*auth-submit[\s\S]*?<\/button><\/form>\s*<p><a class="text-link" href="\?view=forgot">/);
+     assert.ok(html.includes('href="?view=forgot">'+messages.messages['users.forgot']+'</a>'));
+     const forgot=await request('/cms-admin/?view=forgot');assert.equal(forgot.status,200);assert.match(await forgot.text(),/name="action" value="users-forgot"/);
+    }
+    if(initialized)assert.deepEqual(fs.readFileSync(catalog),before);else{assert.equal(fs.existsSync(catalog),false);assert.equal(fs.existsSync(key),false);}
+   }
+   assert.equal(fs.existsSync(path.join(c.temporary,'synthetic-mail.txt')),false);assert.doesNotMatch(c.logs(),/PHP (?:Warning|Fatal|Parse)/);
+  }finally{await c.close();}
+ });
  test(`${path.basename(application)}: reset HTTP has generic replies, trusted links, CSRF, read-only GET and no automatic login`,async()=>{
   const c=await usersServer(application);try{
    const info=initialize(c),request=client(c),forgot='/cms-admin/?view=forgot';let html=await(await request(forgot)).text();const csrf=field(html,'csrf_token');

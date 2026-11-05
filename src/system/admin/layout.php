@@ -81,7 +81,8 @@ $labels=['users'=>$t('users.title'),'privacy'=>$t('privacy.title'),'customizatio
 <button type="submit" class="button-primary auth-submit" aria-label="<?= e($t('login.submit')) ?>">
   <?= Icons::svg('login',$base) ?>
 </button></form>
-<?php if((new \DBLESSCMS\Users($this->config))->enabled()): ?><p><a class="text-link" href="?view=forgot"><?= e($t('users.forgot')) ?></a></p><?php endif; ?>
+<?php // Recovery remains discoverable before migration; the endpoint keeps its generic response for accounts not yet registered. ?>
+<p><a class="text-link" href="?view=forgot"><?= e($t('users.forgot')) ?></a></p>
 <?php endif; ?>
 <?php else: ?>
 <div class="page-heading"><div><p class="eyebrow"><?= e($t('common.studio')) ?></p><h1><?= e($labels[$view]) ?></h1><p class="muted"><?php if($view==='users'): ?><?= e($t('users.help')) ?><?php elseif ($view==='dashboard'): ?><?= e($t('dashboard.help')) ?><?php elseif ($view==='plugin-panel'): ?><?= isset($panelRoute['description'])?e($panelLanguage->text($panelRoute['description'])):'' ?><?php elseif ($view==='plugins'): ?><?= e($t('catalog.plugins_help')) ?><?php elseif ($view==='template-settings'): ?><?= e($this->store->templates->labels($themeId,$language->locale())['name']) ?><?php elseif ($view==='templates'): ?><?= e($t('heading.templates')) ?><?php elseif ($view==='history'): ?><?= e($t('heading.history')) ?><?php else: ?><?= e($t('heading.edit')) ?><?php endif; ?></p></div><span class="version-tag">v<?= e($this->config->data['version']) ?></span></div>
@@ -99,6 +100,7 @@ $labels=['users'=>$t('users.title'),'privacy'=>$t('privacy.title'),'customizatio
 <?php if($language->invalid()!==[]): ?><p class="notice error" role="alert"><?= e($t('global.invalid',['files'=>implode(', ',$language->invalid())])) ?></p><?php endif; ?>
 <div class="notice error" data-editor-error role="alert" hidden></div><section class="editor-panel global-editor"><div data-fields hidden></div><label data-json-label><?= e($t('editor.document')) ?><textarea class="json-editor" name="document" data-document data-global-groups="<?= e(json_encode(\DBLESSCMS\GlobalSettings::groups($this->store,$language),JSON_THROW_ON_ERROR)) ?>" data-global-defaults="<?= e(json_encode(['cache'=>\DBLESSCMS\Cache::DEFAULTS,'privacy'=>\DBLESSCMS\Privacy::DEFAULTS],JSON_THROW_ON_ERROR)) ?>" data-global-template="<?= e($templates[$templateChoice]['name']??$templateChoice) ?>" data-global-theme="<?= e(isset($templates[$templateChoice])?\DBLESSCMS\GlobalSettings::theme($this->store,$templateChoice):'') ?>" spellcheck="false" rows="28" required><?= e($document) ?></textarea></label></section>
 <div class="savebar"><span class="muted"><?= e($t('editor.revision', ['key'=>$key,'revision'=>substr($revision,0,10)])) ?></span><button class="button-primary" type="submit"><?= e($t('editor.save')) ?></button></div></form>
+<?= \DBLESSCMS\MailAdmin::render($this->config,$language,$base,$csrf) ?>
 <?php elseif (in_array($view,['plugins','templates'],true)): require __DIR__.'/extensions.php'; ?>
 <?php elseif ($view==='privacy'): require __DIR__.'/privacy.php'; ?>
 <?php elseif ($view==='customizations'): require __DIR__.'/customizations.php'; ?>

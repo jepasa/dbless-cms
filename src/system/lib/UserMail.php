@@ -1,5 +1,5 @@
 <?php
-/** Users transactional e-mail through the deployment's local MTA; links never derive from request Host or editorial configuration. */
+/** Users transactional e-mail through the selected Core transport; links never derive from request Host or editorial configuration. */
 declare(strict_types=1);
 /** Native private authentication transport services. */
 namespace DBLESSCMS;
@@ -8,21 +8,22 @@ namespace DBLESSCMS;
 final class UserMail {
   /** Validate configured sender and trusted HTTPS origin; loopback HTTP is supported for isolated local qualification only. */
   public static function configured(Config $config): bool {
-    $options=$config->data['users'];$parts=parse_url($options['origin']);
-    return filter_var($options['origin'],FILTER_VALIDATE_URL)!==false&&filter_var($options['from'],FILTER_VALIDATE_EMAIL)!==false&&is_array($parts)&&isset($parts['scheme'],$parts['host'])&&!isset($parts['user'])&&!isset($parts['pass'])&&!isset($parts['query'])&&!isset($parts['fragment'])&&($parts['scheme']==='https'||($parts['scheme']==='http'&&in_array($parts['host'],['127.0.0.1','localhost','[::1]'],true)))&&preg_match('~^(?:/[A-Za-z0-9_-]+)*/?$~D',$parts['path']??'')===1;
+    $options=(new MailSettings($config))->snapshot()['data'];
+    return MailSettings::origin($options['origin'])&&Mailer::address($options['from']);
   }
 
   /** Build the absolute reset URL from deployment configuration and a bounded token; throws 503/422 rather than accepting Host-derived origins. */
   public static function resetUrl(Config $config,string $token): string {
-    if(!self::configured($config))throw new HttpError(503,'Identity mail transport is not configured.','users.error.mail');
+    try{if(!self::configured($config))throw new HttpError(503,'Identity mail transport is not configured.','users.error.mail');$origin=(new MailSettings($config))->snapshot()['data']['origin'];}
+    catch(HttpError $failure){if(!str_starts_with($failure->messageKey,'mail.'))throw $failure;throw new HttpError(503,'Identity mail transport is not configured.','users.error.mail');}
     if(!preg_match('/^[a-f0-9]{32}\.[a-f0-9]{64}$/D',$token))throw new HttpError(422,'Invalid recovery token.','users.error.reset');
-    return rtrim($config->data['users']['origin'],'/').'/cms-admin/?view=reset&token='.rawurlencode($token);
+    return rtrim($origin,'/').'/cms-admin/?view=reset&token='.rawurlencode($token);
   }
 
   /** Send plain UTF-8 mail using validated deployment headers; returns transport acceptance only and never logs message/token contents. */
   private static function send(Config $config,string $to,string $subject,string $body): bool {
-    if(!self::configured($config)||!function_exists('mail')||filter_var($to,FILTER_VALIDATE_EMAIL)===false||preg_match('/[\r\n\x00]/',$to.$subject))return false;
-    return @mail($to,'=?UTF-8?B?'.base64_encode($subject).'?=',$body,['From'=>$config->data['users']['from'],'MIME-Version'=>'1.0','Content-Type'=>'text/plain; charset=UTF-8']);
+    try{if(!self::configured($config))return false;return Mailer::send($config,$to,$subject,$body);}
+    catch(HttpError $failure){if(!str_starts_with($failure->messageKey,'mail.'))throw $failure;return false;}
   }
 
   /** Deliver a generated reset/initial-password link in the administrative language; throws on unconfigured/rejected transport without claiming delivery. */

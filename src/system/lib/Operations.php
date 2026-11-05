@@ -83,7 +83,7 @@ final class Operations {
       foreach($catalog['users'] as $user){if($user['mfa']['secret']!=='')UserCrypto::unseal($user['mfa']['secret'],$key,$user['id']);if($user['group']==='administrator'&&$user['status']==='active'&&$user['mfa']['secret']!==''&&password_get_info($user['passwordHash'])['algoName']==='argon2id')$checks['credentials']=true;}
       $checks['extension_sodium']=extension_loaded('sodium');
       $checks['users_private']=((fileperms($this->config->data['storage'].'/users/catalog.json')&0077)===0)&&((fileperms($this->config->data['storage'].'/keys/users.key')&0077)===0);
-      $checks['users_mail_configured']=UserMail::configured($this->config)&&function_exists('mail');
+      $checks['users_mail_configured']=UserMail::configured($this->config)&&Mailer::available($this->config);
     }
     $checks['private_config']=is_file($this->privateConfig)&&!self::inside($this->privateConfig,$this->installation.'/public_html')&&((fileperms($this->privateConfig)&0007)===0);
     foreach (['contents','storage'] as $key) {

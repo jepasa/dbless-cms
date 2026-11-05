@@ -128,3 +128,8 @@ The Core Users module adds JSON accounts, up to 20 access groups, password links
 and local TOTP. Initialize the existing owner explicitly; administrators must
 enroll a second factor. See [Users and authentication](docs/users.md) for setup,
 permissions, mail configuration and private recovery.
+
+Global Settings includes a private Email delivery card for PHP mail() or
+authenticated SMTP with verified TLS. Users, Contact and Forms share this transport;
+SMTP credentials stay encrypted outside content/history/exports. See
+[Core email delivery](docs/mail.md) for configuration and delivery limits.

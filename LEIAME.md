@@ -125,3 +125,8 @@ O Core Users adiciona contas JSON, até 20 grupos de acesso, links para definiç
 de senha e TOTP local. A migração do proprietário é explícita; administradores
 devem cadastrar um segundo fator. Consulte o [guia de usuários e autenticação](docs/users.md)
 para configuração de e-mail, permissões e recuperação privada.
+
+Configurações Globais incluem um card privado de envio por PHP mail() ou SMTP
+autenticado com TLS verificado. Users, Contato e Forms compartilham o transporte;
+credenciais SMTP ficam cifradas fora de conteúdo/histórico/exportações. Consulte
+[envio de e-mails do Core](docs/mail.md) para configuração e limites de entrega.

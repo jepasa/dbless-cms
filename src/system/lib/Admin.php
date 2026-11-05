@@ -45,6 +45,7 @@ final class Admin {
     if (!Security::authenticated($this->config)) throw new HttpError(403,'Autenticação necessária.','error.authentication');
     Security::csrf($_POST['csrf_token']??null);
     Access::action($this->config,$action,$this->input('key'));
+    if($action==='mail-save')MailAdmin::save($this->config,$this->base);
     if(in_array($action,['privacy-save','privacy-restore'],true)){
       $repository=(new Privacy($this->store))->repository();$revision=$this->input('revision');
       if($action==='privacy-restore')$repository->restore($this->input('backup',80),$revision);

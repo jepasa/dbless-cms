@@ -4,12 +4,16 @@ Users is a Core module, fixed immediately below Dashboard. It uses the existing
 administrative identity and JSON persistence. There are no public accounts or
 external authentication services. Fixed controls follow the administrative locale.
 Editorial authors and publication groups are separate from accounts/access groups.
+Core [email delivery settings](mail.md) support PHP mail() or authenticated SMTP.
 
 ## Initialize an existing installation
 
 1. Back up the private installation using the operations runbook. Use HTTPS and an
    accurate system clock. PHP 8.2+ needs native Argon2id and Sodium support.
-2. Configure the private application file's optional `users` section:
+2. Open Global Settings → Email delivery and configure the transport, sender and
+   trusted CMS base URL. These private options have their own save button. Existing
+   installations may keep the private application's legacy optional `users` section
+   until the first explicit save of that card:
 
    ```json
    {
@@ -24,8 +28,8 @@ Editorial authors and publication groups are separate from accounts/access group
    and other settings. For a subdirectory installation include that subdirectory
    in `origin`. Only HTTP loopback is accepted for local qualification. Never use
    a request Host, a public editorial setting or an untrusted forwarding header.
-3. Configure and verify the host's PHP `mail()`/local MTA. No SMTP dependency or
-   mailbox credentials are added by Users. Contact-form enablement is independent.
+3. Configure and verify the chosen [Core transport](mail.md): the host's PHP
+   `mail()`/local MTA or authenticated SMTP with verified TLS. Contact-form enablement is independent.
    Transport acceptance does not prove mailbox delivery; verify real delivery in
    the deployment separately. Tests use an isolated capture transport only.
 4. Sign in with the existing credential and open Users. Confirm the current
@@ -104,6 +108,12 @@ and group-version changes invalidate active and partial sessions on subsequent
 validation. No individual permission overrides are stored on accounts.
 
 ## Password and factor flows
+
+The login form always displays “Forgot my password” below its submit button,
+including before Users initialization. Opening that link does not migrate or
+create accounts. Recovery delivery requires an eligible registered account and
+the configured mail transport; an unregistered legacy credential receives the
+same generic confirmation and cannot be reset through an invented email mapping.
 
 “Forgot my password” returns the same public confirmation for known and unknown
 addresses. Origin/account rate limits and a 500 ms response floor reduce automated
