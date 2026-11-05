@@ -1,7 +1,9 @@
 <?php
 /** Sessão, CSRF e limites atômicos com estado privado; sem registro de dados pessoais. */
 declare(strict_types=1);
+/** Shared request/session security; Users becomes authoritative only after explicit migration. */
 namespace DBLESSCMS;
+/** Maintain secure sessions, CSRF and bounded authentication attempts without exposing credentials. */
 final class Security {
   /** Cria diretório privado; recebe caminho, retorna nada; falha fechada em erro/symlink. */
   public static function directory(string $path): void {
@@ -33,10 +35,10 @@ final class Security {
     if (!is_string($token) || !is_string($_SESSION['csrf'] ?? null) || ($_SESSION['csrf_at'] ?? 0) < time()-3600 || !hash_equals($_SESSION['csrf'], $token)) throw new HttpError(403,'Sessão expirada. Recarregue a página.','error.csrf');
   }
 
-  /** Conta tentativa sob trava exclusiva; recebe config/escopo/cota/janela, retorna nada; lança 429/503 sem PII persistida. */
-  public static function limit(Config $config, string $scope, int $maximum, int $window): void {
+  /** Conta tentativa sob trava exclusiva; recebe config/escopo/cota/janela e isolamento por IP opcional; retorna nada, lança 429/503 sem identificadores em claro. */
+  public static function limit(Config $config, string $scope, int $maximum, int $window,bool $includeIp=true): void {
     $dir = $config->data['storage'] . '/rate'; self::directory($dir);
-    $file = $dir . '/' . hash('sha256', $scope . '|' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown')) . '.json';
+    $file = $dir . '/' . hash('sha256', $scope . '|' . ($includeIp?($_SERVER['REMOTE_ADDR'] ?? 'unknown'):'shared')) . '.json';
     if (is_link($file)) throw new HttpError(503,'Limite temporariamente indisponível.','error.rate_unavailable');
     $handle = fopen($file, 'c+');
     if ($handle === false) throw new HttpError(503,'Limite temporariamente indisponível.','error.rate_unavailable');
@@ -55,6 +57,7 @@ final class Security {
 
   /** Verifica sessão e timeout com credencial atual; recebe config, retorna bool; expira autenticação vencida. */
   public static function authenticated(Config $config): bool {
+    $users=new Users($config);if($users->enabled())return $users->current()!==null;
     $fingerprint = hash('sha256', json_encode($config->credentials, JSON_THROW_ON_ERROR));
     if (!isset($_SESSION['auth']) || !hash_equals($fingerprint, (string)$_SESSION['auth']) || ($_SESSION['last_seen'] ?? 0) < time()-1800) { unset($_SESSION['auth']); return false; }
     $_SESSION['last_seen'] = time(); return true;
@@ -62,6 +65,7 @@ final class Security {
 
   /** Recebe configuração/usuário/senha integral, verifica hash com limites seguros e regenera sessão; retorna bool, não registra segredos; falha de sessão lança 503. */
   public static function login(Config $config, string $user, string $password): bool {
+    $users=new Users($config);if($users->enabled())return $users->login($user,$password);
     $credentials = $config->credentials;
     if (!$config->configured()) return false;
     $valid = isset($credentials['password_plaintext']) ? hash_equals($credentials['password_plaintext'],$password) : Passwords::verify($password,$credentials['password_hash']);

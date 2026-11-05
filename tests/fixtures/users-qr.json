@@ -1,0 +1,18 @@
+[
+  {
+    "payload": "A",
+    "sha256": "ff1567e2a5672b8cedaddbaa8de6f49f117054567b9b16384de6e8be3fd13b78"
+  },
+  {
+    "payload": "otpauth://totp/DBLess-CMS%3Aeditor?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ&issuer=DBLess-CMS&algorithm=SHA1&digits=6&period=30",
+    "sha256": "20e0094853dd4baa4b7a1e4d71306670453b838f723b79944895103ad487dfe6"
+  },
+  {
+    "payload": "otpauth://totp/DBLess-CMS%3Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa?secret=JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP&issuer=DBLess-CMS&algorithm=SHA1&digits=6&period=30",
+    "sha256": "7e828e043e940872cd77271341dfe4c35b91d5ffa6f7933c0727254270c16697"
+  },
+  {
+    "payload": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "sha256": "bdc73cf2798dde47b703c10736ecd7b57a150da0bdab5f473e2430b15b27f03c"
+  }
+]

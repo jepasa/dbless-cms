@@ -34,6 +34,7 @@
     textarea.addEventListener('input',refresh);textarea.addEventListener('scroll',scroll);textarea.addEventListener('keydown',key);refresh();
     const result={wrapper,label,refresh,destroy(){textarea.removeEventListener('input',refresh);textarea.removeEventListener('scroll',scroll);textarea.removeEventListener('keydown',key);wrapper.before(textarea);wrapper.remove();label.remove();delete textarea._dblessCode;delete textarea.dataset.codeMounted;}};textarea._dblessCode=result;return result;
   }
+  /** Own one inert authoring canvas, synchronized buffers and authorized preview controls. */
   class Editor {
     /** Mount a profile on one textarea; receives field/options, initializes local UI and throws before any unsafe rendering for invalid configuration. */
     constructor(textarea,input={}){
@@ -49,7 +50,7 @@
     visual(){
       this.toolbar=node('div','','dbless-editor-toolbar');this.toolbar.setAttribute('role','toolbar');this.toolbar.setAttribute('aria-label',t('tools'));this.buttons=new Map();
       const heading=this.heading(),modes=this.group('modes','dbless-editor-modes');
-      modes.append(...['visual','code','preview'].map(mode=>this.button(mode,()=>this.setMode(mode),true)));heading.firstElementChild.replaceWith(modes);this.toolbar.append(heading);
+      modes.append(...['visual','code',...(config.preview?['preview']:[])].map(mode=>this.button(mode,()=>this.setMode(mode),true)));heading.firstElementChild.replaceWith(modes);this.toolbar.append(heading);
       this.commands=node('div','','dbless-editor-commands');
       if(!this.options.readOnly){
         const history=this.group('history');history.append(this.button('undo',()=>this.undo(false)),this.button('redo',()=>this.undo(true)));this.commands.append(history);

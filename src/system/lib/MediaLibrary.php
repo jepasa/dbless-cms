@@ -1,7 +1,9 @@
 <?php
 /** Core read-only media roots and session-scoped picker. Public consumers never receive private references; uploads belong to Images. */
 declare(strict_types=1);
+/** Trusted read-only media services. */
 namespace DBLESSCMS;
+/** Resolve validated roots and enforce per-request media capabilities. */
 final class MediaLibrary {
   /** Resolve canonical roots with legacy read-only fallback; receives store, returns relative public/private paths without migration or directory creation. */
   public static function roots(JsonStore $store,?array $legacy=null): array {
@@ -29,6 +31,7 @@ final class MediaLibrary {
   /** Issue a selector capability from a trusted PHP consumer; receives visibility, returns session-bound config without exposing paths or credentials. Only private callers may opt in to private scope. */
   public static function configuration(JsonStore $store,Language $language,string $base='',string $visibility='public'): array {
     if(!in_array($visibility,['public','private'],true)||!Security::authenticated($store->config))self::fail(403);
+    Access::require($store->config,'media.read');if($visibility==='private')Access::require($store->config,'media.private');
     $_SESSION['media-secret']??=bin2hex(random_bytes(32));$roots=self::roots($store);$signature=hash_hmac('sha256',$visibility.'|'.json_encode($roots),$_SESSION['media-secret']);
     $labels=[];foreach($language->messages() as $key=>$value)if(str_starts_with($key,'media.'))$labels[substr($key,6)]=$value;
     $icons=[];foreach(['up','grid','list','sort-up','arrow-right','close','folder','video','image'] as $icon)$icons[$icon]=Icons::url($icon,$base);
@@ -36,6 +39,7 @@ final class MediaLibrary {
   }
   /** Verify a session-scoped capability and requested area; receives store/token/scope, rejects changed roots and public-to-private escalation without writes. */
   private static function authorize(JsonStore $store,string $token,string $scope): void {
+    Access::require($store->config,'media.read');if($scope==='private')Access::require($store->config,'media.private');
     [$visibility,$signature]=array_pad(explode('.',$token,2),2,'');
     if(!isset($_SESSION['media-secret'])||!in_array($visibility,['public','private'],true)||!in_array($scope,['public','private'],true)||($scope==='private'&&$visibility!=='private')||!hash_equals(hash_hmac('sha256',$visibility.'|'.json_encode(self::roots($store)),$_SESSION['media-secret']),$signature))self::fail(403);
   }

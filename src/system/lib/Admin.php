@@ -35,13 +35,16 @@ final class Admin {
   /** Processa mutações autenticadas e CSRF; não retorna em sucesso; erros mantêm conteúdo e revisão. */
   private function post(): void {
     $action=$this->input('action');
+    if((new UsersAdmin($this->config,$this->language,$this->base))->post($action))return;
     if ($action==='login') {
-      Security::limit($this->config,'login',5,900); Security::csrf($_POST['csrf_token']??null);
+      Security::limit($this->config,'login',5,900);Security::csrf($_POST['csrf_token']??null);
       if (!Security::login($this->config,$this->input('username'),$this->input('password',800))) throw new HttpError(401,'Usuário ou senha inválidos.','error.credentials');
+      if(isset($_SESSION['users_pending']))$this->redirect('twofactor','','users.factor_needed');
       $this->redirect('dashboard','','notice.login');
     }
     if (!Security::authenticated($this->config)) throw new HttpError(403,'Autenticação necessária.','error.authentication');
     Security::csrf($_POST['csrf_token']??null);
+    Access::action($this->config,$action,$this->input('key'));
     if(in_array($action,['privacy-save','privacy-restore'],true)){
       $repository=(new Privacy($this->store))->repository();$revision=$this->input('revision');
       if($action==='privacy-restore')$repository->restore($this->input('backup',80),$revision);
@@ -137,8 +140,11 @@ final class Admin {
     $authenticated=Security::authenticated($this->config);
     $view=$_GET['view']??'dashboard'; $key=$_GET['key']??'home';
     if (!is_string($view) || !is_string($key)) throw new HttpError(400,'Rota administrativa inválida.','error.admin_route');
-    if (!in_array($view,['privacy','customizations','customizations-preview','dashboard','pages','page-new','page-trash','edit','site','templates','history','preview','login','plugins','plugin','plugin-panel','plugin-settings','template-settings','plugin-about'],true)) throw new HttpError(404,'Página não encontrada.','error.not_found');
-    if (!$authenticated) $view='login';
+    if (!in_array($view,['users','forgot','reset','twofactor','privacy','customizations','customizations-preview','dashboard','pages','page-new','page-trash','edit','site','templates','history','preview','login','plugins','plugin','plugin-panel','plugin-settings','template-settings','plugin-about'],true)) throw new HttpError(404,'Página não encontrada.','error.not_found');
+    $usersAdmin=new UsersAdmin($this->config,$this->language,$this->base);$usersAuthContent=null;
+    if(in_array($view,['forgot','reset','twofactor'],true)){$usersAuthContent=$usersAdmin->auth($view);$view='login';$authenticated=false;}
+    elseif (!$authenticated) $view='login';
+    if($authenticated)Access::view($this->config,$view,$key);
     if($authenticated&&$view==='customizations-preview') {
       $previewRevision=$_GET['revision']??'';if(!is_string($previewRevision))throw new HttpError(400,'Invalid preview revision.','custom.error');
       return (new SiteCustomizations($this->store))->preview($this->base,$previewRevision);
@@ -151,7 +157,10 @@ final class Admin {
       if (!isset($plugins->available()['pages'])||!$plugins->state('pages')['enabled']) $view='plugins';
       else {$requestedPlugin='pages';$requestedRoute=$aliases[$view];$view='plugin-panel';}
     }
+    // Recheck the normalized destination: a disabled legacy plugin may fall back to the technical catalog.
+    if($authenticated)Access::view($this->config,$view,$key);
     if ($view==='plugin-settings'&&is_string($requestedPlugin)) {
+      Access::require($this->config,'system.manage');
       $manifest=$plugins->get($requestedPlugin);
       if (($manifest['configuration']??null)===false) throw new HttpError(404,'Plugin sem configuração.','error.not_found');
       if (isset($manifest['configuration'])) {$requestedRoute=$manifest['configuration'];$view='plugin-panel';}
@@ -159,6 +168,7 @@ final class Admin {
     $presentation=null;$presentationWarning=null;$presentationDirection='ltr';
     if($view==='plugin-about'){
       if(!is_string($requestedPlugin))throw new HttpError(400,'Invalid plugin.','error.plugin');
+      Access::plugin($this->config,$this->store,$requestedPlugin,'overview');
       $definition=$plugins->get($requestedPlugin);if(!isset($definition['presentation']))throw new HttpError(404,'Presentation unavailable.','error.not_found');
       $selectedPresentation=PluginPresentation::select($this->config->root.'/plugins/'.$plugins->owner($requestedPlugin),$definition,$this->language->locale(),$plugins->language($requestedPlugin,$this->language->locale()));
       $presentation=$selectedPresentation['document'];$presentationWarning=$selectedPresentation['warning'];
@@ -177,12 +187,14 @@ final class Admin {
       $themeOptions=$manager->options($themeId); $themeLanguage=$this->store->templates->language($themeId,$this->language->locale());
     }
     $pluginMenus=$plugins?->navigation($this->language->locale())??[];
+    if($authenticated&&!Access::allows($this->config,'system.manage'))foreach($pluginMenus as $menuId=>&$menu){$items=[];$destinations=0;foreach($menu['items'] as $item){if(isset($item['route'])){try{Access::plugin($this->config,$this->store,$menuId,$item['route']);}catch(HttpError $failure){if($failure->status===403)continue;throw $failure;}$destinations++;}if(isset($item['separator'])&&($items===[]||isset($items[array_key_last($items)]['separator'])))continue;$items[]=$item;}if($destinations===0)unset($pluginMenus[$menuId]);else $menu['items']=$items;}unset($menu);
     $tableAssets=$view==='plugin-panel'?AdminTable::assets($this->base):'';
     $panelId=''; $panelRoute=null; $panelLanguage=null; $panelContent=''; $panelAssets=null;
     if ($view==='plugin-panel') {
       $panelId=$requestedPlugin; $route=$requestedRoute;
       if (!is_string($panelId) || !is_string($route)) throw new HttpError(400,'Rota inválida.','error.admin_route');
       $panelRoute=$plugins->route($panelId,$route);
+      Access::plugin($this->config,$this->store,$panelId,$panelRoute['id']);
       if ($panelRoute['requiresEnabled'] && !$plugins->state($panelId)['enabled']) throw new HttpError(404,'Plugin desativado.','error.plugin');
       $panelLanguage=$plugins->language($panelId,$this->language->locale());
       $panelContext=$plugins->context($panelId,$this->base,$this->language->locale(),$panelRoute['id'],true);
@@ -195,6 +207,7 @@ final class Admin {
         $route=$_GET['route']??$_GET['screen']??'';
         if (!is_string($route)) throw new HttpError(400,'Rota inválida.','error.admin_route');
         $context=$plugins->context($id,$this->base,$this->language->locale(),$route);
+        Access::plugin($this->config,$this->store,$id,$context->route);
         return $plugins->instance($id)->render($context);
       } catch (HttpError $failure) {
         http_response_code($failure->status); return self::error($this->translatePluginError($failure),$this->language);
@@ -233,7 +246,8 @@ final class Admin {
     $faviconChoice=$site['data']['settings']['favicon']??('templates/'.$templateChoice.'/favicon.ico');
     if ($error!==null && $view==='site' && is_string($_POST['site_favicon']??null)) $faviconChoice=$_POST['site_favicon'];
     if ($error!==null && $view==='site' && is_string($_POST['site_template']??null) && isset($templates[$_POST['site_template']])) $templateChoice=$_POST['site_template'];
-    $dashboard=$authenticated&&$view==='dashboard'?Dashboard::snapshot($this->store,$this->base,$language->locale()):null;
+    $dashboard=$authenticated&&$view==='dashboard'&&Access::allows($this->config,'system.manage')?Dashboard::snapshot($this->store,$this->base,$language->locale()):null;
+    $usersContent=$authenticated&&$view==='users'?$usersAdmin->render():null;
     $configured=$this->config->configured();
     if (!$configured) http_response_code(503);
     ob_start();
@@ -266,6 +280,7 @@ final class Admin {
       if (!is_string($id) || !is_string($operation)) throw new HttpError(400,'Rota inválida.','error.plugin');
       $route=$_GET['route']??''; if (!is_string($route)) throw new HttpError(400,'Rota inválida.','error.admin_route');
       $plugins=new Plugins($this->store); $context=$plugins->context($id,$this->base,$this->language->locale(),$route);
+      Access::plugin($this->config,$this->store,$id,$context->route,$operation,$method);
       $result=$plugins->instance($id)->api($context,$operation);
       return $result===null?'':json_encode($result,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE);
     } catch (HttpError $failure) {

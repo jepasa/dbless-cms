@@ -121,3 +121,10 @@ Discover the [Homepage and shared component workflow](docs/components.md). Each 
 Create independent homepages, schedule publications and shape public Blog, Pages, Menu, Slides and Widgets data with your own HTML and Mustache loops. The same local editor works in pages and Blog blocks. Explore `/mustache-example` and the shared [data-authoring guide](docs/components.md).
 
 Plugin tutorials are available from each sidebar dropdown under Presentation, immediately before Trash when present. They remain in English and cover the plugin workflow with numbered steps and examples.
+
+### Individual accounts and access groups
+
+The Core Users module adds JSON accounts, up to 20 access groups, password links
+and local TOTP. Initialize the existing owner explicitly; administrators must
+enroll a second factor. See [Users and authentication](docs/users.md) for setup,
+permissions, mail configuration and private recovery.

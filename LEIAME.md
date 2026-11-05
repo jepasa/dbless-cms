@@ -118,3 +118,10 @@ Conheça o [fluxo da Homepage e dos componentes compartilhados](docs/components.
 
 
 Crie Homepages independentes, programe publicações e formate dados públicos de Blog, Pages, Menu, Slides e Widgets com HTML e loops Mustache. O mesmo editor está disponível em páginas e blocos do Blog. Explore o exemplo `/mustache-example` e os guias de desenvolvimento (em inglês).
+
+### Contas individuais e grupos de acesso
+
+O Core Users adiciona contas JSON, até 20 grupos de acesso, links para definição
+de senha e TOTP local. A migração do proprietário é explícita; administradores
+devem cadastrar um segundo fator. Consulte o [guia de usuários e autenticação](docs/users.md)
+para configuração de e-mail, permissões e recuperação privada.

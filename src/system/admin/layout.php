@@ -4,15 +4,17 @@ declare(strict_types=1);
 use function DBLESSCMS\e;
 use function DBLESSCMS\asset;
 use DBLESSCMS\Icons;
+use DBLESSCMS\Access;
 /** Traduz chave e parâmetros do layout; retorna texto para escape contextual, sem efeitos externos. */
 $t = static fn(string $key, array $parameters = []): string => $language->text($key, $parameters);
-$labels=['privacy'=>$t('privacy.title'),'customizations'=>$t('custom.title'),'plugin-about'=>$t('catalog.presentation'),'dashboard'=>$t('nav.dashboard'),'site'=>$t('nav.site'),'templates'=>$t('nav.templates'),'history'=>$t('nav.history'),'login'=>$t('nav.login'),'plugins'=>$t('nav.plugins'),'plugin-settings'=>$t('catalog.plugin_settings'),'template-settings'=>$t('catalog.template_settings'),'plugin-panel'=>$panelLanguage?->text($panelRoute['title'])??$t('nav.plugins')];
+$labels=['users'=>$t('users.title'),'privacy'=>$t('privacy.title'),'customizations'=>$t('custom.title'),'plugin-about'=>$t('catalog.presentation'),'dashboard'=>$t('nav.dashboard'),'site'=>$t('nav.site'),'templates'=>$t('nav.templates'),'history'=>$t('nav.history'),'login'=>$t('nav.login'),'plugins'=>$t('nav.plugins'),'plugin-settings'=>$t('catalog.plugin_settings'),'template-settings'=>$t('catalog.template_settings'),'plugin-panel'=>$panelLanguage?->text($panelRoute['title'])??$t('nav.plugins')];
 ?>
 <!doctype html><html lang="<?= e($language->locale()) ?>" dir="<?= e($language->direction()) ?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow"><title><?= e($labels[$view]) ?> · dbless-cms</title>
 <link rel="icon" type="image/x-icon" href="<?= e(asset('cms-admin/assets/favicon.ico',$base)) ?>">
 <link rel="stylesheet" href="<?= e(asset('cms-admin/assets/admin.css',$base)) ?>">
 <script src="<?= e(asset('cms-admin/assets/admin.js',$base)) ?>" defer></script>
+<?php if($view==='users'||$usersAuthContent!==null): ?><link rel="stylesheet" href="<?= e(asset('cms-admin/assets/users.css',$base)) ?>"><script src="<?= e(asset('cms-admin/assets/users-qr.js',$base)) ?>" defer></script><?php endif; ?>
 <?= $tableAssets!==''?$tableAssets:\DBLESSCMS\AdminTable::assets($base) ?>
 <script src="<?= e(asset('cms-admin/assets/components.js',$base)) ?>" defer></script>
 <script src="<?= e(asset('cms-admin/assets/editorial-workspace.js',$base)) ?>" defer></script>
@@ -39,6 +41,7 @@ $labels=['privacy'=>$t('privacy.title'),'customizations'=>$t('custom.title'),'pl
 <p class="nav-caption"><?= e($t('nav.workspace')) ?></p>
 <nav>
 <a class="dashboard-link" href="?view=dashboard" <?= $view==='dashboard'?'aria-current="page"':'' ?>><?= Icons::svg('house',$base) ?><?= e($t('nav.dashboard')) ?></a>
+<a class="users-link" href="?view=users" <?= $view==='users'?'aria-current="page"':'' ?>><?= Icons::svg('person',$base) ?><?= e($t('users.title')) ?></a>
 <?php foreach ($pluginMenus as $menuId=>$menu): ?>
 <?php if ($menu['dropdown']): ?>
 <details class="sidebar-dropdown" data-plugin-menu="<?= e($menuId) ?>" <?= (($view==='plugin-panel'&&$plugins->owner($panelId)===$menuId)||($view==='plugin-about'&&$requestedPlugin===$menuId))?'open':'' ?>><summary><img class="admin-icon plugin-icon" src="<?= e($plugins->icon($menuId,$base)) ?>" width="24" height="24" alt="" aria-hidden="true"><?= e($menu['label']) ?><span class="dropdown-chevron" aria-hidden="true">⌄</span></summary><div class="sidebar-submenu">
@@ -54,9 +57,11 @@ $labels=['privacy'=>$t('privacy.title'),'customizations'=>$t('custom.title'),'pl
 </aside>
 <div class="workspace"><header class="topbar"><div class="topbar-location"><button class="nav-toggle button-secondary" type="button" data-nav-toggle aria-controls="admin-navigation" aria-expanded="false" aria-label="<?= e($t('nav.open')) ?>"><?= Icons::svg('list',$base) ?></button><span><?= e($t('nav.admin')) ?> / <?= e($labels[$view]) ?></span></div><div class="top-actions"><a class="site-shortcut" href="<?= e($base.'/') ?>" target="_blank" rel="noopener" aria-label="<?= e($t('common.open_site')) ?>"><span><?= e($t('common.open_site')) ?></span><?= Icons::svg('external',$base) ?></a><details class="user-menu" data-user-menu><summary title="<?= e($t('nav.account')) ?>" aria-label="<?= e($t('nav.account')) ?>" aria-expanded="false"><?= Icons::svg('person-fill',$base) ?></summary>
 <nav class="user-menu-items" aria-label="<?= e($t('nav.account')) ?>">
+<a href="?view=users&amp;screen=profile"><?= Icons::svg('person',$base) ?><?= e($t('users.profile')) ?></a>
+<?php if(Access::allows($this->config,'system.manage')): ?>
 <a href="?view=site"><?= Icons::svg('settings',$base) ?><?= e($t('nav.settings')) ?></a>
 <a href="?view=plugins"><?= Icons::svg('plugins',$base) ?><?= e($t('nav.plugins')) ?></a>
-<a href="?view=templates"><?= Icons::svg('templates',$base) ?><?= e($t('nav.templates')) ?></a><hr>
+<a href="?view=templates"><?= Icons::svg('templates',$base) ?><?= e($t('nav.templates')) ?></a><?php endif; ?><hr>
 <form method="post"><input type="hidden" name="action" value="logout"><input type="hidden" name="csrf_token" value="<?= e($csrf) ?>"><button type="submit"><?= Icons::svg('logout',$base) ?><?= e($t('common.logout')) ?></button></form>
 </nav></details></div></header>
 <?php endif; ?>
@@ -67,20 +72,24 @@ $labels=['privacy'=>$t('privacy.title'),'customizations'=>$t('custom.title'),'pl
 </div>
 <?php endif; ?>
 <?php if ($error!==null): ?><div class="notice error" role="alert"><?= e($error) ?></div><?php endif; ?>
-<?php if (is_string($notice) && $view!=='login'): ?><div class="notice success" role="status"><?= e($t($notice)) ?></div><?php endif; ?>
+<?php if (is_string($notice) && ($view!=='login'||str_starts_with($notice,'users.'))): ?><div class="notice success" role="status"><?= e($t($notice)) ?></div><?php endif; ?>
 <?php if ($view==='login'): ?>
-<?php if (!$configured): ?><div class="notice error" role="alert"><?= e($t('login.unconfigured')) ?></div><?php else: ?>
+<?php if($usersAuthContent!==null): ?><?= $usersAuthContent ?><?php elseif (!$configured): ?><div class="notice error" role="alert"><?= e($t('login.unconfigured')) ?></div><?php else: ?>
 <form method="post" class="stack"><input type="hidden" name="action" value="login"><input type="hidden" name="csrf_token" value="<?= e($csrf) ?>">
 <label><?= e($t('login.username')) ?><input name="username" autocomplete="username" maxlength="100" required autofocus></label>
 <label><?= e($t('login.password')) ?><input name="password" type="password" autocomplete="current-password" maxlength="400" required></label>
 <button type="submit" class="button-primary auth-submit" aria-label="<?= e($t('login.submit')) ?>">
   <?= Icons::svg('login',$base) ?>
 </button></form>
+<?php if((new \DBLESSCMS\Users($this->config))->enabled()): ?><p><a class="text-link" href="?view=forgot"><?= e($t('users.forgot')) ?></a></p><?php endif; ?>
 <?php endif; ?>
 <?php else: ?>
-<div class="page-heading"><div><p class="eyebrow"><?= e($t('common.studio')) ?></p><h1><?= e($labels[$view]) ?></h1><p class="muted"><?php if ($view==='dashboard'): ?><?= e($t('dashboard.help')) ?><?php elseif ($view==='plugin-panel'): ?><?= isset($panelRoute['description'])?e($panelLanguage->text($panelRoute['description'])):'' ?><?php elseif ($view==='plugins'): ?><?= e($t('catalog.plugins_help')) ?><?php elseif ($view==='template-settings'): ?><?= e($this->store->templates->labels($themeId,$language->locale())['name']) ?><?php elseif ($view==='templates'): ?><?= e($t('heading.templates')) ?><?php elseif ($view==='history'): ?><?= e($t('heading.history')) ?><?php else: ?><?= e($t('heading.edit')) ?><?php endif; ?></p></div><span class="version-tag">v<?= e($this->config->data['version']) ?></span></div>
+<div class="page-heading"><div><p class="eyebrow"><?= e($t('common.studio')) ?></p><h1><?= e($labels[$view]) ?></h1><p class="muted"><?php if($view==='users'): ?><?= e($t('users.help')) ?><?php elseif ($view==='dashboard'): ?><?= e($t('dashboard.help')) ?><?php elseif ($view==='plugin-panel'): ?><?= isset($panelRoute['description'])?e($panelLanguage->text($panelRoute['description'])):'' ?><?php elseif ($view==='plugins'): ?><?= e($t('catalog.plugins_help')) ?><?php elseif ($view==='template-settings'): ?><?= e($this->store->templates->labels($themeId,$language->locale())['name']) ?><?php elseif ($view==='templates'): ?><?= e($t('heading.templates')) ?><?php elseif ($view==='history'): ?><?= e($t('heading.history')) ?><?php else: ?><?= e($t('heading.edit')) ?><?php endif; ?></p></div><span class="version-tag">v<?= e($this->config->data['version']) ?></span></div>
 <?php if ($view==='plugin-about'): require __DIR__.'/plugin-about.php'; ?>
-<?php elseif ($view==='dashboard'): require __DIR__.'/dashboard.php'; ?>
+<?php elseif($view==='users'): ?><?= $usersContent ?>
+<?php elseif ($view==='dashboard'): ?>
+<?php if(!(new \DBLESSCMS\Users($this->config))->enabled()): ?><p class="notice"><a href="?view=users"><?= e($t('users.setup')) ?></a></p><?php endif; ?>
+<?php if($dashboard!==null): require __DIR__.'/dashboard.php'; else: ?><section class="panel"><p><?= e($t('users.dashboard_help')) ?></p><a class="button-secondary" href="?view=users&amp;screen=profile"><?= e($t('users.profile')) ?></a></section><?php endif; ?>
 <?php elseif ($view==='site'): ?>
 <p><a class="button-secondary" href="?view=privacy"><?= e($t('privacy.title')) ?></a></p>
 <div class="editor-toolbar"><div class="tabs" aria-label="<?= e($t('editor.mode')) ?>"><button type="button" data-mode="fields" aria-pressed="true"><?= e($t('editor.fields')) ?></button><button type="button" data-mode="json" aria-pressed="false"><?= e($t('editor.json')) ?></button></div><div><a class="text-link" href="?view=history&amp;key=<?= e($key) ?>"><?= e($t('nav.history')) ?></a></div></div>
