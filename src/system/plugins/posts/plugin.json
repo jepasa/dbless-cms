@@ -2,7 +2,7 @@
   "id": "posts",
   "name": "Publications",
   "description": "Unified pages, articles, custom types, taxonomies and public search.",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "api": 1,
   "cmsMajor": 2,
   "entry": "Plugin.php",
@@ -153,12 +153,6 @@
         "POST"
       ],
       "maxBodyBytes": 16384
-    },
-    "special": {
-      "title": "posts.specialPages",
-      "file": "pages/workspace.php",
-      "requiresEnabled": true,
-      "visibility": "private"
     }
   },
   "navigation": {
@@ -187,10 +181,6 @@
       {
         "label": "posts.comments",
         "route": "comments"
-      },
-      {
-        "label": "posts.specialPages",
-        "route": "special"
       },
       {
         "separator": true

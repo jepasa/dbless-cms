@@ -65,7 +65,7 @@
   });
   /** Submit the selected native form action with CSRF/revisions; receive submit events, preserve inputs on failures and follow only server-confirmed navigation. */
   for(const form of root.querySelectorAll('[data-pages-form]'))form.addEventListener('submit',async event=>{
-    if(event.defaultPrevented)return;event.preventDefault();status.hidden=true;
+    if(event.defaultPrevented)return;event.preventDefault();const formStatus=form.querySelector('[data-pages-form-status]')||status;formStatus.hidden=true;
     const submit=event.submitter;if(submit)submit.disabled=true;
     try {
       if(form===working&&documentField){if(formatMode.checked){await window.DBLESSEditor?.get(htmlField)?.flush();htmlToJSON();}else jsonToHTML();}
@@ -75,7 +75,7 @@
       const result=await response.json();
       if(!response.ok)throw new Error(result.error||root.dataset.networkError);
       const destination=new URL(result.redirect,location.href);if(destination.origin!==location.origin)throw new Error(root.dataset.networkError);dirty=false;location.assign(destination.href);
-    } catch(error) {status.textContent=error instanceof Error?error.message:root.dataset.networkError;status.hidden=false;status.scrollIntoView({block:'nearest'});if(submit)submit.disabled=false;}
+    } catch(error) {formStatus.textContent=error instanceof Error?error.message:root.dataset.networkError;formStatus.hidden=false;formStatus.scrollIntoView({block:'nearest'});if(submit)submit.disabled=false;}
   });
   root.addEventListener('cms-component-insert',event=>{
     const documentField=root.querySelector('[data-document]');if(!documentField)return;

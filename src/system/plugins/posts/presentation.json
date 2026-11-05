@@ -17,10 +17,11 @@
       "id": "types",
       "title": "Configure publication types and routes",
       "body": [
-        "Pages retain root URLs by default; articles retain the existing Blog endpoint. New types use /posts/type/slug. Select root or a literal custom prefix such as news. Prefix changes validate all reserved paths and preserve old public addresses."
+        "Pages retain root URLs by default; articles retain the existing Blog endpoint. New types use /posts/type/slug. Select root or a literal custom prefix such as news. Prefix changes validate all reserved paths and preserve old public addresses.",
+        "The Publication types card provides the standard table and an X of 20 capacity counter, including Pages and Articles. New publication type and Edit open a modal. Saving reloads the list; errors retain the fields. At capacity, creation is disabled and the server rejects a 21st type; editing and permitted removal remain available."
       ],
       "steps": [
-        "Open Types and settings; create a type with a stable ID, names, page/article behavior, capabilities and URL policy."
+        "Open Settings and select New publication type to the right of the card title. Complete and save the modal; use Edit in a row to update an existing type."
       ]
     },
     {
@@ -88,7 +89,7 @@
       "id": "discussion",
       "title": "Moderate discussion",
       "body": [
-        "Page discussion stays disabled. Article discussion uses the global Posts option in Types and settings and the individual publication option. Comments remain pending until moderation; existing IDs, URLs and history are preserved."
+        "Page discussion stays disabled. Article discussion uses the global Posts option in Settings and the individual publication option. Comments remain pending until moderation; existing IDs, URLs and history are preserved."
       ],
       "steps": [
         "Enable discussion only when intended; review incoming comments in Comments."
@@ -111,7 +112,7 @@
         "Posts incorporates Pages and Blog, whose packages and old assets are removed. Existing URLs, references and APIs use internal adapters; the retired plugins do not appear in the catalog and have no independent activation. Content, history and comments remain preserved. Old settings are combined during reads until an explicit Posts save."
       ],
       "steps": [
-        "Manage publication/discussion in Types and settings, moderate in Comments and access home/404 in Special pages."
+        "Manage publication/discussion in Settings and moderate in Comments. The Special pages screen has been removed from Posts; existing home and 404 documents are preserved."
       ]
     }
   ]

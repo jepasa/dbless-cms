@@ -8,3 +8,16 @@
 @media(max-width:900px){.posts-plugin .posts-library{grid-template-columns:minmax(0,1fr)}}
 .posts-plugin .posts-library>.panel>label{display:grid;gap:.4rem;margin-block:.75rem}
 .posts-plugin .posts-library>.panel>label.editor-checkbox{display:flex}
+/* The bounded catalog keeps the shared table/pager in normal flow; capacity is counted across all rows, including built-ins. */
+.posts-plugin .posts-types-heading{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.posts-plugin .posts-types-heading h2{margin:0}
+.posts-plugin .posts-types-footer{padding-block-end:.75rem;text-align:center}
+.posts-plugin .posts-types-footer>.catalog-summary{margin-block:0}
+/* Native dialog supplies focus containment and Escape; geometry follows the existing admin modal tokens and logical RTL spacing. */
+.posts-plugin .posts-type-dialog{width:min(40rem,calc(100% - 2rem));max-height:90dvh;overflow:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);padding:1.5rem}
+.posts-plugin .posts-type-dialog::backdrop{background:#0f172a80}
+.posts-plugin .posts-type-dialog h2{margin-block-start:0}
+.posts-plugin .posts-type-dialog label{display:grid;gap:.4rem;margin-block:.75rem}
+.posts-plugin .posts-type-dialog label.editor-checkbox{display:flex}
+/* A dialog already scrolls as one surface; a sticky savebar would cover the final capability fields on mobile. */
+.posts-plugin .posts-type-dialog .savebar{position:static;justify-content:flex-end;gap:.75rem;margin-block:1rem 0}

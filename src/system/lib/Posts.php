@@ -228,13 +228,20 @@ final class Posts {
       }
     }return $path;
   }
-  /** Commit one explicit lifecycle/configuration/term operation with own/site/legacy CAS; receive action/ID/input/revisions, return ID/revision or 409/422/503, preserving original files. */
+  /** Commit one explicit lifecycle/configuration/term operation with own/site/legacy CAS; receive action/ID/input/revisions, return ID/revision or 404/409/422/503, preserving original files. */
   public function change(string $action,string $id,array $input,string $revision,string $siteRevision,string $sourceRevision): array {
     return $this->store->transaction(function()use($action,&$id,$input,$revision,$siteRevision,$sourceRevision):array{
       if(!hash_equals($this->store->read('site')['revision'],$siteRevision)||!hash_equals($this->sourceRevision(),$sourceRevision))PostTypes::fail('conflict',409);
       $result=$this->repository()->change($revision,function(array $data)use($action,&$id,$input):array{
         $old=$data;$rows=$this->records($data);$now=gmdate('Y-m-d\TH:i:s\Z');
-        if($action==='type-save'){$type=$input['type'];$id=$type['id'];$data['types'][$id]=$type;if(isset($old['types'][$id])){$prior=PostTypes::prefix($old['types'][$id]);$after=PostTypes::prefix($type);if($prior!==null&&$prior!==''&&$prior!==$after)$data['routeAliases'][$prior]=['kind'=>'archive','type'=>$id];if($after!==null)unset($data['routeAliases'][$after]);}if(isset($old['types'][$id])&&$old['types'][$id]['kind']!==$type['kind'])foreach($rows as $row)foreach(['draft','published','scheduled'] as $which)if(($row[$which]['type']??'')===$id)PostTypes::fail('inUse',409);PostTypes::validate($data['types']);foreach($rows as $key=>$row){$live=self::effective($row);if($live!==null&&$this->sourceEnabled($row,$old)){$before=PostTypes::route($old['types'],$live);$after=PostTypes::route($data['types'],$live);if($before!==$after&&!str_contains($before,'?')){$row['aliases']=array_values(array_unique([...$row['aliases'],$before]));$data['records'][$key]=$row;}}}}
+        if($action==='type-save'){
+          $type=$input['type'];
+          // Distinguish creation from editing under the catalog lock: an existing identity is never silently overwritten or renamed.
+          if($id!==''&&$id!==$type['id'])PostTypes::fail();
+          if($id!==''&&!isset($data['types'][$id]))PostTypes::fail('missing',404);
+          if($id===''&&isset($data['types'][$type['id']]))PostTypes::fail('collision',409);
+          if($id===''&&count($data['types'])>=PostTypes::MAX_COUNT)PostTypes::fail('typeLimit');
+          $id=$type['id'];$data['types'][$id]=$type;if(isset($old['types'][$id])){$prior=PostTypes::prefix($old['types'][$id]);$after=PostTypes::prefix($type);if($prior!==null&&$prior!==''&&$prior!==$after)$data['routeAliases'][$prior]=['kind'=>'archive','type'=>$id];if($after!==null)unset($data['routeAliases'][$after]);}if(isset($old['types'][$id])&&$old['types'][$id]['kind']!==$type['kind'])foreach($rows as $row)foreach(['draft','published','scheduled'] as $which)if(($row[$which]['type']??'')===$id)PostTypes::fail('inUse',409);PostTypes::validate($data['types']);foreach($rows as $key=>$row){$live=self::effective($row);if($live!==null&&$this->sourceEnabled($row,$old)){$before=PostTypes::route($old['types'],$live);$after=PostTypes::route($data['types'],$live);if($before!==$after&&!str_contains($before,'?')){$row['aliases']=array_values(array_unique([...$row['aliases'],$before]));$data['records'][$key]=$row;}}}}
         elseif($action==='type-remove'){if(in_array($id,['page','article'],true)||!isset($data['types'][$id]))PostTypes::fail('inUse',409);foreach($rows as $row)foreach(['draft','published','scheduled'] as $which)if(($row[$which]['type']??'')===$id)PostTypes::fail('inUse',409);foreach($data['routeAliases'] as $path=>$target)if($target['kind']==='archive'&&$target['type']===$id)unset($data['routeAliases'][$path]);unset($data['types'][$id]);}
         elseif($action==='settings'){$next=PostTypes::path($input['searchPath']);if($next!==$data['searchPath']&&($data['records']!==[]||(new Plugins($this->store))->state('posts')['enabled'])&&$this->publicSearchPath($old)===$old['searchPath'])$data['routeAliases'][$data['searchPath']]=['kind'=>'search','type'=>''];unset($data['routeAliases'][$next]);$data['searchPath']=$next;}
         elseif(in_array($action,['term-save','term-remove'],true)){$kind=$input['kind'];if(!in_array($kind,['groups','tags','authors'],true)||!PostTypes::identifier($id))PostTypes::fail();$terms=$this->terms($data);

@@ -6,6 +6,31 @@ import path from 'node:path';
 import {applications,server,inspect,password} from './helpers/extension-media.mjs';
 /** Extract one required hidden control from trusted synthetic HTML; receive document/name, return attribute bytes or fail without logging credentials. */
 function field(html,name){const match=html.match(new RegExp('name="'+name+'"[^>]*value="([^"]*)"'));assert.ok(match,name);return match[1];}
+for(const application of applications)test(`${path.basename(application)}: type dialogs enforce 20 including built-ins, immutable identity and CAS; Special pages is unavailable`,async()=>{
+ const c=await server(application);let cookie='';
+ /** Request the isolated administrative API with this session; receives relative destination/options, returns an unfollowed response and propagates transport failures. */
+ async function request(url,options={}){const response=await fetch(c.base+url,{...options,redirect:'manual',headers:{...(cookie?{Cookie:cookie}:{}),...options.headers}});for(const value of response.headers.getSetCookie())if(value.startsWith('DBLESSCMSSESSID='))cookie=value.split(';')[0];return response;}
+ try{
+  const pluginFile=path.join(c.contents,'plugins.json'),plugins=JSON.parse(fs.readFileSync(pluginFile));plugins.plugins.posts={enabled:true,settings:{browser:{pageSize:25}}};fs.writeFileSync(pluginFile,JSON.stringify(plugins));
+  const reserved=['home','404'].map(id=>[path.join(c.contents,'pages',id+'.json'),fs.readFileSync(path.join(c.contents,'pages',id+'.json'))]);
+  for(const [start,end] of [[0,3],[3,6],[6,9],[9,12],[12,15],[15,17]])inspect(c,`$r=new DBLESSCMS\\Posts($s);for($i=${start};$i<${end};$i++){$type=DBLESSCMS\\PostTypes::defaults()['page'];$type['id']='type-'.$i;$type['singular']='Type '.$i;$type['plural']='Types '.$i;$r->change('type-save','',['type'=>$type],$r->read()['revision'],$s->read('site')['revision'],$r->sourceRevision());}echo 'true';`);
+  const login=await(await request('/cms-admin/')).text();const signed=await request('/cms-admin/',{method:'POST',body:new URLSearchParams({action:'login',username:'editor',password,csrf_token:field(login,'csrf_token')})});await signed.arrayBuffer();assert.equal(signed.status,303);
+  const settings='/cms-admin/?view=plugin-panel&plugin=posts&route=settings',api='/cms-admin/?view=plugin-api&plugin=posts&route=settings&operation=type-save';
+  let html=await(await request(settings)).text();const token=field(html,'csrf_token');assert.match(html,/19 of 20/);assert.match(html,/data-post-type-dialog/);assert.match(html,/Publication types/);assert.doesNotMatch(html,/posts\.specialPages|route=special|Special pages|All publications|Add publication|Types and settings/);
+  for(const route of ['/cms-admin/?view=plugin-panel&plugin=posts&route=special','/cms-admin/?view=plugin-api&plugin=posts&route=special&operation=save','/plugins/posts/special']){const denied=await request(route);assert.equal(denied.status,404);await denied.arrayBuffer();}
+  /** Build a valid closed type submission from current revisions; receives immutable original/new identity and overrides, returns plain form values without mutation. */
+  function payload(id,typeId,overrides={}){const revisions=inspect(c,`$r=new DBLESSCMS\\Posts($s);echo json_encode([$r->read()['revision'],$s->read('site')['revision'],$r->sourceRevision()]);`);return {csrf_token:token,id,typeId,singular:'Type',plural:'Types',kind:'page',routeMode:'default',prefix:'',supports_groups:'1',supports_tags:'1',supports_hierarchical:'1',revision:revisions[0],site_revision:revisions[1],source_revision:revisions[2],...overrides};}
+  const twentieth=payload('','last-type');let response=await request(api,{method:'POST',body:new URLSearchParams(twentieth)});assert.equal(response.status,200);assert.match((await response.json()).redirect,/plugin=posts&route=settings$/);
+  html=await(await request(settings)).text();assert.match(html,/20 of 20/);assert.match(html,/data-post-type-new[^>]*disabled/);assert.match(html,/data-post-type-edit="last-type"/);
+  const catalog=path.join(c.contents,'posts/catalog.json'),before=fs.readFileSync(catalog),historyBefore=inspect(c,`echo json_encode((new DBLESSCMS\\Posts($s))->repository()->history());`);
+  for(const [values,status,message] of [[payload('','overflow'),422,'The limit of 20'],[payload('','page'),409,'conflicts'],[payload('page','renamed'),422,'Invalid publication'],[payload('missing','missing'),404,'unavailable'],[payload('last-type','last-type',{revision:twentieth.revision}),409,'Another edit'],[payload('last-type','last-type',{csrf_token:'invalid'}),403,'']]){
+   response=await request(api,{method:'POST',body:new URLSearchParams(values)});assert.equal(response.status,status);const error=await response.json();if(message)assert.ok(error.error.includes(message),error.error);assert.deepEqual(fs.readFileSync(catalog),before);
+  }
+  assert.deepEqual(inspect(c,`echo json_encode((new DBLESSCMS\\Posts($s))->repository()->history());`),historyBefore);
+  response=await request(api,{method:'POST',body:new URLSearchParams(payload('last-type','last-type',{plural:'Updated types'}))});assert.equal(response.status,200);await response.json();const updated=JSON.parse(fs.readFileSync(catalog));assert.equal(Object.keys(updated.types).length,20);assert.equal(updated.types['last-type'].plural,'Updated types');
+  for(const [file,bytes] of reserved)assert.deepEqual(fs.readFileSync(file),bytes,'Reserved documents must remain byte-identical.');assert.doesNotMatch(c.logs(),/PHP (?:Warning|Fatal|Parse)/);
+ }finally{await c.close();}
+});
 for(const application of applications)test(`${path.basename(application)}: canonical Posts settings and moderation work without either retired package`,async()=>{
  const c=await server(application);let cookie='';
  /** Send one loopback request while retaining only this fixture's session; receive URL/options, return unfollowed response, propagate network failures. */

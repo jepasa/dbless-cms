@@ -5,15 +5,15 @@
   "messages": {
     "posts.name": "Publicações",
     "posts.description": "Páginas, artigos, tipos personalizados, taxonomias e busca pública unificados.",
-    "posts.overview": "Todas as publicações",
-    "posts.new": "Adicionar publicação",
+    "posts.overview": "Visão geral",
+    "posts.new": "Nova publicação",
     "posts.editor": "Editar publicação",
     "posts.groups": "Grupos",
     "posts.tags": "Tags",
     "posts.authors": "Autores",
     "posts.comments": "Comentários",
     "posts.history": "Histórico",
-    "posts.settings": "Tipos e configurações",
+    "posts.settings": "Configurações",
     "posts.trash": "Lixeira",
     "posts.preview": "Prévia",
     "posts.browser": "Catálogo",
@@ -445,6 +445,11 @@
     "blog.templateHelp": "Layout Blog do template ativo. Formatos alternativos dependem de suporte declarado pelo template.",
     "posts.publicationOptions": "Opções de publicação e discussão",
     "posts.optionsHelp": "Estas opções controlam a listagem de artigos, o tempo de leitura e a discussão moderada. A ativação pertence ao catálogo de plugins.",
-    "posts.specialPages": "Páginas especiais"
+    "posts.publicationTypes": "Tipos de publicações",
+    "posts.typeEdit": "Editar tipo de publicação",
+    "posts.typeCount": "{count} de {limit}",
+    "posts.typeLimitHelp": "Até {limit} tipos de publicação, incluindo Páginas e Artigos.",
+    "posts.error.typeLimit": "O limite de 20 tipos de publicação foi atingido.",
+    "posts.cancel": "Cancelar"
   }
 }

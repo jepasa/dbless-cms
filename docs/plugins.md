@@ -267,7 +267,7 @@ root configured for Images. Private storage never supplies a public favicon.
 
 Posts (`posts`, API 1) is the single bundled editorial plugin. Pages and Blog packages were retired in 2.21.0 after incorporating their functionality. See [Unified publications](publications.md) for post types, friendly routes, groups/tags, authoring, scheduling, search, discussion and preserved legacy URLs/providers/APIs.
 
-New installations enable Posts. Existing configuration is projected without GET migration; an explicit owner settings save records subsequent choices. `php src/system/bin/install-posts.php --enable` offers optional explicit CLI activation and preserves content/history/comments/credentials. Publication and discussion options belong to **Posts → Types and settings**. Comments require CSRF, consent and server-side moderation, and remain pending until approval. No independent Pages/Blog activation or uninstall operation is available.
+New installations enable Posts. Existing configuration is projected without GET migration; an explicit owner settings save records subsequent choices. `php src/system/bin/install-posts.php --enable` offers optional explicit CLI activation and preserves content/history/comments/credentials. Publication and discussion options belong to **Posts → Settings**. Comments require CSRF, consent and server-side moderation, and remain pending until approval. No independent Pages/Blog activation or uninstall operation is available.
 
 ## Global settings and Widgets
 

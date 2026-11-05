@@ -4,7 +4,9 @@ Posts is the sole bundled editorial plugin, with one localized Publications work
 
 ## Types and URLs
 
-Open Types and settings. A type has an immutable ID, editable singular/plural labels, page/article rendering behavior and optional groups, tags, hierarchy/order and article discussion. The rendering behavior cannot change while the type is used. Built-in Pages keep discussion disabled. Referenced types/terms cannot be removed.
+Open Settings. The Publication types card uses the standard table, with New publication type on the right and an X of 20 capacity counter in its footer. The 20-type limit includes Pages and Articles. Creation and editing open a keyboard-accessible modal; a successful save reloads the settings list, while validation or revision errors retain the modal fields. At capacity, creation is disabled and rejected by the server, but editing and permitted removal remain available. IDs remain immutable and creating an already existing ID is rejected.
+
+A type has an immutable ID, editable singular/plural labels, page/article rendering behavior and optional groups, tags, hierarchy/order and article discussion. The rendering behavior cannot change while the type is used. Built-in Pages keep discussion disabled. Referenced types/terms cannot be removed.
 
 Default Page addresses remain `/slug`; default Article addresses retain `/plugins/blog/article?slug=slug`. Additional types default to `/posts/type/slug`. Root mode uses `/slug` with global collision protection. Custom mode accepts a literal prefix (up to three safe lowercase segments), such as `news` or `publications/news`; each record supplies its own slug. An available nonempty prefix also provides a type archive. No PHP paths, expressions, route callbacks or generated entrypoints are accepted.
 
@@ -33,7 +35,7 @@ Save draft, Preview, Publish and Schedule are independent actions. Dates are UTC
 
 Groups reuse hierarchical Blog categories; tags are flat and authors are editorial profiles. They do not create administrator accounts. Assignments belong to individual snapshots. Different filters combine with AND; comma-separated tag IDs combine with OR. Selecting a group includes its descendants. Public search uses literal text in published titles, summaries and authored plain text, without evaluating dynamic providers to build an index. Private working text, pending comments, history and future-only publications are excluded. Page size follows `settings.contentPageSize` and immutable IDs break date ties.
 
-The public search view has independent public template copy. `adminLocale` controls only administrative UI/tutorials. Essencial demonstrates navigation to search and provides a `partials.posts` receiver; other templates can declare their own receiver or use the plugin's default fragment. Article rendering/comments preserve the existing template integration; the global discussion switch and publication options now reside in Posts → Types and settings, and moderation resides in Posts → Comments. Comments remain pending until explicitly approved.
+The public search view has independent public template copy. `adminLocale` controls only administrative UI/tutorials. Essencial demonstrates navigation to search and provides a `partials.posts` receiver; other templates can declare their own receiver or use the plugin's default fragment. Article rendering/comments preserve the existing template integration; the global discussion switch and publication options now reside in Posts → Settings, and moderation resides in Posts → Comments. Comments remain pending until explicitly approved.
 
 ## Public data and export
 
@@ -49,7 +51,7 @@ Posts owns all page editor/article assets, discussion settings and moderation. L
 
 The unified History screen can also restore validated original JSON/Page-publication/Blog backups directly into the unified draft. It keeps the current publication and native files unchanged. Unused original Blog blocks remain recoverable privately; they are excluded from authored publication/export snapshots. Literal media references using the reserved `{{cms.base}}/` prefix are exported under the same containment/MIME checks as ordinary public references.
 
-Native page schedules retain an optional `releaseAt` gate independently from the preserved editorial `publishedAt` timestamp. Adoption/export preserve both; due-time selection never makes an unreleased scheduled body visible merely because its editorial timestamp is older. Special home/404 pages remain reachable from Posts → Special pages; Homepage retains its own composition workflow.
+Native page schedules retain an optional `releaseAt` gate independently from the preserved editorial `publishedAt` timestamp. Adoption/export preserve both; due-time selection never makes an unreleased scheduled body visible merely because its editorial timestamp is older. The Special pages screen and route are removed from Posts in 2.21.1; existing home/404 documents, their public rendering and legacy compatibility contracts are preserved. Homepage retains its own composition workflow.
 
 Adopting a record from a disabled legacy source keeps it private until explicit publication. Saving a working draft or changing a type prefix cannot confer public availability on that source; original files and history remain unchanged.
 

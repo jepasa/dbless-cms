@@ -5,15 +5,15 @@
   "messages": {
     "posts.name": "Publications",
     "posts.description": "Unified pages, articles, custom types, taxonomies and public search.",
-    "posts.overview": "All publications",
-    "posts.new": "Add publication",
+    "posts.overview": "Overview",
+    "posts.new": "New publication",
     "posts.editor": "Edit publication",
     "posts.groups": "Groups",
     "posts.tags": "Tags",
     "posts.authors": "Authors",
     "posts.comments": "Comments",
     "posts.history": "History",
-    "posts.settings": "Types and settings",
+    "posts.settings": "Settings",
     "posts.trash": "Trash",
     "posts.preview": "Preview",
     "posts.browser": "Catalog",
@@ -445,6 +445,11 @@
     "blog.templateHelp": "The active template supplies the Blog layout. Alternate post formats require declared template support.",
     "posts.publicationOptions": "Publication and discussion options",
     "posts.optionsHelp": "These options control article listings, reading time and moderated discussion. Activation belongs to the plugin catalog.",
-    "posts.specialPages": "Special pages"
+    "posts.publicationTypes": "Publication types",
+    "posts.typeEdit": "Edit publication type",
+    "posts.typeCount": "{count} of {limit}",
+    "posts.typeLimitHelp": "Up to {limit} publication types, including Pages and Articles.",
+    "posts.error.typeLimit": "The limit of 20 publication types has been reached.",
+    "posts.cancel": "Cancel"
   }
 }

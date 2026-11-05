@@ -7,6 +7,8 @@ declare(strict_types=1);
 namespace DBLESSCMS;
 /** Constrain publication capabilities and literal routing policies without evaluating dynamic configuration as code. */
 final class PostTypes {
+  /** @var int Maximum catalog size including protected built-ins; shared by validation and administrative capacity controls. */
+  public const MAX_COUNT=20;
   /** Raise a localized publication contract error; receive key/status, never return or mutate storage. */
   public static function fail(string $key='invalid',int $status=422): never {throw new HttpError($status,'Publication operation unavailable.','posts.error.'.$key);}
   /** Validate an opaque identity; receive untrusted value, return bool without resolving paths. */
@@ -27,7 +29,7 @@ final class PostTypes {
   }
   /** Validate closed type records and independent namespaces; receive map, return map or 422; built-ins cannot change rendering kind. */
   public static function validate(array $types): array {
-    if(count($types)>20||!isset($types['page'],$types['article']))self::fail();$prefixes=[];
+    if(count($types)>self::MAX_COUNT)self::fail('typeLimit');if(!isset($types['page'],$types['article']))self::fail();$prefixes=[];
     foreach($types as $id=>$type){
       if(!self::identifier($id)||!is_array($type)||array_diff(array_keys($type),['id','singular','plural','kind','routeMode','prefix','groups','tags','comments','hierarchical'])||count($type)!==10||($type['id']??null)!==$id||!in_array($type['kind']??null,['page','article'],true)||!in_array($type['routeMode']??null,['default','root','custom'],true))self::fail();
       self::text($type['singular'],100,in_array($id,['page','article'],true));self::text($type['plural'],100,in_array($id,['page','article'],true));
