@@ -1,5 +1,5 @@
 <?php
-/** Canonical global site data, version-one migration, public projections and four-card administrative field definitions. */
+/** Canonical public site data, version-one migration and four editorial cards; private mail configuration is a separate Core card and never a site field. */
 declare(strict_types=1);
 namespace DBLESSCMS;
 final class GlobalSettings {

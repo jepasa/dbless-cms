@@ -1,10 +1,17 @@
 <?php
 /** Forms delivery and private expiring receipts: no visitor IDs/IP, bounded idempotence and optional explicitly enabled content retention; transport success is not inbox delivery. */
 declare(strict_types=1);
+/** Trusted Forms delivery namespace, sharing Core transport without public SMTP overrides. */
 namespace DBLESSCMS;
+/** Preserve bounded private receipts and submission idempotence across transport acceptance, rejection and uncertainty. */
 final class FormsDelivery {
-  /** Receive private store and optional trusted transport for isolated tests; runtime defaults to mail, no public transport override or network configuration. */
-  public function __construct(private readonly JsonStore $store,private readonly ?\Closure $transport=null) {}
+  /** Receive private store and optional trusted transport for isolated tests; runtime uses the selected Core transport. */
+  public function __construct(
+    /** @var JsonStore Private content/receipt context. */
+    private readonly JsonStore $store,
+    /** @var ?\Closure Trusted test-only transport, never selected by public input. */
+    private readonly ?\Closure $transport=null
+  ) {}
   /** Issue bounded session-only form ticket bound to the exact form version; receive definition, return random token without storing user fields. */
   public static function ticket(array $form): string {
     $tickets=$_SESSION['forms-tickets']??[];$tickets=array_filter($tickets,static fn(array $record):bool=>$record['at']>time()-900);if(count($tickets)>=40)$tickets=array_slice($tickets,-39,null,true);$token=bin2hex(random_bytes(24));$tickets[$token]=['id'=>$form['id'],'revision'=>hash('sha256',ExtensionDocument::encode($form)),'at'=>time(),'done'=>false];$_SESSION['forms-tickets']=$tickets;return $token;
@@ -27,7 +34,7 @@ final class FormsDelivery {
     $record=['id'=>$receipt,'form'=>$form['id'],'createdAt'=>time(),'expiresAt'=>time()+max(7,$form['retainDays'])*86400,'retainUntil'=>time()+$form['retainDays']*86400,'noticeVersion'=>$form['noticeVersion'],'formRevision'=>$version,'policyRevision'=>$policySnapshot['revision'],'noticeText'=>$form['noticeText'],'consentText'=>$form['legalBasis']==='consent'?$form['consentText']:'','legalBasis'=>$form['legalBasis'],'noticeHash'=>hash('sha256',$form['noticeText']),'consented'=>$form['legalBasis']==='consent','status'=>'pending','values'=>$form['retainDays']>0?$values:[]];
     // Save pending receipt before transport; after transport uncertainty must never trigger an automatic replay.
     ExtensionDocument::atomic($directory.'/'.$receipt.'.json',ExtensionDocument::encode($record));$_SESSION['forms-tickets'][$token]['done']=$receipt;
-    try{$sent=$this->transport!==null?($this->transport)($to,$form['name'],$body,$headers):(function_exists('mail')&&@mail($to,$form['name'],$body,$headers));}
+    try{$sent=$this->transport!==null?($this->transport)($to,$form['name'],$body,$headers):Mailer::send($this->store->config,$to,$form['name'],$body,$reply,$to);}
     catch(\Throwable $error){$record['status']='uncertain';ExtensionDocument::atomic($directory.'/'.$receipt.'.json',ExtensionDocument::encode($record));throw new HttpError(503,'Delivery could not be confirmed. Contact the site with the reference.','forms.error.delivery');}
     $record['status']=$sent?'accepted':'failed';ExtensionDocument::atomic($directory.'/'.$receipt.'.json',ExtensionDocument::encode($record));if(!$sent){$_SESSION['forms-tickets'][$token]['done']=false;throw new HttpError(503,'Delivery unavailable; fields have not been cleared.','forms.error.delivery');}return $receipt;
   }

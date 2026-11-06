@@ -1,0 +1,28 @@
+/** Real private mail-card controls on synthetic source/package: transport selection, credential redaction/preservation/removal and locale/mobile behavior. */
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import {browserApplications} from '../helpers/extension-media.mjs';
+import {usersServer,password} from '../helpers/users.mjs';
+if(!process.env.PLAYWRIGHT_MODULE){console.error('BLOCKED: PLAYWRIGHT_MODULE is required for browser qualification.');process.exit(1);}
+const {chromium}=await import(process.env.PLAYWRIGHT_MODULE),evidence=process.env.DBLESS_CMS_MAIL_EVIDENCE||'/tmp/dbless-mail-046';fs.mkdirSync(evidence,{recursive:true});
+const browser=await chromium.launch({executablePath:'/usr/bin/google-chrome',headless:true,args:['--no-sandbox']}),results=[];
+/** Click one visible submit control and wait for its actual server navigation. */
+async function submit(page,button){await Promise.all([page.waitForNavigation(),button.click()]);}
+try{for(const [index,application] of browserApplications.entries()){
+ const c=await usersServer(application),context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];
+ page.on('pageerror',error=>errors.push(error.message));page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});await context.route('**/*',route=>new URL(route.request().url()).origin===c.base?route.continue():route.abort());
+ try{
+  await page.goto(c.base+'/cms-admin/?view=login');await page.getByLabel('Username',{exact:true}).fill('editor');await page.getByLabel('Password',{exact:true}).fill(password);await submit(page,page.getByRole('button',{name:'Sign in',exact:true}));await page.goto(c.base+'/cms-admin/?view=site');
+  const card=page.locator('[data-mail-settings]'),file=path.join(c.env.DBLESS_CMS_STORAGE_ROOT,'mail/settings.json'),siteFile=path.join(c.contents,'site.json'),siteBefore=fs.readFileSync(siteFile);
+  await card.getByRole('heading',{name:'Email delivery',exact:true}).waitFor();assert.equal(await card.getByLabel('Delivery method',{exact:true}).inputValue(),'mail');assert.equal(fs.existsSync(file),false);
+  await card.getByLabel('Delivery method',{exact:true}).selectOption('smtp');await card.getByLabel('Sender email',{exact:true}).fill('cms@example.invalid');await card.getByLabel('Sender name',{exact:true}).fill('Synthetic SMTP card');await card.getByLabel('CMS base URL for recovery links',{exact:true}).fill('https://cms.example.invalid');await card.getByLabel('SMTP server',{exact:true}).fill('127.0.0.1');await card.getByLabel('SMTP port',{exact:true}).fill('465');await card.getByLabel('Encryption',{exact:true}).selectOption('tls');await card.getByLabel('SMTP username',{exact:true}).fill('synthetic-smtp-user');await card.getByLabel('SMTP password',{exact:true}).fill('Synthetic-Browser-SMTP-Secret-2026');await submit(page,card.getByRole('button',{name:'Save email settings',exact:true}));
+  await card.getByText('An SMTP password is stored.',{exact:false}).waitFor();assert.equal(await card.getByLabel('SMTP password',{exact:true}).inputValue(),'');assert.equal(await card.getByLabel('Delivery method',{exact:true}).inputValue(),'smtp');assert.ok(!(await page.content()).includes('Synthetic-Browser-SMTP-Secret-2026'));assert.deepEqual(fs.readFileSync(siteFile),siteBefore);const cipher=JSON.parse(fs.readFileSync(file)).smtp.password;assert.ok(cipher&&!cipher.includes('Synthetic-Browser'));
+  const editorDocument=await page.locator('textarea[name=document]').inputValue();assert.ok(!editorDocument.includes('synthetic-smtp-user'));assert.ok(!editorDocument.includes('Synthetic-Browser-SMTP'));
+  await card.getByLabel('Delivery method',{exact:true}).selectOption('mail');await submit(page,card.getByRole('button',{name:'Save email settings',exact:true}));assert.equal(JSON.parse(fs.readFileSync(file)).smtp.password,cipher);await card.getByLabel('Remove the stored SMTP password',{exact:true}).check();await submit(page,card.getByRole('button',{name:'Save email settings',exact:true}));assert.equal(JSON.parse(fs.readFileSync(file)).smtp.password,'');assert.equal(fs.existsSync(path.join(c.env.DBLESS_CMS_STORAGE_ROOT,'keys/users.key')),false);
+  await card.scrollIntoViewIfNeeded();await card.screenshot({path:path.join(evidence,`${index}-mail-en-desktop.png`)});
+  const site=JSON.parse(fs.readFileSync(siteFile));site.settings.adminLocale='pt-br';fs.writeFileSync(siteFile,JSON.stringify(site));await page.setViewportSize({width:390,height:844});await page.goto(c.base+'/cms-admin/?view=site');await card.getByRole('heading',{name:'Envio de e-mails',exact:true}).waitFor();await card.getByLabel('Método de envio',{exact:true}).focus();await page.keyboard.press('Tab');assert.equal(await card.getByLabel('E-mail do remetente',{exact:true}).evaluate(element=>element===document.activeElement),true);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await card.screenshot({path:path.join(evidence,`${index}-mail-pt-mobile.png`)});
+  assert.deepEqual(errors,[]);assert.doesNotMatch(c.logs(),/PHP (?:Warning|Fatal|Parse)/);results.push({application,status:'PASS',checks:['separate-card','smtp-save','redaction','blank-preserves','explicit-clear','no-site-json','independent-key','locales-mobile-keyboard']});
+ }catch(error){fs.writeFileSync(path.join(evidence,`${index}-server.log`),c.logs());await page.screenshot({path:path.join(evidence,`${index}-failure.png`)});throw error;}finally{await context.close();await c.close();}
+}}finally{await browser.close();}
+console.log('MAIL_BROWSER_RESULT='+JSON.stringify(results));

@@ -1,12 +1,19 @@
 <?php
 /** Ferramentas PHP CLI de produção: diagnóstico, manutenção, retenção, snapshots privados e atualização em destino novo. */
 declare(strict_types=1);
+/** Trusted local installation operations. */
 namespace DBLESSCMS;
+/** Diagnose and preserve a private installation through guarded CLI lifecycle operations. */
 final class Operations {
+  /** @var string Canonical installation root; no symlink traversal is accepted. */
   private readonly string $installation;
+  /** @var string Private deployment configuration path; never printed in diagnostic payloads. */
   private readonly string $privateConfig;
   /** Recebe configuração local, resolve raízes e recusa links; não imprime nem altera dados. */
-  public function __construct(private readonly Config $config) {
+  public function __construct(
+    /** @var Config Trusted private runtime settings and authoritative identity storage roots. */
+    private readonly Config $config
+  ) {
     $this->installation=Lifecycle::path(dirname($config->root));
     $this->privateConfig=Lifecycle::path(getenv('DBLESS_CMS_APP_CONFIG')?:$config->root.'/config/app.json');
     Lifecycle::path($config->data['contents']);Lifecycle::path($config->data['storage']);
@@ -69,6 +76,15 @@ final class Operations {
     $checks['php']=PHP_VERSION_ID>=80200;
     foreach (['fileinfo','json','session','openssl','dom'] as $extension) $checks['extension_'.$extension]=extension_loaded($extension);
     $checks['credentials']=is_bool($this->config->credentials['enabled']??true)&&$this->config->configured()&&password_get_info($this->config->credentials['password_hash']??'')['algoName']==='argon2id';
+    $users=new Users($this->config);
+    if($users->enabled()){
+      // Migrated identity state is authoritative; obsolete bootstrap credentials cannot approve a broken catalog.
+      $catalog=$users->snapshot()['data'];$checks['credentials']=false;$key=(new UserStore($this->config))->key();
+      foreach($catalog['users'] as $user){if($user['mfa']['secret']!=='')UserCrypto::unseal($user['mfa']['secret'],$key,$user['id']);if($user['group']==='administrator'&&$user['status']==='active'&&$user['mfa']['secret']!==''&&password_get_info($user['passwordHash'])['algoName']==='argon2id')$checks['credentials']=true;}
+      $checks['extension_sodium']=extension_loaded('sodium');
+      $checks['users_private']=((fileperms($this->config->data['storage'].'/users/catalog.json')&0077)===0)&&((fileperms($this->config->data['storage'].'/keys/users.key')&0077)===0);
+      $checks['users_mail_configured']=UserMail::configured($this->config)&&Mailer::available($this->config);
+    }
     $checks['private_config']=is_file($this->privateConfig)&&!self::inside($this->privateConfig,$this->installation.'/public_html')&&((fileperms($this->privateConfig)&0007)===0);
     foreach (['contents','storage'] as $key) {
       $directory=$this->config->data[$key];

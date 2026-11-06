@@ -1,0 +1,17 @@
+/** Core Users presentation confined to its integrated/authentication fragment; typography, buttons and tables inherit administrative tokens. */
+.users-panel { min-width: 0; }
+.users-panel .panel { margin-block: 20px; }
+.users-card-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-block-end: 18px; }
+.users-card-heading h2 { margin: 0; }
+.users-panel .stack { max-width: 760px; }
+.users-panel .stack input:not([type=checkbox]), .users-panel .stack select { width: 100%; }
+.users-permissions { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 12px; }
+.users-permissions label { display: flex; align-items: start; gap: 8px; }
+.users-qr { display: block; width: 260px; max-width: 100%; height: auto; image-rendering: pixelated; margin-block: 16px; }
+.users-key { display: block; overflow-wrap: anywhere; padding: 12px; background: var(--paper); color: var(--ink); }
+.users-recovery { display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 8px; padding-inline-start: 22px; }
+.users-panel fieldset { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+.users-panel dd { margin-inline-start: 0; overflow-wrap: anywhere; margin-block-end: 12px; }
+/* The native Core dropdown/table preserve document flow; only the per-row restore controls need a bounded width. */
+.users-restore select { max-width: 15rem; min-width: 0; }
+@media (max-width: 480px) { .users-permissions, .users-recovery { grid-template-columns: 1fr; } }

@@ -1,11 +1,17 @@
 <?php
 /** Configuração privada: .env somente em desenvolvimento; produção usa config/app.json. */
 declare(strict_types=1);
+/** Trusted application configuration and private credential compatibility. */
 namespace DBLESSCMS;
+/** Load immutable deployment settings without migrating accounts or writing configuration. */
 final class Config {
+  /** @var array Validated operational paths, transport options and feature settings. */
   public readonly array $data;
+  /** @var array Legacy bootstrap credential; not an authentication fallback after Users migration. */
   public readonly array $credentials;
+  /** @var string Private application code root. */
   public readonly string $root;
+  /** @var bool Production marker; prevents development dotenv/plaintext credential fallbacks. */
   public readonly bool $production;
 
   /** Sem parâmetros, carrega configuração e valida caminhos/credenciais (comprimento Unicode no desenvolvimento); retorna instância sem gravações; erros explícitos não contêm segredos. */
@@ -38,6 +44,7 @@ final class Config {
       ? (getenv('DBLESS_CMS_CONTACT_ENABLED') ?: ($env['DBLESS_CMS_CONTACT_ENABLED'] ?? '0')) === '1'
       : false;
     $credentials = ['enabled' => true, 'username' => '', 'password_hash' => ''];
+    $data['users'] = ['origin'=>'','from'=>''];
     $private = getenv('DBLESS_CMS_APP_CONFIG') ?: $this->root . '/config/app.json';
     if (is_file($private)) {
       if (is_link($private)) throw new \RuntimeException('Configuração privada inválida.');
@@ -45,6 +52,10 @@ final class Config {
       if (($app['schema_version'] ?? null) !== 1 || !is_array($app['editor'] ?? null)) throw new \RuntimeException('Configuração privada inválida.');
       $credentials = $app['editor'];
       $data['contact_enabled'] = ($app['contact_enabled'] ?? false) === true;
+      if(isset($app['users'])){
+        if(!is_array($app['users'])||array_diff(array_keys($app['users']),['origin','from']))throw new \RuntimeException('Configuração Users inválida.');
+        foreach($data['users'] as $key=>$default){$value=$app['users'][$key]??$default;if(!is_string($value)||strlen($value)>2048||preg_match('/[\r\n\x00]/',$value))throw new \RuntimeException('Configuração Users inválida.');$data['users'][$key]=$value;}
+      }
     }
     if (!$this->production) {
       foreach (['username'=>'DBLESS_CMS_ADMIN_USER','password_hash'=>'DBLESS_CMS_ADMIN_PASSWORD_HASH','password_plaintext'=>'DBLESS_CMS_ADMIN_PASSWORD'] as $key=>$variable) {
@@ -64,6 +75,7 @@ final class Config {
 
   /** Informa se existe credencial utilizável; sem parâmetros, efeitos ou erros esperados. */
   public function configured(): bool {
+    if((new UserStore($this))->exists())return true;
     return ($this->credentials['username'] ?? '') !== '' && (($this->credentials['password_hash'] ?? '') !== '' || isset($this->credentials['password_plaintext']));
   }
 }

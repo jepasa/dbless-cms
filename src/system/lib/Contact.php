@@ -1,7 +1,9 @@
 <?php
 /** Contato central: tipos/limites, CSRF/origem, cota atômica e resposta verdadeira de transporte. */
 declare(strict_types=1);
+/** Public contact dispatch with shared security and the private Core mail transport. */
 namespace DBLESSCMS;
+/** Validate a bounded contact submission before handing it to the selected transport. */
 final class Contact {
   /** Processa POST sintético ou real; recebe config/store/base; escreve texto, sem persistir PII; erros HTTP são explícitos. */
   public static function handle(Config $config,JsonStore $store,string $base): void {
@@ -23,9 +25,9 @@ final class Contact {
     $parts=parse_url($base); $expected=($parts['scheme']??'http').'://'.($parts['host']??'localhost').(isset($parts['port'])?':'.$parts['port']:'');
     if ($origin!==null && (!is_string($origin) || rtrim($origin,'/')!==$expected)) throw new HttpError(403,'Origem não permitida.');
     $to=$store->read('site')['data']['settings']['contact']['email'];
-    if (!$config->data['contact_enabled'] || !function_exists('mail') || !filter_var($to,FILTER_VALIDATE_EMAIL)) throw new HttpError(503,'Envio indisponível. Tente novamente mais tarde.');
+    if (!$config->data['contact_enabled'] || !Mailer::available($config) || !filter_var($to,FILTER_VALIDATE_EMAIL)) throw new HttpError(503,'Envio indisponível. Tente novamente mais tarde.');
     $body="Nome: {$values['name']}\nE-mail: {$values['email']}\n\n{$values['message']}";
-    $sent=@mail($to,$values['subject'],$body,['From'=>$to,'Reply-To'=>$values['email']]);
+    $sent=Mailer::send($config,$to,$values['subject'],$body,$values['email'],$to);
     if (!$sent) throw new HttpError(503,'Envio indisponível. Tente novamente mais tarde.');
     echo 'OK';
   }

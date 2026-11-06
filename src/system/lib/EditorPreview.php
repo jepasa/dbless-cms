@@ -1,13 +1,16 @@
 <?php
 /** Read-only unsaved HTML/Mustache preview in the active public layout. Published programs run only in a disposable opaque sandbox, never in the editing canvas. */
 declare(strict_types=1);
+/** Isolated private preview services. */
 namespace DBLESSCMS;
+/** Serve authorized editor buffers without exporting session material. */
 final class EditorPreview {
   /** Authenticate and validate one bounded preview POST; receive services/base, return JSON without persistence or real session material; expected failures retain HTTP status. */
   public static function response(Config $config,JsonStore $store,string $base): string {
     header('Content-Type: application/json; charset=UTF-8');header('Cache-Control: no-store');header('Referrer-Policy: no-referrer');header('X-Robots-Tag: noindex, nofollow');
     try {
       if(!Security::authenticated($config))throw new HttpError(403,'Authentication required.','error.authentication');
+      Access::require($config,'posts.edit');
       if(($_SERVER['REQUEST_METHOD']??'GET')!=='POST'){header('Allow: POST');throw new HttpError(405,'POST required.','error.method');}
       Security::csrf($_POST['csrf_token']??null);Security::limit($config,'editor-preview',60,60);
       $raw=$_POST['document']??null;if(!is_string($raw)||strlen($raw)>262144)throw new HttpError(422,'Invalid preview document.','markup.error');

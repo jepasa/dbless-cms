@@ -34,7 +34,7 @@ export function inspect(context,expression){
   if(result.error)throw result.error;if(result.status!==0||result.stderr)throw new Error(result.stderr||result.stdout);return JSON.parse(result.stdout);
 }
 
-/** Start an ephemeral loopback fixture for real browser usage; receives application, returns base/logs/async close and removes the fixture even on startup failure. */
+/** Start an ephemeral loopback fixture for real browser usage; receives application/options with optional synthetic-mail and pre-start fixture callback, returns base/logs/async close and removes the fixture even on startup failure. */
 export async function server(application=applications[0],options={}){
   const context=fixture(application),socket=net.createServer();let processHandle;
   try{
@@ -43,6 +43,7 @@ export async function server(application=applications[0],options={}){
     fs.mkdirSync(path.join(context.temporary,'scripts'));fs.copyFileSync(path.join(root,'scripts/dev-router.php'),path.join(context.temporary,'scripts/dev-router.php'));
     const mailArguments=[];
     if(options.syntheticMail===true){const script=path.join(context.temporary,'synthetic-sendmail.sh'),output=path.join(context.temporary,'synthetic-mail.txt');if(!/^[A-Za-z0-9_./-]+$/.test(output))throw new Error('Unsafe synthetic mail path.');fs.writeFileSync(script,'#!/bin/sh\ncat >> \"'+output+'\"\nexit 0\n',{mode:0o700});mailArguments.push('-d','disable_functions=','-d','sendmail_path='+script);const configFile=path.join(context.temporary,'app.json'),settings=JSON.parse(fs.readFileSync(configFile));settings.contact_enabled=true;fs.writeFileSync(configFile,JSON.stringify(settings));}
+    if(options.configure)await options.configure(context,base);
     processHandle=spawn('php',['-d','disable_functions=mail',...mailArguments,'-d','upload_max_filesize=12M','-d','post_max_size=13M','-d',`session.save_path=${context.temporary}`,'-S',`127.0.0.1:${port}`,'-t',path.join(context.app,'public_html'),path.join(context.temporary,'scripts/dev-router.php')],{env:context.env});
     let logs='';processHandle.stderr.on('data',data=>{logs+=data;});processHandle.stdout.on('data',data=>{logs+=data;});
     /** Stop this server and delete only its fixture; no arguments/return value, preserves logs in closure and propagates cleanup errors. */
