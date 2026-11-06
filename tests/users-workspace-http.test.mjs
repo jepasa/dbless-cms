@@ -1,4 +1,4 @@
-/** Loopback Users workspace contracts: group cards/actions, exact dropdown, read-only audit/trash, policy guards and configurable HTTP quotas. */
+/** Loopback Users workspace contracts: account/group cards, read-only navigation, audit/trash, policy guards and configurable HTTP quotas. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -18,6 +18,29 @@ async function authenticate(request,info){const signed=await login(request);asse
 function values(html){return Object.fromEntries([...html.matchAll(/name="policy\[([A-Za-z]+)\]"[^>]*value="([0-9]+)"/g)].map(match=>['policy['+match[1]+']',match[2]]));}
 
 for(const application of applications){
+ test(`${path.basename(application)}: account cards return to overview without saving and preserve protected create/edit submissions`,async()=>{
+  const c=await usersServer(application);try{
+   const info=initialize(c),request=client(c);await authenticate(request,info);
+   const catalog=path.join(c.env.DBLESS_CMS_STORAGE_ROOT,'users/catalog.json'),siteFile=path.join(c.contents,'site.json'),site=JSON.parse(fs.readFileSync(siteFile)),url='/cms-admin/?view=users&screen=user-edit',before=fs.readFileSync(catalog);
+   for(const locale of ['en-us','pt-br']){
+    site.settings.adminLocale=locale;fs.writeFileSync(siteFile,JSON.stringify(site));
+    const messages=JSON.parse(fs.readFileSync(path.join(c.app,'system/languages',locale+'.json'))).messages;
+    for(const suffix of ['', '&id='+info.reader]){
+     const response=await request(url+suffix);assert.equal(response.status,200);const html=await response.text(),form=html.match(/<form method="post" class="users-account-form">([\s\S]*?)<\/form>/)?.[1];assert.ok(form);assert.equal((form.match(/class="panel"/g)||[]).length,3);assert.doesNotMatch(form,/<form\b/);
+     const cards=form.split('<section class="panel">');assert.match(cards[1],/name="name"[\s\S]*name="username"[\s\S]*name="email"/);assert.doesNotMatch(cards[1],/<select/);assert.ok(cards[2].includes(messages['users.access_settings']));assert.match(cards[2],/name="group"[\s\S]*name="status"/);
+     assert.equal(field(form,'id'),suffix?info.reader:'');assert.ok(field(form,'csrf_token'));assert.ok(field(form,'revision'));
+     const actions=form.slice(form.lastIndexOf('<div class="panel">'));assert.ok(actions.includes('href="'+c.base+'/cms-admin/?view=users&amp;screen=users">'+messages['users.back_users']+'</a><button class="button-primary" type="submit">'+messages['users.save']+'</button>'));assert.doesNotMatch(actions,/<input|<select/);
+    }
+    const response=await request('/cms-admin/?view=users&screen=users');assert.equal(response.status,200);assert.ok((await response.text()).includes(messages['users.overview']));assert.deepEqual(fs.readFileSync(catalog),before);
+   }
+   let html=await(await request(url)).text();const payload={action:'users-user-save',csrf_token:field(html,'csrf_token'),revision:field(html,'revision'),id:'',name:'',username:'layout-account',email:'layout@example.invalid',group:'contributor',status:'blocked'};
+   let response=await request(url,{method:'POST',body:new URLSearchParams(payload)});assert.equal(response.status,422);html=await response.text();assert.match(html,/class="users-account-form"/);assert.equal(field(html,'username'),payload.username);assert.equal(field(html,'email'),payload.email);assert.equal(field(html,'revision'),payload.revision);assert.deepEqual(fs.readFileSync(catalog),before);
+   payload.name='Layout account';response=await request(url,{method:'POST',body:new URLSearchParams({...payload,csrf_token:'forged'})});assert.equal(response.status,403);await response.arrayBuffer();assert.deepEqual(fs.readFileSync(catalog),before);
+   response=await request(url,{method:'POST',body:new URLSearchParams(payload)});assert.equal(response.status,303);await response.arrayBuffer();const account=Object.values(JSON.parse(fs.readFileSync(catalog)).users).find(user=>user.username===payload.username);assert.equal(account.name,payload.name);assert.equal(account.group,payload.group);assert.equal(account.status,payload.status);
+   html=await(await request(url+'&id='+account.id)).text();response=await request(url+'&id='+account.id,{method:'POST',body:new URLSearchParams({...payload,id:account.id,revision:field(html,'revision'),name:'Updated layout account'})});assert.equal(response.status,303);await response.arrayBuffer();assert.equal(JSON.parse(fs.readFileSync(catalog)).users[account.id].name,'Updated layout account');
+   const saved=fs.readFileSync(catalog);response=await request(url+'&id='+account.id,{method:'POST',body:new URLSearchParams({...payload,id:account.id})});assert.equal(response.status,409);await response.arrayBuffer();assert.deepEqual(fs.readFileSync(catalog),saved);assert.equal(fs.existsSync(path.join(c.temporary,'synthetic-mail.txt')),false);assert.doesNotMatch(c.logs(),/PHP (?:Warning|Fatal|Parse)/);
+  }finally{await c.close();}
+ });
  test(`${path.basename(application)}: access group cards keep Back read-only and submit details and permissions together`,async()=>{
   const c=await usersServer(application);try{
    const info=inspect(c,prelude+String.raw`$r=$initialize();echo json_encode(['recovery'=>$r['recovery'][0]]);`),request=client(c);await authenticate(request,info);
@@ -40,7 +63,7 @@ for(const application of applications){
  test(`${path.basename(application)}: Users dropdown, private policy, audit and pending restoration enforce CSRF/CAS/capabilities`,async()=>{
   const c=await usersServer(application);try{
    const info=initialize(c),request=client(c);await authenticate(request,info);const catalog=path.join(c.env.DBLESS_CMS_STORAGE_ROOT,'users/catalog.json'),before=fs.readFileSync(catalog);
-   let html=await(await request('/cms-admin/?view=users&screen=settings')).text();const menu=html.match(/data-core-menu="users"[\s\S]*?<div class="sidebar-submenu">([\s\S]*?)<\/div><\/details>/)?.[1];assert.ok(menu);assert.deepEqual([...menu.matchAll(/screen=([^"&]+)"/g)].map(match=>match[1]),['users','user-edit','groups','history','settings','presentation','trash']);assert.equal((menu.match(/<hr>/g)||[]).length,4);
+   let html=await(await request('/cms-admin/?view=users&screen=settings')).text();const menu=html.match(/data-core-menu="users"[\s\S]*?<div class="sidebar-submenu">([\s\S]*?)<\/div><\/details>/)?.[1];assert.ok(menu);assert.deepEqual([...menu.matchAll(/screen=([^"&]+)"/g)].map(match=>match[1]),['users','groups','history','settings','presentation','trash']);assert.equal((menu.match(/<hr>/g)||[]).length,4);
    assert.ok(html.indexOf('class="dashboard-link"')<html.indexOf('data-core-menu="users"'));assert.equal(Object.keys(values(html)).length,11);
    for(const screen of ['users','user-edit','groups','history','settings','presentation','trash']){const response=await request('/cms-admin/?view=users&screen='+screen);assert.equal(response.status,200,screen);const body=await response.text();for(const secret of [password,info.seed,...Object.values(JSON.parse(before).users).map(user=>user.passwordHash).filter(Boolean)])assert.ok(!body.includes(secret),'Workspace excludes credential bytes: '+screen);}
    assert.deepEqual(fs.readFileSync(catalog),before,'All workspace GETs leave catalog bytes unchanged');assert.equal(fs.existsSync(path.join(c.temporary,'synthetic-mail.txt')),false);
@@ -57,7 +80,7 @@ for(const application of applications){
    const own=await(await reader('/cms-admin/?view=users&screen=profile')).text(),readerMenu=own.match(/data-core-menu="users"[\s\S]*?<div class="sidebar-submenu">([\s\S]*?)<\/div><\/details>/)?.[1];assert.ok(readerMenu);assert.doesNotMatch(readerMenu,/screen=(?:users|user-edit|groups|settings|history|trash)/);assert.match(readerMenu,/screen=presentation/);
    const protectedBytes=fs.readFileSync(catalog);for(const action of ['users-policy-save','users-user-restore']){response=await reader('/cms-admin/?view=users&screen=profile',{method:'POST',body:new URLSearchParams({action,csrf_token:field(own,'csrf_token'),revision,...policy,id:info.reader,group:'administrator'})});assert.equal(response.status,403,action);await response.arrayBuffer();}assert.deepEqual(fs.readFileSync(catalog),protectedBytes);
    const anonymous=client(c),forgot=await(await anonymous('/cms-admin/?view=forgot')).text();response=await anonymous('/cms-admin/?view=forgot',{method:'POST',body:new URLSearchParams({action:'users-forgot',csrf_token:field(forgot,'csrf_token'),email:'owner@example.invalid'})});assert.equal(response.status,303);await response.arrayBuffer();assert.match(fs.readFileSync(path.join(c.temporary,'synthetic-mail.txt'),'utf8'),/within 5 minutes/);
-   const siteFile=path.join(c.contents,'site.json'),site=JSON.parse(fs.readFileSync(siteFile));site.settings.adminLocale='pt-br';fs.writeFileSync(siteFile,JSON.stringify(site));html=await(await request(url)).text();assert.match(html,/<h2>Configurações<\/h2>/);assert.match(html,/Tempo de vida da senha/);html=await(await request('/cms-admin/?view=users&screen=presentation')).text();assert.match(html,/Lixeira e restauração/);assert.doesNotMatch(c.logs(),/PHP (?:Warning|Fatal|Parse)/);
+   const siteFile=path.join(c.contents,'site.json'),site=JSON.parse(fs.readFileSync(siteFile));site.settings.adminLocale='pt-br';fs.writeFileSync(siteFile,JSON.stringify(site));html=await(await request(url)).text();assert.match(html,/<h2>Configurações<\/h2>/);assert.match(html,/Tempo de vida da senha/);const portugueseMenu=html.match(/data-core-menu="users"[\s\S]*?<div class="sidebar-submenu">([\s\S]*?)<\/div><\/details>/)?.[1];assert.ok(portugueseMenu);assert.doesNotMatch(portugueseMenu,/screen=user-edit|Novo usuário/);html=await(await request('/cms-admin/?view=users&screen=users')).text();assert.match(html,/screen=user-edit[^>]*>Novo usuário<\/a>/);html=await(await request('/cms-admin/?view=users&screen=presentation')).text();assert.match(html,/Lixeira e restauração/);assert.doesNotMatch(c.logs(),/PHP (?:Warning|Fatal|Parse)/);
   }finally{await c.close();}
  });
  test(`${path.basename(application)}: configured origin login quota cannot be bypassed by untrusted proxy headers`,async()=>{

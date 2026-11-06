@@ -8,11 +8,18 @@ Core [email delivery settings](mail.md) support PHP mail() or authenticated SMTP
 
 ## Workspace and navigation
 
+New/Edit user uses separate identity and account-access cards. The full name spans
+the identity card; username/email and access group/status use responsive columns.
+A final card aligns Back and Save changes to the logical end. Back opens Users
+Overview without saving, including when required fields are empty. All cards
+share one POST form with the existing CSRF and catalog-revision checks.
+
 The Core sidebar uses the same native dropdown, separators and visual components
-as Posts, fixed below Dashboard: Overview, New user, Access groups; History;
+as Posts, fixed below Dashboard: Overview, Access groups; History;
 Settings; Presentation; Trash. Links follow account capabilities and each route
 and mutation also checks authorization on the server. My profile remains in the
-account menu. Presentation is a localized, read-only operational guide.
+account menu. New user remains available from Overview. Presentation is a
+localized, read-only operational guide.
 
 Overview and access-group catalogs use the shared searchable, sortable, paginated
 Core tables. History projects the latest 500 audit entries with UTC date, actor,
@@ -286,6 +293,9 @@ privilege escalation and cross-account object access. `tests/browser/users.mjs`
 uses actual forms, independent libzbar QR decoding, synthetic captured mail,
 optional MFA controls, supported locales, keyboard, mobile and synthetic RTL.
 The independent decoder requires local Python/Pillow/libzbar for QA only.
+For account-form-only changes, `DBLESS_CMS_USERS_ACCOUNTS_ONLY=1 npm run test:browser:users`
+checks creation/editing, localized desktop/mobile/RTL geometry and keyboard Back
+to Overview without saving.
 For group-form-only changes, `DBLESS_CMS_USERS_GROUPS_ONLY=1 npm run test:browser:users`
 uses a synthetic enrolled owner and checks the three cards, create/edit/save,
 Back without writes, keyboard, both locales, mobile and RTL. This focused mode

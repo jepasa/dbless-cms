@@ -121,7 +121,7 @@ final class UsersAdmin {
    */
   public function navigation(): array {
     $items=[];$manage=Access::allows($this->config,'users.manage');$groups=Access::allows($this->config,'groups.manage');$system=Access::allows($this->config,'system.manage');
-    foreach([['users','overview',$manage],['user-edit','new_user',$manage],['groups','groups',$groups],null,['history','history',$manage],null,['settings','settings',$system],null,['presentation','presentation',true],null,['trash','trash',$manage]] as $item){
+    foreach([['users','overview',$manage],['groups','groups',$groups],null,['history','history',$manage],null,['settings','settings',$system],null,['presentation','presentation',true],null,['trash','trash',$manage]] as $item){
       if($item===null){if($items!==[]&&!isset($items[array_key_last($items)]['separator']))$items[]=['separator'=>true];}
       elseif($item[2])$items[]=['screen'=>$item[0],'label'=>$this->t($item[1]),'url'=>$this->url($item[0])];
     }
@@ -250,13 +250,22 @@ final class UsersAdmin {
     $html.='</tbody></table></div>'.$table->footer();if($groups)$html.='<p class="muted">'.e($this->t('group_count',['count'=>count($data['groups']),'limit'=>20])).'</p>';else $html.='<form method="post" id="users-bulk" class="catalog-toolbar">'.$this->hidden('users-send-reset').'<button class="button-secondary" type="submit">'.e($this->t('send_selected')).'</button></form>';return $html.'</section>';
   }
 
-  /** Render account creation/editing without a password field or any factor-reset shortcut. */
+  /**
+   * Render identity, access and action cards in a single protected account form.
+   * @param array $data Validated private Users catalog; credentials are never included in form fields.
+   * @param string $revision Current catalog revision, retained after rejected submissions for CAS.
+   * @return string Escaped creation/edit form; Back opens the overview without saving or validating fields.
+   * @throws HttpError When the requested account identifier is invalid, deleted or unavailable.
+   */
   private function userForm(array $data,string $revision): string {
     $id=$_GET['id']??'';if(!is_string($id)||($id!==''&&(!isset($data['users'][$id])||$data['users'][$id]['status']==='deleted')))throw new HttpError(404,'User not found.','users.error.invalid');$row=$data['users'][$id]??['username'=>'','name'=>'','email'=>'','group'=>isset($data['groups']['contributor'])?'contributor':'','status'=>'pending'];if(($_POST['action']??'')==='users-user-save'&&is_string($_POST['revision']??null))$revision=$_POST['revision'];
     if(($_POST['action']??'')==='users-user-save')foreach(['username'=>100,'name'=>160,'email'=>254,'group'=>48,'status'=>16] as $key=>$maximum){$value=$_POST[$key]??null;if(is_string($value)&&strlen($value)<=$maximum&&preg_match('//u',$value)===1)$row[$key]=$value;}
-    $html='<section class="panel"><h2>'.e($this->t($id===''?'new_user':'edit_user')).'</h2><p>'.e($this->t('invite_help')).'</p><form method="post" class="stack">'.$this->hidden('users-user-save',$revision).'<input type="hidden" name="id" value="'.e($id).'">';
-    foreach(['username'=>100,'name'=>160,'email'=>254] as $key=>$maximum)$html.='<label>'.e($this->t($key)).'<input name="'.$key.'" type="'.($key==='email'?'email':'text').'" maxlength="'.$maximum.'" value="'.e($row[$key]).'" required></label>';
-    $html.='<label>'.e($this->t('group')).'<select name="group" aria-label="'.e($this->t('group')).'" required><option value="" '.($row['group']===''?'selected':'').' disabled>'.e($this->t('choose_group')).'</option>';foreach($data['groups'] as $group)$html.='<option value="'.e($group['id']).'" '.($row['group']===$group['id']?'selected':'').'>'.e($this->groupName($group)).'</option>';$html.='</select></label><label>'.e($this->t('status')).'<select name="status" aria-label="'.e($this->t('status')).'">';foreach(['pending','active','blocked'] as $status)$html.='<option value="'.$status.'" '.($row['status']===$status?'selected':'').'>'.e($this->t('state.'.$status)).'</option>';return $html.'</select></label><button class="button-primary" type="submit">'.e($this->t('save')).'</button></form></section>';
+    // One form preserves CSRF/CAS across the cards; Back is navigation independent of browser validation.
+    $html='<form method="post" class="users-account-form">'.$this->hidden('users-user-save',$revision).'<input type="hidden" name="id" value="'.e($id).'"><section class="panel"><h2>'.e($this->t($id===''?'new_user':'edit_user')).'</h2><p>'.e($this->t('invite_help')).'</p><div class="field-grid">';
+    foreach(['name'=>160,'username'=>100,'email'=>254] as $key=>$maximum)$html.='<label'.($key==='name'?' class="wide"':'').'>'.e($this->t($key)).'<input name="'.$key.'" type="'.($key==='email'?'email':'text').'" maxlength="'.$maximum.'" value="'.e($row[$key]).'" required></label>';
+    $html.='</div></section><section class="panel"><h2>'.e($this->t('access_settings')).'</h2><div class="field-grid">';
+    $html.='<label>'.e($this->t('group')).'<select name="group" aria-label="'.e($this->t('group')).'" required><option value="" '.($row['group']===''?'selected':'').' disabled>'.e($this->t('choose_group')).'</option>';foreach($data['groups'] as $group)$html.='<option value="'.e($group['id']).'" '.($row['group']===$group['id']?'selected':'').'>'.e($this->groupName($group)).'</option>';$html.='</select></label><label>'.e($this->t('status')).'<select name="status" aria-label="'.e($this->t('status')).'">';foreach(['pending','active','blocked'] as $status)$html.='<option value="'.$status.'" '.($row['status']===$status?'selected':'').'>'.e($this->t('state.'.$status)).'</option>';
+    return $html.'</select></label></div></section><div class="panel"><div class="row-actions"><a class="button-secondary" href="'.e($this->url('users')).'">'.e($this->t('back_users')).'</a><button class="button-primary" type="submit">'.e($this->t('save')).'</button></div></div></form>';
   }
 
   /**
